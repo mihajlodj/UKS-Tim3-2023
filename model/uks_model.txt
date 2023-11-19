@@ -1,0 +1,128 @@
+@startuml
+class Project {
+name: String
+access_modifier: AccessModifiers 
+}
+
+enum AccessModifiers {
+Private
+Public
+}
+
+class Branch {
+name: String
+}
+
+class Commit {
+hash: String
+}
+
+class Developer {
+name: String
+email: EMail
+id: Integer
+}
+
+Project "*" -- "*" Developer : works_on
+Project "*" -- "*" Developer : watches
+Project "*" -- "*" Developer : stars
+Project "*" -- "*" Developer : fork
+Project "1" -- "1" Branch : default_branch
+Project "1" -- "*" Branch : branches
+
+class Issue {
+id: Integer
+title: String
+description: String
+}
+
+Issue "*" -- "1" Developer : manager
+
+class Task {
+id: Integer
+title: String
+}
+
+Issue *-- "*" Task: contains
+Task "*" -- "1" Developer : solves
+
+class Milestone {
+deadline: Date
+}
+
+Project *-- "*" Milestone
+Milestone *-- "*" Issue
+
+class Comment {
+content: String
+}
+Comment "0..1" *-- "*" Comment : parent
+
+
+class Tag {
+name: String
+time: DateTime
+}
+
+class Reaction {
+code: String
+}
+
+Developer "1" *-- "*" Reaction
+Comment "1" *-- "*" Reaction
+
+Tag "*" -- "1" Commit
+Developer -- Commit : author
+Developer -- Commit : Commiter
+Commit "1..*" -- "1..*" Branch : belongs_to
+
+abstract class Event {
+time: DateTime
+}
+
+class Assignment {
+
+}
+Assignment --|> Event
+Developer "*"-- "1" Assignment : assigned
+
+class ContentChanged {
+new_content: String
+}
+
+ContentChanged --|> Event
+ContentChanged "*"-- "1" Developer : changer
+
+Developer *-- "*" Event : caused
+Comment --|> Event
+Tag --|> Event
+Event "*" --* Issue
+Milestone *-- "*" Event
+PullRequest *-- "*" Event
+
+class WorksOn {
+role: Role
+}
+
+enum Role {
+Admin
+Unregistered
+Reporter
+Developer
+Maintainer
+Owner
+IsBanned
+}
+
+WorksOn -- Developer
+WorksOn -- Project
+class PullRequest {
+}
+
+PullRequest --> Branch : source
+PullRequest --> Branch : target
+Project *-- "*" PullRequest
+PullRequest "*" -- "1" Developer : author
+PullRequest "*" -- "1..*" Developer : reviewer
+Branch "*" --> "1" Branch : source
+@enduml
