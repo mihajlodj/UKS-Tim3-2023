@@ -18,6 +18,16 @@ class Role(models.TextChoices):
     IS_BANNED = 'IsBanned', 'IsBanned'
 
 
+class Event(models.Model):
+    time = models.DateTimeField(default=timezone.now)
+    caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
+    issue = models.ForeignKey('main.Issue', related_name='events', on_delete=models.CASCADE)
+    milestone = models.ForeignKey('main.Milestone', related_name='events', on_delete=models.CASCADE)
+
+    # class Meta:
+    #     abstract = True
+
+
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
@@ -26,18 +36,8 @@ class Developer(models.Model):
                                    blank=True)
 
 
-class Event(models.Model):
-    time = models.DateTimeField(default=timezone.now)
-    caused_by = models.ForeignKey(Developer, related_name='caused_events', on_delete=models.CASCADE)
-    issue = models.ForeignKey('Issue', related_name='events', on_delete=models.CASCADE)
-    milestone = models.ForeignKey('Milestone', related_name='events', on_delete=models.CASCADE)
-
-    class Meta:
-        abstract = True
-
-
-class Assignment(models.Model, Event):
-    pass
+class Assignment(models.Model):
+    event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
 class Task(models.Model):
@@ -69,9 +69,10 @@ class Branch(models.Model):
     source = models.ForeignKey('self', related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
 
-class Tag(models.Model, Event):
+class Tag(models.Model):
     name = models.CharField(max_length=255)
     time = models.DateTimeField(default=timezone.now)
+    event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
 class Commit(models.Model):
@@ -87,9 +88,10 @@ class Milestone(models.Model):
     project = models.ForeignKey(Project, related_name='milestones', on_delete=models.CASCADE)
 
 
-class Comment(models.Model, Event):
+class Comment(models.Model):
     content = models.TextField()
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE)
+    event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
 class Reaction(models.Model):
@@ -98,9 +100,10 @@ class Reaction(models.Model):
     comment = models.ForeignKey(Comment, related_name='reactions', on_delete=models.CASCADE)
 
 
-class ContentChanged(models.Model, Event):
+class ContentChanged(models.Model):
     new_content = models.TextField()
     changer = models.ForeignKey(Developer, on_delete=models.CASCADE, related_name='changer')
+    event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
 class WorksOn(models.Model):
