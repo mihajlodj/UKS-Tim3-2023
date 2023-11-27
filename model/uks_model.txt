@@ -23,7 +23,6 @@ email: EMail
 id: Integer
 }
 
-Project "*" -- "*" Developer : works_on
 Project "*" -- "*" Developer : watches
 Project "*" -- "*" Developer : stars
 Project "*" -- "*" Developer : fork
@@ -61,7 +60,6 @@ Comment "0..1" *-- "*" Comment : parent
 
 class Tag {
 name: String
-time: DateTime
 }
 
 class Reaction {
@@ -71,12 +69,12 @@ code: String
 Developer "1" *-- "*" Reaction
 Comment "1" *-- "*" Reaction
 
-Tag "*" -- "1" Commit
+Tag "*" -- "*" Commit
 Developer -- Commit : author
 Developer -- Commit : Commiter
 Commit "1..*" -- "1..*" Branch : belongs_to
 
-abstract class Event {
+class Event {
 time: DateTime
 }
 
@@ -84,7 +82,7 @@ class Assignment {
 
 }
 Assignment --|> Event
-Developer "*"-- "1" Assignment : assigned
+Assignment "*" -- "1"  Developer: developer
 
 class ContentChanged {
 new_content: String
@@ -124,5 +122,5 @@ PullRequest --> Branch : target
 Project *-- "*" PullRequest
 PullRequest "*" -- "1" Developer : author
 PullRequest "*" -- "1..*" Developer : reviewer
-Branch "*" --> "1" Branch : source
+Branch "*" --> "1" Branch : parent
 @enduml

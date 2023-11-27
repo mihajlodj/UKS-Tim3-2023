@@ -20,24 +20,23 @@ class Role(models.TextChoices):
 
 class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
-    # caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
-    # issue = models.ForeignKey('main.Issue', related_name='events', on_delete=models.CASCADE)
-    # milestone = models.ForeignKey('main.Milestone', related_name='events', on_delete=models.CASCADE)
-
-    class Meta:
-        abstract = True
+    caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
+    issue = models.ForeignKey('main.Issue', related_name='issue_events', on_delete=models.CASCADE, null=True)
+    milestone = models.ForeignKey('main.Milestone', related_name='milestone_events', on_delete=models.CASCADE, null=True)
+    pull_request = models.ForeignKey('main.PullRequest', related_name='pull_request_events', on_delete=models.CASCADE,
+                                  null=True)
 
 
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     email = models.EmailField()
-    assignment = models.ForeignKey('Assignment', related_name='developers', on_delete=models.SET_NULL, null=True,
-                                   blank=True)
+    # assignment = models.ForeignKey('Assignment', related_name='developers', on_delete=models.SET_NULL, null=True,
+    #                                blank=True)
 
 
 class Assignment(Event):
-    pass
+    developer = models.ForeignKey('Developer', related_name='assignments', on_delete=models.DO_NOTHING)
     # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
@@ -50,7 +49,7 @@ class Task(models.Model):
 class Issue(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.SET_NULL, null=True,
+    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True,
                                 blank=True)
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE)
 
@@ -59,20 +58,18 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices,
                                        default=AccessModifiers.PUBLIC)
-    developers = models.ManyToManyField(Developer, through='WorksOn')
+    default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE,
+                                                     null=True, blank=True)
 
 
 class Branch(models.Model):
     name = models.CharField(max_length=255)
     project = models.ForeignKey(Project, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
-    default_branch_of_project = models.OneToOneField(Project, related_name='default_branch', on_delete=models.CASCADE,
-                                                     null=True, blank=True)
-    source = models.ForeignKey('self', related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey('self', related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Tag(Event):
     name = models.CharField(max_length=255)
-    time = models.DateTimeField(default=timezone.now)
     # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
@@ -80,7 +77,7 @@ class Commit(models.Model):
     hash = models.CharField(max_length=255)
     author = models.ForeignKey(Developer, related_name='authored_commits', on_delete=models.CASCADE)
     committer = models.ForeignKey(Developer, related_name='committed_commits', on_delete=models.CASCADE)
-    branch = models.ForeignKey(Branch, related_name='commits', on_delete=models.CASCADE)
+    branch = models.ForeignKey(Branch, related_name='belongs_to', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, related_name='commits')
 
 
@@ -132,5 +129,5 @@ class PullRequest(models.Model):
     source = models.ForeignKey(Branch, related_name='pull_requests_source', on_delete=models.CASCADE)
     target = models.ForeignKey(Branch, related_name='pull_requests_target', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    author = models.ForeignKey(Developer, related_name='pull_requests_author', on_delete=models.CASCADE)
+    author = models.OneToOneField(Developer, related_name='pull_requests_author',on_delete=models.DO_NOTHING)
     reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers')
