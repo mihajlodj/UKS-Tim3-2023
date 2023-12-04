@@ -52,10 +52,13 @@
 
                                     <div class="mt-4 mb-3 d-flex flex-column">
                                         <button type="button" class="btn btn-lg text-center" id="btn-register"
-                                            @click="submit">REGISTER</button>
+                                            @click="submit">REGISTER
+                                        </button>
                                     </div>
-                                    <p class="text-center text-muted mt-4 mb-3 light"><span class="light me-2">Already have
-                                            an account?</span>
+                                    <p class="text-center text-muted mt-4 mb-3 light">
+                                        <span class="light me-2">
+                                            Already have an account?
+                                        </span>
                                         <a href='/' class="fw-bold text-body"><u class="light">Login here</u></a>
                                     </p>
                                 </form>
@@ -98,13 +101,15 @@ export default {
     methods: {
         submit() {
             this.validate();
-             /* eslint-disable */
+            /* eslint-disable */
             if (Object.values(this.validation).every(value => value === true)) {
                 AuthService.register({
                     first_name: this.name, last_name: this.surname,
                     username: this.username, email: this.email, password: this.password
-                }).then(_result => {
-                    this.$router.push('/');
+                }).then(result => {
+                    localStorage.setItem("email", result.data.email);
+                    localStorage.setItem("username", result.data.username);
+                    this.$router.push('/account_verification');
                 }).catch(_err => {
                     toast("User already registered!", {
                         autoClose: 1000,
@@ -167,7 +172,6 @@ export default {
 
 #btn-register {
     border: 1px solid #76829c;
-    ;
 }
 
 #title,

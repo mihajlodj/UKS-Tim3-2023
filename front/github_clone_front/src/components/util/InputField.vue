@@ -2,7 +2,7 @@
     <div :class="`form-floating mt-${mt} mb-${mb}`">
         <input :id="id" :type="type" class="form-control form-control-lg" :placeholder="placeholder" :name="name"
             v-model="val" @input="update" :value="value" :min="min" />
-        <label :for="id" class="form-label fw-bold text-dark">{{ placeholder }}</label>
+        <label :for="id" class="form-label fw-bold" style="color: #0c162d">{{ placeholder }}</label>
     </div>
 </template>
 

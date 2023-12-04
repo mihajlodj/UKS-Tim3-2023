@@ -22,8 +22,6 @@ def confirm_registration(request):
     code = request.data.get('code').strip()
     try:
         registration_candidate = RegistrationCandidate.objects.get(user__username=username)
-        print(registration_candidate.code)
-        print(code)
         if registration_candidate.code == code:
             dev = Developer.objects.create(user=registration_candidate.user)
             dev.save()

@@ -4,4 +4,8 @@ const register = (registrationData) => {
     return api.post("auth/register/", registrationData);
 }
 
-export default { register };
+const verifyCode = (verificationData) => {
+    return api.post("auth/register-confirm/", verificationData);
+}
+
+export default { register, verifyCode };
