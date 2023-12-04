@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class AccessModifiers(models.TextChoices):
@@ -131,3 +132,4 @@ class PullRequest(models.Model):
 class RegistrationCandidate(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(default=timezone.now, blank=True)

@@ -5,7 +5,7 @@ from .serializers import RegistrationSerializer
 from rest_framework.permissions import AllowAny
 from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.models import User
 
 
@@ -16,11 +16,14 @@ class RegisterView(generics.CreateAPIView):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def confirm_registration(request):
     username = request.data.get('username')
-    code = request.data.get('code')
+    code = request.data.get('code').strip()
     try:
         registration_candidate = RegistrationCandidate.objects.get(user__username=username)
+        print(registration_candidate.code)
+        print(code)
         if registration_candidate.code == code:
             dev = Developer.objects.create(user=registration_candidate.user)
             dev.save()
