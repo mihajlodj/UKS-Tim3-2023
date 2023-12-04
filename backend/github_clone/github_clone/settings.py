@@ -127,6 +127,17 @@ EMAIL_HOST_USER = 'projekatisa365@gmail.com'
 EMAIL_HOST_PASSWORD = 'qiyaqfzueciqvlpq'
 
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
