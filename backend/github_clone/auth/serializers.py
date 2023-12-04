@@ -41,14 +41,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
             last_name=validated_data['last_name']
         )
         user.set_password(validated_data['password'])
-
+        print(user.id)
         registration_candidate = RegistrationCandidate.objects.create(
             user=user,
             code=''.join(random.choice(string.digits) for _ in range(6))
         )
         registration_candidate.save()
-        thr = threading.Thread(target=send_email, args=([registration_candidate]), kwargs={})
-        thr.start()
+        threading.Thread(target=send_email, args=([registration_candidate]), kwargs={}).start()
         return user
 
 
