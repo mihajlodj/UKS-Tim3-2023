@@ -6,4 +6,4 @@ class MainConfig(AppConfig):
     name = 'main'
     def ready(self):
         from scheduler import scheduler
-        scheduler.start()
+        # scheduler.start()

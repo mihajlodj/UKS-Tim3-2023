@@ -1,5 +1,3 @@
-from django.shortcuts import render
-
 from main.models import RegistrationCandidate, Developer
 from .serializers import RegistrationSerializer
 from rest_framework.permissions import AllowAny
@@ -25,7 +23,9 @@ def confirm_registration(request):
         if registration_candidate.code == code:
             dev = Developer.objects.create(user=registration_candidate.user)
             dev.save()
+            user = registration_candidate.user
             registration_candidate.delete()
+            user.delete()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Incorrect registration code.'}, status=status.HTTP_404_NOT_FOUND)

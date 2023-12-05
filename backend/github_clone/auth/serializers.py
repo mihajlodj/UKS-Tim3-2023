@@ -49,14 +49,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
             created_at=timezone.now()
         )
         registration_candidate.save()
-        threading.Thread(target=send_email, args=([registration_candidate]), kwargs={}).start()
+        threading.Thread(target=self.send_email, args=([registration_candidate]), kwargs={}).start()
         return user
 
 
-def send_email(registration_candidate):
-    subject = 'Confirm your registration to Github Clone'
-    html_message = render_to_string('verification_code_email.html', {'code': registration_candidate.code, 'name': registration_candidate.user.first_name})
-    plain_message = strip_tags(html_message)
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [registration_candidate.user.email,]
-    send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
+    def send_email(self, registration_candidate):
+        subject = 'Confirm your registration to Github Clone'
+        html_message = render_to_string('verification_code_email.html', {'code': registration_candidate.code, 'name': registration_candidate.user.first_name})
+        plain_message = strip_tags(html_message)
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [registration_candidate.user.email,]
+        send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
