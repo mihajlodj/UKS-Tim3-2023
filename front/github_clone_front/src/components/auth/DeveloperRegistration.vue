@@ -110,12 +110,21 @@ export default {
                     localStorage.setItem("email", result.data.email);
                     localStorage.setItem("username", result.data.username);
                     this.$router.push('/account_verification');
-                }).catch(_err => {
-                    toast("User already registered!", {
-                        autoClose: 1000,
-                        type: 'error',
-                        position: toast.POSITION.BOTTOM_RIGHT
-                    });
+                }).catch(err => {
+                    console.log(err)
+                    if (err.response.data.hasOwnProperty('password')) {
+                        toast("Password must contain at least 8 characters!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT
+                        });
+                    } else {
+                        toast("User already registered!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT
+                        });
+                    }
                 });
             }
         },
