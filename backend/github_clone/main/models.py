@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class AccessModifiers(models.TextChoices):
@@ -29,11 +30,6 @@ class Event(models.Model):
 
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    # assignment = models.ForeignKey('Assignment', related_name='developers', on_delete=models.SET_NULL, null=True,
-    #                                blank=True)
-
 
 class Assignment(Event):
     developer = models.ForeignKey('Developer', related_name='assignments', on_delete=models.DO_NOTHING)
@@ -131,3 +127,9 @@ class PullRequest(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     author = models.OneToOneField(Developer, related_name='pull_requests_author',on_delete=models.DO_NOTHING)
     reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers')
+
+
+class RegistrationCandidate(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(default=timezone.now, blank=True)
