@@ -221,7 +221,7 @@ def test_confirm_registration_success():
     }
     response = client.post(url, payload)
     assert response.status_code == status.HTTP_200_OK
-    assert User.objects.count() == 0
+    assert User.objects.count() == 1
     assert RegistrationCandidate.objects.count() == 0
 
 
