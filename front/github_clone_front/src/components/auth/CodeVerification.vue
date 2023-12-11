@@ -1,5 +1,6 @@
 <template>
     <div class="bg is-fullheight min-vh-100 d-flex align-items-center justify-content-center">
+        <img alt="Logo" src="../../assets/logo_dark.png" id="logo-img" class="mt-2 ms-2">
         <div class="card shadow-2-strong card-registration w-50" style="border-radius: 15px; background: #0c162d;">
             <div class="card-body p-4 p-md-5">
                 <h4 class="d-flex justify-content-start title">You're almost done!</h4>
@@ -77,7 +78,7 @@ export default {
 
 </script>
 
-<style>
+<style scoped>
 .bg {
     background-image: linear-gradient(45deg, #042a66, #4d204c);
     background-size: cover;
@@ -106,5 +107,12 @@ export default {
     background: #76829c;
     color: #0c162d;
     border: 1px solid #0c162d;
+}
+
+img {
+    width: 35px;
+    position: fixed;
+    top: 0;
+    left: 0;
 }
 </style>

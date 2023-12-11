@@ -1,73 +1,64 @@
 <template>
-    <div>
-        <section class="h-100 bg-custom">
-            <div class="container py-5 h-100">
-                <div class="row justify-content-center align-items-center h-100">
-                    <div class="col-12 col-lg-9 col-xl-7">
-                        <div class="card shadow-2-strong card-registration"
-                            style="border-radius: 15px; background: #0c162d">
-                            <div class="card-body p-4 p-md-5">
-                                <h3 class="d-flex justify-content-center pb-4" id="title">Welcome to GitHub Clone!</h3>
-                                <form>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <InputField id="name-input" type="text" placeholder="Name" name="name"
-                                                :value="name" @update="updateName" />
-                                            <p v-if="!validation.name" class="text-danger ms-1">Name must not be empty</p>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <InputField id="surname-input" type="text" placeholder="Surname" name="surname"
-                                                :value="surname" @update="updateSurname" />
-                                            <p v-if="!validation.surname" class="text-danger ms-1">Surname must not be empty
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-12 mb-2 pb-2">
-                                            <InputField id="email-input" type="email" placeholder="Email" name="email"
-                                                class="w-100" :value="email" @update="updateEmail" />
-                                            <p v-if="!validation.email" class="text-danger ms-1">Email must not be empty</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-12 mb-2 pb-2">
-                                            <InputField id="username-input" type="text" placeholder="Username"
-                                                name="username" class="w-100" :value="username" @update="updateUsername" />
-                                            <p v-if="!validation.username" class="text-danger ms-1">Username must not be
-                                                empty</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-12 mb-2 pb-2">
-                                            <InputField id="password-input" type="password" placeholder="Password"
-                                                name="password" class="w-100" :value="password" @update="updatePassword" />
-                                            <p v-if="!validation.password" class="text-danger ms-1">
-                                                Password must not be empty
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-4 mb-3 d-flex flex-column">
-                                        <button type="button" class="btn btn-lg text-center" id="btn-register"
-                                            @click="submit">REGISTER
-                                        </button>
-                                    </div>
-                                    <p class="text-center text-muted mt-4 mb-3 light">
-                                        <span class="light me-2">
-                                            Already have an account?
-                                        </span>
-                                        <a href='/' class="fw-bold text-body"><u class="light">Login here</u></a>
-                                    </p>
-                                </form>
-                            </div>
+    <div class="bg is-fullheight min-vh-100 d-flex align-items-center justify-content-center">
+        <img alt="Logo" src="../../assets/logo_dark.png" id="logo-img" class="mt-2 ms-2">
+        <div class="card shadow-2-strong card-registration" style="border-radius: 15px; background: #0c162d">
+            <div class="card-body px-5 py-4">
+                <h3 class="d-flex justify-content-center pb-4" id="title">Welcome to GitHub Clone!</h3>
+                <form>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <InputField id="name-input" type="text" placeholder="Name" name="name" :value="name"
+                                @update="updateName" />
+                            <p v-if="!validation.name" class="text-danger ms-1">Name must not be empty</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <InputField id="surname-input" type="text" placeholder="Surname" name="surname" :value="surname"
+                                @update="updateSurname" />
+                            <p v-if="!validation.surname" class="text-danger ms-1">Surname must not be empty
+                            </p>
                         </div>
                     </div>
-                </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-2 pb-2">
+                            <InputField id="email-input" type="email" placeholder="Email" name="email" class="w-100"
+                                :value="email" @update="updateEmail" />
+                            <p v-if="!validation.email" class="text-danger ms-1">Email must not be empty</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-2 pb-2">
+                            <InputField id="username-input" type="text" placeholder="Username" name="username" class="w-100"
+                                :value="username" @update="updateUsername" />
+                            <p v-if="!validation.username" class="text-danger ms-1">Username must not be
+                                empty</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-2 pb-2">
+                            <InputField id="password-input" type="password" placeholder="Password" name="password"
+                                class="w-100" :value="password" @update="updatePassword" />
+                            <p v-if="!validation.password" class="text-danger ms-1">
+                                Password must not be empty
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-3 d-flex flex-column">
+                        <button type="button" class="btn btn-lg text-center" id="btn-register" @click="submit">SIGN UP
+                        </button>
+                    </div>
+                    <p class="text-center text-muted mt-4 mb-3 light">
+                        <span class="light me-2">
+                            Already have an account?
+                        </span>
+                        <a href='/' class="fw-bold text-body"><u class="light">Sign in here</u></a>
+                    </p>
+                </form>
             </div>
-        </section>
+        </div>
     </div>
 </template>
 
@@ -111,7 +102,6 @@ export default {
                     localStorage.setItem("username", result.data.username);
                     this.$router.push('/account_verification');
                 }).catch(err => {
-                    console.log(err)
                     if (err.response.data.hasOwnProperty('password')) {
                         toast("Password must contain at least 8 characters!", {
                             autoClose: 1000,
@@ -167,11 +157,16 @@ export default {
 
 </script>
 
-<style>
-.bg-custom {
+<style scoped>
+.bg {
     background-image: linear-gradient(45deg, #042a66, #4d204c);
-    height: 100%;
-    min-height: 100vh;
+    background-size: cover;
+    height: fit-content;
+    opacity: 1;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    overflow: visible;
 }
 
 .card,
@@ -194,4 +189,12 @@ export default {
     border: 1px solid #0c162d;
     background: #76829c;
 }
+
+img {
+    width: 35px;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
 </style>
