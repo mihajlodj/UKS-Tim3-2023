@@ -2,6 +2,7 @@ from django.utils import timezone
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.password_validation import validate_password
 from django.conf import settings
 from django.core.mail import send_mail
@@ -10,8 +11,18 @@ from django.utils.html import strip_tags
 import random
 import string
 import threading
-
 from main.models import RegistrationCandidate
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
+        token['username'] = user.username
+        token['email'] = user.email
+        return token
+    
 
 class RegistrationSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
@@ -39,7 +50,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             email=validated_data['email'],
             first_name=validated_data['first_name'],
-            last_name=validated_data['last_name']
+            last_name=validated_data['last_name'],
+            is_active=False
         )
         user.set_password(validated_data['password'])
         user.save()
