@@ -32,6 +32,8 @@ DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
+GITEA_BASE_URL = os.environ.get("GITEA_BASE_URL")
+GITEA_ACCESS_TOKEN = os.environ.get("GITEA_ACCESS_TOKEN")
 
 # Application definition
 
@@ -129,11 +131,11 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "http://localhost:3001",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
+    'http://localhost:3001',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
