@@ -32,7 +32,6 @@ def confirm_registration(request):
             registration_candidate.user.save()
             dev = Developer.objects.create(user=registration_candidate.user)
             dev.save()
-            registration_candidate.delete()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Incorrect registration code.'}, status=status.HTTP_404_NOT_FOUND)
