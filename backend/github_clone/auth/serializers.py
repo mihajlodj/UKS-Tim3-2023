@@ -12,6 +12,7 @@ import random
 import string
 import threading
 from main.models import RegistrationCandidate
+from main.gitea_service import save_user
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -62,8 +63,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
         registration_candidate.save()
         threading.Thread(target=self.send_email, args=([registration_candidate]), kwargs={}).start()
+        self.save_gitea_user(user, validated_data['password'])
         return user
-
 
     def send_email(self, registration_candidate):
         subject = 'Confirm your registration to Github Clone'
@@ -72,3 +73,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         email_from = settings.EMAIL_HOST_USER
         recipient_list = [registration_candidate.user.email,]
         send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
+
+    def save_gitea_user(self, user, password):
+        save_user({
+            'username': user.username,
+            'password': password,
+            'email': user.email,
+            'full_name': user.get_full_name()
+        })

@@ -11,3 +11,11 @@ def save_user(user_data):
         'Authorization': f'Bearer {access_token}',
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=user_data)
+
+def delete_user(username):
+    api_endpoint = f'/api/v1/admin/users/{username}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)

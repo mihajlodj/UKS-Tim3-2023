@@ -3,12 +3,14 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore, register_events
 from django.utils import timezone
 from main.models import RegistrationCandidate
+from main.gitea_service import delete_user
 
 
 def remove_registration_candidates():
     expiration_time = timezone.now() - timedelta(minutes=30)
     expired_candidates = RegistrationCandidate.objects.filter(created_at__lt=expiration_time)
     for candidate in expired_candidates:
+        delete_user(candidate.user.username)
         candidate.user.delete()
         candidate.delete()
 
