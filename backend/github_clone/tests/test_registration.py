@@ -19,6 +19,13 @@ def disable_send_email(monkeypatch):
     monkeypatch.setattr(RegistrationSerializer, 'send_email', mock_send_email)
     yield
 
+@pytest.fixture(autouse=True)
+def disable_save_gitea_user(monkeypatch):
+    def mock_save_gitea_user(*args, **kwargs):
+        pass
+    monkeypatch.setattr(RegistrationSerializer, 'save_gitea_user', mock_save_gitea_user)
+    yield
+
 
 @pytest.mark.django_db
 def test_register_candidate_success():
