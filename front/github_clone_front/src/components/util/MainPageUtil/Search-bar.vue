@@ -3,12 +3,14 @@
     <button @click="openPopup" id="id-open-popup"><i class="bi bi-search"></i></button>
     <div v-if="isPopupOpen" class="popup-overlay" @click="closePopup">
       <div class="popup" @click.stop>
-        <input v-model="searchQuery" type="text" placeholder="Search...">
-        <!-- Your popup content goes here -->
-        <div>
-          <!-- Popup content goes here -->
+        <div class="search-bar-popup">
+            &#160;<i class="bi bi-search"></i>
+            <input v-model="searchQuery" type="text" id="id-search-input">
         </div>
-        <button @click="closePopup">Close Popup</button>
+        <!-- Your popup content goes here -->
+        <div class="popup-content">
+          
+        </div>
       </div>
     </div>
   </div>
@@ -42,6 +44,21 @@ export default {
     color: white;
 }
 
+#id-search-input {
+    background: none;
+    border: none;
+    width: 96%;
+    outline: none;
+    color: white;
+    margin-left: 10px;
+}
+
+.search-bar-popup{
+    border: 3px solid rgb(9, 67, 193);
+    border-radius: 5px;
+    padding: 5px;
+}
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -55,11 +72,13 @@ export default {
 }
 
 .popup {
-  background: white;
+  background: #24292e;
   padding: 20px;
   border-radius: 8px;
-  width: 100%; /* Stretch across the entire width */
-  max-width: 400px;
+  width: 100%;
+  margin-inline-end: 5.5rem;
+  margin-inline-start: 5.5rem;
+  margin-top: 0.5rem;
 }
 
 /* Add your styles for the search bar and other popup content here */
