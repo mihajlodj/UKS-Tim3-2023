@@ -5,6 +5,7 @@ import DeveloperRegistration from './components/auth/DeveloperRegistration.vue'
 import CodeVerification from './components/auth/CodeVerification.vue'
 import LoginPage from './components/auth/LoginPage.vue'
 import CreateRepo from './components/repository/CreateRepo.vue'
+import ViewRepo from './components/repository/ViewRepo.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -38,6 +39,10 @@ const routes = [
     {
         path: "/new",
         component: CreateRepo
+    },
+    {
+        path: "/view/:username/:repoName",
+        component: ViewRepo
     }
 ]
 

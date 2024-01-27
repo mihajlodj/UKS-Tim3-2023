@@ -4,4 +4,8 @@ const create = (repoData) => {
     return api.post("repository/", repoData);
 }
 
-export default { create };
+const get = (username, repoName) => {
+    return api.get(`repository/${username}/${repoName}`);
+}
+
+export default { create, get };

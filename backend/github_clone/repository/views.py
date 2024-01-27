@@ -17,7 +17,10 @@ class ReadRepositoryView(generics.RetrieveAPIView):
     serializer_class = RepositorySerializer
 
     def get_object(self):
-        owner_username = self.request.data.get('owner_username')
-        repository_name = self.request.data.get('repository_name')
+        owner_username = self.kwargs.get('owner_username')
+        repository_name = self.kwargs.get('repository_name')
+        print(owner_username)
+        print(repository_name)
         works_on = WorksOn.objects.get(role='Owner', developer__user__username=owner_username, project__name=repository_name)
+        # TODO: permissions
         return works_on.project
