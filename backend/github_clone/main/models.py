@@ -45,17 +45,15 @@ class Task(models.Model):
 class Issue(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True,
-                                blank=True)
+    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True, blank=True)
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE)
 
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
-    access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices,
-                                       default=AccessModifiers.PUBLIC)
-    default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE,
-                                                     null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
+    default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Branch(models.Model):
