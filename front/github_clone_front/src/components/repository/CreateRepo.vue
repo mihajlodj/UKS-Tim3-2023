@@ -7,19 +7,28 @@
             <h6><i>Required fields are marked with an asterisk (*)</i></h6>
             <hr>
 
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column mb-3">
                 <label class="bold mb-2">Repository name *</label>
-                <input type="text" class="mb-3 repo-name" />
+                <input type="text" class="repo-name" v-model="name" @input="validate" />
+                <div class="d-flex justify-content-start">
+                    <font-awesome-icon v-if="!isValidName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
+                    <label v-if="!isValidName" class="w-50 warn">Name must not be empty and can only contain alphanumerics, dashes ( - ) and underscores ( _ )</label>
+                </div>
             </div>
 
             <div class="d-flex flex-column">
-                <label class="bold mb-2">Description <span>(optional)</span></label>
-                <input type="text" class="w-100" />
+                <label class="bold mb-2">Dafault branch name <span class="sub smaller">(optional)</span></label>
+                <input type="text" class="w-50 mb-3" v-model="defaultBranchName" />
+            </div>
+
+            <div class="d-flex flex-column">
+                <label class="bold mb-2">Description <span class="sub smaller">(optional)</span></label>
+                <input type="text" class="w-100" v-model="description" />
             </div>
 
             <hr>
             <div class="d-flex justify-content-start">
-                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="public-radio" checked>
+                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="public-radio" @input="publicChecked" checked>
                 <font-awesome-icon icon="fa-solid fa-book-bookmark" class="ms-4 me-3 mt-2" />
                 <div class="d-flex flex-column">
                     <span class="bold">Public</span>
@@ -27,7 +36,7 @@
                 </div>
             </div>
             <div class="d-flex justify-content-start mt-3">
-                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="private-radio">
+                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="private-radio" @input="privateChecked">
                 <font-awesome-icon icon="fa-solid fa-lock" class="ms-4 me-3 mt-2" />
                 <div class="d-flex flex-column">
                     <span class="bold">Private</span>
@@ -38,18 +47,63 @@
             <hr>
             <div class="d-flex justify-content-start">
                 <font-awesome-icon icon="fa-solid fa-circle-info" class="me-2" style="margin-top: 6px; color: #7a8188" />
-                <p class="sub">You are creating a private repository in your personal account.</p>
+                <p class="sub">You are creating a {{ modifier }} repository in your personal account.</p>
             </div>
 
             <hr>
             <div class="d-flex justify-content-end">
-                <button class="btn">Create repository</button>
+                <button class="btn" @click="submit">Create repository</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+
+export default {
+    name: 'CreateRepo',
+
+    data() {
+        return {
+            name: '',
+            description: '',
+            isPublic: true,
+            defaultBranchName: '',
+            isValidName: true
+        }
+    },
+
+    methods: {
+        publicChecked() {
+            this.isPublic = true;
+        },
+
+        privateChecked() {
+            this.isPublic = false;
+        },
+
+        validate() {
+            const regexPattern = /^[a-zA-Z][\w-]*$/;
+            this.isValidName = (this.name !== "" && regexPattern.test(this.name));
+        },
+
+        submit() {
+            this.validate();
+            if (this.isValidName) {
+                console.log(this.name);
+                console.log(this.defaultBranchName);
+                console.log(this.description);
+                console.log(this.modifier);
+            }
+        },
+    },
+
+    computed: {
+        modifier() {
+            return this.isPublic ? 'public' : 'private';
+        }
+    }
+}
 
 </script>
 
@@ -88,7 +142,20 @@ h3 {
     color: #656e77;
 }
 
-.fa-book-bookmark, .fa-lock {
+.fa-book-bookmark,
+.fa-lock {
     height: 25px;
+}
+
+.warn {
+    font-size: smaller;
+    color: #d32d36;
+    font-weight: 600;
+    max-width: 350px;
+}
+
+.fa-triangle-exclamation {
+    color: #d32d36;
+    height: 15px;
 }
 </style>

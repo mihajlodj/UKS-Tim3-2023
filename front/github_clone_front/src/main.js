@@ -14,11 +14,13 @@ import { faAngleRight } from '@fortawesome/free-solid-svg-icons'
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
 library.add(faBookBookmark);
 library.add(faLock);
+library.add(faTriangleExclamation);
 
 const routes = [
     {
