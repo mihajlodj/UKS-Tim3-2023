@@ -1,6 +1,8 @@
 <template>
   <div class="navbar">
-    <button class="toggle-menu-button" @click="toggleMenu">Toggle Menu</button>
+    <button class="toggle-menu-button"  @click="toggleMenu">
+      <i class="bi bi-list"></i>
+    </button>
     <span>GitHub</span>
     <input type="text" placeholder="Search repositories...">
     <div class="user-profile">
