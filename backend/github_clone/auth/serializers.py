@@ -79,5 +79,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'username': user.username,
             'password': password,
             'email': user.email,
-            'full_name': user.get_full_name()
+            'full_name': user.get_full_name(),
+            'must_change_password': False
         })

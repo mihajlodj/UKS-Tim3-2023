@@ -8,4 +8,8 @@ const get = (username, repoName) => {
     return api.get(`repository/${username}/${repoName}`);
 }
 
-export default { create, get };
+const getOwner = (username) => {
+    return api.get(`repository/owner/${username}`);
+}
+
+export default { create, get, getOwner };

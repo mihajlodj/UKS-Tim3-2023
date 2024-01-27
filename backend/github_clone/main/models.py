@@ -30,6 +30,8 @@ class Event(models.Model):
 
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    gitea_token = models.CharField(max_length=255, null=True, blank=True)
+    avatar = models.CharField(max_length=1000, null=True, blank=True)
 
 class Assignment(Event):
     developer = models.ForeignKey('Developer', related_name='assignments', on_delete=models.DO_NOTHING)

@@ -16,12 +16,24 @@ import { faCircleInfo } from '@fortawesome/free-solid-svg-icons'
 import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
+import { faCode } from '@fortawesome/free-solid-svg-icons'
+import { faCodePullRequest } from '@fortawesome/free-solid-svg-icons'
+import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
+import { faGear, faCodeFork } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faStar } from '@fortawesome/free-regular-svg-icons'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
 library.add(faBookBookmark);
 library.add(faLock);
 library.add(faTriangleExclamation);
+library.add(faCode);
+library.add(faCodePullRequest);
+library.add(faCircleDot);
+library.add(faGear);
+library.add(faEye);
+library.add(faCodeFork);
+library.add(faStar);
 
 const routes = [
     {

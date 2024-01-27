@@ -4,6 +4,7 @@ from rest_framework.validators import UniqueValidator
 from django.core.validators import RegexValidator
 from main.gitea_service import create_repository
 from main.models import Project, AccessModifiers, Branch, WorksOn, Developer
+from django.contrib.auth.models import User
 
 
 class RepositorySerializer(serializers.Serializer):
@@ -41,3 +42,16 @@ class RepositorySerializer(serializers.Serializer):
             'private': private
         }, username)
     
+    
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'password', 'email', 'first_name', 'last_name')
+
+
+class DeveloperSerializer(serializers.ModelSerializer):
+    user = UserSerializer(many=False)
+
+    class Meta:
+        model = Developer
+        fields = ('user', 'gitea_token', 'avatar')
