@@ -1,12 +1,28 @@
 <template>
   <div class="navbar">
-    <button class="toggle-menu-button"  @click="toggleMenu">
-      <i class="bi bi-list"></i>
-    </button>
-    <span>GitHub</span>
-    <input type="text" placeholder="Search repositories...">
-    <div class="user-profile">
-      <img :src="user.avatar_url" alt="User Avatar">
+    <div>
+      <div id="id-toggle-menu">
+        <button class="toggle-menu-button" @click="toggleMenu">
+          <i class="bi bi-list" />
+        </button>
+      </div>
+      <div id="id-git-logo">
+        <a href="/">
+          <img alt="Logo" src="../../../.. /../assets/logo_dark.png" class="logo-image-main">
+        </a>
+      </div>
+      <div id="id-dashboard">
+        <button class="dashboard-menu-button" @click="toggleMenu">
+          Dashboard
+        </button>
+      </div>
+    </div>
+    <div>
+      <span>GitHub</span>
+      <input type="text" placeholder="Search repositories..." class="repo-search-bar">
+      <div class="user-profile">
+        <img :src="user.avatar_url" alt="User Avatar">
+      </div>
     </div>
     <transition name="fade">
       <div v-if="isMenuOpen" class="backdrop" @click="closeMenu"></div>
@@ -42,14 +58,25 @@ export default {
 </script>
 
 <style scoped>
+#id-toggle-menu {
+  margin-inline-start: 1rem;
+  float:left;
+}
+#id-git-logo {
+  float: left;
+  margin-top: -0.1rem;
+  margin-inline-start: 0.7rem;
+}
+#id-dashboard{
+  margin-inline-start: 0.5rem;
+  float:left;
+}
+
 .navbar {
   position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   background-color: #24292e;
   color: #ffffff;
-  padding: 10px 20px;
 }
 
 .toggle-menu-button {
@@ -58,20 +85,32 @@ export default {
   border-radius: 5px;
   color: #cacaca;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .toggle-menu-button:hover{
   border-color:white;
+}
 
+.dashboard-menu-button{
+  background: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  color: #cacaca;
+}
+
+.dashboard-menu-button:hover{
+  background: #cacaca37;
 }
 
 .navbar span {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
 }
 
-input {
+.repo-search-bar {
   padding: 8px;
   font-size: 16px;
   border: none;
@@ -94,5 +133,10 @@ input {
 
 .fade-enter, .fade-leave-to {
   opacity: 0;
+}
+
+.logo-image-main {
+  max-height: 1.7rem;
+  max-width: 100%;
 }
 </style>
