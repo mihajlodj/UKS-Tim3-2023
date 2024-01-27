@@ -18,9 +18,10 @@
       </div>
     </div>
     <div>
-      <span>GitHub</span>
-      <input type="text" placeholder="Search repositories..." class="repo-search-bar">
-      <div class="user-profile">
+      <div id="id-search-bar">
+        <search-bar></search-bar>
+      </div>
+      <div id="id-user-profile">
         <img :src="user.avatar_url" alt="User Avatar">
       </div>
     </div>
@@ -32,11 +33,14 @@
 </template>
 
 <script>
+import SearchBar from './Search-bar.vue';
 import SlideMenu from './SlideMenu.vue';
+
 
 export default {
   components: {
-    SlideMenu
+    SlideMenu,
+    SearchBar
   },
   props: {
     user: Object,
@@ -70,6 +74,12 @@ export default {
 #id-dashboard{
   margin-inline-start: 0.5rem;
   float:left;
+}
+#id-search-bar{
+  float: left;
+}
+#id-user-profile{
+  float: left;
 }
 
 .navbar {
