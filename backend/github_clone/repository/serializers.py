@@ -1,4 +1,4 @@
-import re
+import threading
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import RegexValidator
@@ -23,7 +23,7 @@ class RepositorySerializer(serializers.Serializer):
         project.default_branch = default_branch
         project.save()
         username = self.context['request'].auth.get('username', None)
-        self.gitea_create(project, branch_name, username)
+        threading.Thread(target=self.gitea_create, args=([project, branch_name, username]), kwargs={}).start()
         return project
 
     def gitea_create(self, project, branch_name, username):

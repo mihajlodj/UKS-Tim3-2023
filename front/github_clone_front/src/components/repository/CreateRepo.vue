@@ -12,7 +12,8 @@
                 <input type="text" class="repo-name" v-model="name" @input="validate" />
                 <div class="d-flex justify-content-start">
                     <font-awesome-icon v-if="!isValidName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
-                    <label v-if="!isValidName" class="w-50 warn">Name must not be empty and can only contain alphanumerics, dashes ( - ) and underscores ( _ )</label>
+                    <label v-if="!isValidName" class="w-50 warn">Name must not be empty and can only contain alphanumerics,
+                        dashes ( - ) and underscores ( _ )</label>
                 </div>
             </div>
 
@@ -28,7 +29,8 @@
 
             <hr>
             <div class="d-flex justify-content-start">
-                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="public-radio" @input="publicChecked" checked>
+                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="public-radio"
+                    @input="publicChecked" checked>
                 <font-awesome-icon icon="fa-solid fa-book-bookmark" class="ms-4 me-3 mt-2" />
                 <div class="d-flex flex-column">
                     <span class="bold">Public</span>
@@ -36,7 +38,8 @@
                 </div>
             </div>
             <div class="d-flex justify-content-start mt-3">
-                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="private-radio" @input="privateChecked">
+                <input class="form-check-input mt-3" type="radio" name="access-modifier" id="private-radio"
+                    @input="privateChecked">
                 <font-awesome-icon icon="fa-solid fa-lock" class="ms-4 me-3 mt-2" />
                 <div class="d-flex flex-column">
                     <span class="bold">Private</span>
@@ -59,6 +62,8 @@
 </template>
 
 <script>
+import RepositoryService from '@/services/RepositoryService';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'CreateRepo',
@@ -89,13 +94,50 @@ export default {
 
         submit() {
             this.validate();
+            /* eslint-disable */
             if (this.isValidName) {
                 console.log(this.name);
                 console.log(this.defaultBranchName);
                 console.log(this.description);
-                console.log(this.modifier);
+                const mod = this.isPublic ? 'Public' : 'Private';
+                console.log(mod);
+                RepositoryService.create({
+                    name: this.name,
+                    description: this.description,
+                    default_branch_name: this.defaultBranchName,
+                    access_modifier: mod
+                }).then(_res => {
+                    this.resetFields();
+                    toast("Repository created!", {
+                        autoClose: 1000,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT
+                    });
+                }).catch(err => {
+                    console.log(err.response.data.name[0]);
+                    if (err.response.data.name[0] === "This field must be unique.") {
+                        toast("Repository name already exists!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT
+                        });
+                    } else {
+                        toast("Something went wrong!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT
+                        });
+                    }
+                })
             }
         },
+
+        resetFields() {
+            this.name = '';
+            this.defaultBranchName = '';
+            this.description = '';
+            this.isValidName = true;
+        }
     },
 
     computed: {
@@ -112,6 +154,11 @@ button {
     background-color: #20883d;
     color: white;
     font-size: large;
+}
+
+button:hover {
+    background-color: #20883d;
+    color: white;
 }
 
 .container {
