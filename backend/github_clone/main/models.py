@@ -99,7 +99,7 @@ class ContentChanged(Event):
 
 
 class WorksOn(models.Model):
-    role = models.CharField(max_length=20, choices=AccessModifiers.choices)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
