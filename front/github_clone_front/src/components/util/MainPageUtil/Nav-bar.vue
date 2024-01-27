@@ -12,19 +12,24 @@
         </a>
       </div>
       <div id="id-dashboard">
-        <button class="dashboard-menu-button" @click="toggleMenu">
+        <button class="dashboard-menu-button">
           Dashboard
         </button>
       </div>
     </div>
-    <div>
-      <div id="id-search-bar">
-        <search-bar></search-bar>
-      </div>
-      <div id="id-user-profile">
-        <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
-      </div>
+
+    <div id="id-search-bar">
+      <search-bar></search-bar>
     </div>
+    <div class="right-btns-navbar">
+      <button class="notification_button"><i class="bi bi-inbox"></i></button>
+      <button class="notification_button"><i class="bi bi-bezier2"></i></button>
+      <button class="notification_button"><i class="bi bi-record-circle"></i></button>
+    </div>
+    <div id="id-user-profile">
+      <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+    </div>
+   
     <transition name="fade">
       <div v-if="isMenuOpen" class="backdrop" @click="closeMenu"></div>
     </transition>
@@ -82,6 +87,9 @@ export default {
   margin-inline-start: 3rem;
   float: left;
 }
+.right-btns-navbar{
+  
+}
 
 .navbar {
   position: relative;
@@ -113,6 +121,21 @@ export default {
 }
 
 .dashboard-menu-button:hover{
+  background: #cacaca37;
+}
+
+.notification_button{
+  background: none;
+  border: 1px solid rgb(152, 152, 152);
+  border-radius: 5px;
+  color: #cacaca;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-right: 0.5rem;
+}
+
+.notification_button:hover{
+  border-color:white;
   background: #cacaca37;
 }
 
