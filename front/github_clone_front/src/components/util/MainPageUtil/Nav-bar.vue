@@ -22,7 +22,7 @@
         <search-bar></search-bar>
       </div>
       <div id="id-user-profile">
-        <img :src="user.avatar_url" alt="User Avatar">
+        <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
       </div>
     </div>
     <transition name="fade">
@@ -79,6 +79,7 @@ export default {
   float: left;
 }
 #id-user-profile{
+  margin-inline-start: 3rem;
   float: left;
 }
 
@@ -149,4 +150,11 @@ export default {
   max-height: 1.7rem;
   max-width: 100%;
 }
+
+.profile-picture-main{
+  max-height: 1.7rem;
+  max-width: 100%;
+  border-radius: 25px;
+}
+
 </style>
