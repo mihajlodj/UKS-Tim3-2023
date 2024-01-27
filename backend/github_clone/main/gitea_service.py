@@ -19,3 +19,12 @@ def delete_user(username):
         'Authorization': f'Bearer {access_token}',
     }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+
+def create_repository(repo_data, username):
+    api_endpoint = f'/api/v1/admin/users/{username}/repos'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=repo_data)
+
