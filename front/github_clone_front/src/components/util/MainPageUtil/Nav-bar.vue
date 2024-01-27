@@ -25,9 +25,15 @@
       <button class="notification_button"><i class="bi bi-inbox"></i></button>
       <button class="notification_button"><i class="bi bi-bezier2"></i></button>
       <button class="notification_button"><i class="bi bi-record-circle"></i></button>
-    </div>
-    <div id="id-user-profile">
-      <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+      <button class="profile_button">
+        <div style="">
+          <div class="profile-image-container">
+            <div style="margin-top:13px"> </div>
+              <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+            
+          </div>
+        </div>
+        </button>
     </div>
    
     <transition name="fade">
@@ -84,11 +90,11 @@ export default {
   float: left;
 }
 #id-user-profile{
-  margin-inline-start: 3rem;
+  margin-inline-end: 2rem;
   float: left;
 }
 .right-btns-navbar{
-  
+  margin-right: 1rem;
 }
 
 .navbar {
@@ -120,6 +126,13 @@ export default {
   color: #cacaca;
 }
 
+.profile-image-container {
+  display: flex;
+  align-items: center; 
+  justify-content: center;
+
+}
+
 .dashboard-menu-button:hover{
   background: #cacaca37;
 }
@@ -137,6 +150,16 @@ export default {
 .notification_button:hover{
   border-color:white;
   background: #cacaca37;
+}
+
+.profile_button{
+  background: none;
+  border: 1px solid rgba(152, 152, 152, 0);
+  border-radius: 5px;
+  color: #cacaca;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-right: 0.5rem;
 }
 
 .navbar span {
@@ -175,7 +198,7 @@ export default {
 }
 
 .profile-picture-main{
-  max-height: 1.7rem;
+  max-height: 1.6rem;
   max-width: 100%;
   border-radius: 25px;
 }
