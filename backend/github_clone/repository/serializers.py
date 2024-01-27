@@ -1,16 +1,18 @@
+import re
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from django.core.validators import RegexValidator
 from main.gitea_service import create_repository
 from main.models import Project, AccessModifiers, Branch
 
 
 class RepositorySerializer(serializers.Serializer):
     name = serializers.CharField(required=True, allow_blank=False, max_length=255, 
-                                 validators=[UniqueValidator(queryset=Project.objects.all())])
+                                 validators=[UniqueValidator(queryset=Project.objects.all()), 
+                                             RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid repository name", code="invalid_repo_name")])
     description = serializers.CharField(required=False, allow_blank=True)
     access_modifier = serializers.ChoiceField(choices=AccessModifiers, default='Public')
     default_branch_name = serializers.CharField(required=False, allow_blank=True, max_length=255)
-    # username = serializers.CharField(required=True, allow_blank=False)
 
     def create(self, validated_data):
         branch_name = 'main'
