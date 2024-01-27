@@ -54,10 +54,16 @@ export default {
 
 .toggle-menu-button {
   background: none;
-  border: none;
-  color: #ffffff;
+  border: 1px solid rgb(152, 152, 152);
+  border-radius: 5px;
+  color: #cacaca;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1.2rem;
+}
+
+.toggle-menu-button:hover{
+  border-color:white;
+
 }
 
 .navbar span {
