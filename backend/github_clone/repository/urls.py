@@ -6,4 +6,5 @@ urlpatterns = [
     path('owner/<str:username>/', ReadOwnerView.as_view(), name='read_owner'),
     path('<str:owner_username>/<str:repository_name>/', get_repo_data_for_display, name='read_repo'),
     path('content/<str:owner_username>/<str:repository_name>/<str:ref>/', get_root_files, name='get_root_files'),
+    path('folder/<str:owner_username>/<str:repository_name>/<path:path>/', get_folder_files, name='get_root_files'),
 ]

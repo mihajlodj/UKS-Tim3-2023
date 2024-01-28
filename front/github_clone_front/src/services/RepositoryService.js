@@ -16,4 +16,9 @@ const getRootContent = (username, repoName, refName) => {
     return api.get(`repository/content/${username}/${repoName}/${refName}/`);
 }
 
-export default { create, get, getOwner, getRootContent };
+const getFolderContent = (username, repoName, path) => {
+    return api.get(`repository/folder/${username}/${repoName}/${path}/`);
+}
+
+
+export default { create, get, getOwner, getRootContent, getFolderContent };

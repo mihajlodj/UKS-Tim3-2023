@@ -87,7 +87,8 @@
                             </li>
                         </ul>
                         <button type="button" class="btn btn-gray ms-2">
-                            <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{ branchesText }}
+                            <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{
+                                branchesText }}
                         </button>
                     </div>
 
@@ -121,7 +122,8 @@
                 </div>
 
                 <div>
-                    <RepoContent :refName="repo.chosenBranch" :key="contentKey"/>
+                    <RepoContent :refName="repo.chosenBranch" :key="contentKey" :displayRoot="repo.displayRoot"
+                        @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent" />
                 </div>
             </div>
 
@@ -155,10 +157,10 @@ export default {
             this.repo.accessModifier = res.data.access_modifier;
             this.repo.http = res.data.http;
             this.repo.ssh = res.data.ssh;
-            this.repo.defaultBranch = res.data.default_branch; 
-            this.repo.chosenBranch = res.data.default_branch; 
+            this.repo.defaultBranch = res.data.default_branch;
+            this.repo.chosenBranch = res.data.default_branch;
             for (let b of res.data.branches) {
-                this.repo.branches.push({'name': b});
+                this.repo.branches.push({ 'name': b });
             }
             console.log(this.repo.branches);
             this.forceRerender();
@@ -186,7 +188,9 @@ export default {
                 http: '',
                 ssh: '',
                 branches: [],
-                chosenBranch: ''
+                chosenBranch: '',
+                displayRoot: 'true',
+                foldersPath: ''
             },
 
             owner: {
@@ -216,6 +220,23 @@ export default {
 
         selectedBranchChanged(branchName) {
             this.repo.chosenBranch = branchName;
+            this.forceRerender();
+        },
+
+        folderClicked(data) {
+            this.repo.foldersPath = this.repo.foldersPath.concat(data["name"] + "/")
+            this.repo.displayRoot = "false";
+            this.forceRerender();
+        },
+
+        returnToParent() {
+            let folders = this.repo.foldersPath.split('/');
+            folders.splice(-2);
+            this.repo.foldersPath = folders.join('/') + '/';
+            console.log(this.repo.foldersPath);
+            if (this.repo.foldersPath === '/') {
+                this.repo.displayRoot = "true";
+            }
             this.forceRerender();
         }
     },

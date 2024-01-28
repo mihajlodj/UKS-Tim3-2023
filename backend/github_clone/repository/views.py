@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from main.models import Project, WorksOn, Developer, Branch
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
-from main.gitea_service import get_root_content, get_repository
+from main.gitea_service import get_root_content, get_repository, get_folder_content
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -54,3 +54,9 @@ def get_repo_data_for_display(_, owner_username, repository_name):
 @permission_classes([IsAuthenticated])
 def get_root_files(_, owner_username, repository_name, ref):
     return Response(get_root_content(owner_username, repository_name, ref), status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_folder_files(_, owner_username, repository_name, path):
+    return Response(get_folder_content(owner_username, repository_name, path), status=status.HTTP_200_OK)

@@ -63,6 +63,14 @@ def get_root_content(username, repository, ref):
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
 
+def get_folder_content(username, repository, path):
+    api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+
 def get_repository(owner, repository):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}'
     headers = {
