@@ -58,5 +58,5 @@ def get_root_files(_, owner_username, repository_name, ref):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_folder_files(_, owner_username, repository_name, path):
-    return Response(get_folder_content(owner_username, repository_name, path), status=status.HTTP_200_OK)
+def get_folder_files(_, owner_username, repository_name, branch, path):
+    return Response(get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)

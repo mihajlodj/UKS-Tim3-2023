@@ -123,7 +123,7 @@
 
                 <div>
                     <RepoContent :refName="repo.chosenBranch" :key="contentKey" :displayRoot="repo.displayRoot"
-                        @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent" />
+                        @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent" :branch="repo.chosenBranch" />
                 </div>
             </div>
 

@@ -63,8 +63,8 @@ def get_root_content(username, repository, ref):
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
 
-def get_folder_content(username, repository, path):
-    api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}'
+def get_folder_content(username, repository, branch, path):
+    api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
     headers = {
         'Accept': 'application/json',
         'Authorization': f'Bearer {access_token}',

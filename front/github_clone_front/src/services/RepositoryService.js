@@ -16,8 +16,8 @@ const getRootContent = (username, repoName, refName) => {
     return api.get(`repository/content/${username}/${repoName}/${refName}/`);
 }
 
-const getFolderContent = (username, repoName, path) => {
-    return api.get(`repository/folder/${username}/${repoName}/${path}/`);
+const getFolderContent = (username, repoName, branch, path) => {
+    return api.get(`repository/folder/${username}/${repoName}/${branch}/${path}/`);
 }
 
 

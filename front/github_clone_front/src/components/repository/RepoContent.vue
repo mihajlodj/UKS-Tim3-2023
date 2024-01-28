@@ -2,7 +2,7 @@
     <div>
         <table class="table mt-3">
             <tbody>
-                <tr v-if="displayRoot=='false'">
+                <tr v-if="displayRoot=='false' && content.length > 0">
                     <td>
                         <button type="button" class="btn" @click="returnToParent">
                             <div class="d-flex justify-content-start">
@@ -38,7 +38,7 @@ import RepositoryService from '@/services/RepositoryService';
 export default {
     name: "RepoContent",
 
-    props: ['avatar', 'refName', 'displayRoot', 'foldersPath'],
+    props: ['avatar', 'refName', 'displayRoot', 'foldersPath', 'branch'],
 
     mounted() {
         if (this.displayRoot === "true") {
@@ -53,7 +53,7 @@ export default {
                 console.log(err);
             });
         } else {
-            RepositoryService.getFolderContent(this.$route.params.username, this.$route.params.repoName, this.foldersPath.slice(0, -1)).then(res => {
+            RepositoryService.getFolderContent(this.$route.params.username, this.$route.params.repoName, this.branch, this.foldersPath.slice(0, -1)).then(res => {
                 console.log(res);
                 for (let obj of res.data) {
                     this.content.push({
