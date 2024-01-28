@@ -23,23 +23,21 @@
     </div>
 
     <div class="right-btns-navbar">
+      <div class="dropdown" :class="{ 'isDropdownOpen': isDropdownOpen }">
+        <button class="notification_button" @click="toggleDropdown">
+          <i class="bi bi-plus"></i>&nbsp;<i class="bi bi-arrow-down-short"></i>
+        </button>
+        <div class="dropdown-content" v-show="isDropdownOpen" @click.stop>
+          <a href="#"><i class="bi bi-journal-plus"></i> New repository</a>
+          <a href="#"><i class="bi bi-journal-arrow-up"></i> Import repository</a>
+          <a href="#"><i class="bi bi-pc-display-horizontal"></i> New codespace</a>
+          <a href="#"><i class="bi bi-code"></i>New gits</a>
+          <a href="#"><i class="bi bi-building-add"></i>New organization</a>
+        </div>
+      </div>
       <button class="notification_button"><i class="bi bi-inbox"></i></button>
       <button class="notification_button"><i class="bi bi-bezier2"></i></button>
       <button class="notification_button"><i class="bi bi-record-circle"></i></button>
-
-      <!-- Dropdown Button -->
-      <div class="dropdown" :class="{ 'isDropdownOpen': isDropdownOpen }">
-        <button class="notification_button" @click="toggleDropdown">
-          DropDown
-        </button>
-        <!-- Dropdown Content -->
-        <div class="dropdown-content" v-show="isDropdownOpen" @click.stop>
-          <!-- Add your dropdown menu items here -->
-          <a href="#">Dropdown Item 1</a>
-          <a href="#">Dropdown Item 2</a>
-          <a href="#">Dropdown Item 3</a>
-        </div>
-      </div>
 
       <button class="profile_button">
         <div style="">
@@ -53,6 +51,9 @@
 
     <transition name="fade">
       <div v-if="isMenuOpen" class="backdrop" @click="closeMenu"></div>
+    </transition>
+    <transition name="fadelight">
+      <div v-if="isDropdownOpen" class="backdropLight" @click="closeMenu"></div>
     </transition>
     <slide-menu :is-open="isMenuOpen" @close="closeMenu" />
   </div>
@@ -108,6 +109,7 @@ export default {
 }
 #id-search-bar{
   float: left;
+  z-index: 100;
 }
 #id-user-profile{
   margin-inline-end: 2rem;
@@ -140,6 +142,7 @@ export default {
 .dropdown {
   position: relative;
   display: inline-block;
+  z-index: 99;
 }
 
 .dashboard-menu-button{
@@ -209,6 +212,16 @@ export default {
   z-index: 99;
 }
 
+.backdropLight {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 98;
+}
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity 0.5s;
 }
@@ -231,14 +244,29 @@ export default {
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #f9f9f9;
+  background-color: #1e1e1e;
   min-width: 160px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  z-index: 1;
+  z-index: 100;
+  padding: 8px; 
+  margin-inline-start: -7rem;
+  border-radius: 7px;
 }
 
 .isDropdownOpen .dropdown-content {
   display: block;
 }
 
+.dropdown-content a {
+  display: block;
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+  text-decoration: none;
+  color: #ffffff;
+  transition: background-color 0.3s; 
+}
+
+.dropdown-content a:hover {
+  background-color: #2c2c2c;
+}
 </style>

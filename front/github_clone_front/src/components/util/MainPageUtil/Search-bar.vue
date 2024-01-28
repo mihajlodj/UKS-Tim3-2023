@@ -7,7 +7,6 @@
             &#160;<i class="bi bi-search"></i>
             <input v-model="searchQuery" type="text" id="id-search-input">
         </div>
-        <!-- Your popup content goes here -->
         <div class="popup-content">
           
         </div>
@@ -80,6 +79,4 @@ export default {
   margin-inline-start: 5.5rem;
   margin-top: 0.5rem;
 }
-
-/* Add your styles for the search bar and other popup content here */
 </style>
