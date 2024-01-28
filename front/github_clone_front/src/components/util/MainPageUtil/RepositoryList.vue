@@ -17,8 +17,8 @@ export default {
 
 <style scoped>
 .repository-list {
-  margin-top: 20px;
   background-color: #24292e;
+  border-top: 1px solid #929191;
   color: white;
 }
 

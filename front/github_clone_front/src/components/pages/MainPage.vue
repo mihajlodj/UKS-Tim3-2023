@@ -1,9 +1,9 @@
 <template>
   <div>
-    <NavBar :user="user" />
+    <nav-bar :user="user" />
     <div class="main-content">
       <div class="left-section">
-        <RepositoryList :repositories="repositories" />
+        <repository-list :repositories="repositories" />
       </div>
       <div class="middle-section">
         
@@ -39,8 +39,7 @@ export default {
 
 <style scoped>
 .main-content {
-  display: flex;
-  margin: 20px;
+  display: flex; 
 }
 
 .left-section {
@@ -49,9 +48,8 @@ export default {
 
 .middle-section {
   flex: 4;
-  background-color: #f0f0f0;
+  border-top: 1px solid #929191;
+  background-color:  #24292e;
   padding: 20px;
-  border-radius: 8px;
-  margin-left: 20px;
 }
 </style>
