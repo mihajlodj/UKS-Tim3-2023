@@ -21,21 +21,36 @@
     <div id="id-search-bar">
       <search-bar></search-bar>
     </div>
+
     <div class="right-btns-navbar">
       <button class="notification_button"><i class="bi bi-inbox"></i></button>
       <button class="notification_button"><i class="bi bi-bezier2"></i></button>
       <button class="notification_button"><i class="bi bi-record-circle"></i></button>
+
+      <!-- Dropdown Button -->
+      <div class="dropdown" :class="{ 'isDropdownOpen': isDropdownOpen }">
+        <button class="notification_button" @click="toggleDropdown">
+          DropDown
+        </button>
+        <!-- Dropdown Content -->
+        <div class="dropdown-content" v-show="isDropdownOpen" @click.stop>
+          <!-- Add your dropdown menu items here -->
+          <a href="#">Dropdown Item 1</a>
+          <a href="#">Dropdown Item 2</a>
+          <a href="#">Dropdown Item 3</a>
+        </div>
+      </div>
+
       <button class="profile_button">
         <div style="">
           <div class="profile-image-container">
             <div style="margin-top:13px"> </div>
-              <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
-            
+            <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
           </div>
         </div>
-        </button>
+      </button>
     </div>
-   
+
     <transition name="fade">
       <div v-if="isMenuOpen" class="backdrop" @click="closeMenu"></div>
     </transition>
@@ -46,7 +61,6 @@
 <script>
 import SearchBar from './Search-bar.vue';
 import SlideMenu from './SlideMenu.vue';
-
 
 export default {
   components: {
@@ -59,14 +73,20 @@ export default {
   data() {
     return {
       isMenuOpen: false,
+      isDropdownOpen: false,
     };
   },
   methods: {
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
+      this.isDropdownOpen = false;
     },
     closeMenu() {
       this.isMenuOpen = false;
+      this.isDropdownOpen = false;
+    },
+    toggleDropdown() {
+      this.isDropdownOpen = !this.isDropdownOpen;
     },
   },
 };
@@ -115,6 +135,11 @@ export default {
 
 .toggle-menu-button:hover{
   border-color:white;
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
 }
 
 .dashboard-menu-button{
@@ -201,6 +226,19 @@ export default {
   max-height: 1.6rem;
   max-width: 100%;
   border-radius: 25px;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.isDropdownOpen .dropdown-content {
+  display: block;
 }
 
 </style>
