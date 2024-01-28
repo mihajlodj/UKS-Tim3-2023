@@ -68,25 +68,63 @@
 
         <hr class="mx-4">
 
-        <div class="d-flex justify-content-start mx-3">
-            <div class="d-flex justify-content-between w-75">
-                <div class="d-flex justify-content-start">
-                    <button type="button" class="btn">
-                        main
-                    </button>
-                    <button type="button" class="btn">
-                        1 Branch
-                    </button>
+        <div class="d-flex justify-content-start mx-4">
+            <div class="w-75">
+                <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-start">
+                        <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch }}
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li class="mx-2">
+                                <input type="text" placeholder="Search branches" />
+                            </li>
+                            <li v-for="b in repo.branches" :key="b.name">
+                                <button class="btn dropdown-item" @click="selectedBranchChanged(b.name)">
+                                    {{ b.name }}
+                                </button>
+                            </li>
+                        </ul>
+                        <button type="button" class="btn btn-gray ms-2">
+                            <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{ branchesText }}
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+
+                        <button class="btn nav-link dropdown-toggle btn-gray me-2" type="button" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Add file
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li>
+                                <button class="btn dropdown-item">
+                                    <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
+                                </button>
+                            </li>
+                            <li>
+                                <button class="btn dropdown-item">
+                                    <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
+                                </button>
+                            </li>
+                        </ul>
+
+
+                        <button type="button" :class="(httpChosen) ? 'btn btn-chosen' : 'btn'"
+                            @click="setHttpChosen">HTTP</button>
+                        <button type="button" :class="(!httpChosen) ? 'btn btn-chosen me-2' : 'btn me-2'"
+                            @click="setSshChosen">SSH</button>
+                        <input v-if="httpChosen" type="text" readonly v-model="repo.http" />
+                        <input v-else type="text" readonly v-model="repo.ssh" />
+                    </div>
                 </div>
 
-                <div class="d-flex justify-content-end">
-                    <button type="button" class="btn">Add file</button>
-                    <button type="button" :class = "(httpChosen)?'btn btn-chosen':'btn'" @click="setHttpChosen">HTTP</button>
-                    <button type="button" :class = "(!httpChosen)?'btn btn-chosen me-2':'btn me-2'" @click="setSshChosen">SSH</button>
-                    <input v-if="httpChosen" type="text" readonly v-model="repo.http" />
-                    <input v-else type="text" readonly v-model="repo.ssh" />
+                <div>
+                    <RepoContent :refName="repo.chosenBranch" :key="contentKey"/>
                 </div>
             </div>
+
 
             <div class="w-25 ms-4">
                 <div class="d-flex flex-column">
@@ -101,15 +139,29 @@
 <script>
 
 import RepositoryService from '@/services/RepositoryService';
+import RepoContent from '@/components/repository/RepoContent.vue'
 
 export default {
     name: 'ViewRepo',
+
+    components: {
+        RepoContent
+    },
 
     mounted() {
         RepositoryService.get(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.repo.name = res.data.name;
             this.repo.description = res.data.description;
             this.repo.accessModifier = res.data.access_modifier;
+            this.repo.http = res.data.http;
+            this.repo.ssh = res.data.ssh;
+            this.repo.defaultBranch = res.data.default_branch; 
+            this.repo.chosenBranch = res.data.default_branch; 
+            for (let b of res.data.branches) {
+                this.repo.branches.push({'name': b});
+            }
+            console.log(this.repo.branches);
+            this.forceRerender();
         }).catch(err => {
             console.log(err);
         });
@@ -130,9 +182,11 @@ export default {
                 name: '',
                 description: '',
                 accessModifier: '',
-                default_branch: '',
-                http: 'http://localhost:3000',
-                ssh: 'ssh-something'
+                defaultBranch: '',
+                http: '',
+                ssh: '',
+                branches: [],
+                chosenBranch: ''
             },
 
             owner: {
@@ -142,7 +196,8 @@ export default {
                 email: ''
             },
 
-            httpChosen: true
+            httpChosen: true,
+            contentKey: 1
         }
     },
 
@@ -153,6 +208,25 @@ export default {
 
         setSshChosen() {
             this.httpChosen = false;
+        },
+
+        forceRerender() {
+            this.contentKey += 1;
+        },
+
+        selectedBranchChanged(branchName) {
+            this.repo.chosenBranch = branchName;
+            this.forceRerender();
+        }
+    },
+
+    computed: {
+        numBranches() {
+            return this.repo.branches.length;
+        },
+
+        branchesText() {
+            return this.repo.branches.length > 1 ? "Branches" : "Branch";
         }
     }
 }
@@ -217,5 +291,20 @@ input {
 
 .btn-chosen:hover {
     border-bottom: 2px solid #fe8c72;
+}
+
+.btn-gray,
+.btn-gray:hover {
+    border: 1px solid #d6d9dd;
+    background-color: #f7f8fa;
+    color: #353636;
+    height: 37px;
+    min-width: 120px;
+    max-width: 200px;
+    margin-top: 10px;
+}
+
+.search {
+    height: 35px;
 }
 </style>

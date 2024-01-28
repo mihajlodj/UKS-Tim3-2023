@@ -55,3 +55,18 @@ def create_repository(repo_data, username):
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=repo_data)
 
+def get_root_content(username, repository, ref):
+    api_endpoint = f'/api/v1/repos/{username}/{repository}/contents?ref={ref}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+
+def get_repository(owner, repository):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
