@@ -1,8 +1,28 @@
 <template>
   <div class="slide-profile-menu" :class="{ 'slide-in': isProfileOpen }">
-    <a href="#">Menu Item 1</a>
-    <a href="#">Menu Item 2</a>
-    <a href="#">Menu Item 3</a>
+    <div class="basic-info">
+      <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+      &nbsp;
+      <label>SimicAleksa</label>
+    </div>
+    <a href="#"><i class="bi bi-emoji-smile"></i>&nbsp;&nbsp;Set status</a>
+    <a href="#"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
+    <a href="#"><i class="bi bi-person-plus"></i>&nbsp;&nbsp;Add account</a>
+    <a href="#"><i class="bi bi-journal-bookmark"></i>&nbsp;&nbsp;Your repositories</a>
+    <a href="#"><i class="bi bi-file-bar-graph"></i>&nbsp;&nbsp;Your projects</a>
+    <a href="#"><i class="bi bi-buildings"></i>&nbsp;&nbsp;Your organizations</a>
+    <a href="#"><i class="bi bi-globe"></i>&nbsp;&nbsp;Your enterprises</a>
+    <a href="#"><i class="bi bi-star"></i>&nbsp;&nbsp;Your stars</a>
+    <a href="#"><i class="bi bi-heart"></i>&nbsp;&nbsp;Your sponsors</a>
+    <a href="#"><i class="bi bi-file-code"></i>&nbsp;&nbsp;Your gits</a>
+    <a href="#"><i class="bi bi-upload"></i>&nbsp;&nbsp;Upgrade</a>
+    <a href="#"><i class="bi bi-globe2"></i>&nbsp;&nbsp;Try Enterprise</a>
+    <a href="#"><i class="bi bi-robot"></i>&nbsp;&nbsp;Copilot</a>
+    <a href="#"><font-awesome-icon icon="fa-solid fa-flask"/>&nbsp;&nbsp;Feature preview</a>
+    <a href="#"><i class="bi bi-gear"></i>&nbsp;&nbsp;Settings</a>
+    <a href="#"><i class="bi bi-book"></i>&nbsp;&nbsp;GitHub Docs</a>
+    <a href="#"><i class="bi bi-people"></i>&nbsp;&nbsp;GitHub Support</a>
+    <a href="#">Sign out</a>
   </div>
 </template>
 
@@ -15,6 +35,17 @@ export default {
 </script>
 
 <style scoped>
+.profile-picture-main{
+  max-height: 1.6rem;
+  max-width: 100%;
+  border-radius: 25px;
+}
+
+.basic-info{
+  padding-bottom: 1rem;
+  padding-top: 0.5rem;
+}
+
 .slide-profile-menu {
   display: flex;
   flex-direction: column;
@@ -25,7 +56,8 @@ export default {
   width: 250px;
   background-color: #333;
   border-radius: 10px;
-  padding: 20px;
+  padding-inline-start: 1rem;
+  padding-top: 0.5rem;
   transition: left 0.4s ease-in-out;
   z-index: 100;
 }
@@ -33,11 +65,17 @@ export default {
 .slide-profile-menu a {
   color: #fff;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 10px;
   margin-bottom: 15px;
 }
 
 .slide-in {
   right: 0;
+}
+
+.profile-picture-main{
+  max-height: 1.6rem;
+  max-width: 100%;
+  border-radius: 25px;
 }
 </style>

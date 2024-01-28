@@ -13,8 +13,10 @@ import 'vue3-toastify/dist/index.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons'
+import { faFlask } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faAngleRight);
+library.add(faFlask);
 
 const routes = [
     {

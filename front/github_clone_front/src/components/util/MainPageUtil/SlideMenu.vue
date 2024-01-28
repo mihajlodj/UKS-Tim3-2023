@@ -1,8 +1,21 @@
 <template>
   <div class="slide-menu" :class="{ 'slide-in': isOpen }">
-    <a href="#">Menu Item 1</a>
-    <a href="#">Menu Item 2</a>
-    <a href="#">Menu Item 3</a>
+    <img alt="Logo" src="../../../.. /../assets/logo_dark.png" class="logo-image-main">
+    <a href="#"><i class="bi bi-house-door"></i>&nbsp;&nbsp;Home</a>
+    <a href="#"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
+    <a href="#"><i class="bi bi-bezier2"></i>&nbsp;&nbsp;Pull reques</a>
+    <a href="#"><i class="bi bi-window-sidebar"></i>&nbsp;&nbsp;Projects</a>
+    <a href="#"><i class="bi bi-chat-square"></i>&nbsp;&nbsp;Discussions</a>
+    <a href="#"><i class="bi bi-pc-display-horizontal"></i>&nbsp;&nbsp;Codespaces</a>
+    <a href="#"><i class="bi bi-binoculars"></i>&nbsp;&nbsp;Explore</a>
+    <a href="#"><i class="bi bi-gift"></i>&nbsp;&nbsp;Marketplace</a>
+    <label id="id-repo-label">Repositories</label>
+    <div class="repositories">
+      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/NvtKts</a>
+      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/DevSecOps</a>
+      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/Zoss-Projekat</a>
+      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/pythonProject</a>
+    </div>
   </div>
 </template>
 
@@ -15,6 +28,28 @@ export default {
 </script>
 
 <style scoped>
+.profile-picture-main{
+  max-height: 1rem;
+  max-width: 100%;
+  border-radius: 25px;
+}
+
+.repositories{
+  display: flex;
+  flex-direction: column;
+}
+
+#id-repo-label{
+  margin-top: 10px;
+  font-size: 10px;
+}
+
+.logo-image-main {
+  max-height: 1.5rem;
+  max-width: 1.5rem;
+  margin-bottom: 1rem;
+}
+
 .slide-menu {
   display: flex;
   flex-direction: column;
@@ -32,9 +67,13 @@ export default {
 
 .slide-menu a {
   color: #fff;
+  padding: 5px;
   text-decoration: none;
-  font-size: 18px;
-  margin-bottom: 15px;
+  font-size: 10px;
+}
+
+.slide-menu a:hover {
+  background: #515050;
 }
 
 .slide-in {

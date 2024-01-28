@@ -118,7 +118,7 @@ export default {
 }
 #id-search-bar{
   float: left;
-  z-index: 100;
+  z-index: 99;
 }
 #id-user-profile{
   margin-inline-end: 2rem;
@@ -151,7 +151,7 @@ export default {
 .dropdown {
   position: relative;
   display: inline-block;
-  z-index: 99;
+  z-index: 98;
 }
 
 .dashboard-menu-button{
