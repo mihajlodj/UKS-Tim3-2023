@@ -1,5 +1,5 @@
 <template>
-  <div class="slide-menu" :class="{ 'slide-in': isOpen }">
+  <div class="slide-profile-menu" :class="{ 'slide-in': isProfileOpen }">
     <a href="#">Menu Item 1</a>
     <a href="#">Menu Item 2</a>
     <a href="#">Menu Item 3</a>
@@ -9,28 +9,28 @@
 <script>
 export default {
   props: {
-    isOpen: Boolean,
+    isProfileOpen: Boolean,
   },
 };
 </script>
 
 <style scoped>
-.slide-menu {
+.slide-profile-menu {
   display: flex;
   flex-direction: column;
   position: fixed;
   top: 0;
-  left: -250px;
+  right: -250px;
   height: 100%;
   width: 250px;
   background-color: #333;
+  border-radius: 10px;
   padding: 20px;
   transition: left 0.4s ease-in-out;
   z-index: 100;
-  border-radius: 10px;
 }
 
-.slide-menu a {
+.slide-profile-menu a {
   color: #fff;
   text-decoration: none;
   font-size: 18px;
@@ -38,6 +38,6 @@ export default {
 }
 
 .slide-in {
-  left: 0;
+  right: 0;
 }
 </style>

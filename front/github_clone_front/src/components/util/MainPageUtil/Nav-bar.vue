@@ -39,7 +39,7 @@
       <button class="notification_button"><i class="bi bi-bezier2"></i></button>
       <button class="notification_button"><i class="bi bi-record-circle"></i></button>
 
-      <button class="profile_button">
+      <button class="profile_button" @click="toggleProfileMenu">
         <div style="">
           <div class="profile-image-container">
             <div style="margin-top:13px"> </div>
@@ -50,23 +50,26 @@
     </div>
 
     <transition name="fade">
-      <div v-if="isMenuOpen" class="backdrop" @click="closeMenu"></div>
+      <div v-if="isMenuOpen || isProfileMenuOpen" class="backdrop" @click="closeMenu"></div>
     </transition>
     <transition name="fadelight">
       <div v-if="isDropdownOpen" class="backdropLight" @click="closeMenu"></div>
     </transition>
     <slide-menu :is-open="isMenuOpen" @close="closeMenu" />
+    <slide-profile-menu :is-profile-open="isProfileMenuOpen" @close="closeMenu" />
   </div>
 </template>
 
 <script>
 import SearchBar from './Search-bar.vue';
 import SlideMenu from './SlideMenu.vue';
+import SlideProfileMenu from './SlideProfileMenu.vue';
 
 export default {
   components: {
     SlideMenu,
-    SearchBar
+    SearchBar,
+    SlideProfileMenu
   },
   props: {
     user: Object,
@@ -74,6 +77,7 @@ export default {
   data() {
     return {
       isMenuOpen: false,
+      isProfileMenuOpen: false,
       isDropdownOpen: false,
     };
   },
@@ -84,6 +88,11 @@ export default {
     },
     closeMenu() {
       this.isMenuOpen = false;
+      this.isDropdownOpen = false;
+      this.isProfileMenuOpen = false;
+    },
+    toggleProfileMenu() {
+      this.isProfileMenuOpen = !this.isProfileMenuOpen;
       this.isDropdownOpen = false;
     },
     toggleDropdown() {
