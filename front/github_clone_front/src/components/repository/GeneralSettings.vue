@@ -1,6 +1,6 @@
 <template>
     <div class="mt-4">
-        <div class="container w-50">
+        <div class="container">
             <h3>General</h3>
             <hr>
 
@@ -20,7 +20,7 @@
             </div>
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-save mt-3 me-2" @click="saveGeneralData"
-                    :disabled="newName == oldName && newDescription == oldDescription">Save changes</button>
+                    :disabled="newName == oldName && newDescription == oldDescription || !isValidName">Save changes</button>
                 <button type="button" class="btn btn-cancel mt-3" @click="cancelGeneralData"
                     :disabled="newName == oldName && newDescription == oldDescription">Cancel</button>
             </div>
@@ -172,6 +172,7 @@ select {
 .btn-save:disabled {
     background-color: #20883d;
     color: white;
+    height: 40px;
 }
 
 
@@ -180,15 +181,7 @@ select {
 .btn-cancel:disabled {
     background-color: #f7f8fa;
     border: 1px solid #d0d7df;
-}
-
-.btn-change,
-.btn-change:hover {
-    background-color: #f7f8fa;
-    border: 1px solid #d0d7df;
-    height: 32px;
-    margin-top: 8px;
-    width: 60px;
+    height: 40px;
 }
 
 .fa-pen,
@@ -203,4 +196,11 @@ select {
     margin-top: 8px;
     padding-top: 2px;
     background-color: #f7f8fa;
-}</style>
+}
+
+.container {
+    width: 50%;
+    min-width: 700px;
+    max-width: 850px;
+}
+</style>

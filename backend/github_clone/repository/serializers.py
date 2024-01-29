@@ -38,6 +38,8 @@ class RepositorySerializer(serializers.Serializer):
             branch = Branch.objects.get(name=branch_name, project=instance)
             if branch:
                 instance.default_branch = branch
+        
+        instance.access_modifier = validated_data.get('access_modifier', instance.access_modifier)
         instance.save()
         owner_username = WorksOn.objects.get(project__name=instance.name, role='Owner').developer.user.username
         self.gitea_update(owner_username, instance, old_name)

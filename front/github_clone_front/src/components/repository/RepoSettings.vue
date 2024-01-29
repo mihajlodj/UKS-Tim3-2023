@@ -3,12 +3,14 @@
         <RepoNavbar starting="settings" />
         <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
             :branchName="repo.defaultBranch" />
+        <DangerZoneSettings :accessModifier="repo.accessModifier" />
     </div>
 </template>
 
 <script>
 import RepoNavbar from './RepoNavbar.vue';
 import GeneralSettings from './GeneralSettings.vue'
+import DangerZoneSettings from './DangerZoneSettings.vue';
 import RepositoryService from '@/services/RepositoryService';
 
 // access, transfer ownership, delete
@@ -18,7 +20,8 @@ export default {
     name: 'RepoSettings',
     components: {
         RepoNavbar,
-        GeneralSettings
+        GeneralSettings,
+        DangerZoneSettings
     },
 
     mounted() {
