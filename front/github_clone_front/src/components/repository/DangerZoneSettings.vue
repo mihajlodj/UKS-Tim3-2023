@@ -9,7 +9,9 @@
             </div>
 
             <div>
-                <button class="btn btn-outline-danger mt-1" @click="changeModifier">Change</button>
+                <button class="btn btn-outline-danger mt-1" data-bs-toggle="modal" data-bs-target="#changeVisibilityModal">
+                    Change
+                </button>
             </div>
         </div>
         <div class="cell d-flex justify-content-between">
@@ -29,7 +31,41 @@
             </div>
 
             <div>
-                <button class="btn btn-outline-danger mt-1" @click="deleteRepository">Delete this repository</button>
+                <button class="btn btn-outline-danger mt-1" data-bs-toggle="modal" data-bs-target="#deleteRepoModal">
+                    Delete this repository
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="changeVisibilityModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Are you sure you want to change repository visibility?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-yes" @click="changeModifier">Yes</button>
+                        <button type="button" class="btn btn-primary btn-no" data-bs-dismiss="modal">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="deleteRepoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Are you sure you want to delete this repository?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-yes" @click="deleteRepository">Yes</button>
+                        <button type="button" class="btn btn-primary btn-no" data-bs-dismiss="modal">No</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -51,7 +87,7 @@ export default {
             if (this.accessModifier === 'Public') {
                 newModifier = 'Private';
             }
-            RepositoryService.update({'access_modifier': newModifier}, this.$route.params.repoName).then(_ => {
+            RepositoryService.update({ 'access_modifier': newModifier }, this.$route.params.repoName).then(_ => {
                 location.reload();
             }).catch(err => {
                 console.log(err);
@@ -99,5 +135,16 @@ export default {
     width: 50%;
     min-width: 700px;
     max-width: 850px;
+}
+
+.btn-yes,
+.btn-no,
+.btn-yes:hover,
+.btn-no:hover {
+    background-color: #f7f8fa;
+    border: 1px solid #d0d7df;
+    height: 40px;
+    width: 70px;
+    color: rgb(59, 58, 58);
 }
 </style>
