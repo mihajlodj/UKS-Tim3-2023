@@ -2,7 +2,7 @@ import threading
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import RegexValidator
-from main.gitea_service import create_repository
+from main.gitea_service import create_repository, update_repository
 from main.models import Project, AccessModifiers, Branch, WorksOn, Developer
 from django.contrib.auth.models import User
 
@@ -27,6 +27,21 @@ class RepositorySerializer(serializers.Serializer):
         WorksOn.objects.create(role="Owner", project=project, developer=Developer.objects.get(user__username=username))
         threading.Thread(target=self.gitea_create, args=([project, branch_name, username]), kwargs={}).start()
         return project
+    
+    def update(self, instance, validated_data):
+        old_name = instance.name
+        instance.name = validated_data.get('name', instance.name)
+        instance.description = validated_data.get('description', instance.description)
+
+        branch_name = validated_data.get('default_branch_name', instance.default_branch.name)
+        if branch_name != instance.default_branch.name:
+            branch = Branch.objects.get(name=branch_name, project=instance)
+            if branch:
+                instance.default_branch = branch
+        instance.save()
+        owner_username = WorksOn.objects.get(project__name=instance.name, role='Owner').developer.user.username
+        self.gitea_update(owner_username, instance, old_name)
+        return instance
 
     def gitea_create(self, project, branch_name, username):
         description = ''
@@ -41,6 +56,9 @@ class RepositorySerializer(serializers.Serializer):
             'name': project.name,
             'private': private
         }, username)
+
+    def gitea_update(self, owner, repository, old_name):
+        update_repository(owner, repository, old_name)
     
     
 class UserSerializer(serializers.ModelSerializer):

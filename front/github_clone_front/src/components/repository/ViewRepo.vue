@@ -1,45 +1,6 @@
 <template>
     <div>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <div class="collapse navbar-collapse">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item mx-2">
-                            <button class="nav-link active">
-                                <div class="d-flex justify-content-start">
-                                    <font-awesome-icon icon="fa-solid fa-code" class="me-2 mt-1" />
-                                    Code
-                                </div>
-                            </button>
-                        </li>
-                        <li class="nav-item mx-2">
-                            <button class="nav-link">
-                                <div class="d-flex justify-content-start">
-                                    <font-awesome-icon icon="fa-regular fa-circle-dot" class="me-2 mt-1" />
-                                    Issues
-                                </div>
-                            </button>
-                        </li>
-                        <li class="nav-item mx-2">
-                            <button class="nav-link">
-                                <div class="d-flex justify-content-start">
-                                    <font-awesome-icon icon="fa-solid fa-code-pull-request" class="me-2 mt-1" />
-                                    Pull requests
-                                </div>
-                            </button>
-                        </li>
-                        <li class="nav-item mx-2">
-                            <button class="nav-link">
-                                <div class="d-flex justify-content-start">
-                                    <font-awesome-icon icon="fa-solid fa-gear" class="me-2 mt-1" />
-                                    Settings
-                                </div>
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <RepoNavbar starting="code" />
 
         <div class="d-flex justify-content-between w-100">
             <div class="d-flex justify-content-start ms-4 mt-3">
@@ -123,15 +84,17 @@
 
                 <div>
                     <RepoContent :refName="repo.chosenBranch" :key="contentKey" :displayRoot="repo.displayRoot"
-                        @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent" :branch="repo.chosenBranch" />
+                        @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent"
+                        :branch="repo.chosenBranch" />
                 </div>
             </div>
 
 
             <div class="w-25 ms-4">
                 <div class="d-flex flex-column">
-                    <span class="bolder">About</span>
-                    <span>{{ repo.description }}</span>
+                    <span class="bolder mt-1">About</span>
+                    <span v-if="repo.description" class="mt-3">{{ repo.description }}</span>
+                    <span v-else class="mt-3"><i>No description provided</i></span>
                 </div>
             </div>
         </div>
@@ -142,12 +105,14 @@
 
 import RepositoryService from '@/services/RepositoryService';
 import RepoContent from '@/components/repository/RepoContent.vue'
+import RepoNavbar from './RepoNavbar.vue';
 
 export default {
     name: 'ViewRepo',
 
     components: {
-        RepoContent
+        RepoContent,
+        RepoNavbar
     },
 
     mounted() {
@@ -255,14 +220,6 @@ export default {
 </script>
 
 <style scoped>
-.nav-link {
-    color: black;
-}
-
-.active {
-    border-bottom: 2px solid #fe8c72;
-}
-
 .avatar {
     height: 27px;
     border-radius: 50%;

@@ -6,6 +6,7 @@ import CodeVerification from './components/auth/CodeVerification.vue'
 import LoginPage from './components/auth/LoginPage.vue'
 import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
+import RepoSettings from './components/repository/RepoSettings.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -19,7 +20,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
-import { faGear, faCodeFork, faPlus, faUpload } from '@fortawesome/free-solid-svg-icons'
+import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder } from '@fortawesome/free-regular-svg-icons'
 
 library.add(faAngleRight);
@@ -39,6 +40,8 @@ library.add(faPlus);
 library.add(faUpload);
 library.add(faFile);
 library.add(faFolder);
+library.add(faPen);
+library.add(faArrowRightArrowLeft);
 
 const routes = [
     {
@@ -60,6 +63,10 @@ const routes = [
     {
         path: "/view/:username/:repoName",
         component: ViewRepo
+    },
+    {
+        path: "/settings/:username/:repoName",
+        component: RepoSettings
     }
 ]
 

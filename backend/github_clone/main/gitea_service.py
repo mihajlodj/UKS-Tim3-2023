@@ -78,3 +78,19 @@ def get_repository(owner, repository):
         'Authorization': f'Bearer {access_token}',
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+
+def update_repository(owner, repository, old_name): 
+    api_endpoint = f'/api/v1/repos/{owner}/{old_name}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    data = {
+        'name': repository.name,
+        'description': repository.description,
+        'private': repository.access_modifier == 'Private',
+        'default_branch': repository.default_branch.name
+    }
+    res = requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    print(res.status_code)
+    print(res.json())

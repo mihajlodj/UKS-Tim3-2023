@@ -36,6 +36,13 @@ class ReadOwnerView(generics.RetrieveAPIView):
         return Developer.objects.get(user__username=owner_username)
 
 
+class UpdateRepositoryView(generics.UpdateAPIView):
+    queryset = Project.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = RepositorySerializer
+    lookup_field = 'name'
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_repo_data_for_display(_, owner_username, repository_name):
@@ -60,3 +67,4 @@ def get_root_files(_, owner_username, repository_name, ref):
 @permission_classes([IsAuthenticated])
 def get_folder_files(_, owner_username, repository_name, branch, path):
     return Response(get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)
+

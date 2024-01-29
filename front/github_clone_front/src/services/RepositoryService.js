@@ -20,5 +20,8 @@ const getFolderContent = (username, repoName, branch, path) => {
     return api.get(`repository/folder/${username}/${repoName}/${branch}/${path}/`);
 }
 
+const update = (repoData, name) => {
+    return api.patch(`repository/update/${name}/`, repoData);
+}
 
-export default { create, get, getOwner, getRootContent, getFolderContent };
+export default { create, get, getOwner, getRootContent, getFolderContent, update };
