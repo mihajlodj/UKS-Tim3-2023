@@ -5,7 +5,6 @@ from main.models import Project, WorksOn, Developer, Branch
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from main.gitea_service import get_root_content, get_repository, get_folder_content, delete_repository
-from main.permissions import CanReadRepository
 from rest_framework.exceptions import PermissionDenied
 
 
