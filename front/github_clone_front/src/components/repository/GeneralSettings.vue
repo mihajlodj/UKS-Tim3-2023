@@ -46,6 +46,7 @@
 
 <script>
 import RepositoryService from '@/services/RepositoryService'
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'GeneralSettings',
@@ -90,6 +91,12 @@ export default {
 
             RepositoryService.update({ "default_branch_name": changedName }, this.oldName).then(res => {
                 console.log(res.data);
+                this.oldBranchName = changedName;
+                toast("Changes saved!", {
+                    autoClose: 500,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT
+                });
             }).catch(err => {
                 console.log(err);
             });
@@ -107,7 +114,14 @@ export default {
             }, this.oldName).then(res => {
                 let repoName = res.data.name;
                 let username = this.$route.params.username;
+                this.oldDescription = this.newDescription;
+                this.oldName = this.newName;
                 this.$router.push(`/settings/${username}/${repoName}`);
+                toast("Changes saved!", {
+                    autoClose: 500,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT
+                });
             }).catch(err => {
                 console.log(err);
             });
