@@ -67,7 +67,7 @@ const routes = [
     {
         path: "/settings/:username/:repoName",
         component: RepoSettings
-    }
+    },
 ]
 
 const router = createRouter({

@@ -1,9 +1,15 @@
 <template>
     <div>
-        <RepoNavbar starting="settings" />
-        <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
-            :branchName="repo.defaultBranch" />
-        <DangerZoneSettings :accessModifier="repo.accessModifier" />
+        <div v-if="allowed == true">
+            <RepoNavbar starting="settings" />
+            <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
+                :branchName="repo.defaultBranch" />
+            <DangerZoneSettings :accessModifier="repo.accessModifier" />
+        </div>
+
+        <div v-if="allowed == false">
+            <NotFoundPage />
+        </div>
     </div>
 </template>
 
@@ -12,8 +18,9 @@ import RepoNavbar from './RepoNavbar.vue';
 import GeneralSettings from './GeneralSettings.vue'
 import DangerZoneSettings from './DangerZoneSettings.vue';
 import RepositoryService from '@/services/RepositoryService';
+import NotFoundPage from '../util/NotFoundPage.vue';
 
-// access, transfer ownership, delete
+// transfer ownership
 
 
 export default {
@@ -21,7 +28,8 @@ export default {
     components: {
         RepoNavbar,
         GeneralSettings,
-        DangerZoneSettings
+        DangerZoneSettings,
+        NotFoundPage
     },
 
     mounted() {
@@ -34,9 +42,11 @@ export default {
                 this.repo.branches.push({ 'name': b });
             }
             console.log(this.repo.branches);
+            this.allowed = true;
             this.forceRerender();
         }).catch(err => {
             console.log(err);
+            this.allowed = false;
         });
     },
 
@@ -50,7 +60,8 @@ export default {
                 branches: [],
             },
 
-            generalKey: 1
+            generalKey: 1,
+            allowed: 'not_set'
         }
     },
 
