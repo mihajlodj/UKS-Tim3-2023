@@ -19,7 +19,12 @@
 
             <div class="d-flex flex-column">
                 <label class="bold mb-2">Dafault branch name <span class="sub smaller">(optional)</span></label>
-                <input type="text" class="w-50 mb-3" v-model="defaultBranchName" />
+                <input type="text" class="w-50 mb-3" v-model="defaultBranchName" @input="validateBranchName" />
+                <div class="d-flex justify-content-start">
+                    <font-awesome-icon v-if="!isValidName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
+                    <label v-if="!isValidBranchName" class="w-50 warn">Branch name can only contain alphanumerics,
+                        dashes ( - ) and underscores ( _ )</label>
+                </div>
             </div>
 
             <div class="d-flex flex-column">
@@ -74,7 +79,8 @@ export default {
             description: '',
             isPublic: true,
             defaultBranchName: '',
-            isValidName: true
+            isValidName: true,
+            isValidBranchName: true
         }
     },
 
@@ -92,15 +98,17 @@ export default {
             this.isValidName = (this.name !== "" && regexPattern.test(this.name));
         },
 
+        validateBranchName() {
+            const regexPattern = /^[a-zA-Z][\w-]*$/;
+            this.isValidBranchName = (this.defaultBranchName === "" || regexPattern.test(this.defaultBranchName));
+        },
+
         submit() {
             this.validate();
+            this.validateBranchName();
             /* eslint-disable */
-            if (this.isValidName) {
-                console.log(this.name);
-                console.log(this.defaultBranchName);
-                console.log(this.description);
+            if (this.isValidName && this.isValidBranchName) {
                 const mod = this.isPublic ? 'Public' : 'Private';
-                console.log(mod);
                 RepositoryService.create({
                     name: this.name,
                     description: this.description,

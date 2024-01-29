@@ -35,6 +35,7 @@ def confirm_registration(request):
             dev.save()
             dev.avatar = get_user_avatar(dev.gitea_token)
             dev.save()
+            registration_candidate.delete()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Incorrect registration code.'}, status=status.HTTP_404_NOT_FOUND)

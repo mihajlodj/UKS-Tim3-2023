@@ -1,4 +1,5 @@
 import threading
+from django.http import Http404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import RegexValidator
@@ -13,7 +14,8 @@ class RepositorySerializer(serializers.Serializer):
                                              RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid repository name", code="invalid_repo_name")])
     description = serializers.CharField(required=False, allow_blank=True)
     access_modifier = serializers.ChoiceField(choices=AccessModifiers, default='Public')
-    default_branch_name = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    default_branch_name = serializers.CharField(required=False, allow_blank=True, max_length=255,
+                                                validators=[RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid branch name", code="invalid_branch_name")])
 
     def create(self, validated_data):
         branch_name = 'main'
@@ -35,10 +37,12 @@ class RepositorySerializer(serializers.Serializer):
 
         branch_name = validated_data.get('default_branch_name', instance.default_branch.name)
         if branch_name != instance.default_branch.name:
-            branch = Branch.objects.get(name=branch_name, project=instance)
-            if branch:
-                instance.default_branch = branch
-        
+            if Branch.objects.filter(name=branch_name, project=instance).exists():
+                branch = Branch.objects.get(name=branch_name, project=instance)
+                if branch:
+                    instance.default_branch = branch
+            else:
+                raise Http404()
         instance.access_modifier = validated_data.get('access_modifier', instance.access_modifier)
         instance.save()
         owner_username = WorksOn.objects.get(project__name=instance.name, role='Owner').developer.user.username

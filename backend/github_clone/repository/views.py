@@ -76,8 +76,11 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def delete_repo(_, owner_username, repository_name):
+def delete_repo(request, owner_username, repository_name):
+    if not Project.objects.filter(name=repository_name).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
     repository = Project.objects.get(name=repository_name)
+    check_delete_permission(request, repository)
     works_on_list = WorksOn.objects.filter(project__name=repository_name)
     for item in works_on_list:
         item.delete()
@@ -92,3 +95,10 @@ def check_view_permission(request, repo):
         works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repo.name)]
         if logged_user not in works_on_list:
             raise PermissionDenied()
+
+
+def check_delete_permission(request, repo):
+    logged_user = request.user.username
+    owner = WorksOn.objects.get(project__name=repo.name, role='Owner')
+    if owner.developer.user.username != logged_user:
+        raise PermissionDenied()
