@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
+from main.gitea_service import get_user_token, get_user_avatar
 
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
@@ -30,8 +31,11 @@ def confirm_registration(request):
         if registration_candidate.code == code:
             registration_candidate.user.is_active = True
             registration_candidate.user.save()
-            dev = Developer.objects.create(user=registration_candidate.user)
+            dev = Developer.objects.create(user=registration_candidate.user, gitea_token=get_user_token(username))
             dev.save()
+            dev.avatar = get_user_avatar(dev.gitea_token)
+            dev.save()
+            registration_candidate.delete()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Incorrect registration code.'}, status=status.HTTP_404_NOT_FOUND)

@@ -34,6 +34,8 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 GITEA_BASE_URL = os.environ.get("GITEA_BASE_URL")
 GITEA_ACCESS_TOKEN = os.environ.get("GITEA_ACCESS_TOKEN")
+GITEA_ADMIN_USERNAME = os.environ.get("GITEA_ADMIN_USERNAME")
+GITEA_ADMIN_PASS = os.environ.get("GITEA_ADMIN_PASS")
 
 # Application definition
 
@@ -143,6 +145,7 @@ CORS_ALLOW_CREDENTIALS = True
 SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
     'ROTATE_REFRESH_TOKENS': True,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
 }
 
 
