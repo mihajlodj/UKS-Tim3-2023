@@ -24,4 +24,8 @@ const update = (repoData, name) => {
     return api.patch(`repository/update/${name}/`, repoData);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update };
+const deleteReposiory = (username, repoName) => {
+    return api.delete(`repository/delete/${username}/${repoName}`);
+}
+
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory };

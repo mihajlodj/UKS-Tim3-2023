@@ -29,7 +29,7 @@
             </div>
 
             <div>
-                <button class="btn btn-outline-danger mt-1">Delete this repository</button>
+                <button class="btn btn-outline-danger mt-1" @click="deleteRepository">Delete this repository</button>
             </div>
         </div>
     </div>
@@ -56,6 +56,15 @@ export default {
             }).catch(err => {
                 console.log(err);
             });
+        },
+
+        deleteRepository() {
+            RepositoryService.deleteReposiory(this.$route.params.username, this.$route.params.repoName).then(_ => {
+                console.log('DELETED');
+            }).catch(err => {
+                console.log(err);
+            });
+            this.$router.push('/main')
         }
     }
 }

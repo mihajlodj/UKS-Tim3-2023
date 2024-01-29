@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from main.models import Project, WorksOn, Developer, Branch
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
-from main.gitea_service import get_root_content, get_repository, get_folder_content
+from main.gitea_service import get_root_content, get_repository, get_folder_content, delete_repository
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -68,3 +68,14 @@ def get_root_files(_, owner_username, repository_name, ref):
 def get_folder_files(_, owner_username, repository_name, branch, path):
     return Response(get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)
 
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_repo(_, owner_username, repository_name):
+    repository = Project.objects.get(name=repository_name)
+    works_on_list = WorksOn.objects.filter(project__name=repository_name)
+    for item in works_on_list:
+        item.delete()
+    delete_repository(owner_username, repository_name)
+    repository.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
