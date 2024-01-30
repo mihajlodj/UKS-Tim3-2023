@@ -69,6 +69,7 @@ export default {
     methods: {
         setActiveLink(name) {
             this.activeLink = name;
+            this.$emit('activeLinkExtension', name)
             // let username = this.$route.params.username;
             // let repoName = this.$route.params.repoName;
             if (name === 'stars') {

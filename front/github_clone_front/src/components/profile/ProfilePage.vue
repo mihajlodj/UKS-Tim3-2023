@@ -1,7 +1,7 @@
 <template>
   <div class="entire-page">
     <nav-bar :user="user" />
-    <profile-nav-bar-extension starting="overview"/>
+    <profile-nav-bar-extension starting="overview" @activeLinkExtension="handleActiveLinkExtension"/>
     <div class="main-content">
       <div class="left-side">
         <div id="avatar-id">
@@ -26,7 +26,7 @@
         </div>
       </div>
       <div class="right-side">
-        <profile-page-over-view/>
+        <profile-page-over-view v-if="activeLinkExtension==='overview'"/>
       </div>
     </div>
   </div>
@@ -46,6 +46,7 @@ export default {
   data() {
     return {
       editing: false,
+      activeLinkExtension: 'overview',
       profileName: 'SimicAleksa',
       newProfileName: '',
       user: {
@@ -70,6 +71,9 @@ export default {
     },
     cancelEditing() {
       this.editing = false;
+    },
+    handleActiveLinkExtension(name) {
+      this.activeLinkExtension = name;
     },
   },
 };
