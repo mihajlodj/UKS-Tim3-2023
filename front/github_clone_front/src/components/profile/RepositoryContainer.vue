@@ -3,8 +3,10 @@
     <div style="display: flex;">
       <a :href="projectLink" class="project-link">{{ projectName }}</a>
     </div>
-    <div id="repo-state">
-      <label id="state-label">{{ isPrivate ? 'private' : 'public' }}</label>
+    <div id="outer">
+      <div id="repo-state">
+        <label id="state-label">{{ isPrivate ? 'private' : 'public' }}</label>
+      </div>
     </div>
   </div>
 </template>
@@ -31,21 +33,26 @@ export default {
 
 <style scoped>
 #repo-state {
-  float: right;
+  border: 1px solid gray;
+  padding-inline-end: 0.3rem;
+  padding-inline-start: 0.3rem;
+  color: rgb(225, 225, 225);
+  border-radius: 1rem;
+  height: 1.6rem;
   display: flex;
   justify-content: center;
-  border: 1px solid gray;
-  padding-top: 0.5rem;
-  padding-inline-start: 0.3rem;
-  padding-inline-end: 0.3rem;
-  color: rgb(225, 225, 225);
-  background: rgb(145, 145, 145);
-  border-radius: 1rem;
-  margin-left: auto;
+  align-items: center;
+}
+
+#outer {
+  justify-content: right;
+  display: flex;
+  width: 100%;
 }
 
 #state-label {
   font-size: 0.7rem;
+
 }
 
 .project-link {

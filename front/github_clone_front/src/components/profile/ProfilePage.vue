@@ -182,6 +182,9 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: -1.5rem;
+  margin-inline-end: 4rem;
+  margin-inline-start: 4rem;
+  border-radius: 5rem;
   visibility: hidden;
   background: gray;
   color: rgb(214, 214, 214);
