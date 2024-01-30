@@ -42,7 +42,7 @@ export default {
 }
 
 .basic-info{
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
   padding-top: 0.5rem;
 }
 
@@ -57,7 +57,6 @@ export default {
   background-color: #333;
   border-radius: 10px;
   padding-inline-start: 1rem;
-  padding-top: 0.5rem;
   transition: left 0.4s ease-in-out;
   z-index: 100;
 }
@@ -66,7 +65,7 @@ export default {
   color: #fff;
   text-decoration: none;
   font-size: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
 }
 
 .slide-in {
