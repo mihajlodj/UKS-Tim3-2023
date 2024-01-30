@@ -4,29 +4,14 @@
     <div class="main-content">
       <div class="left-side">
         <div id="avatar-id">
-          <a href="#">
-            <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
-          </a>
+          <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
         </div>
-        <div>
-          <label v-if="!editing" id="profile_name">{{ profileName }}</label>
-          <input v-else v-model="newProfileName" type="text" id="new-profile-name" />
-        </div>
-        <div id="edit-button-div">
-          <button v-if="!editing" @click="startEditing" type="button" class="edit_btn">Edit profile</button>
-          <div v-if="editing">
-            <div class="save-btn-div">
-              <button @click="saveChanges" type="button" class="save-btn">Save</button>
-            </div>
-            <div class="cancel-btn-div">
-              <button @click="cancelEditing" type="button" class="cancel-btn">Cancel</button>
-            </div>
-          </div>
+        <div id="profile-info-id">
+          <a href="#" id="profile_name">{{ profileName }}</a>
+          <label id="personal-acc">Your personal account</label>
         </div>
       </div>
-      <div class="right-side">
-        <profile-page-over-view v-if="activeLinkExtension==='overview'"/>
-      </div>
+      <div class="right-side"></div>
     </div>
   </div>
 </template>
@@ -40,44 +25,61 @@ export default {
   },
   data() {
     return {
-      editing: false,
-      activeLinkExtension: 'overview',
       profileName: 'SimicAleksa',
-      newProfileName: '',
       user: {
         login: "your_username",
         avatar_url: "url_to_your_avatar",
         bio: "Your bio goes here",
       },
-      repositories: [
-        { id: 1, name: "SimicAleksa/NvtKts" },
-        { id: 2, name: "SimicAleksa/pythonProject" },
-      ],
     };
   },
-  methods: {
-   
-  },
+  methods: {},
 };
 </script>
 
 <style scoped>
-
-#profile_name{
-    color: white;
-    padding: 0.5rem;
+#profile-info-id {
+  padding-top: 0.3rem;
+  float: left;
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start;
 }
 
-
-
-#avatar-id{
-    width: auto;
-    justify-content: center;
-    display: flex;
+#personal-acc {
+  font-size: 0.7rem;
+  color: rgb(18, 18, 18);
+  padding-inline-start: 0.5rem;
+  margin-top: -0.2rem;
 }
 
-.profile-picture-main{
-  max-height: 10rem;
+#profile_name {
+  color: white;
+  padding-top: 0.3rem;
+  padding-inline-start: 0.5rem;
+  font-size: 0.9rem;
+  display: block;
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 9.5rem;
+}
+
+#profile_name:hover {
+  text-decoration: underline;
+}
+
+#avatar-id {
+  width: auto;
+  justify-content: left;
+  float: left;
+  display: flex;
+}
+
+.profile-picture-main {
+  max-height: 3.5rem;
   max-width: 100%;
   border-radius: 5rem;
   padding: 0.5rem;
@@ -97,7 +99,7 @@ export default {
   background: rgb(60, 60, 60);
 }
 
-.entire-page{
+.entire-page {
   min-height: 100vh;
   margin: 0px;
   padding: 0;
@@ -105,7 +107,7 @@ export default {
 }
 
 .main-content {
-  display: flex; 
+  display: flex;
   overflow: auto;
   padding: 0;
   margin-inline-end: 10rem;
