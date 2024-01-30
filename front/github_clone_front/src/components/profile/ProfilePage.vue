@@ -1,7 +1,7 @@
 <template>
   <div class="entire-page">
     <nav-bar :user="user" />
-    <profile-nav-bar-extension starting="code"/>
+    <profile-nav-bar-extension starting="overview"/>
     <div class="main-content">
       <profile-page-over-view/>
     </div>
