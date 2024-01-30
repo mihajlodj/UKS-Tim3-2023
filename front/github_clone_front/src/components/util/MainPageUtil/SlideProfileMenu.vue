@@ -62,10 +62,18 @@ export default {
 }
 
 .slide-profile-menu a {
+  padding-inline-start: 0.5rem;
+  padding-top: 0.1rem;
+  width: 90%;
   color: #fff;
   text-decoration: none;
   font-size: 10px;
   margin-bottom: 10px;
+}
+
+.slide-profile-menu a:hover{
+  background: #515050;
+  border-radius: 1rem;
 }
 
 .slide-in {

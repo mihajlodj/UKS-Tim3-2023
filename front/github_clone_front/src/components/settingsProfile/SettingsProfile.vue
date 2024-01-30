@@ -10,6 +10,7 @@
           <a href="#" id="profile_name">{{ profileName }}</a>
           <label id="personal-acc">Your personal account</label>
         </div>
+        <profile-settings-menu/>
       </div>
       <div class="right-side"></div>
     </div>
@@ -18,10 +19,12 @@
 
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
+import ProfileSettingsMenu from '../util/SettingsProfileUtil/ProfileSettingsMenu.vue';
 
 export default {
   components: {
     NavBar,
+    ProfileSettingsMenu
   },
   data() {
     return {
@@ -48,7 +51,7 @@ export default {
 
 #personal-acc {
   font-size: 0.7rem;
-  color: rgb(18, 18, 18);
+  color: rgb(30, 28, 28);
   padding-inline-start: 0.5rem;
   margin-top: -0.2rem;
 }
