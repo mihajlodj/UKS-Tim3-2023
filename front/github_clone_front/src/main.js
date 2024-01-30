@@ -9,6 +9,7 @@ import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
+import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -79,6 +80,10 @@ const routes = [
     {
         path: "/profile",
         component: ProfilePage
+    },
+    {
+        path: "/profile/settings",
+        component: SettingsProfile
     },
 ]
 

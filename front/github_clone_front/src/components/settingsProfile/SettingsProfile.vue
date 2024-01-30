@@ -1,11 +1,10 @@
 <template>
   <div class="entire-page">
     <nav-bar :user="user" />
-    <profile-nav-bar-extension starting="overview" @activeLinkExtension="handleActiveLinkExtension"/>
     <div class="main-content">
       <div class="left-side">
         <div id="avatar-id">
-          <a href="/profile/settings">
+          <a href="#">
             <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
           </a>
         </div>
@@ -34,14 +33,10 @@
 
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
-import ProfileNavBarExtension from '../profile/ProfileNavBarExtension.vue';
-import ProfilePageOverView from '../profile/ProfilePageOverView.vue';
 
 export default {
   components: {
     NavBar,
-    ProfileNavBarExtension,
-    ProfilePageOverView
   },
   data() {
     return {
@@ -61,104 +56,19 @@ export default {
     };
   },
   methods: {
-    startEditing() {
-      this.editing = true;
-      this.newProfileName = this.profileName;
-    },
-    saveChanges() {
-      this.profileName = this.newProfileName;
-      this.editing = false;
-    },
-    cancelEditing() {
-      this.editing = false;
-    },
-    handleActiveLinkExtension(name) {
-      this.activeLinkExtension = name;
-    },
+   
   },
 };
 </script>
 
 <style scoped>
-.cancel-btn-div{
-  display: flex;
-  float: left;
-  padding: 0.5rem;
-}
-
-.save-btn-div{
-  display: flex;
-  float: left;
-  padding: 0.5rem;
-}
-
-#new-profile-name {
-  color: white;
-  padding: 0.5rem;
-  background: rgb(60, 60, 60);
-  border: 1px solid gray;
-  border-radius: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.save-btn{
-  margin-top: 0.5rem;
-  float: left;
-  background: rgb(6, 160, 6);
-  border: 1px solid gray;
-  color: rgb(212, 212, 212);
-  font-size: 0.8rem;
-  width: 100%;
-  border-radius: 0.5rem;
-}
-
-.save-btn:hover{
-  background: rgba(5, 199, 5, 0.778);
-}
-
-
-.cancel-btn {
-  margin-top: 0.5rem;
-  float: left;
-  border: 1px solid gray;
-  color: rgb(212, 212, 212);
-  font-size: 0.8rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  background: rgb(71, 71, 71);
-}
-
-.cancel-btn:hover {
-  background: rgba(153, 153, 153, 0.584);
-}
-
-#edit-button-div{
-    display: flex;
-    justify-content: center;
-}
-
-.edit_btn{
-    background: rgb(71, 71, 71);
-    border: 1px solid gray;
-    color: rgb(212, 212, 212);
-    font-size: 0.8rem;
-    width: 100%;
-    border-radius: 0.5rem;
-}
-
-.edit_btn:hover{
-    background: rgb(91, 91, 91);
-}
 
 #profile_name{
     color: white;
     padding: 0.5rem;
 }
 
-.links:hover{
- background: rgba(132, 132, 132, 0.623);
-}
+
 
 #avatar-id{
     width: auto;
