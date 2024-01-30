@@ -26,7 +26,7 @@
       <div>
         <label style="color:white; padding:1rem;font-size:0.8rem">Popular repositories</label>
       </div>
-      <repository-container v-for="(repo, index) in dummyRepos" :key="index" :projectName="repo.name" :isPrivate="repo.isPrivate" />
+      <repository-container v-for="(repo, index) in popularRepositories" :key="index" :projectName="repo.name" :isPrivate="repo.isPrivate" />
     </div>
   </div>
 </template>
@@ -48,9 +48,22 @@ export default {
         { name: 'Uks-Project', isPrivate: true },
         { name: 'pythonProject', isPrivate: false },
         { name: 'WebApp-Instagram-MyNewApplication', isPrivate: true },
-        
+        { name: 'Uks-Project', isPrivate: true },
+        { name: 'pythonProject', isPrivate: false },
+        { name: 'WebApp-Instagram-MyNewApplication', isPrivate: true },
+        { name: 'Uks-Project', isPrivate: true },
+        { name: 'pythonProject', isPrivate: false },
+        { name: 'WebApp-Instagram-MyNewApplication', isPrivate: true },
+        { name: 'Uks-Project', isPrivate: true },
+        { name: 'pythonProject', isPrivate: false },
+        { name: 'WebApp-Instagram-MyNewApplication', isPrivate: true },
       ],
     };
+  },
+  computed: {
+    popularRepositories() {
+      return this.dummyRepos.slice(-6);
+    },
   },
   methods: {
     startEditing() {
@@ -181,6 +194,5 @@ export default {
   margin-inline-start: 10rem;
   margin-inline-end: 10rem;
   width: 100%;
-  background: red;
 }
 </style>
