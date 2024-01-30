@@ -6,7 +6,7 @@
       <label>SimicAleksa</label>
     </div>
     <a href="#"><i class="bi bi-emoji-smile"></i>&nbsp;&nbsp;Set status</a>
-    <a href="#"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
+    <a href="/profile"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
     <a href="#"><i class="bi bi-person-plus"></i>&nbsp;&nbsp;Add account</a>
     <a href="#"><i class="bi bi-journal-bookmark"></i>&nbsp;&nbsp;Your repositories</a>
     <a href="#"><i class="bi bi-file-bar-graph"></i>&nbsp;&nbsp;Your projects</a>
