@@ -90,4 +90,5 @@ export default {
 .active {
     border-bottom: 2px solid #fe8c72;
 }
+
 </style>
