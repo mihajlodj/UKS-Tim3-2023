@@ -40,12 +40,12 @@ export default {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
   text-decoration: none;
-  color: rgb(12, 29, 213);
+  color: rgb(17, 109, 230);
 }
 
 .repository-container {
   float: left;
-  background: rgb(100, 100, 100);
+  border: 1px solid gray;
   border-radius: 1rem;
   display: flex;
   padding: 0.2rem;
