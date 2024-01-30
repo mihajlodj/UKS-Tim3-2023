@@ -9,6 +9,7 @@
             <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
           </a>
         </div>
+        <span class="tooltiptext">Change your avatar</span>
         <div>
           <label v-if="!editing" id="profile_name">{{ profileName }}</label>
           <input v-else v-model="newProfileName" type="text" id="new-profile-name" />
@@ -173,11 +174,28 @@ export default {
   padding: 0.5rem;
 }
 
+.left-side:hover .tooltiptext {
+  visibility: visible;
+}
+
+.left-side .tooltiptext {
+  display: flex;
+  justify-content: center;
+  margin-top: -1.5rem;
+  visibility: hidden;
+  background: gray;
+  color: rgb(214, 214, 214);
+  font-size: 0.8rem;
+}
+
 .left-side {
   width: 30%;
   float: left;
   height: auto;
   background: rgb(79, 78, 78);
+  flex-direction: column;
+  margin-top: 0px;
+  display: flex;
 }
 
 .right-side {
