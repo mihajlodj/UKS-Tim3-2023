@@ -1,17 +1,32 @@
 <template>
   <div class="repository-container">
     <div style="display: flex;">
-      <a id="project-name" href="#">UKS-Project</a>
+      <a :href="projectLink" class="project-link">{{ projectName }}</a>
     </div>
     <div id="repo-state">
-      <label id="state-label">private</label>
+      <label id="state-label">{{ isPrivate ? 'private' : 'public' }}</label>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-}
+  props: {
+    projectName: {
+      type: String,
+      required: true,
+    },
+    isPrivate: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  computed: {
+    projectLink() {
+      return this.isPrivate ? '#' : `#/${this.projectName}`;
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -29,18 +44,22 @@ export default {
   margin-left: auto;
 }
 
-#state-label{
+#state-label {
   font-size: 0.7rem;
 }
 
-#project-name {
-  padding: 1rem;
+.project-link {
+  padding-inline-start: 0.5rem;
   font-size: 0.9rem;
   display: block;
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
   text-decoration: none;
   color: rgb(17, 109, 230);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 9.5rem;
 }
 
 .repository-container {
@@ -53,5 +72,4 @@ export default {
   height: 3rem;
   margin: 1rem;
 }
-
 </style>

@@ -26,11 +26,7 @@
       <div>
         <label style="color:white; padding:1rem;font-size:0.8rem">Popular repositories</label>
       </div>
-      <repository-container />
-      <repository-container />
-      <repository-container />
-      <repository-container />
-      <repository-container />
+      <repository-container v-for="(repo, index) in dummyRepos" :key="index" :projectName="repo.name" :isPrivate="repo.isPrivate" />
     </div>
   </div>
 </template>
@@ -48,6 +44,12 @@ export default {
       editing: false,
       profileName: 'SimicAleksa',
       newProfileName: '',
+      dummyRepos: [
+        { name: 'Uks-Project', isPrivate: true },
+        { name: 'pythonProject', isPrivate: false },
+        { name: 'WebApp-Instagram-MyNewApplication', isPrivate: true },
+        
+      ],
     };
   },
   methods: {
