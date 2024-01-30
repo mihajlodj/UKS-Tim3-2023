@@ -36,8 +36,7 @@
                         <div class="d-flex justify-content-start">
                             <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch
-                                }}
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch }}
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li class="mx-2">
@@ -49,9 +48,8 @@
                                     </button>
                                 </li>
                             </ul>
-                            <button type="button" class="btn btn-gray ms-2">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{
-                                    branchesText }}
+                            <button type="button" class="btn btn-gray ms-2" @click="viewBranches">
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{ branchesText }}
                             </button>
                         </div>
 
@@ -214,6 +212,10 @@ export default {
                 this.repo.displayRoot = "true";
             }
             this.forceRerender();
+        },
+
+        viewBranches() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/branches`);
         }
     },
 
