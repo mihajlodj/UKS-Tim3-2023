@@ -40,7 +40,7 @@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li class="mx-2">
-                                    <input type="text" placeholder="Search branches" />
+                                    <input type="text" placeholder="Search branches" class="px-1" />
                                 </li>
                                 <li v-for="b in repo.branches" :key="b.name">
                                     <button class="btn dropdown-item" @click="selectedBranchChanged(b.name)">

@@ -1,11 +1,9 @@
 from django.http import Http404
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.response import Response
-from main.models import Project, WorksOn, Developer, Branch, Commit, PullRequest
+from main.models import Project, WorksOn, Branch, Commit, PullRequest
 from rest_framework.decorators import api_view, permission_classes
-from repository.serializers import RepositorySerializer, DeveloperSerializer
-from main.gitea_service import get_root_content, get_repository, get_folder_content, delete_repository
 from rest_framework.exceptions import PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -16,11 +14,11 @@ def get_all_branches(request, owner_username, repository_name):
     print(owner_username)
     check_view_permission(request, repository_name)
     result = []
-    # name, updated-avatar, updated-timestamp, pull-request id, pull-request status
     branches = Branch.objects.filter(project__name=repository_name)
     for branch in branches:
         obj = {
-            'name': branch.name
+            'name': branch.name,
+            'created_by': branch.created_by.user.username
         }
         try:
             latest_commit = Commit.objects.filter(branch=branch).latest('timestamp')
