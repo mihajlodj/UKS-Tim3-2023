@@ -130,7 +130,12 @@ export default {
             this.repo.http = res.data.http;
             this.repo.ssh = res.data.ssh;
             this.repo.defaultBranch = res.data.default_branch;
+
             this.repo.chosenBranch = res.data.default_branch;
+            if (this.$route.query.chosen) {
+                this.repo.chosenBranch = this.$route.query.chosen;
+            }
+
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
             }

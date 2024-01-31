@@ -5,7 +5,9 @@
         <div class="container w-75 mt-4">
             <div class="d-flex justify-content-between">
                 <h3>Branches</h3>
-                <button type="button" class="btn btn-create">New branch</button>
+                <button type="button" class="btn btn-create" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    New branch
+                </button>
             </div>
 
             <ul class="nav nav-tabs mt-3">
@@ -17,45 +19,51 @@
                 </li>
             </ul>
 
-            <table class="table mt-2">
-                <thead>
-                    <tr>
-                        <th scope="col" class="th-branch">Branch</th>
-                        <th scope="col" class="th-updated">Updated</th>
-                        <th scope="col" class="th-pull">Pull request</th>
-                        <th scope="col" class="th-trash"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="b in targetList" :key="b.name">
-                        <td>{{ b.name }}</td>
-                        <td>
-                            <div v-if="b.updatedAvatar !== undefined">
-                                <button type="button" class="btn-avatar me-2">
-                                    <img :src="b.updatedAvatar" alt="avatar" class="updated-avatar" />
-                                </button>
-                                <span class="how-long">{{ howLongAgo(b.updatedTimestamp) }}</span>
+            <BranchesTable :targetList="targetList" />
+        </div>
+
+        <div class="modal" id="exampleModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create a branch</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="d-flex flex-column">
+                                <label class="mb-1">New branch name</label>
+                                <input type="text" v-model="newBranchName" @input="validateBranchName" />
+                                <div class="d-flex justify-content-start">
+                                    <font-awesome-icon v-if="!isValidBranchName" icon="fa-solid fa-triangle-exclamation"
+                                        class="me-2 mt-1" />
+                                    <label v-if="!isValidBranchName" class="warn">Branch name can only contain
+                                        alphanumerics, dashes ( - ) and underscores ( _ )
+                                    </label>
+                                </div>
                             </div>
-                        </td>
-                        <td>
-                            <button v-if="b.prStatus !== undefined" type="button" class="btn-pr">
-                                <img v-if="b.prStatus == 'Closed'" alt="pr" src="../../../assets/closed_pr_red.png"
-                                    class="img-pr mb-1" />
-                                <img v-if="b.prStatus == 'Open'" alt="pr" src="../../../assets/open_pr_green.png"
-                                    class="img-pr mb-1" />
-                                <img v-if="b.prStatus == 'Merged'" alt="pr" src="../../../assets/merged_pr_purple.png"
-                                    class="img-pr mb-1" />
-                                <span>#{{ b.prId }}</span>
-                            </button>
-                        </td>
-                        <td>
-                            <button type="button" class="btn-trash" @click="deleteBranch">
-                                <font-awesome-icon icon="fa-regular fa-trash-can" />
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <div v-if="branchData.length > 0">
+                                <label class="mt-3 mb-1">Source</label>
+                                <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ chosenSource }}
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li v-for="b in branchData" :key="b.name">
+                                        <button class="btn dropdown-item" @click="changeChosenSource(b.name)">
+                                            {{ b.name }}
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-gray" @click="cancelBranchInput" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-create" @click="createBranch">Create new branch</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -63,11 +71,13 @@
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
 import BranchService from '@/services/BranchService'
+import BranchesTable from './BranchesTable.vue'
 
 export default {
     name: 'BranchesView',
     components: {
-        RepoNavbar
+        RepoNavbar,
+        BranchesTable
     },
 
     mounted() {
@@ -83,9 +93,9 @@ export default {
                     "createdBy": item.created_by
                 });
             }
+            this.chosenSource = this.branchData[0].name;
             this.createdByUser = this.branchData.filter(item => item.createdBy === this.$route.params.username);
             this.targetList = this.branchData;
-            console.log(this.branchData);
         }).catch(err => {
             console.log(err);
         });
@@ -97,15 +107,14 @@ export default {
             branchData: [],
             createdByUser: [],
             activeAll: true,
-            targetList: []
+            targetList: [],
+            chosenSource: '',
+            newBranchName: '',
+            isValidBranchName: true
         }
     },
 
     methods: {
-        deleteBranch() {
-
-        },
-
         setActiveAll() {
             this.activeAll = true;
             this.targetList = this.branchData;
@@ -116,47 +125,28 @@ export default {
             this.targetList = this.createdByUser;
         },
 
-        howLongAgo(timestamp) {
-            const currentDate = new Date();
-            const previousDate = new Date(timestamp);
-            const seconds = Math.floor((currentDate - previousDate) / 1000);
-            let interval = Math.floor(seconds / 31536000);
+        changeChosenSource(name) {
+            this.chosenSource = name;
+        },
 
-            if (interval >= 1) {
-                return interval + " year" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 2592000);
-            if (interval >= 1) {
-                return interval + " month" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 86400);
-            if (interval >= 1) {
-                return interval + " day" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 3600);
-            if (interval >= 1) {
-                return interval + " hour" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 60);
-            if (interval >= 1) {
-                return interval + " minute" + (interval === 1 ? "" : "s") + " ago";
-            }
-            return Math.floor(seconds) + " second" + (Math.floor(seconds) === 1 ? "" : "s") + " ago";
+        validateBranchName() {
+            const regexPattern = /^[a-zA-Z][\w-]*$/;
+            this.isValidBranchName = (this.newBranchName !== "" && regexPattern.test(this.newBranchName));
+        },
+
+        cancelBranchInput() {
+            this.newBranchName = "";
+            this.isValidBranchName = true;
+        },
+
+        createBranch() {
+
         }
     },
 }
 </script>
 
 <style scoped>
-.th-branch,
-.th-updated,
-.th-pull,
-.th-trash {
-    background-color: #f7f8fa;
-    color: #656e77;
-    font-weight: 600;
-}
-
 .btn-create,
 .btn-create:hover {
     color: white;
@@ -164,65 +154,30 @@ export default {
     height: 90%;
 }
 
-.th-branch {
-    width: 42%;
-}
-
-.th-updated {
-    width: 30%
-}
-
-.th-pull {
-    width: 22%;
-}
-
-.btn-trash {
-    padding: 2px 10px;
-    background: none;
-    border: none;
-}
-
-.btn-trash:hover {
-    background-color: #f7f8fa;
-}
-
-.updated-avatar {
-    height: 25px;
-    border-radius: 50%;
-}
-
-.btn-avatar {
-    padding: 0%;
-    border: none;
-    background: none;
-}
-
-.how-long {
-    font-size: small;
-}
-
-.img-pr {
-    height: 12px;
-    margin-right: 7px;
-}
-
-.btn-pr {
-    background: none;
-    border: 1px solid #656e77;
-    color: black;
-    padding: 0px 10px;
-    margin: 4px 2px;
-    border-radius: 16px;
-    font-size: small;
-    color: #656e77;
-}
-
-table {
-    border: 1px solid #d6dce3;
-}
-
 .nav-link,
 .nav-link:hover {
     color: black;
+}
+
+.btn-gray,
+.btn-gray:hover {
+    border: 1px solid #d6d9dd;
+    background-color: #f7f8fa;
+    color: #353636;
+    height: 37px;
+    min-width: 120px;
+    max-width: 200px;
+}
+
+.warn {
+    font-size: smaller;
+    color: #d32d36;
+    font-weight: 600;
+    max-width: 350px;
+}
+
+.fa-triangle-exclamation {
+    color: #d32d36;
+    height: 15px;
 }
 </style>
