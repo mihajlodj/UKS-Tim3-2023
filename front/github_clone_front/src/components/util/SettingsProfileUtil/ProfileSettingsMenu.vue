@@ -2,8 +2,8 @@
   <div class="profile-settings-menu">
     <button @click="selectItem('publicProfile')"><i class="bi bi-person"></i>&nbsp;&nbsp;Public profile</button>
     <button @click="selectItem('account')"><i class="bi bi-gear"></i>&nbsp;&nbsp;Account</button>
-    <a href="#"><i class="bi bi-envelope"></i>&nbsp;&nbsp;Email</a>
-    <a href="#"><i class="bi bi-shield-lock"></i>&nbsp;&nbsp;Password and authentication</a>
+    <!-- <a href="#"><i class="bi bi-envelope"></i>&nbsp;&nbsp;Email</a> -->
+    <!-- <a href="#"><i class="bi bi-shield-lock"></i>&nbsp;&nbsp;Password and authentication</a> -->
     <a href="#"><i class="bi bi-bell"></i>&nbsp;&nbsp;Notifications</a>
     <a href="#"><i class="bi bi-key"></i>&nbsp;&nbsp;SSH and GPG keys</a>
     <a href="#"><i class="bi bi-buildings"></i>&nbsp;&nbsp;Organizations</a>

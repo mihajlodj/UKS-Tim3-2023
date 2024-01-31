@@ -43,6 +43,21 @@
         </div>
       </div>
     </div>
+
+  <div class="profile-form" style="border: 1px solid #e42a0a;">
+      <div class="form-title-delete">
+        <h2>Delete Your Account </h2>
+      </div>
+      <span class="warning">
+         <i class="bi bi-exclamation-triangle"></i>&nbsp;This operation will permanently delete your user account. It&nbsp;<b>CANNOT</b>&nbsp;be undone.
+      </span>
+      <div class="form-group">
+        <label for="usersPassowrd">Password</label>
+        <input type="password" id="usersPassowrd" v-model="usersPassowrd"/>
+        <button class="form-button-delete" @click="changePassword">Confirm Deletion</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -55,6 +70,7 @@ export default {
       confirmnewpassword: '',
       currentEmailAddress:'',
       newEmailAddress:'',
+      usersPassowrd:'',
       emailAddresses: [
         { address: 'example1@example.com', isPrimary: true, isActive: true },
         { address: 'example2@example.com', isPrimary: false, isActive: true },
@@ -86,6 +102,15 @@ export default {
 </script>
 
 <style scoped>
+.warning{
+  background: rgb(149, 42, 42);;
+  padding: 0.5rem;
+  margin: 1rem;
+  display: flex;
+  border-radius: 0.5rem;
+  color: rgb(226, 226, 226);
+}
+
 .emailInfoDiv {
   width: 70%;
   overflow: hidden;
@@ -137,12 +162,24 @@ align-items: center;
   margin-bottom: 1rem;
 }
 
+.form-title-delete {
+  text-align: left;
+  padding: 0.5rem;
+  color: white;
+  border-radius: 1rem 1rem 0 0;
+  background: rgb(149, 42, 42);
+}
+
+.form-title-delete h2 {
+  font-size: 1.3rem;
+}
+
 .form-title {
   text-align: left;
   padding: 0.5rem;
   color: white;
   border-radius: 1rem 1rem 0 0;
-  background: rgb(101, 99, 99);
+  background: rgb(89, 86, 86);
 }
 
 .form-title h2 {
@@ -184,6 +221,21 @@ align-items: center;
 .form-button:hover {
   background-color: #22863a;
 }
+
+.form-button-delete {
+  background-color: #ea280f;
+  color: #ffffff;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  float: left;
+  margin-right: 0.5rem;
+}
+
+.form-button-delete:hover {
+  background-color: #22863a;
+}
+
 
 .form-button-email {
   background-color: #2b8f47;
