@@ -111,6 +111,14 @@ export default {
   margin-bottom: 1rem;
 }
 
+.updating-avatar-part input, textarea, select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
 .profile-picture-main{
   max-height: 6rem;
   max-width: 100%;
@@ -120,6 +128,10 @@ export default {
 .main {
   width: 60%;
   margin: auto;
+}
+
+.main .github-label{
+  margin-top: 1rem;
 }
 
 .update-profile-class{
@@ -159,7 +171,7 @@ export default {
   color: white;
 }
 
-input, textarea, select {
+.form-group input, textarea, select {
   width: 100%;
   padding: 8px;
   margin-top: 5px;

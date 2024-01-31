@@ -10,10 +10,10 @@
           <a href="#" id="profile_name">{{ profileName }}</a>
           <label id="personal-acc">Your personal account</label>
         </div>
-        <profile-settings-menu/>
+        <profile-settings-menu @menuItemSelected="handleMenuItemSelected" />
       </div>
       <div class="right-side">
-        <settings-profile-public-profile/>
+        <component :is="selectedComponent" />
       </div>
     </div>
   </div>
@@ -22,14 +22,15 @@
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import ProfileSettingsMenu from '../util/SettingsProfileUtil/ProfileSettingsMenu.vue';
-import SettingsProfilePublicProfile from './SettingsProfilePublicProfile .vue';
+import SettingsProfilePublicProfile from './SettingsProfilePublicProfile.vue';
+import SettingsProfileAccount from './SettingsProfileAccount.vue';
 
 export default {
   components: {
     NavBar,
     ProfileSettingsMenu,
     SettingsProfilePublicProfile,
-    
+    SettingsProfileAccount
   },
   data() {
     return {
@@ -39,9 +40,18 @@ export default {
         avatar_url: "url_to_your_avatar",
         bio: "Your bio goes here",
       },
+      selectedComponent: 'SettingsProfilePublicProfile',
     };
   },
-  methods: {},
+  methods: {
+    handleMenuItemSelected(item) {
+      if (item === 'publicProfile') {
+        this.selectedComponent = 'SettingsProfilePublicProfile';
+      } else if (item === 'account') {
+        this.selectedComponent = 'SettingsProfileAccount';
+      }
+    },
+  },
 };
 </script>
 
