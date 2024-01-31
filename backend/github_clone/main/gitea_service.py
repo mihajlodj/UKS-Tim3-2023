@@ -108,7 +108,16 @@ def create_branch(owner, repository_name, branch):
         'Authorization': f'Bearer {access_token}',
     }
     data = {
-        'name': branch.name,
+        'new_branch_name': branch.name,
         'old_ref_name': branch.parent.name
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
+def delete_branch(owner, repository_name, branch_name):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches/{branch_name}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+

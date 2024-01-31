@@ -153,8 +153,13 @@ export default {
                     "name": this.newBranchName,
                     "createdBy": this.$route.params.username
                 });
+                this.createdByUser.push({
+                    "name": this.newBranchName,
+                    "createdBy": this.$route.params.username
+                });
                 this.newBranchName = "";
                 this.isValidBranchName = true;
+                this.chosenSource = this.branchData[0].name;
                 
             }).catch(err => {
                 console.log(err);

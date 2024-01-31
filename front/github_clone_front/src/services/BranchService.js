@@ -8,4 +8,8 @@ const createBranch = (createdBy, repoName, data) => {
     return api.post(`branch/create/${createdBy}/${repoName}/`, data);
 }
 
-export default { getAllBranches, createBranch }
+const deleteBranch = (repoName, branchName) => {
+    return api.delete(`branch/delete/${repoName}/${branchName}/`);
+}
+
+export default { getAllBranches, createBranch, deleteBranch }

@@ -36,7 +36,7 @@
                         </button>
                     </td>
                     <td>
-                        <button type="button" class="btn-trash" @click="deleteBranch">
+                        <button type="button" class="btn-trash" @click="deleteBranch(b.name)">
                             <font-awesome-icon icon="fa-regular fa-trash-can" />
                         </button>
                     </td>
@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import BranchService from '@/services/BranchService';
+
 export default {
     name: 'BranchesTable',
 
@@ -58,9 +60,14 @@ export default {
         },
 
         deleteBranch(name) {
-            console.log(name);
-            console.log(this.targetList);
-        },  
+            BranchService.deleteBranch(this.$route.params.repoName, name).then(res => {
+                console.log(res);
+                location.reload();
+            }).catch(err => {
+                console.log(err);
+
+            });
+        },
 
         howLongAgo(timestamp) {
             const currentDate = new Date();

@@ -7,6 +7,8 @@ from main.models import Project, WorksOn, Branch, Commit, PullRequest
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
+from main import gitea_service
+import threading
 
 
 class CreateBranchView(generics.CreateAPIView):
@@ -43,6 +45,20 @@ def get_all_branches(request, owner_username, repository_name):
     return Response(result, status=status.HTTP_200_OK)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_branch(request, repository_name, branch_name):
+    try:
+        branch = Branch.objects.get(name=branch_name)
+        repository = Project.objects.get(name=repository_name)
+        check_delete_permission(request, repository)
+        threading.Thread(target=gitea_service.delete_branch, args=([request.user.username, repository_name, branch_name]), kwargs={}).start()
+        branch.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
 def check_view_permission(request, repo_name):
     logged_user = request.user.username
     try:
@@ -53,4 +69,11 @@ def check_view_permission(request, repo_name):
                 raise PermissionDenied()
     except ObjectDoesNotExist:
         raise Http404()
+    
+    
+def check_delete_permission(request, repo):
+    logged_user = request.user.username
+    owner = WorksOn.objects.get(project__name=repo.name, role='Owner')
+    if owner.developer.user.username != logged_user:
+        raise PermissionDenied()
     
