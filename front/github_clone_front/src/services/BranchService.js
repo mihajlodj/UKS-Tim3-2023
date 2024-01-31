@@ -1,7 +1,7 @@
 import api from '../api'
 
-const getAllBranches = (username, repoName) => {
-    return api.get(`branch/all/${username}/${repoName}/`);
+const getAllBranches = (repoName) => {
+    return api.get(`branch/all/${repoName}/`);
 }
 
 const createBranch = (createdBy, repoName, data) => {

@@ -19,7 +19,7 @@ class CreateBranchView(generics.CreateAPIView):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_all_branches(request, owner_username, repository_name):
+def get_all_branches(request, repository_name):
     check_view_permission(request, repository_name)
     result = []
     branches = Branch.objects.filter(project__name=repository_name)
@@ -56,7 +56,7 @@ def delete_branch(request, repository_name, branch_name):
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except ObjectDoesNotExist:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 def check_view_permission(request, repo_name):
