@@ -64,7 +64,7 @@ export default {
       email: 'simicmail@gmail.com',
       biography: '',
       visibility: 'public',
-      currentAvatar: '../../assets/git_profile_picture.png',
+      currentAvatar: require("E:/Desktop/UKS_projekat/UKS-Tim3-2023/front/github_clone_front/src/assets/git_profile_picture.png"),
       selectedImage: null,
     };
   },
