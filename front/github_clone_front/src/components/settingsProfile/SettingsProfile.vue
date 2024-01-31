@@ -12,7 +12,9 @@
         </div>
         <profile-settings-menu/>
       </div>
-      <div class="right-side"></div>
+      <div class="right-side">
+        <settings-profile-public-profile/>
+      </div>
     </div>
   </div>
 </template>
@@ -20,11 +22,14 @@
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import ProfileSettingsMenu from '../util/SettingsProfileUtil/ProfileSettingsMenu.vue';
+import SettingsProfilePublicProfile from './SettingsProfilePublicProfile .vue';
 
 export default {
   components: {
     NavBar,
-    ProfileSettingsMenu
+    ProfileSettingsMenu,
+    SettingsProfilePublicProfile,
+    
   },
   data() {
     return {
@@ -41,6 +46,15 @@ export default {
 </script>
 
 <style scoped>
+.right-side {
+  width: 80%;
+  float: left;
+  height: auto;
+  background: rgb(60, 60, 60);
+}
+
+
+
 #profile-info-id {
   padding-top: 0.3rem;
   float: left;
@@ -89,17 +103,10 @@ export default {
 }
 
 .left-side {
-  width: 30%;
+  width: 20%;
   float: left;
   height: auto;
   background: rgb(79, 78, 78);
-}
-
-.right-side {
-  width: 70%;
-  float: left;
-  height: auto;
-  background: rgb(60, 60, 60);
 }
 
 .entire-page {
