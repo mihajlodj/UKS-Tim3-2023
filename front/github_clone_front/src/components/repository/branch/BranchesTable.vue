@@ -48,6 +48,7 @@
 
 <script>
 import BranchService from '@/services/BranchService';
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'BranchesTable',
@@ -61,11 +62,21 @@ export default {
 
         deleteBranch(name) {
             BranchService.deleteBranch(this.$route.params.repoName, name).then(res => {
-                console.log(res);
-                location.reload();
+                console.log(res)
+                this.update(name);
+                toast(`Branch ${name} has been deleted`, {
+                    autoClose: 1000,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT
+                });
             }).catch(err => {
                 console.log(err);
+            });
+        },
 
+        update(name) {
+            this.$emit('branchDeleted', {
+                "name": name
             });
         },
 

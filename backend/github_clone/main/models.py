@@ -67,7 +67,7 @@ class Project(models.Model):
 class Branch(models.Model):
     name = models.CharField(max_length=255)
     project = models.ForeignKey(Project, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
-    parent = models.ForeignKey('self', related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey('self', related_name='branches', on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(Developer, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
 

@@ -19,7 +19,7 @@
                 </li>
             </ul>
 
-            <BranchesTable :targetList="targetList" />
+            <BranchesTable :targetList="targetList" @branchDeleted="branchDeleted" />
         </div>
 
         <div class="modal" id="exampleModal" tabindex="-1">
@@ -141,6 +141,13 @@ export default {
         cancelBranchInput() {
             this.newBranchName = "";
             this.isValidBranchName = true;
+        },
+
+        branchDeleted(data) {
+            const branchName = data.name;
+            this.targetList = this.targetList.filter(item => item.name !== branchName);
+            this.branchData = this.branchData.filter(item => item.name !== branchName);
+            this.createdByUser = this.createdByUser.filter(item => item.name !== branchName);
         },
 
         /* eslint-disable */
