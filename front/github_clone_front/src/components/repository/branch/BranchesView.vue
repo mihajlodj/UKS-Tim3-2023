@@ -46,7 +46,8 @@
                                 <label class="mt-3 mb-1">Source</label>
                                 <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
                                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ chosenSource }}
+                                    <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ chosenSource
+                                    }}
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li v-for="b in branchData" :key="b.name">
@@ -59,8 +60,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-gray" @click="cancelBranchInput" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-create" @click="createBranch">Create new branch</button>
+                        <button type="button" class="btn btn-gray" @click="cancelBranchInput"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-create" @click="createBranch" data-bs-dismiss="modal">Create
+                            new branch</button>
                     </div>
                 </div>
             </div>
@@ -72,6 +75,7 @@
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
 import BranchService from '@/services/BranchService'
 import BranchesTable from './BranchesTable.vue'
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'BranchesView',
@@ -139,8 +143,37 @@ export default {
             this.isValidBranchName = true;
         },
 
+        /* eslint-disable */
         createBranch() {
+            BranchService.createBranch(this.$route.params.username, this.$route.params.repoName, {
+                "name": this.newBranchName,
+                "parent": this.chosenSource
+            }).then(_res => {
+                this.branchData.push({
+                    "name": this.newBranchName,
+                    "createdBy": this.$route.params.username
+                });
+                this.newBranchName = "";
+                this.isValidBranchName = true;
+                
+            }).catch(err => {
+                console.log(err);
+                if (err.response.data.detail === "duplicate branch name") {
+                    toast("Branch already exists!", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT
+                    });
+                }
+                else {
+                    toast("Unable to create branch!", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT
+                    });
+                }
 
+            })
         }
     },
 }

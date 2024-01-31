@@ -4,4 +4,8 @@ const getAllBranches = (username, repoName) => {
     return api.get(`branch/all/${username}/${repoName}/`);
 }
 
-export default { getAllBranches }
+const createBranch = (createdBy, repoName, data) => {
+    return api.post(`branch/create/${createdBy}/${repoName}/`, data);
+}
+
+export default { getAllBranches, createBranch }
