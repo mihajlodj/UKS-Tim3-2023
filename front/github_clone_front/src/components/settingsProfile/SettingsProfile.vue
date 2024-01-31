@@ -7,7 +7,7 @@
           <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
         </div>
         <div id="profile-info-id">
-          <a href="#" id="profile_name">{{ profileName }}</a>
+          <a href="#" id="profile_name">{{ this.username }}</a>
           <label id="personal-acc">Your personal account</label>
         </div>
         <profile-settings-menu @menuItemSelected="handleMenuItemSelected" />
@@ -34,7 +34,7 @@ export default {
   },
   data() {
     return {
-      profileName: 'SimicAleksa',
+      username: localStorage.getItem("username"),
       user: {
         login: "your_username",
         avatar_url: "url_to_your_avatar",

@@ -59,7 +59,7 @@
 export default {
   data() {
     return {
-      username: 'SimicAleksa',
+      username: localStorage.getItem("username"),
       fullName: '',
       email: 'simicmail@gmail.com',
       biography: '',

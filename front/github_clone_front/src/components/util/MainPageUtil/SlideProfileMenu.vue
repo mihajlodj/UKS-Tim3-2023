@@ -3,7 +3,7 @@
     <div class="basic-info">
       <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
       &nbsp;
-      <label>SimicAleksa</label>
+      <label>{{this.username}}</label>
     </div>
     <a href="#"><i class="bi bi-emoji-smile"></i>&nbsp;&nbsp;Set status</a>
     <a href="/profile"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
@@ -30,6 +30,11 @@
 export default {
   props: {
     isProfileOpen: Boolean,
+  },
+  data() {
+    return {
+      username: localStorage.getItem("username"),
+    };
   },
 };
 </script>

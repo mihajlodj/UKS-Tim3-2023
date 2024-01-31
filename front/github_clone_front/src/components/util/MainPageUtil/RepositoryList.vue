@@ -1,6 +1,6 @@
 <template>
   <div class="repository-list">
-    <label id="profile-name"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main"> SimicAleksa</label>
+    <label id="profile-name"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main"> {{this.username}}</label>
     <br>
     <div class="repo-searchj-new">
       <div id="top-repo">
@@ -30,6 +30,7 @@ export default {
   data() {
     return {
       searchQuery: '',
+      username: localStorage.getItem("username"),
     };
   },
   computed: {

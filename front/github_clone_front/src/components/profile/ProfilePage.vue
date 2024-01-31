@@ -8,10 +8,10 @@
           <a href="/profile/settings">
             <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
           </a>
+          <span class="tooltiptext">Change your avatar</span>
         </div>
-        <span class="tooltiptext">Change your avatar</span>
         <div>
-          <label v-if="!editing" id="profile_name">{{ profileName }}</label>
+          <label v-if="!editing" id="profile_name">{{ this.username }}</label>
           <input v-else v-model="newProfileName" type="text" id="new-profile-name" />
         </div>
         <div id="edit-button-div">
@@ -48,7 +48,7 @@ export default {
     return {
       editing: false,
       activeLinkExtension: 'overview',
-      profileName: 'SimicAleksa',
+      username: localStorage.getItem("username"),
       newProfileName: '',
       user: {
         login: "your_username",
@@ -64,10 +64,10 @@ export default {
   methods: {
     startEditing() {
       this.editing = true;
-      this.newProfileName = this.profileName;
+      this.newProfileName = this.username;
     },
     saveChanges() {
-      this.profileName = this.newProfileName;
+      this.username = this.newProfileName;
       this.editing = false;
     },
     cancelEditing() {
@@ -157,14 +157,12 @@ export default {
     padding: 0.5rem;
 }
 
-.links:hover{
- background: rgba(132, 132, 132, 0.623);
-}
-
 #avatar-id{
     width: auto;
     justify-content: center;
+    align-items: center;
     display: flex;
+    flex-direction: column;
 }
 
 .profile-picture-main{
@@ -174,17 +172,19 @@ export default {
   padding: 0.5rem;
 }
 
-.left-side:hover .tooltiptext {
+#avatar-id:hover .tooltiptext {
   visibility: visible;
 }
 
-.left-side .tooltiptext {
+#avatar-id .tooltiptext {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  margin-top: -1.5rem;
-  margin-inline-end: 4rem;
-  margin-inline-start: 4rem;
+  height: auto;
   border-radius: 5rem;
+  padding-inline-end: 0.5rem;
+  padding-inline-start: 0.5rem;
+  margin-top: -1.5rem;
   visibility: hidden;
   background: gray;
   color: rgb(214, 214, 214);
