@@ -1,18 +1,47 @@
 <template>
   <div class="main">
-    <div class="form-group">
-      <label for="currentpassword">Current Password</label>
-      <input type="password" id="currentpassword" v-model="currentpassword"/>
+    <div class="profile-form">
+      <div class="form-title">
+        <h2>Password</h2>
+      </div>
+      <div class="form-group">
+        <label for="currentpassword">Current Password</label>
+        <input type="password" id="currentpassword" v-model="currentpassword"/>
+
+        <label for="newpassword">New Password</label>
+        <input type="password" id="newpassword" v-model="newpassword"/>
+
+        <label for="confirmnewpassword">Confirm New Password</label>
+        <input type="password" id="confirmnewpassword" v-model="confirmnewpassword"/>
+
+        <button class="form-button" @click="changePassword">Update Password</button>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label for="newpassword">New Password</label>
-      <input type="password" id="newpassword" v-model="newpassword"/>
-    </div>
+    <div class="profile-form">
+      <div class="form-title">
+        <h2>Manage Email Addresses</h2>
+      </div>
+      <div class="form-group">
+        <div class="newEmailButtonClass">
+          <label for="newEmailAddress">Add New Email Address</label>
+          <input type="email" id="newEmailAddress" v-model="newEmailAddress"/>
+          
+          <button class="form-button" @click="addEmailAddress">Add Email Address</button>
+        </div>
 
-    <div class="form-group">
-      <label for="confirmnewpassword">Confirm New Password</label>
-      <input type="password" id="confirmnewpassword" v-model="confirmnewpassword"/>
+        <div v-for="(email, index) in emailAddresses" :key="index" class="emailDiv">
+          <div class="emailInfoDiv">
+            <span class="emailSpan">{{ email.address }}</span>
+            <span class="emailAvtivePrimery" v-if="email.isPrimary">Primary</span>
+            <span class="emailAvtivePrimery" v-if="email.isActive">Activated</span>
+          </div>
+          <div class="makePrimAndRmoveBtns">
+            <button class="form-button-email" @click="makePrimary(index)" v-if="!email.isPrimary">Make Primary</button>
+            <button class="form-button-email" @click="removeEmail(index)" v-if="!email.isPrimary">Remove</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -24,56 +53,152 @@ export default {
       currentpassword: '',
       newpassword: '',
       confirmnewpassword: '',
+      currentEmailAddress:'',
+      newEmailAddress:'',
+      emailAddresses: [
+        { address: 'example1@example.com', isPrimary: true, isActive: true },
+        { address: 'example2@example.com', isPrimary: false, isActive: true },
+        { address: 'example3@example.com', isPrimary: false, isActive: true },
+      ],
     };
   },
   methods: {
+    changePassword() {
+    },
+    addEmailAddress() {
+      this.emailAddresses.push({
+        address: this.newEmailAddress,
+        isPrimary: false,
+        isActive: true,
+      });
+      this.newEmailAddress = '';
+    },
+    makePrimary(index) {
+      this.emailAddresses.forEach((email, i) => {
+        email.isPrimary = i === index;
+      });
+    },
+    removeEmail(index) {
+      this.emailAddresses.splice(index, 1);
+    },
   },
 };
 </script>
 
 <style scoped>
+.emailInfoDiv {
+  width: 70%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.makePrimAndRmoveBtns{
+  width: auto;
+}
+.newEmailButtonClass{
+  margin-bottom: 5rem;
+}
+
+.emailDiv{
+margin: 1rem;
+display: flex;
+align-items: center;
+}
+.emailAvtivePrimery{
+  background: #22ca51;
+  color: white;
+  border: none;
+  margin-inline-end: 0.2rem;
+  margin-inline-start: 0.2rem;
+  padding: 0.2rem;
+  border-radius: 0.4rem;
+  font-size: 0.7rem;
+  align-self: center;
+}
+
+.emailSpan{
+  color: white;
+  margin-inline-end: 1rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; 
+}
+
 .main {
   width: 60%;
   margin: auto;
+  margin-top: 1rem;
+}
+
+.profile-form {
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-title {
+  text-align: left;
+  padding: 0.5rem;
+  color: white;
+  border-radius: 1rem 1rem 0 0;
+  background: rgb(101, 99, 99);
+}
+
+.form-title h2 {
+  font-size: 1.3rem;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  padding: 0.5rem;
+  margin-bottom: 3rem;
 }
 
-.form-group label{
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
   color: white;
 }
 
-.form-group input, textarea, select {
+.form-group input {
   width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  margin-bottom: 10px;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  color: white;
+  background: rgb(55, 53, 53);
+  border: 1px solid gray;
   box-sizing: border-box;
 }
 
-.github-button {
-  background-color: #2ea44f;
+.form-button {
+  background-color: #2b8f47;
   color: #ffffff;
   border: none;
-  padding: 10px;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
   cursor: pointer;
+  float: left;
+  margin-right: 0.5rem;
 }
 
-.github-button:hover {
+.form-button:hover {
   background-color: #22863a;
 }
 
-.github-button-delete {
-  background-color: #a4362e;
+.form-button-email {
+  background-color: #2b8f47;
   color: #ffffff;
   border: none;
-  padding: 10px;
+  border-radius: 0.5rem;
+  padding: 0.3rem;
   cursor: pointer;
+  float: left;
+  font-size: 0.9rem;
+  margin-right: 0.5rem;
 }
 
-.github-button-delete:hover {
-  background-color: #863122;
+.form-button-email:hover {
+  background-color: #22863a;
 }
+
 </style>
