@@ -30,7 +30,7 @@
         <select id="visibility" v-model="visibility">
           <option value="public">Public</option>
           <option value="private">Private</option>
-          <option value="private">Limited</option>
+          <option value="limited">Limited</option>
         </select>
       </div>
       <div class="update-profile-class">
@@ -49,7 +49,7 @@
       </div>
       <div class="current-avatar">
         <label class="github-label">Current Avatar:</label>
-        <img src="../../assets/git_profile_picture.png" alt="Current Avatar" class="profile-picture-main" />
+        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
       </div>
     </div>
   </div>
@@ -64,17 +64,26 @@ export default {
       email: 'simicmail@gmail.com',
       biography: '',
       visibility: 'public',
+      currentAvatar: '../../assets/git_profile_picture.png',
+      selectedImage: null,
     };
   },
   methods: {
     updateProfile() {
       
     },
-    selectAvatar() {
-      
+    selectAvatar(event) {
+      this.selectedImage = event.target.files[0];
     },
     updateAvatar() {
-      
+      if (this.selectedImage) {
+        
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.currentAvatar = reader.result;
+        };
+        reader.readAsDataURL(this.selectedImage);
+      }
     },
     deleteAvatar() {
       
