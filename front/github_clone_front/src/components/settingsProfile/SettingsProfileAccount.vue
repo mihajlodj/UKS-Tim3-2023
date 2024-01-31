@@ -106,7 +106,7 @@ display: flex;
 align-items: center;
 }
 .emailAvtivePrimery{
-  background: #22ca51;
+  background: #1da3b2;
   color: white;
   border: none;
   margin-inline-end: 0.2rem;
