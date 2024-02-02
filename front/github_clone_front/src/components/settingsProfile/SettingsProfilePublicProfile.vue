@@ -177,6 +177,9 @@ export default {
   margin-top: 5px;
   margin-bottom: 10px;
   box-sizing: border-box;
+  background: rgb(55, 53, 53);
+  border: 1px solid gray;
+  color:white;
 }
 
 .github-button {
