@@ -6,4 +6,5 @@ urlpatterns = [
     path('<str:username>/', get_users_info, name='get_user_info'),
     path('gitea/<str:username>/', get_gitea_user_info, name='get_gitea_user_info'),
     path('avatar/<str:username>/', get_developer_avatar, name='get_developer_avatar'),
+    path('emails/<str:username>/', get_developers_emails, name='get_developer_emails'),
 ]

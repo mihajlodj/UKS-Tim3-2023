@@ -135,3 +135,13 @@ def get_gitea_user_info_gitea_service(username):
         'Authorization': f'Bearer {access_token}',
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+
+
+def get_gitea_user_emails_gitea_service():
+    api_endpoint = f'/api/v1/admin/emails'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+

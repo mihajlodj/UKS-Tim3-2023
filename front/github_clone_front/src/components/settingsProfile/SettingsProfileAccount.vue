@@ -62,7 +62,18 @@
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
+
 export default {
+  mounted(){
+    DeveloperService.getUsersEmails(localStorage.getItem("username"))
+        .then(res => {
+            console.log(res);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+  },
   data() {
     return {
       currentpassword: '',

@@ -1,7 +1,7 @@
 <template>
   <div class="slide-profile-menu" :class="{ 'slide-in': isProfileOpen }">
     <div class="basic-info">
-      <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+      <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
       &nbsp;
       <label>{{this.username}}</label>
     </div>
@@ -27,12 +27,25 @@
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
+
 export default {
   props: {
     isProfileOpen: Boolean,
   },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
   data() {
     return {
+      currentAvatar: '',
       username: localStorage.getItem("username"),
     };
   },

@@ -4,7 +4,7 @@
     <div class="main-content">
       <div class="left-side">
         <div id="avatar-id">
-          <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
+          <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
         </div>
         <div id="profile-info-id">
           <a href="#" id="profile_name">{{ this.username }}</a>
@@ -24,6 +24,7 @@ import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import ProfileSettingsMenu from '../util/SettingsProfileUtil/ProfileSettingsMenu.vue';
 import SettingsProfilePublicProfile from './SettingsProfilePublicProfile.vue';
 import SettingsProfileAccount from './SettingsProfileAccount.vue';
+import DeveloperService from '@/services/DeveloperService';
 
 export default {
   components: {
@@ -32,8 +33,19 @@ export default {
     SettingsProfilePublicProfile,
     SettingsProfileAccount
   },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
   data() {
     return {
+      currentAvatar: '',
       username: localStorage.getItem("username"),
       user: {
         login: "your_username",

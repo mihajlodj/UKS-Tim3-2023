@@ -6,7 +6,7 @@
       <div class="left-side">
         <div id="avatar-id">
           <a href="/profile/settings">
-            <img src="../../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main" />
+            <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
           </a>
           <span class="tooltiptext">Change your avatar</span>
         </div>
@@ -46,8 +46,19 @@ export default {
     ProfileNavBarExtension,
     ProfilePageOverView
   },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
   data() {
     return {
+      currentAvatar: '',
       editing: false,
       activeLinkExtension: 'overview',
       username: localStorage.getItem("username"),

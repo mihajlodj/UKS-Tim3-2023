@@ -17,4 +17,8 @@ const getUserAvatar = (username) => {
     return api.get(`developer/avatar/${username}`);
 }
 
-export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar};
+const getUsersEmails = (username) => {
+    return api.get(`developer/emails/${username}`);
+}
+
+export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar, getUsersEmails};
