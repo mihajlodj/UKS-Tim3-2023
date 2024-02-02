@@ -100,3 +100,16 @@ def delete_repository(owner, repository_name):
         'Authorization': f'Bearer {access_token}',
     }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+
+
+# user crud
+def update_developer_username(new_username, old_username):
+    api_endpoint = f'/api/v1/admin/users/{old_username}/rename'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    data = {
+        'new_username': new_username,
+    }
+    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)

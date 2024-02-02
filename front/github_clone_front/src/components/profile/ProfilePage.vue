@@ -37,6 +37,8 @@
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import ProfileNavBarExtension from '../profile/ProfileNavBarExtension.vue';
 import ProfilePageOverView from '../profile/ProfilePageOverView.vue';
+import DeveloperService from '@/services/DeveloperService';
+import { toast } from 'vue3-toastify';
 
 export default {
   components: {
@@ -67,8 +69,20 @@ export default {
       this.newProfileName = this.username;
     },
     saveChanges() {
-      this.username = this.newProfileName;
-      this.editing = false;
+      DeveloperService.update({ "username": this.newProfileName }, this.username).then(res => {
+                console.log(res.data);
+                this.username = this.newProfileName;
+                localStorage.setItem("username", this.newProfileName);
+                this.editing = false;
+                toast("Changes saved!", {
+                    autoClose: 500,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT
+                });
+            }).catch(err => {
+                console.log(err);
+            });
+
     },
     cancelEditing() {
       this.editing = false;
