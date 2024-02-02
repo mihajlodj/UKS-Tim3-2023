@@ -1,0 +1,36 @@
+version: '3.8'
+
+networks:
+  gitea:
+    external: false
+
+services:
+  web:
+    build: ./github_clone
+    command: python manage.py runserver 0.0.0.0:8000
+    networks:
+      - gitea
+    volumes:
+      - ./github_clone/:/usr/src/github_clone/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./.env
+    depends_on:
+      - server
+  server:
+    image: gitea/gitea:1.21.1
+    # container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    networks:
+      - gitea
+    volumes:
+      - ./gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "222:22"

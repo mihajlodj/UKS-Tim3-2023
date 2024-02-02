@@ -38,11 +38,11 @@ def get_user_token(username):
     response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data, auth=(admin_username, admin_pass))
     return response.json().get('sha1')
 
-def get_user_avatar(user_token):
-    api_endpoint = f'/api/v1/user'
+def get_user_avatar(username):
+    api_endpoint = f'/api/v1/users/{username}'
     headers = {
         'Accept': 'application/json',
-        'Authorization': f'Bearer {user_token}',
+        'Authorization': f'Bearer {access_token}',
     }
     response = requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers)
     return response.json().get('avatar_url')
@@ -100,3 +100,24 @@ def delete_repository(owner, repository_name):
         'Authorization': f'Bearer {access_token}',
     }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+
+def create_branch(owner, repository_name, branch):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    data = {
+        'new_branch_name': branch.name,
+        'old_ref_name': branch.parent.name
+    }
+    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
+def delete_branch(owner, repository_name, branch_name):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches/{branch_name}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+

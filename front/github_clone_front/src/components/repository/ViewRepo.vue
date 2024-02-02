@@ -36,12 +36,11 @@
                         <div class="d-flex justify-content-start">
                             <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch
-                                }}
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch }}
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li class="mx-2">
-                                    <input type="text" placeholder="Search branches" />
+                                    <input type="text" placeholder="Search branches" class="px-1" />
                                 </li>
                                 <li v-for="b in repo.branches" :key="b.name">
                                     <button class="btn dropdown-item" @click="selectedBranchChanged(b.name)">
@@ -49,9 +48,8 @@
                                     </button>
                                 </li>
                             </ul>
-                            <button type="button" class="btn btn-gray ms-2">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{
-                                    branchesText }}
+                            <button type="button" class="btn btn-gray ms-2" @click="viewBranches">
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{ branchesText }}
                             </button>
                         </div>
 
@@ -132,7 +130,12 @@ export default {
             this.repo.http = res.data.http;
             this.repo.ssh = res.data.ssh;
             this.repo.defaultBranch = res.data.default_branch;
+
             this.repo.chosenBranch = res.data.default_branch;
+            if (this.$route.query.chosen) {
+                this.repo.chosenBranch = this.$route.query.chosen;
+            }
+
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
             }
@@ -214,6 +217,10 @@ export default {
                 this.repo.displayRoot = "true";
             }
             this.forceRerender();
+        },
+
+        viewBranches() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/branches`);
         }
     },
 

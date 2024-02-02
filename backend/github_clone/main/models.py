@@ -19,6 +19,12 @@ class Role(models.TextChoices):
     IS_BANNED = 'IsBanned', 'IsBanned'
 
 
+class PullRequestStatus(models.TextChoices):
+    OPEN = 'Open', 'Open'
+    CLOSED = 'Closed', 'Closed'
+    MERGED = 'Merged', 'Merged'
+
+
 class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
     caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
@@ -61,7 +67,8 @@ class Project(models.Model):
 class Branch(models.Model):
     name = models.CharField(max_length=255)
     project = models.ForeignKey(Project, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
-    parent = models.ForeignKey('self', related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey('self', related_name='branches', on_delete=models.SET_NULL, null=True, blank=True)
+    created_by = models.ForeignKey(Developer, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Tag(Event):
@@ -74,7 +81,8 @@ class Commit(models.Model):
     author = models.ForeignKey(Developer, related_name='authored_commits', on_delete=models.CASCADE)
     committer = models.ForeignKey(Developer, related_name='committed_commits', on_delete=models.CASCADE)
     branch = models.ForeignKey(Branch, related_name='belongs_to', on_delete=models.CASCADE)
-    tags = models.ManyToManyField(Tag, related_name='commits')
+    tags = models.ManyToManyField(Tag, related_name='commits', blank=True)
+    timestamp = models.DateTimeField(default=timezone.now)
 
 
 class Milestone(models.Model):
@@ -127,6 +135,8 @@ class PullRequest(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     author = models.OneToOneField(Developer, related_name='pull_requests_author',on_delete=models.DO_NOTHING)
     reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers')
+    status = models.CharField(max_length=10, choices=PullRequestStatus.choices, default=PullRequestStatus.OPEN)
+    timestamp = models.DateTimeField(default=timezone.now)
 
 
 class RegistrationCandidate(models.Model):
