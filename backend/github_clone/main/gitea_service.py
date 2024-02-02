@@ -38,11 +38,11 @@ def get_user_token(username):
     response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data, auth=(admin_username, admin_pass))
     return response.json().get('sha1')
 
-def get_user_avatar(user_token):
-    api_endpoint = f'/api/v1/user'
+def get_user_avatar(username):
+    api_endpoint = f'/api/v1/users/{username}'
     headers = {
         'Accept': 'application/json',
-        'Authorization': f'Bearer {user_token}',
+        'Authorization': f'Bearer {access_token}',
     }
     response = requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers)
     return response.json().get('avatar_url')
