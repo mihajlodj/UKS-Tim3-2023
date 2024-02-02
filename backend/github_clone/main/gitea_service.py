@@ -6,6 +6,7 @@ access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
 
+
 def save_user(user_data):
     api_endpoint = '/api/v1/admin/users'
     headers = {
@@ -14,6 +15,7 @@ def save_user(user_data):
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=user_data)
 
+
 def delete_user(username):
     api_endpoint = f'/api/v1/admin/users/{username}'
     headers = {
@@ -21,6 +23,7 @@ def delete_user(username):
         'Authorization': f'Bearer {access_token}',
     }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+
 
 def get_user_token(username):
     api_endpoint = f'/api/v1/users/{username}/tokens'
@@ -31,12 +34,16 @@ def get_user_token(username):
     data = {
         'name': 'user_access_token_all',
         'scopes': [
-            'read:activitypub', 'write:activitypub', 'read:issue', 'write:issue', 'read:misc', 'write:misc', 'read:notification', 'write:notification',
-            'read:organization', 'write:organization', 'write:package', 'read:repository', 'write:repository', 'read:user', 'write:user'
+            'read:activitypub', 'write:activitypub', 'read:issue', 'write:issue', 'read:misc', 'write:misc',
+            'read:notification', 'write:notification',
+            'read:organization', 'write:organization', 'write:package', 'read:repository', 'write:repository',
+            'read:user', 'write:user'
         ]
     }
-    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data, auth=(admin_username, admin_pass))
+    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data,
+                             auth=(admin_username, admin_pass))
     return response.json().get('sha1')
+
 
 def get_user_avatar(user_token):
     api_endpoint = f'/api/v1/user'
@@ -47,6 +54,7 @@ def get_user_avatar(user_token):
     response = requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers)
     return response.json().get('avatar_url')
 
+
 def create_repository(repo_data, username):
     api_endpoint = f'/api/v1/admin/users/{username}/repos'
     headers = {
@@ -54,6 +62,7 @@ def create_repository(repo_data, username):
         'Authorization': f'Bearer {access_token}',
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=repo_data)
+
 
 def get_root_content(username, repository, ref):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents?ref={ref}'
@@ -63,6 +72,7 @@ def get_root_content(username, repository, ref):
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
 
+
 def get_folder_content(username, repository, branch, path):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
     headers = {
@@ -70,6 +80,7 @@ def get_folder_content(username, repository, branch, path):
         'Authorization': f'Bearer {access_token}',
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+
 
 def get_repository(owner, repository):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}'
@@ -79,7 +90,8 @@ def get_repository(owner, repository):
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
 
-def update_repository(owner, repository, old_name): 
+
+def update_repository(owner, repository, old_name):
     api_endpoint = f'/api/v1/repos/{owner}/{old_name}'
     headers = {
         'Accept': 'application/json',
@@ -92,6 +104,7 @@ def update_repository(owner, repository, old_name):
         'default_branch': repository.default_branch.name
     }
     requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
 
 def delete_repository(owner, repository_name):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}'
@@ -113,3 +126,12 @@ def update_developer_username(new_username, old_username):
         'new_username': new_username,
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
+
+def get_gitea_user_info_gitea_service(username):
+    api_endpoint = f'/api/v1/users/{username}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()

@@ -21,7 +21,7 @@
 
     <div class="form-group">
       <label for="email">Email Address:</label>
-      <input type="email" id="email" v-model="email" placeholder="Enter your email address" />
+      <input type="email" id="email" v-model="email" placeholder="Enter your email address" readonly/>
     </div>
 
     <div class="form-group">
@@ -64,16 +64,30 @@
 import DeveloperService from '@/services/DeveloperService';
 export default {
   mounted() {
-      DeveloperService.getUser(localStorage.getItem("username")).then(res => {
-          console.log(res);
-          this.firstName=res.data.first_name,
-          this.lastName=res.data.last_name,
-          this.email=res.data.email,
-          this.username=res.data.username
-      }).catch(err => {
-          console.log(err);
-      });
-    },
+    DeveloperService.getUserBasicInfo(localStorage.getItem("username"))
+        .then(res => {
+            console.log(res);
+            this.firstName = res.data.first_name;
+            this.lastName = res.data.last_name;
+            this.email = res.data.email;
+            this.username = res.data.username;
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
+    DeveloperService.getUserGiteaBasicInfo(localStorage.getItem("username"))
+        .then(res => {
+            console.log(res);
+            this.biography = res.data.description
+            this.visibility = res.data.visibility
+            this.currentAvatar = res.data.avatar_url
+        })
+        .catch(err => {
+            console.log(err);
+        });
+},
+
   data() {
     return {
       username: '',
@@ -81,8 +95,8 @@ export default {
       lastName: '',
       email: '',
       biography: '',
-      visibility: 'public',
-      currentAvatar: require("E:/Desktop/UKS_projekat/UKS-Tim3-2023/front/github_clone_front/src/assets/git_profile_picture.png"),
+      visibility: '',
+      currentAvatar: '',
       selectedImage: null,
     };
   },
@@ -111,6 +125,10 @@ export default {
 </script>
 
 <style scoped>
+#email{
+  pointer-events: none;
+  color: #2889aa;
+}
 .updating-avatar-part{
   float: left;
 }
