@@ -3,4 +3,5 @@ from developer.views import *
 
 urlpatterns = [
     path('update/<str:username>/', UpdateUserView.as_view(), name='update_developer_username'),
+    path('<str:username>/', get_users_info, name='get_user_info'),
 ]

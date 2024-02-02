@@ -10,8 +10,13 @@
     </div>
 
     <div class="form-group">
-      <label for="fullName">Full Name:</label>
-      <input type="text" id="fullName" v-model="fullName" placeholder="Enter your full name" />
+      <label for="firstName">First Name:</label>
+      <input type="text" id="firstName" v-model="firstName" placeholder="Enter your first name" />
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name:</label>
+      <input type="text" id="lastName" v-model="lastName" placeholder="Enter your last name" />
     </div>
 
     <div class="form-group">
@@ -56,12 +61,25 @@
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
 export default {
+  mounted() {
+      DeveloperService.getUser(localStorage.getItem("username")).then(res => {
+          console.log(res);
+          this.firstName=res.data.first_name,
+          this.lastName=res.data.last_name,
+          this.email=res.data.email,
+          this.username=res.data.username
+      }).catch(err => {
+          console.log(err);
+      });
+    },
   data() {
     return {
-      username: localStorage.getItem("username"),
-      fullName: '',
-      email: 'simicmail@gmail.com',
+      username: '',
+      firstName: '',
+      lastName: '',
+      email: '',
       biography: '',
       visibility: 'public',
       currentAvatar: require("E:/Desktop/UKS_projekat/UKS-Tim3-2023/front/github_clone_front/src/assets/git_profile_picture.png"),

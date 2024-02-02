@@ -5,4 +5,8 @@ const update = (developerData, username) => {
     return api.patch(`developer/update/${username}/`, developerData);
 }
 
-export default { update};
+const getUser = (username) => {
+    return api.get(`developer/${username}`);
+}
+
+export default { update, getUser};
