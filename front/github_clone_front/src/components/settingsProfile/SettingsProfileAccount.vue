@@ -32,13 +32,13 @@
 
         <div v-for="(email, index) in emailAddresses" :key="index" class="emailDiv">
           <div class="emailInfoDiv">
-            <span class="emailSpan">{{ email.address }}</span>
-            <span class="emailAvtivePrimery" v-if="email.isPrimary">Primary</span>
-            <span class="emailAvtivePrimery" v-if="email.isActive">Activated</span>
+            <span class="emailSpan">{{ email.email }}</span>
+            <span class="emailAvtivePrimery" v-if="email.primary">Primary</span>
+            <span class="emailAvtivePrimery" v-if="email.verified">Activated</span>
           </div>
           <div class="makePrimAndRmoveBtns">
-            <button class="form-button-email" @click="makePrimary(index)" v-if="!email.isPrimary">Make Primary</button>
-            <button class="form-button-email" @click="removeEmail(index)" v-if="!email.isPrimary">Remove</button>
+            <button class="form-button-email" @click="makePrimary(index)" v-if="!email.primary">Make Primary</button>
+            <button class="form-button-email" @click="removeEmail(index)" v-if="!email.primary">Remove</button>
           </div>
         </div>
       </div>
@@ -69,6 +69,7 @@ export default {
     DeveloperService.getUsersEmails(localStorage.getItem("username"))
         .then(res => {
             console.log(res);
+            this.emailAddresses = res.data
         })
         .catch(err => {
             console.log(err);
@@ -82,11 +83,7 @@ export default {
       currentEmailAddress:'',
       newEmailAddress:'',
       usersPassowrd:'',
-      emailAddresses: [
-        { address: 'example1@example.com', isPrimary: true, isActive: true },
-        { address: 'example2@example.com', isPrimary: false, isActive: true },
-        { address: 'example3@example.com', isPrimary: false, isActive: true },
-      ],
+      emailAddresses: '',
     };
   },
   methods: {
@@ -94,15 +91,15 @@ export default {
     },
     addEmailAddress() {
       this.emailAddresses.push({
-        address: this.newEmailAddress,
-        isPrimary: false,
-        isActive: true,
+        email: this.newEmailAddress,
+        primary: false,
+        verified: true,
       });
       this.newEmailAddress = '';
     },
     makePrimary(index) {
       this.emailAddresses.forEach((email, i) => {
-        email.isPrimary = i === index;
+        email.primary = i === index;
       });
     },
     removeEmail(index) {
