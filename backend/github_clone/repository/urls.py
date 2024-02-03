@@ -3,6 +3,7 @@ from repository.views import *
 
 urlpatterns = [
     path('', CreateRepositoryView.as_view(), name='create_repo'),
+    path('all_repos/<str:owner_username>/',get_all_users_repo , name='get_all_user_repos'),
     path('owner/<str:username>/', ReadOwnerView.as_view(), name='read_owner'),
     path('update/<str:name>/', UpdateRepositoryView.as_view(), name='update_repository'),
     path('delete/<str:owner_username>/<str:repository_name>/', delete_repo, name='read_repo'),

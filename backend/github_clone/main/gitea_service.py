@@ -115,6 +115,70 @@ def delete_repository(owner, repository_name):
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # user crud
 def update_developer_username(new_username, old_username):
     api_endpoint = f'/api/v1/admin/users/{old_username}/rename'
