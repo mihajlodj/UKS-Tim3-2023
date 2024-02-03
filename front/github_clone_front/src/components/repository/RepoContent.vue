@@ -16,7 +16,7 @@
                 </tr>
                 <tr v-for="file in content" :key="file.name">
                     <td>
-                        <button v-if="file.type == 'file'" type="button" class="btn">
+                        <button v-if="file.type == 'file'" type="button" class="btn" @click="fileClicked(file.name)">
                             <font-awesome-icon icon="fa-regular fa-file" class="me-2 mt-1" />
                             {{ file.name }}
                         </button>
@@ -82,6 +82,10 @@ export default {
 
         returnToParent() {
             this.$emit('returnToParent');
+        },
+
+        fileClicked(name) {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/blob/${this.branch}/${this.foldersPath}${name}`);
         }
     }
 }

@@ -9,6 +9,7 @@ import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
+import TextFile from './components/repository/content/TextFile.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 // import "bootstrap/dist/js/bootstrap"
@@ -80,8 +81,12 @@ const routes = [
     },
     {
         path: "/view/:username/:repoName/branches",
-        component:BranchesView
+        component: BranchesView
     },
+    {
+        path: "/view/:username/:repoName/blob/:branchName/:path(.*)",
+        component: TextFile
+    }
 ]
 
 const router = createRouter({

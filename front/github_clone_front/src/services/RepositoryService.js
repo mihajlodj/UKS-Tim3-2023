@@ -28,4 +28,8 @@ const deleteReposiory = (username, repoName) => {
     return api.delete(`repository/delete/${username}/${repoName}`);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory };
+const getFile = (username, repoName, branchName, path) => {
+    return api.get(`repository/file/${username}/${repoName}/${branchName}/${path}/`);
+}
+
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getFile };
