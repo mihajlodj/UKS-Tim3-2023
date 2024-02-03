@@ -1,10 +1,11 @@
+import base64
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
 from main.models import Project, WorksOn, Developer, Branch
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
-from main.gitea_service import get_root_content, get_repository, get_folder_content, delete_repository
+from main import gitea_service
 from rest_framework.exceptions import PermissionDenied
 
 
@@ -36,7 +37,7 @@ class UpdateRepositoryView(generics.UpdateAPIView):
 def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
     check_view_permission(request, repo)
-    gitea_repo_data = get_repository(owner_username, repository_name)
+    gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier, 'default_branch': repo.default_branch.name, 
               'http': gitea_repo_data['clone_url'], 'ssh': gitea_repo_data['ssh_url'], 'branches': []}
     branches = Branch.objects.filter(project__name=repository_name)
@@ -49,14 +50,14 @@ def get_repo_data_for_display(request, owner_username, repository_name):
 @permission_classes([IsAuthenticated])
 def get_root_files(request, owner_username, repository_name, ref):
     check_view_permission(request, Project.objects.get(name=repository_name))
-    return Response(get_root_content(owner_username, repository_name, ref), status=status.HTTP_200_OK)
+    return Response(gitea_service.get_root_content(owner_username, repository_name, ref), status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_folder_files(request, owner_username, repository_name, branch, path):
     check_view_permission(request, Project.objects.get(name=repository_name))
-    return Response(get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)
+    return Response(gitea_service.get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
@@ -69,9 +70,27 @@ def delete_repo(request, owner_username, repository_name):
     works_on_list = WorksOn.objects.filter(project__name=repository_name)
     for item in works_on_list:
         item.delete()
-    delete_repository(owner_username, repository_name)
+    gitea_service.delete_repository(owner_username, repository_name)
     repository.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+def get_file(request, owner_username, repository_name, branch, path):
+    check_view_permission(request, Project.objects.get(name=repository_name))
+    file_data = gitea_service.get_file(owner_username, repository_name, branch, path)
+    content = ''
+    try:
+        content_bytes = file_data.get('content', '').encode('utf-8')
+        content = base64.b64decode(content_bytes).decode('utf-8')
+    except UnicodeDecodeError:
+        pass
+    result = {
+        'content': content, 'name': file_data['name'], 'path': file_data['path'], 'last_commit_sha': file_data['last_commit_sha'], 'size': file_data['size'],
+        'url': file_data['url'], 'html_url': file_data['html_url'], 'download_url': file_data['download_url']
+    }
+    return Response(result, status=status.HTTP_200_OK)
 
 
 def check_view_permission(request, repo):

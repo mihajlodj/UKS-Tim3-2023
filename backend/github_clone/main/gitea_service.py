@@ -121,3 +121,10 @@ def delete_branch(owner, repository_name, branch_name):
     }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
 
+def get_file(username, repository, branch, path):
+    api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
