@@ -11,15 +11,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         old_username = instance.username
+        print(instance)
         instance.username = validated_data.get('username', instance.username)
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.save()
-        self.gitea_update(instance.username, old_username)
+        self.gitea_update(instance.username, old_username,
+                          instance.first_name, instance.last_name)
         return instance
 
-    def gitea_update(self, new_username, old_username):
+    def gitea_update(self, new_username, old_username,new_first_name,new_last_name):
         update_developer_username(new_username, old_username)
+        update_developer_info(new_username,new_first_name,new_last_name)
 
 
 class DeveloperSerializer(serializers.ModelSerializer):
@@ -29,4 +32,7 @@ class DeveloperSerializer(serializers.ModelSerializer):
         model = Developer
         fields = ('user', 'gitea_token', 'avatar')
 
-
+    def update(self, instance, validated_data):
+        instance.avatar = validated_data.get('avatar', instance.avatar)
+        instance.save()
+        return instance

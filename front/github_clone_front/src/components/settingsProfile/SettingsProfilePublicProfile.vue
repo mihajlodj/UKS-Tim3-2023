@@ -24,20 +24,20 @@
       <input type="email" id="email" v-model="email" placeholder="Enter your email address" readonly/>
     </div>
 
-    <div class="form-group">
+    <!-- <div class="form-group">
       <label for="bio">Biography:</label>
       <textarea id="bio" v-model="biography" placeholder="Write a short bio"></textarea>
-    </div>
+    </div> -->
 
     <div class="form-group">
-      <div class="user-visib">
+      <!-- <div class="user-visib">
         <label for="visibility">User Visibility:</label>
         <select id="visibility" v-model="visibility">
           <option value="public">Public</option>
           <option value="private">Private</option>
           <option value="limited">Limited</option>
         </select>
-      </div>
+      </div> -->
       <div class="update-profile-class">
         <button class="github-button" @click="updateProfile">Update Profile</button>
       </div>
@@ -50,7 +50,7 @@
         <label for="avatar" class="github-label">Profile Picture:</label>
         <input type="file" id="avatar" @change="selectAvatar" accept="image/*" />
         <button class="github-button" @click="updateAvatar">Update Avatar</button>
-        <button class="github-button-delete" @click="deleteAvatar">Delete Avatar</button>
+        <!-- <button class="github-button-delete" @click="deleteAvatar">Delete Avatar</button> -->
       </div>
       <div class="current-avatar">
         <label class="github-label">Current Avatar:</label>
@@ -82,11 +82,19 @@ export default {
             console.log(res);
             this.biography = res.data.description
             this.visibility = res.data.visibility
-            this.currentAvatar = res.data.avatar_url
         })
         .catch(err => {
             console.log(err);
         });
+        
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
 },
 
   data() {
@@ -103,7 +111,7 @@ export default {
   },
   methods: {
     updateProfile() {
-      DeveloperService.update({ 'username': this.username, 'first_name': this.firstName, 'last_name': this.lastName, 'biography':this.biography, 'visibility':this.visibility }, localStorage.getItem("username")).then(res => {
+      DeveloperService.update({ 'username': this.username, 'first_name': this.firstName, 'last_name': this.lastName}, localStorage.getItem("username")).then(res => {
                 console.log(res);
                 localStorage.setItem("username", res.data.username);
                 location.reload()
@@ -120,6 +128,14 @@ export default {
         const reader = new FileReader();
         reader.onload = () => {
           this.currentAvatar = reader.result;
+
+          DeveloperService.updateDeveloperAvatar({ 'avatar': reader.result}, localStorage.getItem("username")).then(res => {
+                console.log(res);
+                location.reload()
+            }).catch(err => {
+                console.log(err);
+            });
+
         };
         reader.readAsDataURL(this.selectedImage);
       }

@@ -23,6 +23,17 @@ class UpdateUserView(generics.UpdateAPIView):
     lookup_field = 'username'
 
 
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_developers_avatar(request, username):
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+    print(developer)
+    developer.avatar = request.data.get('avatar')
+    developer.save()
+    return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_users_info(request, username):
@@ -42,8 +53,12 @@ def get_gitea_user_info(request, username):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_developer_avatar(request, username):
-    gitea_user_info = get_gitea_user_info_gitea_service(username)
-    return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+    return Response(developer.avatar, status=status.HTTP_200_OK)
+    # gitea_user_info = get_gitea_user_info_gitea_service(username)
+    # return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])

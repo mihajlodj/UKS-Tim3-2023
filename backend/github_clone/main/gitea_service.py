@@ -115,70 +115,6 @@ def delete_repository(owner, repository_name):
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # user crud
 def update_developer_username(new_username, old_username):
     api_endpoint = f'/api/v1/admin/users/{old_username}/rename'
@@ -209,3 +145,14 @@ def get_gitea_user_emails_gitea_service():
     }
     return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
 
+
+def update_developer_info(new_username, new_first_name, new_last_name):
+    api_endpoint = f'/api/v1/admin/users/{new_username}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    data = {
+        'full_name': new_first_name + " " + new_last_name,
+    }
+    requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
