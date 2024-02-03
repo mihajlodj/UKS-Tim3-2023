@@ -12,8 +12,9 @@ class UserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         old_username = instance.username
         instance.username = validated_data.get('username', instance.username)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.save()
-        print(instance.username, old_username)
         self.gitea_update(instance.username, old_username)
         return instance
 
