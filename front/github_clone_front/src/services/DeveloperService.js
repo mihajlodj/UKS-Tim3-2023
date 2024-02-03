@@ -9,6 +9,10 @@ const updateDeveloperAvatar = (developerData, username) => {
     return api.patch(`developer/updateAvatar/${username}/`, developerData);
 }
 
+const updateUsersPassword = (userData, username) => {
+    return api.patch(`developer/update/password/${username}/`, userData);
+}
+
 const getUserBasicInfo = (username) => {
     return api.get(`developer/${username}`);
 }
@@ -25,4 +29,4 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
-export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar, getUsersEmails, updateDeveloperAvatar};
+export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar, getUsersEmails, updateDeveloperAvatar, updateUsersPassword};

@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework import generics, status
 from rest_framework.response import Response
@@ -21,6 +22,22 @@ class UpdateUserView(generics.UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
     lookup_field = 'username'
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def change_users_password(request, username):
+    user = User.objects.get(username=username)
+    print(user.check_password(request.data.get('current_password')))
+    if user.check_password(request.data.get('current_password')):
+        new_password = request.data.get('new_password')
+        new_password_repeat = request.data.get('new_password_repeat')
+        if new_password == new_password_repeat:
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PATCH'])

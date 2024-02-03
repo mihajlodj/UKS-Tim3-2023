@@ -63,6 +63,7 @@
 
 <script>
 import DeveloperService from '@/services/DeveloperService';
+import { toast } from 'vue3-toastify';
 
 export default {
   mounted(){
@@ -88,6 +89,26 @@ export default {
   },
   methods: {
     changePassword() {
+      if(this.currentpassword === "" || this.newpassword!==this.confirmnewpassword){
+        toast("Incorect data filled in!", {
+            autoClose: 500,
+            type: 'error',
+            position: toast.POSITION.BOTTOM_RIGHT
+        });
+      }
+      else{
+          DeveloperService.updateUsersPassword({ 'current_password': this.currentpassword, 'new_password':this.newpassword, 'new_password_repeat':this.confirmnewpassword}, localStorage.getItem("username")).then(res => {
+                console.log(res);
+                location.reload()
+            }).catch(err => {
+                console.log(err);
+                toast("Incorect data filled in!", {
+                      autoClose: 500,
+                      type: 'error',
+                      position: toast.POSITION.BOTTOM_RIGHT
+                  });
+            });
+      }
     },
     addEmailAddress() {
       this.emailAddresses.push({
