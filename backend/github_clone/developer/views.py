@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from developer.serializers import DeveloperSerializer, UserSerializer
 from main.models import Developer
-from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service
+from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
+    change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
 
 
 class UpdateDeveloperView(generics.UpdateAPIView):
@@ -35,8 +36,25 @@ def change_users_password(request, username):
         if new_password == new_password_repeat:
             user.set_password(new_password)
             user.save()
+            print(new_password)
+            response_gitea = change_gitea_user_password_gitea_service(username, new_password)
+            print(response_gitea)
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user_developer(request,usersPassowrd ,username):
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+    if user.check_password(usersPassowrd):
+        # developer.delete()
+        # user.delete()
+        response_gitea = delete_gitea_user_gitea_service(username)
+        print(response_gitea, " je dobra stara")
+        return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

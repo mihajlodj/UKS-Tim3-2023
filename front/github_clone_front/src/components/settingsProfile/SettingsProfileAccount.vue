@@ -54,7 +54,7 @@
       <div class="form-group">
         <label for="usersPassowrd">Password</label>
         <input type="password" id="usersPassowrd" v-model="usersPassowrd"/>
-        <button class="form-button-delete" @click="changePassword">Confirm Deletion</button>
+        <button class="form-button-delete" @click="deleteUser">Confirm Deletion</button>
       </div>
     </div>
 
@@ -88,6 +88,28 @@ export default {
     };
   },
   methods: {
+    deleteUser(){
+      if(this.usersPassowrd !== ""){
+          DeveloperService.deleteUser(this.usersPassowrd.toString(), localStorage.getItem("username")).then(res => {
+                console.log(res);
+                location.reload()
+            }).catch(err => {
+                console.log(err);
+                toast("Incorect data filled in!", {
+                      autoClose: 500,
+                      type: 'error',
+                      position: toast.POSITION.BOTTOM_RIGHT
+                  });
+            });
+      }
+      else{
+         toast("Incorect data filled in!", {
+            autoClose: 500,
+            type: 'error',
+            position: toast.POSITION.BOTTOM_RIGHT
+        });
+      }
+    },
     changePassword() {
       if(this.currentpassword === "" || this.newpassword!==this.confirmnewpassword){
         toast("Incorect data filled in!", {

@@ -155,4 +155,26 @@ def update_developer_info(new_username, new_first_name, new_last_name):
     data = {
         'full_name': new_first_name + " " + new_last_name,
     }
-    requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    return requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
+
+def change_gitea_user_password_gitea_service(username, new_password):
+    api_endpoint = f'/api/v1/admin/users/{username}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    data = {
+        'password': new_password,
+    }
+    return requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
+
+def delete_gitea_user_gitea_service(username):
+    print(username," je proslijedjeni")
+    api_endpoint = f'/api/v1/admin/users/{username}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    return requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)

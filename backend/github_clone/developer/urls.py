@@ -4,6 +4,7 @@ from developer.views import *
 urlpatterns = [
     path('update/<str:username>/', UpdateUserView.as_view(), name='update_developer_username'),
     path('update/password/<str:username>/', change_users_password, name='change_users_password'),
+    path('delete/self/<str:username>/<str:usersPassowrd>', delete_user_developer, name='delete_user_developer'),
     path('updateAvatar/<str:username>/', update_developers_avatar, name='update_developer_avatar'),
     path('<str:username>/', get_users_info, name='get_user_info'),
     path('gitea/<str:username>/', get_gitea_user_info, name='get_gitea_user_info'),
