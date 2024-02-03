@@ -62,7 +62,6 @@
 
 <script>
 import DeveloperService from '@/services/DeveloperService';
-import { toast } from 'vue3-toastify';
 
 export default {
   mounted() {
@@ -104,14 +103,10 @@ export default {
   },
   methods: {
     updateProfile() {
-      DeveloperService.update({ 'first_name': this.firstName, 'last_name': this.lastName, 'biography':this.biography, 'visibility':this.visibility }, localStorage.getItem("username")).then(res => {
+      DeveloperService.update({ 'username': this.username, 'first_name': this.firstName, 'last_name': this.lastName, 'biography':this.biography, 'visibility':this.visibility }, localStorage.getItem("username")).then(res => {
                 console.log(res);
                 localStorage.setItem("username", res.data.username);
-                toast("Profile updated!", {
-                        autoClose: 1000,
-                        type: 'success',
-                        position: toast.POSITION.BOTTOM_RIGHT
-                    });
+                location.reload()
             }).catch(err => {
                 console.log(err);
             });
