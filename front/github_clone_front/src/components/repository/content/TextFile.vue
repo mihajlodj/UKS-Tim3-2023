@@ -4,8 +4,8 @@
         <PathDisplay />
         <div>
             <div class="editor">
-                <CodeHeader :numLines="lines.length" :size="file.size" :htmlUrl="file.html_url"
-                    :downloadUrl="file.download_url" />
+                <CodeHeader :numLines="lines.length" :size="file.size" :name="file.name"
+                    :downloadUrl="file.download_url" :content="file.content" />
                 <CodeDisplay :lines="lines" />
             </div>
         </div>

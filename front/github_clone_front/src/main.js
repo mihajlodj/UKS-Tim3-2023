@@ -26,7 +26,7 @@ import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-ico
 import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { faFlask } from '@fortawesome/free-solid-svg-icons'
+import { faFlask, faDownload } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
@@ -49,6 +49,7 @@ library.add(faPen);
 library.add(faArrowRightArrowLeft);
 library.add(faFlask);
 library.add(faTrashCan);
+library.add(faDownload);
 
 const routes = [
     {
