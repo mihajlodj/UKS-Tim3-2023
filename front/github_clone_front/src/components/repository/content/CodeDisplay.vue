@@ -16,18 +16,24 @@
 export default {
     name: 'CodeDisplay',
 
-    props: ['lines'],
+    // props: ['lines'],
 
-    /* eslint-disable */
-    watch: {
-        lines: function (newLines, oldLines) {
-            this.countSpaces(newLines);
-        }
-    },
+    // /* eslint-disable */
+    // watch: {
+    //     lines: function (newLines, oldLines) {
+    //         this.countSpaces(newLines);
+    //     }
+    // },
+
+    mounted() {
+        this.lines = localStorage.getItem('fileContent').split("\n");
+        this.countSpaces(this.lines);
+    },    
 
     data() {
         return {
-            spaces: []
+            spaces: [],
+            lines: []
         }
     },
 
@@ -78,6 +84,8 @@ export default {
     width: 80%;
     border: 1px solid #adbbc8;
     border-top: none;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
     padding: 15px 0px;
 }
 

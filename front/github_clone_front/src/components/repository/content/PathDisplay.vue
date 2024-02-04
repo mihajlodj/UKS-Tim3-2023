@@ -8,7 +8,10 @@
                     <span v-if="d" class="dir" @click="navigateToDir(index)">{{ d }}</span>
                     <span v-if="d" class="text">/</span>
                 </span>
-                <span class="text">{{ fileName }}</span>
+                <span v-if="!editing" class="text">{{ fileName }}</span>
+                <span v-else>
+                    <input type="text" v-model="newFileName" />
+                </span>
             </span>
         </div>
     </div>
@@ -17,6 +20,8 @@
 <script>
 export default {
     name: 'PathDisplay',
+
+    props: ['editing'],
 
     mounted() {
         this.getDirectories();
@@ -27,8 +32,9 @@ export default {
             repoName: this.$route.params.repoName,
             path: this.$route.params.path,
             fileName: '',
+            newFileName: '',
             directories: [],
-            branch: this.$route.params.branchName
+            branch: this.$route.params.branchName,
         }
     },
 
@@ -36,6 +42,7 @@ export default {
         getDirectories() {
             this.directories = this.path.split("/");
             this.fileName = this.directories.pop();
+            this.newFileName = this.fileName;
         },
 
         repoClicked() {
@@ -44,10 +51,14 @@ export default {
 
         navigateToDir(index) {
             let result = this.directories.slice(0, index + 1);
-            console.log(result);
-            console.log(result.join("/"));
             let path = result.join("/");
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}?chosen=${this.branch}&path=${path}`);
+        },
+
+        updateFileName() {
+            this.$emit('updateFileName', {
+                fileName: this.newFileName
+            });
         }
     }
 }
@@ -81,5 +92,13 @@ export default {
     width: 80%;
     padding: 25px 10px;
     background-color: #22272d;
+}
+
+input {
+    background-color: #22272d;
+    color: #adbbc8;
+    border: 1px solid #adbbc8;
+    border-radius: 5px;
+    padding: 5px;
 }
 </style>

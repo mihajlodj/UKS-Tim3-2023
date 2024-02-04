@@ -20,7 +20,7 @@
                     <button type="button" class="header-btn me-1 px-3" @click="downloadFile">
                         <font-awesome-icon icon="fa-solid fa-download" />
                     </button>
-                    <button type="button" class="header-btn me-1">
+                    <button type="button" class="header-btn me-1" @click="editFile">
                         <font-awesome-icon icon="fa-solid fa-pen" />
                     </button>
                 </div>
@@ -45,6 +45,10 @@ export default {
     methods: {
         setActiveTab(name) {
             this.activeTab = name;
+        },
+
+        editFile() {
+            this.$emit('editFile', {});
         },
 
         async downloadFile() {

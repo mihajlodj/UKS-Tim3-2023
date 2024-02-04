@@ -10,6 +10,7 @@ import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
 import TextFile from './components/repository/content/TextFile.vue';
+// import TextFileEdit from './components/repository/content/TextFileEdit.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 // import "bootstrap/dist/js/bootstrap"
@@ -87,7 +88,11 @@ const routes = [
     {
         path: "/view/:username/:repoName/blob/:branchName/:path(.*)",
         component: TextFile
-    }
+    },
+    // {
+    //     path: "/edit/:username/:repoName/blob/:branchName/:path(.*)",
+    //     component: TextFileEdit
+    // }
 ]
 
 const router = createRouter({
