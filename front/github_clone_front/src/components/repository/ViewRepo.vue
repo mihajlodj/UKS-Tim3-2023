@@ -135,6 +135,11 @@ export default {
             if (this.$route.query.chosen) {
                 this.repo.chosenBranch = this.$route.query.chosen;
             }
+            if (this.$route.query.path) {
+                this.repo.foldersPath = this.$route.query.path + "/";
+                this.repo.displayRoot = "false";
+            }
+            this.$router.replace({'query': null});
 
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
@@ -205,6 +210,7 @@ export default {
         folderClicked(data) {
             this.repo.foldersPath = this.repo.foldersPath.concat(data["name"] + "/")
             this.repo.displayRoot = "false";
+            console.log(this.repo.foldersPath);
             this.forceRerender();
         },
 

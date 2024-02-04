@@ -1,18 +1,12 @@
 <template>
     <div v-if="spaces.length > 0" class="d-flex justify-content-center center">
-        <div class="d-flex justify-content-start editor">
-            <div class="d-flex flex-column line-num">
-                <div v-for="(line, index) in lines" :key="line" class="line">
-                    <span>{{ index + 1 }}</span>
-                </div>
-            </div>
-            <div class="d-flex flex-column lines">
-                <div v-for="(line, index) in lines" :key="line" class="line">
-                    <span>
-                        <span v-for="n in spaces[index]" :key="n">&nbsp;</span>
-                        <span>{{ line }}</span>
-                    </span>
-                </div>
+        <div class="inner-editor">
+            <div v-for="(line, index) in lines" :key="line" class="line">
+                <span class="line-num">{{ index + 1 }}</span>
+                <span class="line-content">
+                    <span v-for="n in spaces[index]" :key="n">&nbsp;</span>
+                    <span>{{ line }}</span>
+                </span>
             </div>
         </div>
     </div>
@@ -47,7 +41,6 @@ export default {
                 }
                 this.spaces.push(counter);
             }
-            console.log(this.spaces);
         }
     }
 }
@@ -55,27 +48,20 @@ export default {
 
 <style scoped>
 .line-num {
-    width: 8%;
+    width: 100%;
     max-width: 80px;
     background-color: #22272d;
     color: #adbbc8;
-    padding: 15px 15px 15px 60px;
-    align-items: end;
-    border-top: 1px solid #adbbc8;
-    border-bottom: 1px solid #adbbc8;
-    border-left: 1px solid #adbbc8;
-    border-bottom-left-radius: 7px;
+    text-align: right;
+    padding-right: 10px;
+    user-select: none;
 }
 
-.lines {
-    width: 92%;
+.line-content {
     background-color: #22272d;
-    color: white;
-    padding: 15px 60px 15px 20px;
-    border-top: 1px solid #adbbc8;
-    border-bottom: 1px solid #adbbc8;
-    border-right: 1px solid #adbbc8;
-    border-bottom-right-radius: 7px;
+    color: #adbbc8;
+    text-align: left;
+    padding: 0px 10px 0px 20px;
 }
 
 .center {
@@ -86,8 +72,18 @@ export default {
     width: 80%;
 }
 
+.inner-editor {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    border: 1px solid #adbbc8;
+    border-top: none;
+    padding: 15px 0px;
+}
+
 .line {
     padding: 1px 0px;
-    height: 26px;
+    display: grid;
+    grid-template-columns: 1fr 12fr;
 }
 </style>

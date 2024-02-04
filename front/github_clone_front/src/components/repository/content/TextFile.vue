@@ -1,8 +1,14 @@
 <template>
-    <div class="background is-fullheight min-vh-100">
-        <span class="text">{{ path }}</span>
-        <CodeHeader :numLines="lines.length" :size="file.size" :htmlUrl="file.html_url" :downloadUrl="file.download_url" />
-        <CodeDisplay :lines="lines" />
+    <div class="background is-fullheight min-vh-100 ">
+        <RepoNavbar />
+        <PathDisplay />
+        <div>
+            <div class="editor">
+                <CodeHeader :numLines="lines.length" :size="file.size" :htmlUrl="file.html_url"
+                    :downloadUrl="file.download_url" />
+                <CodeDisplay :lines="lines" />
+            </div>
+        </div>
     </div>
 </template>
 
@@ -10,12 +16,16 @@
 import RepositoryService from '@/services/RepositoryService';
 import CodeDisplay from './CodeDisplay.vue';
 import CodeHeader from './CodeHeader.vue';
+import PathDisplay from './PathDisplay.vue';
+import RepoNavbar from '../RepoNavbar.vue'
 
 export default {
     name: 'TextFile',
     components: {
         CodeDisplay,
-        CodeHeader
+        CodeHeader,
+        PathDisplay,
+        RepoNavbar
     },
 
     mounted() {
@@ -25,8 +35,6 @@ export default {
                 ...res.data
             };
             this.lines = res.data.content.split("\n");
-            console.log(this.file.content);
-            console.log(this.lines);
         }).catch(err => {
             console.log(err);
         })
@@ -53,7 +61,7 @@ export default {
     background-color: #22272d;
 }
 
-.text {
-    color: white;
+.editor {
+    max-width: 1250px;
 }
 </style>

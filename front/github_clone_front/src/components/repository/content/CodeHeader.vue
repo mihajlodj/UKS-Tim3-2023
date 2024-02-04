@@ -39,13 +39,13 @@ export default {
             if (this.size < 1024) {
                 return `${this.size.toString()} B`
             } else if (this.size < 1024 * 1024) {
-                let s = this.size / 1024;
+                let s = Math.floor(this.size / 1024);
                 return `${s.toString()} KB`
             } else if (this.size < 1024 * 1024 * 1024) {
-                let s = this.size / (1024 * 1024);
+                let s = Math.floor(this.size / (1024 * 1024));
                 return `${s.toString()} MB`
             } else {
-                let s = this.size / (1024 * 1024 * 1024);
+                let s = Math.floor(this.size / (1024 * 1024 * 1024));
                 return `${s.toString()} GB`
             }
         }
@@ -84,6 +84,8 @@ export default {
     border-right: 1px solid #adbbc8;
     border-left: 1px solid #adbbc8;
     border-top: 1px solid #adbbc8;
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
 }
 
 .sm {
