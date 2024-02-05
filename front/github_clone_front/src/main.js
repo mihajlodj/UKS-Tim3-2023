@@ -9,8 +9,7 @@ import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
-import TextFile from './components/repository/content/TextFile.vue';
-// import TextFileEdit from './components/repository/content/TextFileEdit.vue';
+import FileDisplay from './components/repository/content/FileDisplay.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 // import "bootstrap/dist/js/bootstrap"
@@ -28,6 +27,9 @@ import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { faFlask, faDownload } from '@fortawesome/free-solid-svg-icons'
+import 'vue-pdf-embed/dist/style/index.css'
+import 'vue-pdf-embed/dist/style/annotationLayer.css'
+import 'vue-pdf-embed/dist/style/textLayer.css'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
@@ -87,7 +89,7 @@ const routes = [
     },
     {
         path: "/view/:username/:repoName/blob/:branchName/:path(.*)",
-        component: TextFile
+        component: FileDisplay
     },
 ]
 

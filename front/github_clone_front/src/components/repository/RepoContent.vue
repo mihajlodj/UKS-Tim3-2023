@@ -2,15 +2,15 @@
     <div>
         <table class="table mt-3">
             <tbody>
-                <tr v-if="displayRoot=='false' && content.length > 0">
+                <tr v-if="displayRoot == 'false' && content.length > 0">
                     <td>
                         <button type="button" class="btn" @click="returnToParent">
                             <div class="d-flex justify-content-start">
-                                <font-awesome-icon icon="fa-regular fa-folder" class="me-2 mt-1" /> 
+                                <font-awesome-icon icon="fa-regular fa-folder" class="me-2 mt-1" />
                                 <span class="dots">.</span>
                                 <span class="dots">.</span>
                             </div>
-                            
+
                         </button>
                     </td>
                 </tr>

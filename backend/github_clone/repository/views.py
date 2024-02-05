@@ -82,15 +82,16 @@ def delete_repo(request, owner_username, repository_name):
 def get_file(request, owner_username, repository_name, branch, path):
     check_view_permission(request, Project.objects.get(name=repository_name))
     file_data = gitea_service.get_file(owner_username, repository_name, branch, path)
-    content = ''
+    content = file_data['content']
+    is_text = True
     try:
         content_bytes = file_data.get('content', '').encode('utf-8')
         content = base64.b64decode(content_bytes).decode('utf-8')
     except UnicodeDecodeError:
-        pass
+        is_text = False
     result = {
         'content': content, 'name': file_data['name'], 'path': file_data['path'], 'last_commit_sha': file_data['last_commit_sha'], 'size': file_data['size'],
-        'url': file_data['url'], 'html_url': file_data['html_url'], 'download_url': file_data['download_url']
+        'url': file_data['url'], 'html_url': file_data['html_url'], 'download_url': file_data['download_url'], 'is_text': is_text
     }
     return Response(result, status=status.HTTP_200_OK)
 

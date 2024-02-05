@@ -1,5 +1,5 @@
 <template>
-    <div v-if="allowed" class="background is-fullheight min-vh-100 ">
+    <div v-if="allowed" class="background is-fullheight min-vh-100">
         <RepoNavbar />
         <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
 
