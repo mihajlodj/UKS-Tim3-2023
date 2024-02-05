@@ -85,3 +85,8 @@ def edit_file(owner, repository, filepath, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
     response = requests.put(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
     return response.json()['content']['last_commit_sha']
+
+def delete_file(owner, repository, filepath, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
+    response = requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    return response.json()['commit']['sha']

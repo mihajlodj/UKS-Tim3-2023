@@ -11,4 +11,5 @@ urlpatterns = [
     path('folder/<str:owner_username>/<str:repository_name>/<str:branch>/<path:path>/', get_folder_files, name='get_root_files'),
     path('file/<str:owner_username>/<str:repository_name>/<str:branch>/<path:path>/', get_file, name='get_files'),
     path('edit_file/<str:owner_username>/<str:repository_name>/<path:path>/', edit_file, name='edit_file'),
+    path('delete_file/<str:owner_username>/<str:repository_name>/<path:path>/', delete_file, name='delete_file'),
 ]

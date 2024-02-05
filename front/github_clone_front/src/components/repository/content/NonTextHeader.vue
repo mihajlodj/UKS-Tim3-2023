@@ -1,10 +1,16 @@
 <template>
     <div class="d-flex justify-content-center center">
-        <div class="contain">
+        <div class="contain d-flex justify-content-between">
             <div class="d-flex justify-content-start">
                 <div v-if="size" class="d-flex align-items-center ms-3">
                     <span class="text sm">{{ fileSize }}</span>
                 </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="button" class="header-btn me-1 px-3" @click="deleteFile">
+                    <font-awesome-icon icon="fa-regular fa-trash-can" />
+                </button>
             </div>
         </div>
     </div>
@@ -16,6 +22,12 @@ export default {
     name: 'CodeDisplay',
 
     props: ['size'],
+
+    methods: {
+        deleteFile() {
+            this.$emit('deleteFile', {});
+        },
+    },
 
     computed: {
         fileSize() {
@@ -43,6 +55,15 @@ export default {
 
 .center {
     background-color: #22272d;
+}
+
+.header-btn {
+    color: #adbbc8;
+    background-color: #323941;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    text-decoration: none;
 }
 
 .contain {

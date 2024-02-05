@@ -1,12 +1,13 @@
 <template>
     <div v-if="allowed" class="background is-fullheight min-vh-100">
         <RepoNavbar />
-        <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
-
+        <div class="editor">
+            <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
+        </div>
         <div>
             <div class="editor">
                 <CodeHeader v-if="!editing" :numLines="lines.length" :size="file.size" :name="file.name"
-                    :downloadUrl="file.download_url" :content="file.content" @editFile="editFile" />
+                    :downloadUrl="file.download_url" :content="file.content" @editFile="editFile" @deleteFile="deleteFile" />
 
                 <EditingHeader v-else />
                 <CodeDisplay v-if="!editing" :key="codeDisplayKey" />
@@ -119,6 +120,10 @@ export default {
             this.newFileName = data.fileName;
         },
 
+        deleteFile() {
+            this.$emit('deleteFile', {});
+        },
+
         cancelEdit() {
             this.editing = false;
             this.pathKey += 1;
@@ -173,7 +178,7 @@ export default {
     width: 80%;
 }
 
-.btn-commit {
+.btn-commit, .btn-commit:hover {
     background-color: #347d38;
     color: white;
     border-radius: 5px;
@@ -181,7 +186,7 @@ export default {
     border: none;
 }
 
-.btn-cancel {
+.btn-cancel, .btn-cancel:hover {
     background-color: #373e48;
     color: white;
     border-radius: 5px;

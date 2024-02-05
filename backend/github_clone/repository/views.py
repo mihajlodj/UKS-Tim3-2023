@@ -96,6 +96,48 @@ def get_file(request, owner_username, repository_name, branch, path):
     return Response(result, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
+def delete_file(request, owner_username, repository_name, path):
+    try:
+        decoded_data = request.body.decode('utf-8')
+        json_data = json.loads(decoded_data)
+
+        author_name = f'{request.user.first_name} {request.user.last_name}'
+        author_email = request.user.email
+        
+        branch_name = json_data['branch']
+        timestamp = datetime.now()
+        formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        old_file = gitea_service.get_file(owner_username, repository_name, branch_name, path)
+        sha = old_file['sha']
+        message = json_data['message']
+
+        commit_data = {
+            'author': {
+                'email': author_email,
+                'name': author_name
+            },
+            'branch': branch_name,
+            'committer': {
+                'email': author_email,
+                'name': author_name
+            },
+            'dates': {
+                'author': formatted_datetime,
+                'committer': formatted_datetime
+            },
+            'message': message,
+            'sha': sha 
+        }
+        commit_sha = gitea_service.delete_file(owner_username, repository_name, path, commit_data)
+        author = Developer.objects.get(user__username=request.user.username)
+        branch = Branch.objects.get(project__name=repository_name, name=branch_name)
+        Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, message=message)
+        return Response(status=status.HTTP_200_OK)
+    except Exception as ex:
+        print(ex)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def edit_file(request, owner_username, repository_name, path):
     try:
@@ -136,11 +178,9 @@ def edit_file(request, owner_username, repository_name, path):
             'sha': sha 
         }
         commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
-
         author = Developer.objects.get(user__username=request.user.username)
         branch = Branch.objects.get(project__name=repository_name, name=branch_name)
         Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, message=message)
-
         return Response(status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)

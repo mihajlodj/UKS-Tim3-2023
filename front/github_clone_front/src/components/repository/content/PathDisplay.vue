@@ -1,18 +1,20 @@
 <template>
     <div class="d-flex justify-content-center">
-        <div class="contain">
-            <span>
-                <span @click="repoClicked" class="repo">{{ repoName }}</span>
-                <span class="text">/</span>
-                <span v-for="(d, index) in directories" :key="d">
-                    <span v-if="d" class="dir" @click="navigateToDir(index)">{{ d }}</span>
-                    <span v-if="d" class="text">/</span>
+        <div class="d-flex justify-content-between contain">
+            <div class="d-flex justify-content-start">
+                <span>
+                    <span @click="repoClicked" class="repo">{{ repoName }}</span>
+                    <span class="text">/</span>
+                    <span v-for="(d, index) in directories" :key="d">
+                        <span v-if="d" class="dir" @click="navigateToDir(index)">{{ d }}</span>
+                        <span v-if="d" class="text">/</span>
+                    </span>
+                    <span v-if="!editing" class="text">{{ fileName }}</span>
+                    <span v-else>
+                        <input type="text" v-model="newFileName" @input="updateFileName" />
+                    </span>
                 </span>
-                <span v-if="!editing" class="text">{{ fileName }}</span>
-                <span v-else>
-                    <input type="text" v-model="newFileName" @input="updateFileName" />
-                </span>
-            </span>
+            </div>
         </div>
     </div>
 </template>

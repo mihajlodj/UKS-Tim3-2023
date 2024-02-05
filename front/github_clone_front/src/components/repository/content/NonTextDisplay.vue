@@ -4,7 +4,7 @@
         <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
 
         <div>
-            <NonTextHeader :size="file.size" />
+            <NonTextHeader :size="file.size" @deleteFile="deleteFile" />
             <div class="d-flex justify-content-center">
                 <div class="contain">
                     <object v-if="loaded && getFileType() === 'PDF'">
@@ -97,8 +97,8 @@ export default {
 
         },
 
-        isPdf() {
-            return this.file.name.endsWith('.pdf');
+        deleteFile() {
+            this.$emit('deleteFile', {});
         },
 
         getFileType() {

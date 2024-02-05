@@ -20,8 +20,11 @@
                     <button type="button" class="header-btn me-1 px-3" @click="downloadFile">
                         <font-awesome-icon icon="fa-solid fa-download" />
                     </button>
-                    <button type="button" class="header-btn me-1" @click="editFile">
+                    <button type="button" class="header-btn me-1 px-3" @click="editFile">
                         <font-awesome-icon icon="fa-solid fa-pen" />
+                    </button>
+                    <button type="button" class="header-btn me-1 px-3" @click="deleteFile">
+                        <font-awesome-icon icon="fa-regular fa-trash-can" />
                     </button>
                 </div>
             </div>
@@ -49,6 +52,10 @@ export default {
 
         editFile() {
             this.$emit('editFile', {});
+        },
+
+        deleteFile() {
+            this.$emit('deleteFile', {});
         },
 
         async downloadFile() {
