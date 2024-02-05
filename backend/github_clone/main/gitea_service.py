@@ -7,9 +7,9 @@ admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
 
 headers = {
-        'Accept': 'application/json',
-        'Authorization': f'Bearer {access_token}',
-    }
+    'Accept': 'application/json',
+    'Authorization': f'Bearer {access_token}',
+}
 
 
 def save_user(user_data):
@@ -42,6 +42,7 @@ def get_user_avatar(username):
     api_endpoint = f'/api/v1/users/{username}'
     response = requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers)
     return response.json().get('avatar_url')
+
 
 def create_repository(repo_data, username):
     api_endpoint = f'/api/v1/admin/users/{username}/repos'
@@ -115,9 +116,10 @@ def change_gitea_user_password_gitea_service(username, new_password):
 
 
 def delete_gitea_user_gitea_service(username):
-    print(username," je proslijedjeni")
+    print(username, " je proslijedjeni")
     api_endpoint = f'/api/v1/admin/users/{username}'
     return requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+
 
 def create_branch(owner, repository_name, branch):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches'
@@ -130,6 +132,7 @@ def create_branch(owner, repository_name, branch):
         'old_ref_name': branch.parent.name
     }
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
 
 def delete_branch(owner, repository_name, branch_name):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches/{branch_name}'
