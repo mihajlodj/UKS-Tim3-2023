@@ -13,19 +13,22 @@
                     </object>
 
                     <object v-if="loaded && getFileType() === 'JPG'">
-                        <embed class="w-100" type="text/html" height="600"
-                            :src="`data:image/jpg;base64,${content}`" />
+                        <embed class="w-100" type="text/html" height="600" :src="`data:image/jpg;base64,${content}`" />
                     </object>
 
                     <object v-if="loaded && getFileType() === 'JPEG'">
-                        <embed class="w-100" type="text/html" height="600"
-                            :src="`data:image/jpeg;base64,${content}`" />
+                        <embed class="w-100" type="text/html" height="600" :src="`data:image/jpeg;base64,${content}`" />
                     </object>
 
                     <object v-if="loaded && getFileType() === 'PNG'">
-                        <embed class="w-100" type="text/html" height="600"
-                            :src="`data:image/jpeg;base64,${content}`" />
+                        <embed class="w-100" type="text/html" height="600" :src="`data:image/jpeg;base64,${content}`" />
                     </object>
+
+                    <div v-if="loaded && getFileType() === 'OTHER'" class="d-flex justify-content-center other">
+                        <h5 class="my-4">
+                            <span>Cannot display file.</span> <span>Download it <a :href="file.download_url">here</a>.</span>
+                        </h5>
+                    </div>
                 </div>
             </div>
         </div>
@@ -117,5 +120,15 @@ export default {
 
 .contain {
     width: 80%;
+}
+
+h5 {
+    color: #adbbc8;
+}
+
+.other {
+    border: 1px solid #adbbc8;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
 }
 </style>
