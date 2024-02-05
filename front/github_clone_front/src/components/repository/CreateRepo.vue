@@ -21,7 +21,7 @@
                 <label class="bold mb-2">Dafault branch name <span class="sub smaller">(optional)</span></label>
                 <input type="text" class="w-50 mb-3" v-model="defaultBranchName" @input="validateBranchName" />
                 <div class="d-flex justify-content-start">
-                    <font-awesome-icon v-if="!isValidName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
+                    <font-awesome-icon v-if="!isValidBranchName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
                     <label v-if="!isValidBranchName" class="w-50 warn">Branch name can only contain alphanumerics,
                         dashes ( - ) and underscores ( _ )</label>
                 </div>

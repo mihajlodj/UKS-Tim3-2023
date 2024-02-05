@@ -10,6 +10,7 @@ import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
 import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
+import BranchesView from './components/repository/branch/BranchesView.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -24,7 +25,7 @@ import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { faEye, faStar, faFile, faFolder } from '@fortawesome/free-regular-svg-icons'
+import { faEye, faStar, faFile, faFolder, faTrashCan } from '@fortawesome/free-regular-svg-icons'
 import { faFlask } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faAngleRight);
@@ -47,6 +48,7 @@ library.add(faFolder);
 library.add(faPen);
 library.add(faArrowRightArrowLeft);
 library.add(faFlask);
+library.add(faTrashCan);
 
 const routes = [
     {
@@ -84,6 +86,10 @@ const routes = [
     {
         path: "/profile/settings",
         component: SettingsProfile
+    },
+    {
+        path: "/view/:username/:repoName/branches",
+        component:BranchesView
     },
 ]
 

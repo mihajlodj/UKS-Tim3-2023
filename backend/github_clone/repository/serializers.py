@@ -21,12 +21,13 @@ class RepositorySerializer(serializers.Serializer):
         branch_name = 'main'
         if 'default_branch_name' in validated_data and validated_data['default_branch_name'] != '':
             branch_name = validated_data['default_branch_name']
+        username = self.context['request'].auth.get('username', None)
+        developer = Developer.objects.get(user__username=username)
         project = Project.objects.create(name=validated_data['name'], description=validated_data['description'], access_modifier=validated_data['access_modifier'], default_branch=None)
-        default_branch = Branch.objects.create(name=branch_name, project=project, parent=None)
+        default_branch = Branch.objects.create(name=branch_name, project=project, parent=None, created_by=developer)
         project.default_branch = default_branch
         project.save()
-        username = self.context['request'].auth.get('username', None)
-        WorksOn.objects.create(role="Owner", project=project, developer=Developer.objects.get(user__username=username))
+        WorksOn.objects.create(role="Owner", project=project, developer=developer)
         threading.Thread(target=self.gitea_create, args=([project, branch_name, username]), kwargs={}).start()
         return project
     

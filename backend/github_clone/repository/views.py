@@ -14,7 +14,6 @@ class CreateRepositoryView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = RepositorySerializer
 
-
 class ReadRepositoryView(generics.RetrieveAPIView):
     queryset = Project.objects.all()
     permission_classes = (IsAuthenticated,)

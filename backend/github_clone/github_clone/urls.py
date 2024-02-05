@@ -27,7 +27,8 @@ urlpatterns = [
     path('', include('main.urls')),
     path('auth/', include('auth.urls')),
     path('repository/', include('repository.urls')),
-    path('developer/', include('developer.urls'))
+    path('developer/', include('developer.urls')),
+    path('branch/', include('branch.urls'))
 ]
 
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))
