@@ -38,12 +38,6 @@ def get_user_token(username):
     return response.json().get('sha1')
 
 
-def get_user_avatar(user_token):
-    api_endpoint = f'/api/v1/user'
-    response = requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers)
-    return response.json().get('avatar_url')
-
-
 def create_repository(repo_data, username):
     api_endpoint = f'/api/v1/admin/users/{username}/repos'
     requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=repo_data)
