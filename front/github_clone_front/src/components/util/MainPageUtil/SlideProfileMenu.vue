@@ -22,14 +22,43 @@
     <a href="#"><i class="bi bi-gear"></i>&nbsp;&nbsp;Settings</a>
     <a href="#"><i class="bi bi-book"></i>&nbsp;&nbsp;GitHub Docs</a>
     <a href="#"><i class="bi bi-people"></i>&nbsp;&nbsp;GitHub Support</a>
-    <a href="#">Sign out</a>
+    <a href="#" @click="this.logout()">Sign out</a>
   </div>
 </template>
 
 <script>
+import AuthService from '@/services/AuthService';
+import { toast } from 'vue3-toastify';
+
 export default {
   props: {
     isProfileOpen: Boolean,
+  },
+  methods: {
+    logout() {
+      /* eslint-disable */
+      AuthService.logout({
+        "refresh": localStorage.getItem("refresh_token"),
+      }).then(result => {
+        console.log("Logged out");
+        this.deleteTokens();
+        this.redirectToLogin();
+      }).catch(_err => {
+        toast("Error occured!", {
+              autoClose: 1000,
+              type: 'error',
+              position: toast.POSITION.BOTTOM_RIGHT
+        });
+      })
+    },
+    deleteTokens() {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("username");
+    },
+    redirectToLogin() {
+      this.$router.push("/");
+    },
   },
 };
 </script>
