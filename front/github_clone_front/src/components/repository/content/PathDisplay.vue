@@ -10,7 +10,7 @@
                 </span>
                 <span v-if="!editing" class="text">{{ fileName }}</span>
                 <span v-else>
-                    <input type="text" v-model="newFileName" />
+                    <input type="text" v-model="newFileName" @input="updateFileName" />
                 </span>
             </span>
         </div>
@@ -59,6 +59,11 @@ export default {
             this.$emit('updateFileName', {
                 fileName: this.newFileName
             });
+        },
+
+        updatePath(newFileName) {
+            this.fileName = newFileName;
+            this.newFileName = newFileName;
         }
     }
 }

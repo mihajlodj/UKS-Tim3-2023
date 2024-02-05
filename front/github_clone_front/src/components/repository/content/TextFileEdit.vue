@@ -1,11 +1,10 @@
 <template>
     <div class="d-flex justify-content-center">
-        <textarea v-model="newContent"></textarea>
+        <textarea v-model="newContent" @change="updateContent"></textarea>
     </div>
 </template>
 
 <script>
-// import RepositoryService from '@/services/RepositoryService';
 
 export default {
     name: 'TextFileEdit',
@@ -18,9 +17,13 @@ export default {
     data() {
         return {
             oldContent: "",
-            newContent: "",
-            oldName: "",
-            newName: ""
+            newContent: ""
+        }
+    },
+
+    methods: {
+        updateContent() {
+            localStorage.setItem('newContent', this.newContent);
         }
     }
 }

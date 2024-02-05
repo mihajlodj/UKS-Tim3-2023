@@ -1,7 +1,7 @@
 <template>
     <div v-if="allowed" class="background is-fullheight min-vh-100 ">
         <RepoNavbar />
-        <PathDisplay :editing="editing" :key="pathKey" @updateFileName="updateFileName" />
+        <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
 
         <div>
             <div class="editor">
@@ -9,7 +9,7 @@
                     :downloadUrl="file.download_url" :content="file.content" @editFile="editFile" />
 
                 <EditingHeader v-else />
-                <CodeDisplay v-if="!editing" />
+                <CodeDisplay v-if="!editing" :key="codeDisplayKey" />
                 <TextFileEdit v-else />
 
                 <div class="d-flex justify-content-center">
@@ -36,12 +36,14 @@
 
                         <div class="d-flex flex-column mt-3">
                             <label class="mb-1">Extended description</label>
-                            <textarea placeholder="Add an optional extended description" v-model="additionalText"></textarea>
+                            <textarea placeholder="Add an optional extended description"
+                                v-model="additionalText"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-commit" @click="commitChanges">Commit changes</button>
+                        <button type="button" class="btn btn-commit" data-bs-dismiss="modal" @click="commitChanges">Commit
+                            changes</button>
                     </div>
                 </div>
             </div>
@@ -82,8 +84,8 @@ export default {
                 ...res.data
             };
             localStorage.setItem('fileContent', res.data.content);
-            this.lines = res.data.content.split("\n");
-            localStorage.setItem('lines', this.lines);
+            this.codeDisplayKey += 1;
+            this.newFileName = this.file.name;
         }).catch(err => {
             console.log(err);
             this.allowed = false;
@@ -100,6 +102,7 @@ export default {
             allowed: true,
             editing: false,
             pathKey: 1,
+            codeDisplayKey: 1,
             newFileName: '',
             commitMsg: '',
             additionalText: ''
@@ -122,7 +125,36 @@ export default {
         },
 
         commitChanges() {
-            // branch, email, name, content (string), message, path, SHA of the file
+            let commitData = {
+                'branch': this.$route.params.branchName,
+                'content': localStorage.getItem('newContent'),
+                'from_path': this.$route.params.path,
+                'message': this.commitMsg,
+                'additional_text': this.additionalText
+            }
+            let newPath = this.formNewPath();
+            RepositoryService.editFile(this.$route.params.username, this.$route.params.repoName, newPath, commitData).then(res => {
+                console.log(res);
+                this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/blob/${this.$route.params.branchName}/${newPath}`);
+                localStorage.setItem('fileContent', localStorage.getItem('newContent'));
+                localStorage.removeItem('newContent');
+                this.codeDisplayKey += 1;
+                // this.pathKey += 1;
+                console.log(this.newFileName);
+                this.$refs.pathDisplay.updatePath(this.newFileName);
+            }).catch(err => {
+                console.log(err);
+            });
+            this.cancelEdit();
+            this.commitMsg = "";
+            this.additionalText = "";
+        },
+
+        formNewPath() {
+            let dirs = this.$route.params.path.split("/");
+            dirs.pop()
+            if (dirs.length == 0) return this.newFileName;
+            return `${dirs.join("/")}/${this.newFileName}`
         }
     }
 }

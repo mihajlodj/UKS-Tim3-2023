@@ -32,4 +32,8 @@ const getFile = (username, repoName, branchName, path) => {
     return api.get(`repository/file/${username}/${repoName}/${branchName}/${path}/`);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getFile };
+const editFile = (username, repoName, path, data) => {
+    return api.put(`repository/edit_file/${username}/${repoName}/${path}/`, data);
+}
+
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getFile, editFile };

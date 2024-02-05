@@ -89,10 +89,6 @@ const routes = [
         path: "/view/:username/:repoName/blob/:branchName/:path(.*)",
         component: TextFile
     },
-    // {
-    //     path: "/edit/:username/:repoName/blob/:branchName/:path(.*)",
-    //     component: TextFileEdit
-    // }
 ]
 
 const router = createRouter({
