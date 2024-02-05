@@ -123,10 +123,6 @@ def delete_gitea_user_gitea_service(username):
 
 def create_branch(owner, repository_name, branch):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches'
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': f'Bearer {access_token}',
-    }
     data = {
         'new_branch_name': branch.name,
         'old_ref_name': branch.parent.name
@@ -136,8 +132,4 @@ def create_branch(owner, repository_name, branch):
 
 def delete_branch(owner, repository_name, branch_name):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches/{branch_name}'
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': f'Bearer {access_token}',
-    }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
