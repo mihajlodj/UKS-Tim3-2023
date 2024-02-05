@@ -42,26 +42,29 @@ def add_new_email(request, username):
         email=request.data.get('secondary_emails')
     )
     secondary_email.save()
-    return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_201_CREATED)
 
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def change_users_password(request, username):
-    user = User.objects.get(username=username)
-    print(user.check_password(request.data.get('current_password')))
-    if user.check_password(request.data.get('current_password')):
-        new_password = request.data.get('new_password')
-        new_password_repeat = request.data.get('new_password_repeat')
-        if new_password == new_password_repeat:
-            user.set_password(new_password)
-            user.save()
-            print(new_password)
-            response_gitea = change_gitea_user_password_gitea_service(username, new_password)
-            print(response_gitea)
-            return Response(status=status.HTTP_200_OK)
+    try:
+        user = User.objects.get(username=username)
+        print(user.check_password(request.data.get('current_password')))
+        if user.check_password(request.data.get('current_password')):
+            new_password = request.data.get('new_password')
+            new_password_repeat = request.data.get('new_password_repeat')
+            if new_password == new_password_repeat:
+                user.set_password(new_password)
+                user.save()
+                print(new_password)
+                response_gitea = change_gitea_user_password_gitea_service(username, new_password)
+                print(response_gitea)
+                return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['DELETE'])
@@ -73,7 +76,7 @@ def delete_user_developer(request, usersPassowrd, username):
         developer.delete()
         user.delete()
         # response_gitea = delete_gitea_user_gitea_service(username)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -94,7 +97,7 @@ def delete_developers_avatar(request, username):
 def delete_developers_email(request, username, usersEmail):
     email_to_delete = SecondaryEmail.objects.get(email=usersEmail)
     email_to_delete.delete()
-    return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['PATCH'])
@@ -150,7 +153,7 @@ def get_developer_avatar(request, username):
 
     if developer.avatar is None:
         gitea_user_info = get_gitea_user_info_gitea_service(username)
-        return Response(gitea_user_info['avatar_url'],status=status.HTTP_200_OK)
+        return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
 
     avatar_filename = developer.avatar
     avatar_filename = avatar_filename.split('\\')[1]
