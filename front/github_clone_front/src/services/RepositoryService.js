@@ -37,8 +37,11 @@ const editFile = (username, repoName, path, data) => {
 }
 
 const deleteFile = (username, repoName, path, data) => {
-    console.log(data);
     return api.put(`repository/delete_file/${username}/${repoName}/${path}/`, data);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getFile, editFile, deleteFile };
+const createFile = (username, repoName, path, data) => {
+    return api.post(`repository/create_file/${username}/${repoName}/${path}/`, data);
+}
+
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getFile, editFile, deleteFile, createFile };

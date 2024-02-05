@@ -26,8 +26,10 @@ export default {
     // },
 
     mounted() {
-        this.lines = localStorage.getItem('fileContent').split("\n");
-        this.countSpaces(this.lines);
+        if (localStorage.getItem('fileContent')) {
+            this.lines = localStorage.getItem('fileContent').split("\n");
+            this.countSpaces(this.lines);
+        }
     },    
 
     data() {

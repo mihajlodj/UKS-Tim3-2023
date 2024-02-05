@@ -41,6 +41,7 @@ export default {
     props: ['avatar', 'refName', 'displayRoot', 'foldersPath', 'branch'],
 
     mounted() {
+        localStorage.removeItem("fileContent");
         if (this.displayRoot === "true") {
             RepositoryService.getRootContent(this.$route.params.username, this.$route.params.repoName, this.refName).then(res => {
                 for (let obj of res.data) {

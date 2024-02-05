@@ -10,6 +10,7 @@ import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
 import FileDisplay from './components/repository/content/FileDisplay.vue';
+import CreateFile from './components/repository/content/CreateFile.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 // import "bootstrap/dist/js/bootstrap"
@@ -91,6 +92,10 @@ const routes = [
         path: "/view/:username/:repoName/blob/:branchName/:path(.*)",
         component: FileDisplay
     },
+    {
+        path: "/:username/:repoName/new/:branchName",
+        component: CreateFile
+    }
 ]
 
 const router = createRouter({

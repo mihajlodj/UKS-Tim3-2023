@@ -61,7 +61,7 @@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <button class="btn dropdown-item">
+                                    <button class="btn dropdown-item" @click="createNewFile">
                                         <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
                                     </button>
                                 </li>
@@ -158,7 +158,7 @@ export default {
             this.owner.avatar = res.data.avatar;
         }).catch(err => {
             console.log(err);
-        })
+        });
     },
 
     data() {
@@ -227,6 +227,10 @@ export default {
 
         viewBranches() {
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/branches`);
+        },
+
+        createNewFile() {
+            this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/new/${this.repo.chosenBranch}`)
         }
     },
 

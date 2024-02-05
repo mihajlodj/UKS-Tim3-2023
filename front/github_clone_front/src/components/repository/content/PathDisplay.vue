@@ -9,9 +9,12 @@
                         <span v-if="d" class="dir" @click="navigateToDir(index)">{{ d }}</span>
                         <span v-if="d" class="text">/</span>
                     </span>
-                    <span v-if="!editing" class="text">{{ fileName }}</span>
-                    <span v-else>
+                    <span v-if="!editing && !creating" class="text">{{ fileName }}</span>
+                    <span v-if="editing">
                         <input type="text" v-model="newFileName" @input="updateFileName" />
+                    </span>
+                    <span v-if="creating">
+                        <input type="text" v-model="newFileName" @input="createFileName" />
                     </span>
                 </span>
             </div>
@@ -23,10 +26,12 @@
 export default {
     name: 'PathDisplay',
 
-    props: ['editing'],
+    props: ['editing', 'creating'],
 
     mounted() {
-        this.getDirectories();
+        if (this.path) {
+            this.getDirectories();
+        }
     },
 
     data() {
@@ -61,6 +66,23 @@ export default {
             this.$emit('updateFileName', {
                 fileName: this.newFileName
             });
+        },
+
+        createFileName() {
+            if (this.newFileName.length > 1) {
+                let lastChar = this.newFileName[this.newFileName.length - 1];
+                if (lastChar === "/") {
+                    let dirName = this.newFileName.slice(0, -1);
+                    this.newFileName = "";
+                    this.directories.push(dirName);
+                }
+            }
+
+        },
+
+        getFullPath() {
+            if (this.directories.length === 0) return this.newFileName;
+            return `${this.directories.join("/")}/${this.newFileName}`;
         },
 
         updatePath(newFileName) {
