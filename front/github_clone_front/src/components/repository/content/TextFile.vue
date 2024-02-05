@@ -5,8 +5,8 @@
 
         <div>
             <div class="editor">
-                <CodeHeader v-if="!editing" :numLines="lines.length" :size="file.size" :name="file.name" :downloadUrl="file.download_url"
-                    :content="file.content" @editFile="editFile" />
+                <CodeHeader v-if="!editing" :numLines="lines.length" :size="file.size" :name="file.name"
+                    :downloadUrl="file.download_url" :content="file.content" @editFile="editFile" />
 
                 <EditingHeader v-else />
                 <CodeDisplay v-if="!editing" />
@@ -15,7 +15,33 @@
                 <div class="d-flex justify-content-center">
                     <div v-if="editing" class="d-flex justify-content-end mt-2 commit-cancel">
                         <button type="button" class="btn-cancel" @click="cancelEdit">Cancel changes</button>
-                        <button type="button" class="btn-commit">Commit changes...</button>
+                        <button type="button" class="btn-commit" data-bs-toggle="modal" data-bs-target="#commitModal">Commit
+                            changes...</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" id="commitModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Commit changes</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="d-flex flex-column">
+                            <label class="mb-1">Commit message</label>
+                            <input type="text" v-model="commitMsg" />
+                        </div>
+
+                        <div class="d-flex flex-column mt-3">
+                            <label class="mb-1">Extended description</label>
+                            <textarea placeholder="Add an optional extended description" v-model="additionalText"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-commit" @click="commitChanges">Commit changes</button>
                     </div>
                 </div>
             </div>
@@ -74,7 +100,9 @@ export default {
             allowed: true,
             editing: false,
             pathKey: 1,
-            newFileName: ''
+            newFileName: '',
+            commitMsg: '',
+            additionalText: ''
         }
     },
 
@@ -91,6 +119,10 @@ export default {
         cancelEdit() {
             this.editing = false;
             this.pathKey += 1;
+        },
+
+        commitChanges() {
+            // branch, email, name, content (string), message, path, SHA of the file
         }
     }
 }
@@ -124,5 +156,29 @@ export default {
     padding: 7px 15px;
     margin-right: 5px;
     border: none;
+}
+
+textarea {
+    resize: none;
+    background-color: #1c2127;
+    color: #adbbc8;
+    height: 150px;
+    border: 1px solid #adbbc8;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+input {
+    background-color: #1c2127;
+    color: #adbbc8;
+    border: 1px solid #adbbc8;
+    border-radius: 5px;
+    padding: 3px 10px;
+}
+
+.modal-content {
+    background-color: #2c333b;
+    color: #adbbc8;
+    border: 1px solid #adbbc8;
 }
 </style>

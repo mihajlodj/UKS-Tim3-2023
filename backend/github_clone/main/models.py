@@ -83,6 +83,7 @@ class Commit(models.Model):
     branch = models.ForeignKey(Branch, related_name='belongs_to', on_delete=models.CASCADE)
     tags = models.ManyToManyField(Tag, related_name='commits', blank=True)
     timestamp = models.DateTimeField(default=timezone.now)
+    message = models.TextField(null=True, blank=True)
 
 
 class Milestone(models.Model):

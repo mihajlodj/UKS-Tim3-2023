@@ -2,11 +2,13 @@ import base64
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
-from main.models import Project, WorksOn, Developer, Branch
+from main.models import Commit, Project, WorksOn, Developer, Branch
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from main import gitea_service
 from rest_framework.exceptions import PermissionDenied
+import json
+from datetime import datetime
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -91,6 +93,54 @@ def get_file(request, owner_username, repository_name, branch, path):
         'url': file_data['url'], 'html_url': file_data['html_url'], 'download_url': file_data['download_url']
     }
     return Response(result, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def edit_file(request, owner_username, repository_name, path):
+    raw_data = request.body
+    decoded_data = raw_data.decode('utf-8')
+    json_data = json.loads(decoded_data)
+    
+    author_name = f'{request.user.first_name} {request.user.last_name}'
+    author_email = request.user.email
+    branch_name = json_data['branch']
+    content_bytes = json_data['content'].encode("utf-8") 
+    base64_bytes = base64.b64encode(content_bytes) 
+    content = base64_bytes.decode("utf-8") 
+    
+    timestamp = datetime.now()
+    formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+    from_path = json_data['from_path']
+    message = json_data['message']
+    old_file = gitea_service.get_file(owner_username, repository_name, branch_name, from_path)
+    sha = old_file['sha']
+    commit_data = {
+        'author': {
+            'email': author_email,
+            'name': author_name
+        },
+        'branch': branch_name,
+        'committer': {
+            'email': author_email,
+            'name': author_name
+        },
+        'content': content,
+        'dates': {
+            'author': formatted_datetime,
+            'committer': formatted_datetime
+        },
+        'from_path': from_path,
+        'message': message,
+        'sha': sha 
+    }
+    commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
+
+    author = Developer.objects.get(user__username=request.user.username)
+    branch = Branch.objects.get(project__name=repository_name, name=branch_name)
+    Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, message=message)
+
+    return Response(status=status.HTTP_200_OK)
+
 
 
 def check_view_permission(request, repo):
