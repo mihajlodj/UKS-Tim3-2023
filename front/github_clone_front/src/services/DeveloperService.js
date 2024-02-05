@@ -13,6 +13,10 @@ const deleteEmailAddress = (usersEmail, username) => {
     return api.delete(`developer/delete/email/${username}/${usersEmail}`);
 }
 
+const deleteUsersAvatar = (username) => {
+    return api.delete(`developer/delete/avatar/${username}`);
+}
+
 const addEmailAddress = (newEmail, username) => {
     return api.post(`developer/newEmail/${username}/`,newEmail);
 }
@@ -43,4 +47,4 @@ const getUsersEmails = (username) => {
 
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress};
+     deleteEmailAddress, deleteUsersAvatar};

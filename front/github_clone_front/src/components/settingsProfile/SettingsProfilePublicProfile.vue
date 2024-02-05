@@ -50,7 +50,7 @@
         <label for="avatar" class="github-label">Profile Picture:</label>
         <input type="file" id="avatar" @change="selectAvatar" accept="image/*" />
         <button class="github-button" @click="updateAvatar">Update Avatar</button>
-        <!-- <button class="github-button-delete" @click="deleteAvatar">Delete Avatar</button> -->
+        <button class="github-button-delete" @click="deleteAvatar">Delete Avatar</button>
       </div>
       <div class="current-avatar">
         <label class="github-label">Current Avatar:</label>
@@ -89,7 +89,9 @@ export default {
         
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
+              console.log("AAAAAAAAAAAAAAAAA");
               console.log(res);
+              console.log("AAAAAAAAAAAAAAAAA");
               this.currentAvatar = res.data
           })
           .catch(err => {
@@ -128,8 +130,10 @@ export default {
         const reader = new FileReader();
         reader.onload = () => {
           this.currentAvatar = reader.result;
+          const formData = new FormData();
+          formData.append('avatar', this.selectedImage);
 
-          DeveloperService.updateDeveloperAvatar({ 'avatar': reader.result}, localStorage.getItem("username")).then(res => {
+          DeveloperService.updateDeveloperAvatar(formData, localStorage.getItem("username")).then(res => {
                 console.log(res);
                 location.reload()
             }).catch(err => {
@@ -141,7 +145,12 @@ export default {
       }
     },
     deleteAvatar() {
-      
+      DeveloperService.deleteUsersAvatar(localStorage.getItem("username")).then(res => {
+                console.log(res);
+                location.reload()
+            }).catch(err => {
+                console.log(err);
+            });
     },
   },
 };

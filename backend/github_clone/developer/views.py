@@ -1,6 +1,12 @@
+import os
+
+from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.files import File
+from django.http import FileResponse
 from rest_framework import generics, status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -73,6 +79,18 @@ def delete_user_developer(request, usersPassowrd, username):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
+def delete_developers_avatar(request, username):
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+    if developer.avatar is not None:
+        os.remove(developer.avatar)
+    developer.avatar = None
+    developer.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
 def delete_developers_email(request, username, usersEmail):
     email_to_delete = SecondaryEmail.objects.get(email=usersEmail)
     email_to_delete.delete()
@@ -84,10 +102,28 @@ def delete_developers_email(request, username, usersEmail):
 def update_developers_avatar(request, username):
     user = User.objects.get(username=username)
     developer = Developer.objects.get(user_id=user.id)
-    print(developer)
-    developer.avatar = request.data.get('avatar')
-    developer.save()
-    return Response(status=status.HTTP_200_OK)
+
+    if developer.avatar is not None:
+        os.remove(developer.avatar)
+
+    if 'avatar' in request.FILES:
+        avatar = request.FILES['avatar']
+
+        avatars_directory = os.path.join('avatars')
+        os.makedirs(avatars_directory, exist_ok=True)
+
+        avatar_path = os.path.join(avatars_directory, avatar.name)
+
+        with open(avatar_path, 'wb') as destination:
+            for chunk in avatar.chunks():
+                destination.write(chunk)
+
+        developer.avatar = avatar_path
+        developer.save()
+
+        return Response(status=status.HTTP_200_OK)
+
+    return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -111,9 +147,15 @@ def get_gitea_user_info(request, username):
 def get_developer_avatar(request, username):
     user = User.objects.get(username=username)
     developer = Developer.objects.get(user_id=user.id)
-    return Response(developer.avatar, status=status.HTTP_200_OK)
-    # gitea_user_info = get_gitea_user_info_gitea_service(username)
-    # return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
+
+    if developer.avatar is None:
+        gitea_user_info = get_gitea_user_info_gitea_service(username)
+        return Response(gitea_user_info['avatar_url'],status=status.HTTP_200_OK)
+
+    avatar_filename = developer.avatar
+    avatar_filename = avatar_filename.split('\\')[1]
+    avatar_url = f"http://localhost:8000/avatars/{avatar_filename}"
+    return Response(avatar_url, status=status.HTTP_200_OK)
 
 
 # @api_view(['GET'])
