@@ -1,3 +1,13 @@
-from django.shortcuts import render
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
 
-# Create your views here.
+from main.models import Project, Milestone
+from milestone.serializers import MilestoneSerializer
+
+
+class CreateMilestoneView(generics.CreateAPIView):
+    queryset = Milestone.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = MilestoneSerializer
+
+
