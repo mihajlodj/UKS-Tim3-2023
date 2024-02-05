@@ -7,9 +7,24 @@
             <NonTextHeader :size="file.size" />
             <div class="d-flex justify-content-center">
                 <div class="contain">
-                    <object>
-                        <embed class="w-100" id="pdfID" type="text/html" height="600"
+                    <object v-if="loaded && getFileType() === 'PDF'">
+                        <embed class="w-100" type="text/html" height="600"
                             :src="`data:application/pdf;base64,${content}`" />
+                    </object>
+
+                    <object v-if="loaded && getFileType() === 'JPG'">
+                        <embed class="w-100" type="text/html" height="600"
+                            :src="`data:image/jpg;base64,${content}`" />
+                    </object>
+
+                    <object v-if="loaded && getFileType() === 'JPEG'">
+                        <embed class="w-100" type="text/html" height="600"
+                            :src="`data:image/jpeg;base64,${content}`" />
+                    </object>
+
+                    <object v-if="loaded && getFileType() === 'PNG'">
+                        <embed class="w-100" type="text/html" height="600"
+                            :src="`data:image/jpeg;base64,${content}`" />
                     </object>
                 </div>
             </div>
@@ -40,7 +55,8 @@ export default {
             };
             // this.newFileName = this.file.name;
             this.content = res.data['content'];
-            console.log(this.content);
+            console.log(this.file);
+            this.loaded = true;
         }).catch(err => {
             console.log(err);
             // this.allowed = false;
@@ -55,7 +71,8 @@ export default {
             },
             editing: false,
             pathKey: 1,
-            newFileName: ''
+            newFileName: '',
+            loaded: false
         }
     },
 
@@ -75,6 +92,18 @@ export default {
 
         updateFileName() {
 
+        },
+
+        isPdf() {
+            return this.file.name.endsWith('.pdf');
+        },
+
+        getFileType() {
+            if (this.file.name.endsWith('.pdf')) return 'PDF';
+            if (this.file.name.endsWith('.jpg')) return 'JPG';
+            if (this.file.name.endsWith('.jpeg')) return 'JPEG';
+            if (this.file.name.endsWith('.png')) return 'PNG';
+            return 'OTHER';
         }
     }
 
