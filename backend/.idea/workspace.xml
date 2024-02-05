@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="57814923-5bb8-4c92-bafc-bf41c91d5926" name="Changes" comment="" />
+    <list default="true" id="57814923-5bb8-4c92-bafc-bf41c91d5926" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/github_clone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/github_clone/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/milestone/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -78,7 +85,7 @@
       <workItem from="1706889371523" duration="12921000" />
       <workItem from="1707037671069" duration="8128000" />
       <workItem from="1707083180144" duration="613000" />
-      <workItem from="1707144771661" duration="4306000" />
+      <workItem from="1707144771661" duration="10194000" />
     </task>
     <servers />
   </component>
