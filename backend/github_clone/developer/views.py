@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from developer.serializers import DeveloperSerializer, UserSerializer
-from main.models import Developer
+from main.models import Developer, SecondaryEmail
 from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
     change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
 
@@ -23,6 +23,20 @@ class UpdateUserView(generics.UpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
     lookup_field = 'username'
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_new_email(request, username):
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+    print(request.data.get('secondary_emails'))
+    secondary_email = SecondaryEmail.objects.create(
+        developer=developer,
+        email=request.data.get('secondary_emails')
+    )
+    secondary_email.save()
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
@@ -46,16 +60,23 @@ def change_users_password(request, username):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def delete_user_developer(request,usersPassowrd ,username):
+def delete_user_developer(request, usersPassowrd, username):
     user = User.objects.get(username=username)
     developer = Developer.objects.get(user_id=user.id)
     if user.check_password(usersPassowrd):
-        # developer.delete()
-        # user.delete()
-        response_gitea = delete_gitea_user_gitea_service(username)
-        print(response_gitea, " je dobra stara")
+        developer.delete()
+        user.delete()
+        # response_gitea = delete_gitea_user_gitea_service(username)
         return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_developers_email(request, username, usersEmail):
+    email_to_delete = SecondaryEmail.objects.get(email=usersEmail)
+    email_to_delete.delete()
+    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
@@ -95,10 +116,20 @@ def get_developer_avatar(request, username):
     # return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
 
 
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def get_developers_emails_gitea(request, username):
+#     gitea_all_emails = get_gitea_user_emails_gitea_service()
+#     users_emails = [email for email in gitea_all_emails if username in email["username"]]
+#     return Response(users_emails, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_developers_emails(request, username):
-    gitea_all_emails = get_gitea_user_emails_gitea_service()
-    users_emails = [email for email in gitea_all_emails if username in email["username"]]
-    return Response(users_emails, status=status.HTTP_200_OK)
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+    emails = SecondaryEmail.objects.filter(developer_id=developer.id)
+    users_emails = [{'email': email.email, 'primary': email.primary, 'verified': email.verified} for email in emails]
+    primary_email = user.email
+    users_emails.append({'email': primary_email, 'primary': True, 'verified': True})
+    return Response(users_emails[::-1], status=status.HTTP_200_OK)

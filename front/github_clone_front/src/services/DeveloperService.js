@@ -9,6 +9,14 @@ const deleteUser = (usersPassword, username) => {
     return api.delete(`developer/delete/self/${username}/${usersPassword}`);
 }
 
+const deleteEmailAddress = (usersEmail, username) => {
+    return api.delete(`developer/delete/email/${username}/${usersEmail}`);
+}
+
+const addEmailAddress = (newEmail, username) => {
+    return api.post(`developer/newEmail/${username}/`,newEmail);
+}
+
 const updateDeveloperAvatar = (developerData, username) => {
     return api.patch(`developer/updateAvatar/${username}/`, developerData);
 }
@@ -33,4 +41,6 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
-export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar, getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser};
+export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
+     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
+     deleteEmailAddress};

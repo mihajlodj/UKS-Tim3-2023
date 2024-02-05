@@ -37,7 +37,6 @@
             <span class="emailAvtivePrimery" v-if="email.verified">Activated</span>
           </div>
           <div class="makePrimAndRmoveBtns">
-            <button class="form-button-email" @click="makePrimary(index)" v-if="!email.primary">Make Primary</button>
             <button class="form-button-email" @click="removeEmail(index)" v-if="!email.primary">Remove</button>
           </div>
         </div>
@@ -138,15 +137,21 @@ export default {
         primary: false,
         verified: true,
       });
+
+      DeveloperService.addEmailAddress({ 'secondary_emails': this.newEmailAddress}, localStorage.getItem("username")).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.log(err);
+            });
       this.newEmailAddress = '';
     },
-    makePrimary(index) {
-      this.emailAddresses.forEach((email, i) => {
-        email.primary = i === index;
-      });
-    },
     removeEmail(index) {
-      this.emailAddresses.splice(index, 1);
+      DeveloperService.deleteEmailAddress(this.emailAddresses[index]['email'], localStorage.getItem("username")).then(res => {
+                console.log(res);
+                this.emailAddresses.splice(index, 1);
+            }).catch(err => {
+                console.log(err);
+            });
     },
   },
 };
