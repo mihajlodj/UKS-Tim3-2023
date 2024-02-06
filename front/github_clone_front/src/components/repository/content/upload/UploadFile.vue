@@ -7,8 +7,10 @@
             <label for="file-input">
                 <div class="d-flex justify-content-center">
                     <span v-if="dropZoneActive">
-                        <span>Drop Them Here</span>
-                        <span class="smaller">to add them</span>
+                        <div class="d-flex justify-content-center mb-3">
+                            <font-awesome-icon icon="fa-regular fa-file" class="me-2 mt-1" />
+                        </div>
+                        <span>Drop to upload your files</span>
                     </span>
                     <span v-else>
                         <div class="d-flex justify-content-center mb-3">
@@ -142,7 +144,7 @@ textarea {
 
     &[data-active=true] {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        background: #ffffffcc;
+        border: 3px dashed #adbbc8;
     }
 }
 
