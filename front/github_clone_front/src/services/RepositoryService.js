@@ -32,4 +32,20 @@ const deleteReposiory = (username, repoName) => {
     return api.delete(`repository/delete/${username}/${repoName}`);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos };
+const getFile = (username, repoName, branchName, path) => {
+    return api.get(`repository/file/${username}/${repoName}/${branchName}/${path}/`);
+}
+
+const editFile = (username, repoName, path, data) => {
+    return api.put(`repository/edit_file/${username}/${repoName}/${path}/`, data);
+}
+
+const deleteFile = (username, repoName, path, data) => {
+    return api.put(`repository/delete_file/${username}/${repoName}/${path}/`, data);
+}
+
+const createFile = (username, repoName, path, data) => {
+    return api.post(`repository/create_file/${username}/${repoName}/${path}/`, data);
+}
+
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, editFile, deleteFile, createFile };
