@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.models import User
 from main.gitea_service import get_user_token, get_user_avatar
 
+
 class MyObtainTokenPairView(TokenObtainPairView):
     permission_classes = (AllowAny,)
     serializer_class = MyTokenObtainPairSerializer
@@ -41,7 +42,7 @@ def confirm_registration(request):
             return Response({'error': 'Incorrect registration code.'}, status=status.HTTP_404_NOT_FOUND)
     except RegistrationCandidate.DoesNotExist:
         return Response({'error': 'Registration candidate not found.'}, status=status.HTTP_404_NOT_FOUND)
-
+    
 
 class LogoutAPIView(generics.GenericAPIView):
     serializer_class = LogoutSerializer

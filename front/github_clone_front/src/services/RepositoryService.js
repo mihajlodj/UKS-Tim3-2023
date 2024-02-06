@@ -8,6 +8,10 @@ const get = (username, repoName) => {
     return api.get(`repository/${username}/${repoName}`);
 }
 
+const getAllUserRepos = (owner_username) => {
+    return api.get(`repository/all_repos/${owner_username}/`);
+}
+
 const getOwner = (username) => {
     return api.get(`repository/owner/${username}`);
 }
@@ -28,4 +32,4 @@ const deleteReposiory = (username, repoName) => {
     return api.delete(`repository/delete/${username}/${repoName}`);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory };
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos };

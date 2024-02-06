@@ -8,10 +8,11 @@ import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
+import ProfilePage from './components/profile/ProfilePage.vue'
+import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
-// import "bootstrap/dist/js/bootstrap"
 import 'vue3-toastify/dist/index.css'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -77,6 +78,14 @@ const routes = [
     {
         path: "/settings/:username/:repoName",
         component: RepoSettings
+    },
+    {
+        path: "/profile",
+        component: ProfilePage
+    },
+    {
+        path: "/profile/settings",
+        component: SettingsProfile
     },
     {
         path: "/view/:username/:repoName/branches",

@@ -11,18 +11,45 @@
     <a href="#"><i class="bi bi-gift"></i>&nbsp;&nbsp;Marketplace</a>
     <label id="id-repo-label">Repositories</label>
     <div class="repositories">
-      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/NvtKts</a>
-      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/DevSecOps</a>
-      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/Zoss-Projekat</a>
-      <a href="#"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">&nbsp;&nbsp;SimicAleksa/pythonProject</a>
+      <a v-for="(repo, index) in repos" :key="index" :href="repo.link">
+        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ username }}/{{ repo.name }}
+      </a>
     </div>
   </div>
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
+import RepositoryService from '@/services/RepositoryService';
 export default {
   props: {
     isOpen: Boolean,
+  },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+
+    RepositoryService.getAllUserRepos(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.repos = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
+  data() {
+    return {
+      currentAvatar: '',
+      username: localStorage.getItem("username"),
+      repos: '',
+    };
   },
 };
 </script>
