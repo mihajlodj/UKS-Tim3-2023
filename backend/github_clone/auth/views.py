@@ -1,6 +1,6 @@
 from main.models import RegistrationCandidate, Developer
-from .serializers import RegistrationSerializer, MyTokenObtainPairSerializer
-from rest_framework.permissions import AllowAny
+from .serializers import RegistrationSerializer, MyTokenObtainPairSerializer, LogoutSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -42,3 +42,15 @@ def confirm_registration(request):
             return Response({'error': 'Incorrect registration code.'}, status=status.HTTP_404_NOT_FOUND)
     except RegistrationCandidate.DoesNotExist:
         return Response({'error': 'Registration candidate not found.'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+class LogoutAPIView(generics.GenericAPIView):
+    serializer_class = LogoutSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

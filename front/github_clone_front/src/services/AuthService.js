@@ -12,4 +12,8 @@ const login = (credentials) => {
     return api.post("auth/login/", credentials);
 }
 
-export default { register, verifyCode, login };
+const logout = (refreshToken) => {
+    return api.post("auth/logout/", refreshToken)
+}
+
+export default { register, verifyCode, login, logout };

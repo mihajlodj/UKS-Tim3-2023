@@ -13,6 +13,7 @@ import string
 import threading
 from main.models import RegistrationCandidate
 from main.gitea_service import save_user
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -82,3 +83,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'full_name': user.get_full_name(),
             'must_change_password': False
         })
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+        except TokenError:
+            self.fail('bad token')
