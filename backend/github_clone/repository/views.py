@@ -157,6 +157,7 @@ def edit_file(request, owner_username, repository_name, path):
         
         timestamp = datetime.now()
         formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        print(json_data)
         old_file = gitea_service.get_file(owner_username, repository_name, json_data['branch'], json_data['from_path'])
         commit_data = {
             'author': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
@@ -171,7 +172,8 @@ def edit_file(request, owner_username, repository_name, path):
         commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
         save_commit(request, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
-    except:
+    except Exception as ex:
+        print(ex)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -132,7 +132,7 @@ export default {
         commitChanges() {
             let commitData = {
                 'branch': this.$route.params.branchName,
-                'content': localStorage.getItem('newContent'),
+                'content': localStorage.getItem('newContent') ? localStorage.getItem('newContent') : this.file.content,
                 'from_path': this.$route.params.path,
                 'message': this.commitMsg,
                 'additional_text': this.additionalText
@@ -141,7 +141,7 @@ export default {
             RepositoryService.editFile(this.$route.params.username, this.$route.params.repoName, newPath, commitData).then(res => {
                 console.log(res);
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/blob/${this.$route.params.branchName}/${newPath}`);
-                localStorage.setItem('fileContent', localStorage.getItem('newContent'));
+                localStorage.setItem('fileContent', localStorage.getItem('newContent') ? localStorage.getItem('newContent') : this.file.content);
                 localStorage.removeItem('newContent');
                 this.codeDisplayKey += 1;
                 // this.pathKey += 1;
