@@ -20,7 +20,6 @@ class CreateBranchView(generics.CreateAPIView):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_branches(request, repository_name):
-    print('GETTING ALL BRANCHES')
     check_view_permission(request, repository_name)
     result = []
     branches = Branch.objects.filter(project__name=repository_name)
