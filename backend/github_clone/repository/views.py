@@ -100,6 +100,7 @@ def get_file(request, owner_username, repository_name, branch, path):
     return Response(result, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def delete_file(request, owner_username, repository_name, path):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
@@ -201,6 +202,7 @@ def upload_files(request, owner_username, repository_name):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_users_repo(request, owner_username):
     user = User.objects.get(username=owner_username)
