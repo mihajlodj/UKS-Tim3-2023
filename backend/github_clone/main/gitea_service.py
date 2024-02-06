@@ -94,5 +94,9 @@ def delete_file(owner, repository, filepath, body):
 def create_file(owner, repository, filepath, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
     response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
-    print(response.json())
+    return response.json()['commit']['sha']
+
+def upload_files(owner, repository, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents'
+    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
     return response.json()['commit']['sha']

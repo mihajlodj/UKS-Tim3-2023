@@ -12,16 +12,16 @@
                             :src="`data:application/pdf;base64,${content}`" />
                     </object>
 
-                    <object v-if="loaded && getFileType() === 'JPG'">
-                        <embed class="w-100" type="text/html" height="600" :src="`data:image/jpg;base64,${content}`" />
+                    <object v-if="loaded && getFileType() === 'JPG'" class="d-flex justify-content-center">
+                        <embed class="w-75" type="text/html" :src="`data:image/jpg;base64,${content}`" />
                     </object>
 
-                    <object v-if="loaded && getFileType() === 'JPEG'">
-                        <embed class="w-100" type="text/html" height="600" :src="`data:image/jpeg;base64,${content}`" />
+                    <object v-if="loaded && getFileType() === 'JPEG'" class="d-flex justify-content-center">
+                        <embed class="w-75" type="text/html" :src="`data:image/jpeg;base64,${content}`" />
                     </object>
 
-                    <object v-if="loaded && getFileType() === 'PNG'">
-                        <embed class="w-100" type="text/html" height="600" :src="`data:image/jpeg;base64,${content}`" />
+                    <object v-if="loaded && getFileType() === 'PNG'" class="d-flex justify-content-center">
+                        <embed class="w-75" type="text/html" :src="`data:image/jpeg;base64,${content}`" />
                     </object>
 
                     <div v-if="loaded && getFileType() === 'OTHER'" class="d-flex justify-content-center other">
@@ -38,8 +38,8 @@
 <script>
 import RepositoryService from '@/services/RepositoryService';
 import NonTextHeader from './NonTextHeader.vue';
-import RepoNavbar from '../RepoNavbar.vue';
-import PathDisplay from './PathDisplay.vue';
+import RepoNavbar from '../../RepoNavbar.vue';
+import PathDisplay from '../PathDisplay.vue';
 
 export default {
     name: "NonTextDisplay",
@@ -51,18 +51,15 @@ export default {
     },
 
     mounted() {
-        // this.path = this.$route.params.path;
         RepositoryService.getFile(this.$route.params.username, this.$route.params.repoName, this.$route.params.branchName, this.$route.params.path).then(res => {
             this.file = {
                 ...res.data
             };
-            // this.newFileName = this.file.name;
             this.content = res.data['content'];
             console.log(this.file);
             this.loaded = true;
         }).catch(err => {
             console.log(err);
-            // this.allowed = false;
         })
     },
 
@@ -120,6 +117,8 @@ export default {
 
 .contain {
     width: 80%;
+    border: 1px solid #adbbc8;
+    margin-bottom: 20px;
 }
 
 h5 {

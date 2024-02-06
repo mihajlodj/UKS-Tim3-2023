@@ -1,6 +1,6 @@
-// import api from '../api'
+import api from '../api'
 
-function fileToBase64(fileUrl) {
+const fileToBase64 = (fileUrl) => {
 	return new Promise((resolve, reject) => {
 		const xhr = new XMLHttpRequest();
 		xhr.onload = function () {
@@ -22,27 +22,27 @@ function fileToBase64(fileUrl) {
 	});
 }
 
+const uploadFiles = (files, username, repoName, data) => {
+    let filePromises = files.map(file => {
+        return fileToBase64(file["url"]).then(base64String => {
+            return {
+                "name": file["file"]["name"],
+                "content": base64String.split("base64,")[1]
+            };
+        }).catch(error => {
+            console.error('Error:', error);
+        });
+    });
 
-// owner, repoName, message, branch
-const uploadFiles = (files, data) => {
-	console.log("IN UPLOADER");
-	let fileData = []
-	for (let file of files) {
-		console.log(file);
-		fileToBase64(file["url"]).then(base64String => {
-			fileData.push({
-				"name": file["file"]["name"],
-				"content": base64String
-			});
-		}).catch(error => {
-			console.error('Error:', error);
-		});
-	}
-	console.log("FILE DATA")
-	console.log(fileData);
-	data["files"] = fileData;
-	console.log(data);
-	// api.post(`/repository/upload/${username}/${repoName}/`, data);
-}
+    return Promise.all(filePromises)
+        .then(fileData => {
+            data["files"] = fileData;
+            return api.post(`/repository/upload/${username}/${repoName}/`, data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+};
+
 
 export default { uploadFiles }

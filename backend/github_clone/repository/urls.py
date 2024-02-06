@@ -13,4 +13,5 @@ urlpatterns = [
     path('edit_file/<str:owner_username>/<str:repository_name>/<path:path>/', edit_file, name='edit_file'),
     path('delete_file/<str:owner_username>/<str:repository_name>/<path:path>/', delete_file, name='delete_file'),
     path('create_file/<str:owner_username>/<str:repository_name>/<path:path>/', create_file, name='create_file'),
+    path('upload/<str:owner_username>/<str:repository_name>/', upload_files, name='upload_files'),
 ]

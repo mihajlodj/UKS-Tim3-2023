@@ -44,8 +44,8 @@
 <script>
 import RepoNavbar from '../RepoNavbar.vue';
 import PathDisplay from './PathDisplay.vue';
-import EditingHeader from './EditingHeader.vue';
-import TextFileEdit from './TextFileEdit.vue';
+import EditingHeader from './text/EditingHeader.vue';
+import TextFileEdit from './text/TextFileEdit.vue';
 import RepositoryService from '@/services/RepositoryService';
 
 export default {
@@ -77,7 +77,8 @@ export default {
             let data = {
                 "message": this.commitMsg,
                 "branch": this.$route.params.branchName,
-                "content": this.content
+                "content": this.content,
+                "additional_text": this.additionalText
             }
             let path = this.$refs.pathDisplay.getFullPath();
             RepositoryService.createFile(this.$route.params.username, this.$route.params.repoName, path, data).then(res => {

@@ -66,7 +66,7 @@
                                     </button>
                                 </li>
                                 <li>
-                                    <button class="btn dropdown-item">
+                                    <button class="btn dropdown-item" @click="uploadFiles">
                                         <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
                                     </button>
                                 </li>
@@ -230,7 +230,11 @@ export default {
         },
 
         createNewFile() {
-            this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/new/${this.repo.chosenBranch}`)
+            this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/new/${this.repo.chosenBranch}`);
+        },
+
+        uploadFiles() {
+            this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/upload/${this.repo.chosenBranch}`);
         }
     },
 

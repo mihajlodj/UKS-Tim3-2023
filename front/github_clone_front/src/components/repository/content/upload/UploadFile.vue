@@ -32,9 +32,9 @@
             </div>
         </div>
         <div class="d-flex justify-content-center">
-            <div class="d-flex justify-content-start commit-cancel">
+            <div class="d-flex justify-content-start commit-cancel mb-5">
                 <button @click="uploadSelectedFiles(files)" class="btn-commit me-2">Commit changes</button>
-                <button type="button" class="btn-cancel">Cancel</button>
+                <button type="button" class="btn-cancel" @click="cancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -44,8 +44,8 @@
 import DropZone from './DropZone.vue';
 import FilePreview from './FilePreview.vue'
 import useFileList from '@/services/FileList'
-import RepoNavbar from '../RepoNavbar.vue';
-import PathDisplay from './PathDisplay.vue';
+import RepoNavbar from '../../RepoNavbar.vue';
+import PathDisplay from '../PathDisplay.vue';
 
 const { files, addFiles, removeFile } = useFileList()
 
@@ -74,20 +74,22 @@ export default {
                 "message": this.commitMsg,
                 "additional_text": this.additionalText
             };
-            console.log(data);
-            console.log(files);
             try {
-                FileUploader.uploadFiles(files, data).then(res => {
+                FileUploader.uploadFiles(files, this.$route.params.username, this.$route.params.repoName, data).then(res => {
                     console.log(res);
-                    // this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
+                    this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
                 }).catch(err => {
-                    console.log("HERE IN ERROR");
                     console.log(err);
                 });
             }
             catch(e) {
-                console.log("ABC");
+                console.log(e);
+                this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
             }
+        },
+
+        cancel() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
         }
     }
 }

@@ -35,7 +35,7 @@
 <script>
 
 export default {
-    name: 'CodeDisplay',
+    name: 'CodeHeader',
 
     props: ['numLines', 'size', 'name', 'downloadUrl', 'content'],
 

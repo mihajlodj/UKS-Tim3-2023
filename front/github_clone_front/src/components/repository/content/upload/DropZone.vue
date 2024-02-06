@@ -18,7 +18,6 @@ function setActive() {
 }
 
 function setInactive() {
-    // wrap it in a `setTimeout`
     inActiveTimeout = setTimeout(() => {
         active.value = false
     }, 50)

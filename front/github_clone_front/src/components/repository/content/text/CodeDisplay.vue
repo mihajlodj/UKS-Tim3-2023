@@ -16,15 +16,6 @@
 export default {
     name: 'CodeDisplay',
 
-    // props: ['lines'],
-
-    // /* eslint-disable */
-    // watch: {
-    //     lines: function (newLines, oldLines) {
-    //         this.countSpaces(newLines);
-    //     }
-    // },
-
     mounted() {
         if (localStorage.getItem('fileContent')) {
             this.lines = localStorage.getItem('fileContent').split("\n");

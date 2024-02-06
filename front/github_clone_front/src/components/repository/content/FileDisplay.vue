@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import TextFile from './TextFile.vue';
-import NonTextDisplay from './NonTextDisplay.vue';
+import TextFile from './text/TextFile.vue';
+import NonTextDisplay from './non-text/NonTextDisplay.vue';
 import RepositoryService from '@/services/RepositoryService';
 import { Modal } from "bootstrap";
 
@@ -71,7 +71,8 @@ export default {
         finalizeDelete() {
             let commitData = {
                 'branch': this.$route.params.branchName,
-                'message': this.commitMsg
+                'message': this.commitMsg,
+                'additional_text': this.additionalText
             }
             RepositoryService.deleteFile(this.$route.params.username, this.$route.params.repoName, this.$route.params.path, commitData).then(res => {
                 console.log(res);

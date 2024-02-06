@@ -98,40 +98,21 @@ def get_file(request, owner_username, repository_name, branch, path):
 @api_view(['PUT'])
 def delete_file(request, owner_username, repository_name, path):
     try:
-        decoded_data = request.body.decode('utf-8')
-        json_data = json.loads(decoded_data)
-
-        author_name = f'{request.user.first_name} {request.user.last_name}'
-        author_email = request.user.email
-        
-        branch_name = json_data['branch']
+        json_data = json.loads(request.body.decode('utf-8'))
         timestamp = datetime.now()
         formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-        old_file = gitea_service.get_file(owner_username, repository_name, branch_name, path)
-        sha = old_file['sha']
-        message = json_data['message']
+        old_file = gitea_service.get_file(owner_username, repository_name, json_data['branch'], path)
 
         commit_data = {
-            'author': {
-                'email': author_email,
-                'name': author_name
-            },
-            'branch': branch_name,
-            'committer': {
-                'email': author_email,
-                'name': author_name
-            },
-            'dates': {
-                'author': formatted_datetime,
-                'committer': formatted_datetime
-            },
-            'message': message,
-            'sha': sha 
+            'author': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
+            'branch': json_data['branch'],
+            'committer': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
+            'dates': { 'author': formatted_datetime, 'committer': formatted_datetime },
+            'message': json_data['message'],
+            'sha': old_file['sha'] 
         }
         commit_sha = gitea_service.delete_file(owner_username, repository_name, path, commit_data)
-        author = Developer.objects.get(user__username=request.user.username)
-        branch = Branch.objects.get(project__name=repository_name, name=branch_name)
-        Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, message=message)
+        save_commit(request, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -141,42 +122,22 @@ def delete_file(request, owner_username, repository_name, path):
 @permission_classes([IsAuthenticated])
 def create_file(request, owner_username, repository_name, path):
     try:
-        raw_data = request.body
-        decoded_data = raw_data.decode('utf-8')
-        json_data = json.loads(decoded_data)
-        
-        author_name = f'{request.user.first_name} {request.user.last_name}'
-        author_email = request.user.email
-        branch_name = json_data['branch']
-        content_bytes = json_data['content'].encode("utf-8") 
-        base64_bytes = base64.b64encode(content_bytes) 
+        json_data = json.loads(request.body.decode('utf-8'))
+        base64_bytes = base64.b64encode(json_data['content'].encode("utf-8")) 
         content = base64_bytes.decode("utf-8") 
         
         timestamp = datetime.now()
         formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-        message = json_data['message']
         commit_data = {
-            'author': {
-                'email': author_email,
-                'name': author_name
-            },
-            'branch': branch_name,
-            'committer': {
-                'email': author_email,
-                'name': author_name
-            },
+            'author': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
+            'branch': json_data['branch'],
+            'committer': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
             'content': content,
-            'dates': {
-                'author': formatted_datetime,
-                'committer': formatted_datetime
-            },
-            'message': message,
+            'dates': { 'author': formatted_datetime, 'committer': formatted_datetime },
+            'message': json_data['message'],
         }
-        print('HERE')
         commit_sha = gitea_service.create_file(owner_username, repository_name, path, commit_data)
-        author = Developer.objects.get(user__username=request.user.username)
-        branch = Branch.objects.get(project__name=repository_name, name=branch_name)
-        Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, message=message)
+        save_commit(request, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -187,50 +148,59 @@ def create_file(request, owner_username, repository_name, path):
 @permission_classes([IsAuthenticated])
 def edit_file(request, owner_username, repository_name, path):
     try:
-        raw_data = request.body
-        decoded_data = raw_data.decode('utf-8')
-        json_data = json.loads(decoded_data)
-        
-        author_name = f'{request.user.first_name} {request.user.last_name}'
-        author_email = request.user.email
-        branch_name = json_data['branch']
-        content_bytes = json_data['content'].encode("utf-8") 
-        base64_bytes = base64.b64encode(content_bytes) 
+        json_data = json.loads(request.body.decode('utf-8'))
+        base64_bytes = base64.b64encode(json_data['content'].encode("utf-8") ) 
         content = base64_bytes.decode("utf-8") 
         
         timestamp = datetime.now()
         formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-        from_path = json_data['from_path']
-        message = json_data['message']
-        old_file = gitea_service.get_file(owner_username, repository_name, branch_name, from_path)
-        sha = old_file['sha']
+        old_file = gitea_service.get_file(owner_username, repository_name, json_data['branch'], json_data['from_path'])
         commit_data = {
-            'author': {
-                'email': author_email,
-                'name': author_name
-            },
-            'branch': branch_name,
-            'committer': {
-                'email': author_email,
-                'name': author_name
-            },
+            'author': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
+            'branch': json_data['branch'],
+            'committer': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
             'content': content,
-            'dates': {
-                'author': formatted_datetime,
-                'committer': formatted_datetime
-            },
-            'from_path': from_path,
-            'message': message,
-            'sha': sha 
+            'dates': { 'author': formatted_datetime, 'committer': formatted_datetime },
+            'from_path': json_data['from_path'],
+            'message': json_data['message'],
+            'sha': old_file['sha'] 
         }
         commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
-        author = Developer.objects.get(user__username=request.user.username)
-        branch = Branch.objects.get(project__name=repository_name, name=branch_name)
-        Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, message=message)
+        save_commit(request, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_files(request, owner_username, repository_name):
+    try:
+        json_data = json.loads(request.body.decode('utf-8'))
+        files = [{'path': f['name'], 'operation': 'create', 'content': f['content']} for f in json_data['files']] 
+        timestamp = datetime.now()
+        formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        commit_data = {
+            'author': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
+            'branch': json_data['branch'],
+            'committer': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
+            'files': files,
+            'dates': { 'author': formatted_datetime, 'committer': formatted_datetime },
+            'message': json_data['message'],
+        }
+        commit_sha = gitea_service.upload_files(owner_username, repository_name, commit_data)
+        save_commit(request, repository_name, json_data, timestamp, commit_sha)
+        return Response(status=status.HTTP_200_OK)
+    except Exception as ex:
+        print(ex)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+def save_commit(request, repository_name, json_data, timestamp, commit_sha):
+    author = Developer.objects.get(user__username=request.user.username)
+    branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])
+    Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, 
+                            message=json_data['message'], additional_description=json_data['additional_text'])
 
 
 def check_view_permission(request, repo):
