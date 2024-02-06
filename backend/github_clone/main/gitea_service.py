@@ -5,6 +5,10 @@ gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
+headers = {
+    'Accept': 'application/json',
+    'Authorization': f'Bearer {access_token}',
+}
 
 headers = {
     'Accept': 'application/json',
@@ -133,3 +137,28 @@ def create_branch(owner, repository_name, branch):
 def delete_branch(owner, repository_name, branch_name):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches/{branch_name}'
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+
+def get_file(username, repository, branch, path):
+    api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
+    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+
+def edit_file(owner, repository, filepath, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
+    response = requests.put(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    return response.json()['content']['last_commit_sha']
+
+def delete_file(owner, repository, filepath, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
+    response = requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    return response.json()['commit']['sha']
+
+def create_file(owner, repository, filepath, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
+    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    return response.json()['commit']['sha']
+
+def upload_files(owner, repository, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents'
+    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    return response.json()['commit']['sha']
+

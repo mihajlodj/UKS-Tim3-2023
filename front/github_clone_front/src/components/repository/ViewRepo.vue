@@ -61,12 +61,12 @@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <button class="btn dropdown-item">
+                                    <button class="btn dropdown-item" @click="createNewFile">
                                         <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
                                     </button>
                                 </li>
                                 <li>
-                                    <button class="btn dropdown-item">
+                                    <button class="btn dropdown-item" @click="uploadFiles">
                                         <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
                                     </button>
                                 </li>
@@ -136,6 +136,11 @@ export default {
             if (this.$route.query.chosen) {
                 this.repo.chosenBranch = this.$route.query.chosen;
             }
+            if (this.$route.query.path) {
+                this.repo.foldersPath = this.$route.query.path + "/";
+                this.repo.displayRoot = "false";
+            }
+            this.$router.replace({'query': null});
 
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
@@ -153,15 +158,16 @@ export default {
             this.owner.lastName = res.data.user.last_name;
         }).catch(err => {
             console.log(err);
-        })
+        });
+
 
         DeveloperService.getUserAvatar(localStorage.getItem("username"))
-          .then(res => {
-              this.owner.avatar = res.data
-          })
-          .catch(err => {
-              console.log(err);
-          });
+            .then(res => {
+                this.owner.avatar = res.data
+            })
+            .catch(err => {
+                console.log(err);
+            });
     },
 
     data() {
@@ -213,6 +219,7 @@ export default {
         folderClicked(data) {
             this.repo.foldersPath = this.repo.foldersPath.concat(data["name"] + "/")
             this.repo.displayRoot = "false";
+            console.log(this.repo.foldersPath);
             this.forceRerender();
         },
 
@@ -229,6 +236,14 @@ export default {
 
         viewBranches() {
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/branches`);
+        },
+
+        createNewFile() {
+            this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/new/${this.repo.chosenBranch}`);
+        },
+
+        uploadFiles() {
+            this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/upload/${this.repo.chosenBranch}`);
         }
     },
 
