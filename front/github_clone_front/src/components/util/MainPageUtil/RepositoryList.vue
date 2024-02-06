@@ -1,6 +1,6 @@
 <template>
   <div class="repository-list">
-    <label id="profile-name"><img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main"> SimicAleksa</label>
+    <label id="profile-name"><img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" /> {{this.username}}</label>
     <br>
     <div class="repo-searchj-new">
       <div id="top-repo">
@@ -15,7 +15,7 @@
       </div>
     <ul class="repo-ul">
       <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id">
-        <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
         {{ repo.name }}
       </li>
     </ul>
@@ -23,13 +23,27 @@
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
+
 export default {
   props: {
     repositories: Array,
   },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
   data() {
     return {
+      currentAvatar: '',
       searchQuery: '',
+      username: localStorage.getItem("username"),
     };
   },
   computed: {

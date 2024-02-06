@@ -43,7 +43,7 @@
         <div style="">
           <div class="profile-image-container">
             <div style="margin-top:13px"> </div>
-            <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+            <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
           </div>
         </div>
       </button>
@@ -64,6 +64,7 @@
 import SearchBar from './Search-bar.vue';
 import SlideMenu from './SlideMenu.vue';
 import SlideProfileMenu from './SlideProfileMenu.vue';
+import DeveloperService from '@/services/DeveloperService';
 
 export default {
   components: {
@@ -74,8 +75,19 @@ export default {
   props: {
     user: Object,
   },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
   data() {
     return {
+      currentAvatar: '',
       isMenuOpen: false,
       isProfileMenuOpen: false,
       isDropdownOpen: false,

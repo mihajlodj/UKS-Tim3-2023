@@ -27,12 +27,12 @@ export default {
   margin-bottom: 10px;
 }
 
-h2 {
+.user-profile h2 {
   font-size: 24px;
   margin-bottom: 5px;
 }
 
-p {
+.user-profile p {
   font-size: 16px;
   color: #777;
 }

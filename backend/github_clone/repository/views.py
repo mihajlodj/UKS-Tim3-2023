@@ -3,6 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status
 from rest_framework.response import Response
 from main.models import Commit, Project, WorksOn, Developer, Branch
+from django.contrib.auth.models import User
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, status
+from rest_framework.response import Response
+from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from main import gitea_service
@@ -40,8 +45,8 @@ def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
     check_view_permission(request, repo)
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
-    result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier, 'default_branch': repo.default_branch.name, 
-              'http': gitea_repo_data['clone_url'], 'ssh': gitea_repo_data['ssh_url'], 'branches': []}
+    result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
+              'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'], 'ssh': gitea_repo_data['ssh_url'], 'branches': []}
     branches = Branch.objects.filter(project__name=repository_name)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names
@@ -78,7 +83,6 @@ def delete_repo(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
 def get_file(request, owner_username, repository_name, branch, path):
     check_view_permission(request, Project.objects.get(name=repository_name))
     file_data = gitea_service.get_file(owner_username, repository_name, branch, path)
@@ -194,6 +198,22 @@ def upload_files(request, owner_username, repository_name):
         print(ex)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
+
+@permission_classes([IsAuthenticated])
+def get_all_users_repo(request, owner_username):
+    user = User.objects.get(username=owner_username)
+    developer = Developer.objects.get(user_id=user.id)
+    repos = []
+    for temp_repo in WorksOn.objects.filter(developer_id=developer.id):
+        repo = Project.objects.get(id=temp_repo.project_id)
+        isPrivate = False
+        if repo.access_modifier == AccessModifiers.PRIVATE:
+            isPrivate = True
+        result = {'name': repo.name, 'description': repo.description, 'access_modifier': isPrivate,
+                  'default_branch': repo.default_branch.name}
+        repos.append(result)
+    return Response(repos, status=status.HTTP_200_OK)
+
 
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):
     author = Developer.objects.get(user__username=request.user.username)

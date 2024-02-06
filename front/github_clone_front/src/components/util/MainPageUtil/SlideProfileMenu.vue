@@ -1,12 +1,12 @@
 <template>
   <div class="slide-profile-menu" :class="{ 'slide-in': isProfileOpen }">
     <div class="basic-info">
-      <img src="../../../.. /../assets/git_profile_picture.png" alt="User Avatar" class="profile-picture-main">
+      <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
       &nbsp;
-      <label>SimicAleksa</label>
+      <label>{{this.username}}</label>
     </div>
     <a href="#"><i class="bi bi-emoji-smile"></i>&nbsp;&nbsp;Set status</a>
-    <a href="#"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
+    <a href="/profile"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
     <a href="#"><i class="bi bi-person-plus"></i>&nbsp;&nbsp;Add account</a>
     <a href="#"><i class="bi bi-journal-bookmark"></i>&nbsp;&nbsp;Your repositories</a>
     <a href="#"><i class="bi bi-file-bar-graph"></i>&nbsp;&nbsp;Your projects</a>
@@ -22,14 +22,60 @@
     <a href="#"><i class="bi bi-gear"></i>&nbsp;&nbsp;Settings</a>
     <a href="#"><i class="bi bi-book"></i>&nbsp;&nbsp;GitHub Docs</a>
     <a href="#"><i class="bi bi-people"></i>&nbsp;&nbsp;GitHub Support</a>
-    <a href="#">Sign out</a>
+    <a href="#" @click="this.logout()">Sign out</a>
   </div>
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
+import AuthService from '@/services/AuthService';
+import { toast } from 'vue3-toastify';
+
 export default {
   props: {
     isProfileOpen: Boolean,
+  },
+  mounted() {
+    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              console.log(res);
+              this.currentAvatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
+  },
+  data() {
+    return {
+      currentAvatar: '',
+      username: localStorage.getItem("username"),
+    };
+  },
+  methods: {
+    logout() {
+      /* eslint-disable */
+      AuthService.logout({
+        "refresh": localStorage.getItem("refresh_token"),
+      }).then(result => {
+        console.log("Logged out");
+        this.deleteTokens();
+        this.redirectToLogin();
+      }).catch(_err => {
+        toast("Error occured!", {
+              autoClose: 1000,
+              type: 'error',
+              position: toast.POSITION.BOTTOM_RIGHT
+        });
+      })
+    },
+    deleteTokens() {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("username");
+    },
+    redirectToLogin() {
+      this.$router.push("/");
+    },
   },
 };
 </script>
@@ -42,7 +88,7 @@ export default {
 }
 
 .basic-info{
-  padding-bottom: 1rem;
+  padding-bottom: 0.5rem;
   padding-top: 0.5rem;
 }
 
@@ -57,16 +103,23 @@ export default {
   background-color: #333;
   border-radius: 10px;
   padding-inline-start: 1rem;
-  padding-top: 0.5rem;
   transition: left 0.4s ease-in-out;
   z-index: 100;
 }
 
 .slide-profile-menu a {
+  padding-inline-start: 0.5rem;
+  padding-top: 0.1rem;
+  width: 90%;
   color: #fff;
   text-decoration: none;
   font-size: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+}
+
+.slide-profile-menu a:hover{
+  background: #515050;
+  border-radius: 1rem;
 }
 
 .slide-in {

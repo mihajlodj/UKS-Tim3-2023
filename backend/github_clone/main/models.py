@@ -29,15 +29,24 @@ class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
     caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
     issue = models.ForeignKey('main.Issue', related_name='issue_events', on_delete=models.CASCADE, null=True)
-    milestone = models.ForeignKey('main.Milestone', related_name='milestone_events', on_delete=models.CASCADE, null=True)
-    pull_request = models.ForeignKey('main.PullRequest', related_name='pull_request_events', on_delete=models.CASCADE,
+    milestone = models.ForeignKey('main.Milestone', related_name='milestone_events', on_delete=models.CASCADE,
                                   null=True)
+    pull_request = models.ForeignKey('main.PullRequest', related_name='pull_request_events', on_delete=models.CASCADE,
+                                     null=True)
+
+
+class SecondaryEmail(models.Model):
+    developer = models.ForeignKey('Developer', on_delete=models.CASCADE)
+    email = models.EmailField()
+    primary = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False)
 
 
 class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gitea_token = models.CharField(max_length=255, null=True, blank=True)
     avatar = models.CharField(max_length=1000, null=True, blank=True)
+
 
 class Assignment(Event):
     developer = models.ForeignKey('Developer', related_name='assignments', on_delete=models.DO_NOTHING)
@@ -53,7 +62,8 @@ class Task(models.Model):
 class Issue(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True, blank=True)
+    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True,
+                                blank=True)
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE)
 
 
@@ -61,7 +71,8 @@ class Project(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
-    default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True, blank=True)
+    default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True,
+                                          blank=True)
 
 
 class Branch(models.Model):
@@ -135,7 +146,7 @@ class PullRequest(models.Model):
     source = models.ForeignKey(Branch, related_name='pull_requests_source', on_delete=models.CASCADE)
     target = models.ForeignKey(Branch, related_name='pull_requests_target', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    author = models.OneToOneField(Developer, related_name='pull_requests_author',on_delete=models.DO_NOTHING)
+    author = models.OneToOneField(Developer, related_name='pull_requests_author', on_delete=models.DO_NOTHING)
     reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers')
     status = models.CharField(max_length=10, choices=PullRequestStatus.choices, default=PullRequestStatus.OPEN)
     timestamp = models.DateTimeField(default=timezone.now)
