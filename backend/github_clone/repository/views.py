@@ -125,7 +125,6 @@ def create_file(request, owner_username, repository_name, path):
         json_data = json.loads(request.body.decode('utf-8'))
         base64_bytes = base64.b64encode(json_data['content'].encode("utf-8")) 
         content = base64_bytes.decode("utf-8") 
-        
         timestamp = datetime.now()
         formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
         commit_data = {
