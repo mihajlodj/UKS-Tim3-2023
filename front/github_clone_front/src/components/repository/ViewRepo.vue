@@ -112,6 +112,7 @@ import RepositoryService from '@/services/RepositoryService';
 import RepoContent from '@/components/repository/RepoContent.vue'
 import RepoNavbar from './RepoNavbar.vue';
 import NotFoundPage from '../util/NotFoundPage.vue';
+import DeveloperService from '@/services/DeveloperService';
 
 export default {
     name: 'ViewRepo',
@@ -150,10 +151,17 @@ export default {
             this.owner.email = res.data.user.email;
             this.owner.firstName = res.data.user.first_name;
             this.owner.lastName = res.data.user.last_name;
-            this.owner.avatar = res.data.avatar;
         }).catch(err => {
             console.log(err);
         })
+
+        DeveloperService.getUserAvatar(localStorage.getItem("username"))
+          .then(res => {
+              this.owner.avatar = res.data
+          })
+          .catch(err => {
+              console.log(err);
+          });
     },
 
     data() {

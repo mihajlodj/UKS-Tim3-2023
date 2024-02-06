@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, generics
 from rest_framework.response import Response
 from branch.serializers import BranchSerializer
+from main.gitea_service import get_gitea_user_info_gitea_service
 from main.models import Project, WorksOn, Branch, Commit, PullRequest
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied
@@ -32,7 +33,12 @@ def get_all_branches(request, repository_name):
             latest_commit = Commit.objects.filter(branch=branch).latest('timestamp')
             obj['updated_timestamp'] = latest_commit.timestamp
             obj['updated_username'] = latest_commit.author.user.username
-            obj['updated_avatar'] = latest_commit.author.avatar
+
+            if latest_commit.author.avatar is None:
+                gitea_user_info = get_gitea_user_info_gitea_service(latest_commit.author.user.username)
+                obj['updated_avatar'] = gitea_user_info['avatar_url']
+            else:
+                obj['updated_avatar'] = latest_commit.author.avatar
         except ObjectDoesNotExist:
             print("No commits found for the specified branch.")
         try:
