@@ -11,6 +11,7 @@ import MainPage from './components/pages/MainPage.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
 import FileDisplay from './components/repository/content/FileDisplay.vue';
 import CreateFile from './components/repository/content/CreateFile.vue';
+import UploadFile from './components/repository/content/UploadFile.vue';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 // import "bootstrap/dist/js/bootstrap"
@@ -95,6 +96,10 @@ const routes = [
     {
         path: "/:username/:repoName/new/:branchName",
         component: CreateFile
+    },
+    {
+        path: "/:username/:repoName/upload/:branchName",
+        component: UploadFile
     }
 ]
 
