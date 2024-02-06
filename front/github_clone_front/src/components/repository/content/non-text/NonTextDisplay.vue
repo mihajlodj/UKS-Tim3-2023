@@ -4,7 +4,7 @@
         <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
 
         <div>
-            <NonTextHeader :size="file.size" @deleteFile="deleteFile" />
+            <NonTextHeader :size="file.size" :download_url="file.download_url" @deleteFile="deleteFile" />
             <div class="d-flex justify-content-center">
                 <div class="contain">
                     <object v-if="loaded && getFileType() === 'PDF'">

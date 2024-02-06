@@ -8,6 +8,9 @@
             </div>
 
             <div class="d-flex justify-content-end">
+                <a :href="download_url" class="header-btn me-1 px-3">
+                    <font-awesome-icon icon="fa-solid fa-download" />
+                </a>
                 <button type="button" class="header-btn me-1 px-3" @click="deleteFile">
                     <font-awesome-icon icon="fa-regular fa-trash-can" />
                 </button>
@@ -19,14 +22,14 @@
 <script>
 
 export default {
-    name: 'CodeDisplay',
+    name: 'NonTextHeader',
 
-    props: ['size'],
+    props: ['size', 'download_url'],
 
     methods: {
         deleteFile() {
             this.$emit('deleteFile', {});
-        },
+        }
     },
 
     computed: {
