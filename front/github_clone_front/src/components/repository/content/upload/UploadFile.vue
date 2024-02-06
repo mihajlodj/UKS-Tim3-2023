@@ -11,6 +11,9 @@
                         <span class="smaller">to add them</span>
                     </span>
                     <span v-else>
+                        <div class="d-flex justify-content-center mb-3">
+                            <font-awesome-icon icon="fa-regular fa-file" class="me-2 mt-1" />
+                        </div>
                         <span>Drag files here to add them to your repository</span>
                         <span class="smaller mt-2 d-flex justify-content-center">
                             Or &nbsp; <strong>choose your files</strong>
@@ -82,7 +85,7 @@ export default {
                     console.log(err);
                 });
             }
-            catch(e) {
+            catch (e) {
                 console.log(e);
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
             }
