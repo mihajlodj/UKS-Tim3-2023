@@ -109,6 +109,7 @@ class Milestone(models.Model):
     title = models.CharField(max_length=255, default="")
     description = models.TextField(null=True, blank=True)
     state = models.CharField(max_length=10, choices=MilestoneState.choices, default=MilestoneState.OPEN)
+    id_from_gitea = models.IntegerField(blank=True, null=True)
 
 
 class Comment(Event):
