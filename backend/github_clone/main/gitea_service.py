@@ -175,4 +175,23 @@ def create_milestone(owner, repository_name, milestone):
         'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
     }
     response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
-    # print(response.json())
+    print(response.json())
+    milestone_id = response.json()['id']
+    print(milestone_id)
+    return milestone_id
+
+def update_milestone(owner, repository_name, milestone):
+    milestone_id = milestone.id_from_gitea
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    formated_due_on = milestone.deadline.strftime('%Y-%m-%d') + 'T00:01:00Z'
+    data = {
+        'title': milestone.title,
+        'description': milestone.description,
+        'due_on': formated_due_on,
+        'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
+    }
+    requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)

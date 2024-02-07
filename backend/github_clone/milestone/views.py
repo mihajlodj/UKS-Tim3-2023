@@ -10,4 +10,9 @@ class CreateMilestoneView(generics.CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = MilestoneSerializer
 
+class UpdateMilestoneView(generics.UpdateAPIView):
+    queryset = Milestone.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = MilestoneSerializer
+    lookup_field = 'title'
 
