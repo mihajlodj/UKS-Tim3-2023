@@ -18,9 +18,8 @@ class CreateBranchView(generics.CreateAPIView):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_all_branches(request, repository_name):
-    permissions.can_view_repository(request, Project.objects.get(name=repository_name))
     result = []
     branches = Branch.objects.filter(project__name=repository_name)
     for branch in branches:
@@ -51,9 +50,8 @@ def get_all_branches(request, repository_name):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def delete_branch(request, repository_name, branch_name):
-    permissions.can_edit_repository_content(request, Project.objects.get(name=repository_name))
     try:
         branch = Branch.objects.get(name=branch_name)
         repository = Project.objects.get(name=repository_name)

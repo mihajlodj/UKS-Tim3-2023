@@ -1,4 +1,4 @@
-from main.models import WorksOn, AccessModifiers, Role
+from main.models import WorksOn, AccessModifiers, Role, Project
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import BasePermission
 
@@ -22,26 +22,38 @@ class CanCreateBranch(BasePermission):
         if WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role == Role.READONLY:
             return False
         return True
-
-
-def can_view_repository(request, repository):
-    logged_user = request.user.username
-    if repository.access_modifier == AccessModifiers.PRIVATE:
+    
+class CanViewRepository(BasePermission):
+    def has_permission(self, request, view):
+        repository_name = view.kwargs.get('repository_name')
+        if not Project.objects.filter(name=repository_name).exists():
+            return False
+        repository = Project.objects.get(name=repository_name)
+        if repository.access_modifier == AccessModifiers.PUBLIC:
+            return True
+        if not request.user.is_authenticated:
+            return False
+        logged_user = request.user.username
         works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repository.name)]
+        return logged_user in works_on_list
+    
+class CanDeleteRepository(BasePermission):
+    def has_permission(self, request, view):
+        repository_name = view.kwargs.get('repository_name')
+        if not Project.objects.filter(name=repository_name).exists():
+            return False
+        return WorksOn.objects.filter(developer__user__username=request.user.username, 
+                                      project__name=repository_name, role=Role.OWNER).exists()
+    
+class CanEditRepositoryContent(BasePermission):
+    def has_permission(self, request, view):
+        repository_name = view.kwargs.get('repository_name')
+        if not Project.objects.filter(name=repository_name).exists():
+            return False
+        logged_user = request.user.username
+        works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repository_name)]
         if logged_user not in works_on_list:
-            raise PermissionDenied()
-        
-def can_delete_repository(request, repository):
-    logged_user = request.user.username
-    owner = WorksOn.objects.get(project__name=repository.name, role=Role.OWNER)
-    if owner.developer.user.username != logged_user:
-        raise PermissionDenied()
-    
-def can_edit_repository_content(request, repository):
-    logged_user = request.user.username
-    works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repository.name)]
-    if logged_user not in works_on_list:
-        raise PermissionDenied()
-    if WorksOn.objects.get(project__name=repository.name, developer__user__username=logged_user).role == Role.READONLY:
-        raise PermissionDenied()
-    
+            return False
+        if WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role == Role.READONLY:
+            return False
+        return True

@@ -40,10 +40,9 @@ class UpdateRepositoryView(generics.UpdateAPIView):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
-    permissions.can_view_repository(request, repo)
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'], 'ssh': gitea_repo_data['ssh_url'], 'branches': []}
@@ -54,26 +53,23 @@ def get_repo_data_for_display(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_root_files(request, owner_username, repository_name, ref):
-    permissions.can_view_repository(request, Project.objects.get(name=repository_name))
     return Response(gitea_service.get_root_content(owner_username, repository_name, ref), status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_folder_files(request, owner_username, repository_name, branch, path):
-    permissions.can_view_repository(request, Project.objects.get(name=repository_name))
     return Response(gitea_service.get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanDeleteRepository])
 def delete_repo(request, owner_username, repository_name):
     if not Project.objects.filter(name=repository_name).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     repository = Project.objects.get(name=repository_name)
-    permissions.can_delete_repository(request, repository)
     works_on_list = WorksOn.objects.filter(project__name=repository_name)
     for item in works_on_list:
         item.delete()
@@ -83,8 +79,8 @@ def delete_repo(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
+@permission_classes([permissions.CanViewRepository])
 def get_file(request, owner_username, repository_name, branch, path):
-    permissions.can_view_repository(request, Project.objects.get(name=repository_name))
     file_data = gitea_service.get_file(owner_username, repository_name, branch, path)
     content = file_data['content']
     is_text = True
@@ -100,9 +96,8 @@ def get_file(request, owner_username, repository_name, branch, path):
     return Response(result, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def delete_file(request, owner_username, repository_name, path):
-    permissions.can_edit_repository_content(request, Project.objects.get(name=repository_name))
     try:
         json_data = json.loads(request.body.decode('utf-8'))
         timestamp = datetime.now()
@@ -125,9 +120,8 @@ def delete_file(request, owner_username, repository_name, path):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def create_file(request, owner_username, repository_name, path):
-    permissions.can_edit_repository_content(request, Project.objects.get(name=repository_name))
     try:
         json_data = json.loads(request.body.decode('utf-8'))
         base64_bytes = base64.b64encode(json_data['content'].encode("utf-8")) 
@@ -151,9 +145,8 @@ def create_file(request, owner_username, repository_name, path):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def edit_file(request, owner_username, repository_name, path):
-    permissions.can_edit_repository_content(request, Project.objects.get(name=repository_name))
     try:
         json_data = json.loads(request.body.decode('utf-8'))
         base64_bytes = base64.b64encode(json_data['content'].encode("utf-8") ) 
@@ -181,9 +174,8 @@ def edit_file(request, owner_username, repository_name, path):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def upload_files(request, owner_username, repository_name):
-    permissions.can_edit_repository_content(request, Project.objects.get(name=repository_name))
     try:
         json_data = json.loads(request.body.decode('utf-8'))
         files = [{'path': f['name'], 'operation': 'create', 'content': f['content']} for f in json_data['files']] 
