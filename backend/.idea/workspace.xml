@@ -4,8 +4,6 @@
     <list default="true" id="57814923-5bb8-4c92-bafc-bf41c91d5926" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/main/gitea_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/gitea_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/github_clone/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/github_clone/milestone/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
     </list>
@@ -113,7 +111,7 @@
       <workItem from="1707083180144" duration="613000" />
       <workItem from="1707144771661" duration="16786000" />
       <workItem from="1707250178587" duration="2050000" />
-      <workItem from="1707291307474" duration="16142000" />
+      <workItem from="1707291307474" duration="18965000" />
     </task>
     <servers />
   </component>

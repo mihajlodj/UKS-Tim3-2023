@@ -195,3 +195,12 @@ def update_milestone(owner, repository_name, milestone):
         'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
     }
     requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+
+
+def delete_milestone_from_gitea(owner, repository_name, milestone_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {access_token}',
+    }
+    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
