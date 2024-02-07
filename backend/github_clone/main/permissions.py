@@ -12,6 +12,18 @@ class CanEditRepository(BasePermission):
             return False
         return True    
 
+class CanCreateBranch(BasePermission):
+    def has_permission(self, request, view):
+        logged_user = request.user.username
+        repository_name = view.kwargs.get('repository_name')
+        works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repository_name)]
+        if logged_user not in works_on_list:
+            return False
+        if WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role == Role.READONLY:
+            return False
+        return True
+
+
 def can_view_repository(request, repository):
     logged_user = request.user.username
     if repository.access_modifier == AccessModifiers.PRIVATE:
