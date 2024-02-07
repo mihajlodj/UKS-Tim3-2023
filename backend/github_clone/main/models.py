@@ -12,7 +12,7 @@ class AccessModifiers(models.TextChoices):
 class Role(models.TextChoices):
     ADMIN = 'Admin', 'Admin'
     UNREGISTERED = 'Unregistered', 'Unregistered'
-    REPORTER = 'Reporter', 'Reporter'
+    READONLY = 'Readonly', 'Readonly'
     DEVELOPER = 'Developer', 'Developer'
     MAINTAINER = 'Maintainer', 'Maintainer'
     OWNER = 'Owner', 'Owner'
