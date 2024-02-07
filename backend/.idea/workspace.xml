@@ -3,11 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="57814923-5bb8-4c92-bafc-bf41c91d5926" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/github_clone/github_clone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/github_clone/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/github_clone/main/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/main/gitea_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/gitea_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,17 +38,39 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/LAZAR/Desktop/Upravljanje_konfiguracijom_softvera/Projekat/UKS-Tim3-2023/backend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/LAZAR/Desktop/Upravljanje_konfiguracijom_softvera/Projekat/UKS-Tim3-2023/backend/github_clone/manage.py&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
-  <component name="RunManager">
-    <configuration name="pytest for test_registration.test_register_candidate_success" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.manage">
+    <configuration name="manage" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="backend" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\LAZAR\Desktop\Upravljanje_konfiguracijom_softvera\Projekat\UKS-Tim3-2023\backend\venv\Scripts\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/github_clone" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/github_clone/manage.py" />
+      <option name="PARAMETERS" value="runserver" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="pytest in manage.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="backend" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/github_clone/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/github_clone" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -59,13 +78,17 @@
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test_registration.test_register_candidate_success&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/github_clone/manage.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.manage" />
+      <item itemvalue="Python tests.pytest in manage.py" />
+    </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python tests.pytest for test_registration.test_register_candidate_success" />
+        <item itemvalue="Python tests.pytest in manage.py" />
       </list>
     </recent_temporary>
   </component>
@@ -85,7 +108,9 @@
       <workItem from="1706889371523" duration="12921000" />
       <workItem from="1707037671069" duration="8128000" />
       <workItem from="1707083180144" duration="613000" />
-      <workItem from="1707144771661" duration="10194000" />
+      <workItem from="1707144771661" duration="16786000" />
+      <workItem from="1707250178587" duration="2050000" />
+      <workItem from="1707291307474" duration="1489000" />
     </task>
     <servers />
   </component>
@@ -104,6 +129,8 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/backend$pytest_in_manage_py.coverage" NAME="pytest in manage.py Coverage Results" MODIFIED="1707252469858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/github_clone" />
     <SUITE FILE_PATH="coverage/backend$pytest_for_test_registration_test_register_candidate_success.coverage" NAME="pytest for test_registration.test_register_candidate_success Coverage Results" MODIFIED="1702199649072" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/github_clone/tests" />
+    <SUITE FILE_PATH="coverage/backend$manage.coverage" NAME="manage Coverage Results" MODIFIED="1707252498702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/github_clone" />
   </component>
 </project>

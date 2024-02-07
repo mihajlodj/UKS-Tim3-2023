@@ -8,6 +8,7 @@ from rest_framework.exceptions import ParseError
 
 from main.models import Project, WorksOn, Milestone, MilestoneState
 
+from main.gitea_service import create_milestone
 
 
 class MilestoneSerializer(serializers.Serializer):
@@ -34,11 +35,10 @@ class MilestoneSerializer(serializers.Serializer):
                                                  deadline=validated_data['deadline'],
                                                  project=project)
 
-            #threading.Thread(target=self.gitea_create_milestone, args=([owner, project_name, milestone]), kwargs={}).start()
+            threading.Thread(target=self.gitea_create_milestone, args=([owner, project_name, milestone]), kwargs={}).start()
             return milestone
         except ObjectDoesNotExist:
             raise Http404()
 
     def gitea_create_milestone(self, owner, repository_name, milestone):
-        pass
-        # create_milestone(owner, repository_name, milestone)
+        create_milestone(owner, repository_name, milestone)
