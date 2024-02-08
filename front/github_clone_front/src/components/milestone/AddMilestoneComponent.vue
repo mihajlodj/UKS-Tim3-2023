@@ -32,7 +32,7 @@
 </template>
 <script>
 import MilestoneService from '@/services/MilestoneService'
-// import { toast } from 'vue3-toastify';
+import { toast } from 'vue3-toastify';
 export default {
     name: 'AddMilestoneComponent',
     components: {
@@ -57,8 +57,19 @@ export default {
                 "deadline": this.due_date,
             }).then((res) => {
                 console.log(res);
+                toast("Milestone created", {
+                    autoClose: 1000,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT
+                });
+                this.empty_fields();
             }).catch((err) => {
                 console.log(err);
+                toast("Issue created", {
+                    autoClose: 1000,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT
+                });
             });
             // createIssue({
             //     title: this.title,
@@ -87,7 +98,13 @@ export default {
         validateMilestoneTitle() {
             const regexPattern = /^[a-zA-Z][\w-]*$/;
             this.isValidMilestoneTitle = (this.title !== "" && regexPattern.test(this.title));
-        }
+        },
+        empty_fields(){
+            this.title = '';
+            this.isValidMilestoneTitle = true;
+            this.description = '';
+            this.due_date = '';
+        }        
     }
 }
 </script>
