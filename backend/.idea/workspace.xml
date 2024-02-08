@@ -4,11 +4,19 @@
     <list default="true" id="57814923-5bb8-4c92-bafc-bf41c91d5926" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
 <<<<<<< HEAD
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/github_clone/main/gitea_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/gitea_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
 =======
 >>>>>>> Milestone creation, linked front with back. #15
+=======
+      <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/AddMilestoneComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/AddMilestoneComponent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/ListMilestoneComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/ListMilestoneComponent.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../front/github_clone_front/src/services/MilestoneService.js" beforeDir="false" afterPath="$PROJECT_DIR$/../front/github_clone_front/src/services/MilestoneService.js" afterDir="false" />
+>>>>>>> Added endpoint for getting all milestones for repo on backend. #15
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,9 +124,13 @@
       <workItem from="1707250178587" duration="2050000" />
       <workItem from="1707291307474" duration="18965000" />
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       <workItem from="1707388554259" duration="2133000" />
 >>>>>>> Milestone creation, linked front with back. #15
+=======
+      <workItem from="1707388554259" duration="3886000" />
+>>>>>>> Added endpoint for getting all milestones for repo on backend. #15
     </task>
     <servers />
   </component>

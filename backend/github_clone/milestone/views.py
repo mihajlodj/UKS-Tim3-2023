@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -36,6 +38,40 @@ def delete_milestone(request, owner_username, repository_name, title):
     delete_milestone_from_gitea(owner_username, repository.name, milestone.id_from_gitea)
     milestone.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_milestones_for_repo(request, repository_name):
+    check_view_permission(request, repository_name)
+    milestones = Milestone.objects.filter(project__name=repository_name)
+    serialized_milestones = serialize_milestones(milestones)
+    return Response(serialized_milestones, status=status.HTTP_200_OK)
+
+
+def serialize_milestones(milestones):
+    result = []
+    for milestone in milestones:
+        serialized_milestone = {
+            'title': milestone.title,
+            'description': milestone.description,
+            'state': milestone.state,
+            'due_date': milestone.deadline,
+        }
+        result.append(serialized_milestone)
+    return result
+
+
+def check_view_permission(request, repo_name):
+    logged_user = request.user.username
+    try:
+        repo = Project.objects.get(name=repo_name)
+        if repo.access_modifier == 'Private':
+            works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repo.name)]
+            if logged_user not in works_on_list:
+                raise PermissionDenied()
+    except ObjectDoesNotExist:
+        raise Http404()
 
 
 def check_delete_permission(request, repo, owner_username_arg):
