@@ -2,8 +2,6 @@ version: '3.8'
 
 networks:
   main:
-  gitea:
-    external: false
 
 services:
   web:
@@ -29,7 +27,7 @@ services:
     networks:
         main:
           aliases:
-              - nginx
+            - nginx
     ports:
       - 80:80
     volumes:
@@ -46,7 +44,9 @@ services:
       - USER_GID=1000
     restart: always
     networks:
-      - gitea
+      main:
+        aliases:
+          - gitea
     volumes:
       - ./gitea:/data
       - /etc/timezone:/etc/timezone:ro
