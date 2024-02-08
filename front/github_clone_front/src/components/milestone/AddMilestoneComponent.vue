@@ -1,43 +1,65 @@
 <template lang="en">
     <div id="create-form">
         <div class="mb-3">
-            <InputField id="1" type="text" placeholder="Title" :value="title" name="issuetitle" min="4"/>
+            <div class="d-flex flex-column">
+                <label class="mb-1">Title</label>
+                <input type="text" v-model="title" @input="validateMilestoneTitle" />
+                <div class="d-flex justify-content-start">
+                    <font-awesome-icon v-if="!isValidMilestoneTitle" icon="fa-solid fa-triangle-exclamation"
+                        class="me-2 mt-1" />
+                    <label v-if="!isValidMilestoneTitle" class="warn">Milestone title can only contain
+                        alphanumerics, dashes ( - ) and underscores ( _ )
+                    </label>
+                </div>
+            </div>
         </div>
         <div class="mb-2">
-            <InputField id="2" type="text" placeholder="Description" :value="description" name="issueDescription" min="0"/>
+            <div class="d-flex flex-column">
+                <label class="mb-1">Description</label>
+                <textarea type="text" v-model="description" ></textarea>
+            </div>
         </div>
         <div class="mb-2">
-            <label for="startDate">Due date</label>
-            <input id="startDate" class="form-control" type="date" />
+            <label for="due_date">Due date</label>
+            <input id="due_date" class="form-control" type="date" data-date-format="YYYY-MM-DD " v-model="due_date" />
         </div>
         <div class="flex-container">
-            <button type="button" class="btn btn-primary"  @click="submit">Add</button>
+            <button type="button" class="btn btn-primary" @click="submit">Add</button>
         </div>
     </div>
     
 
 </template>
 <script>
-import InputField from '@/components/util/InputField.vue'
-// import createIssue from '@/services/IssueService';
+import MilestoneService from '@/services/MilestoneService'
 // import { toast } from 'vue3-toastify';
 export default {
     name: 'AddMilestoneComponent',
     components: {
-        InputField,
+        
     },
 
     data() {
         return {
             milestone: 'Select milestone',
             title: '',
+            isValidMilestoneTitle: true,
             description: '',
-            created: '',
-            repo: undefined
+            due_date: '',
+            repo: this.$route.params.repoName,
         }
     },
     methods: {
         submit() {
+            MilestoneService.createMilestone(this.repo, {
+                "title": this.title,
+                "description": this.description,
+                "deadline": this.due_date,
+            }).then((res) => {
+                console.log(res);
+            }).catch((err) => {
+                console.log(err);
+            });
             // createIssue({
             //     title: this.title,
             //     description: this.description,
@@ -61,6 +83,10 @@ export default {
             //         position: toast.POSITION.BOTTOM_RIGHT
             //     });
             // });
+        },
+        validateMilestoneTitle() {
+            const regexPattern = /^[a-zA-Z][\w-]*$/;
+            this.isValidMilestoneTitle = (this.title !== "" && regexPattern.test(this.title));
         }
     }
 }

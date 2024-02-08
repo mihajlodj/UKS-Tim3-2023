@@ -3,9 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="57814923-5bb8-4c92-bafc-bf41c91d5926" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/github_clone/main/gitea_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/gitea_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
+=======
+>>>>>>> Milestone creation, linked front with back. #15
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,6 +115,10 @@
       <workItem from="1707144771661" duration="16786000" />
       <workItem from="1707250178587" duration="2050000" />
       <workItem from="1707291307474" duration="18965000" />
+<<<<<<< HEAD
+=======
+      <workItem from="1707388554259" duration="2133000" />
+>>>>>>> Milestone creation, linked front with back. #15
     </task>
     <servers />
   </component>
