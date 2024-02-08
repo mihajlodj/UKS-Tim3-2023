@@ -12,4 +12,8 @@ const deleteMilestone = (username, repo_name, milestone_title) => {
     return api.delete(`milestone/delete/${username}/${repo_name}/${milestone_title}/`);
 }
 
-export default {createMilestone, editMilestone, deleteMilestone}
+const getAllMilestones = (repoName) => {
+    return api.get(`milestone/all/${repoName}/`);
+}
+
+export default {createMilestone, editMilestone, deleteMilestone, getAllMilestones}

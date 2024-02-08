@@ -15,8 +15,6 @@
             <AddMilestoneComponent />
           </div>
           <div class="modal-footer">
-            <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Add</button> -->
           </div>
         </div>
       </div>
@@ -52,7 +50,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in this.issues" :key="index">
+          <tr v-for="(item, index) in this.milestones" :key="index">
             <td class="tg-c7q8">{{ item.title }}</td>
             <td class="tg-c7q8">{{ item.due_date }}</td>
             <td class="tg-c7q8">{{ item.state }}</td>
@@ -76,8 +74,8 @@
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
 import AddMilestoneComponent from '@/components/milestone/AddMilestoneComponent.vue';
+import MilestoneService from '@/services/MilestoneService';
 // import UpdateIssueComponent from './modals/UpdateIssueComponent.vue';
-// import IssueService from '@/services/IssueService'
 export default {
   name: 'ListIssueComponent',
   components: {
@@ -85,39 +83,24 @@ export default {
     // UpdateIssueComponent,
     RepoNavbar
   },
-  onMounted() {
-    // IssueService.getIssues(this.$route.params.repoName).then(res => {
-    //   this.issues = res.data;
-    // }).catch(err => {console.log(err);})
+  mounted() {
+    this.getAllMilestonesForRepo();
   },
   data() {
     return {
-      issues: [
-        {
-          id_from_gitea: 10,
-          title: 'title1',
-          due_date: '10.02.2024.',
-          description: 'description1',
-          state: 'Open',
-        },
-        {
-          id_from_gitea: 11,
-          title: 'title2',
-          due_date: '10.02.2024.',
-          description: 'description2',
-          state: 'Open',
-        },
-        {
-          id_from_gitea: 12,
-          title: 'title3',
-          due_date: '10.02.2024.',
-          description: 'description3',
-          state: 'Open',
-        },
-      ]
+      repo: this.$route.params.repoName,
+      milestones: []
     }
   },
   methods: {
+    getAllMilestonesForRepo() {
+      MilestoneService.getAllMilestones(this.repo)
+      .then(res => {
+        this.milestones = res.data;
+      }).catch(err => {
+        console.log(err);
+      })
+    },
     edit() {
     //   IssueService.updateIssue({}).then((res) => console.log(res)).catch((err) => console.log(err));
     },

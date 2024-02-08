@@ -71,29 +71,6 @@ export default {
                     position: toast.POSITION.BOTTOM_RIGHT
                 });
             });
-            // createIssue({
-            //     title: this.title,
-            //     description: this.description,
-            //     created: '',
-            //     manager: localStorage.getItem("username"),
-            //     tasks: [],
-            //     events: [],
-            //     milestone: undefined
-            // }).then((res) => {
-            //     console.log(res);
-            //     toast("Issue created", {
-            //         autoClose: 1000,
-            //         type: 'success',
-            //         position: toast.POSITION.BOTTOM_RIGHT
-            //     });
-            // }).catch((err) => {
-            //     console.log(err);
-            //     alert("Issue creation failed", {
-            //         autoClose: 1000,
-            //         type: 'error',
-            //         position: toast.POSITION.BOTTOM_RIGHT
-            //     });
-            // });
         },
         validateMilestoneTitle() {
             const regexPattern = /^[a-zA-Z][\w-]*$/;
