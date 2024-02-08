@@ -183,10 +183,6 @@ def create_milestone(owner, repository_name, milestone):
 def update_milestone(owner, repository_name, milestone):
     milestone_id = milestone.id_from_gitea
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': f'Bearer {access_token}',
-    }
     formated_due_on = milestone.deadline.strftime('%Y-%m-%d') + 'T00:01:00Z'
     data = {
         'title': milestone.title,
@@ -199,8 +195,4 @@ def update_milestone(owner, repository_name, milestone):
 
 def delete_milestone_from_gitea(owner, repository_name, milestone_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': f'Bearer {access_token}',
-    }
     requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
