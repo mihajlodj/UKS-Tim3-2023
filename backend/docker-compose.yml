@@ -8,8 +8,6 @@ networks:
 services:
   web:
     build: ./github_clone/
-    # container_name: github_clone
-    # command: python manage.py runserver 0.0.0.0:8000
     command: gunicorn github_clone.wsgi:application --bind 0.0.0.0:8000
     networks:
       main:
@@ -17,8 +15,6 @@ services:
             - web
     volumes:
       - ./github_clone/:/usr/src/app/
-    # ports:
-    #   - 8000:8000
     expose:
       - 8000
     env_file:
@@ -39,7 +35,6 @@ services:
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
-      - server
       - web
 ####################################
 
