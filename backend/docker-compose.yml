@@ -1,26 +1,51 @@
 version: '3.8'
 
 networks:
+  main:
   gitea:
     external: false
 
 services:
   web:
-    build: ./github_clone
-    command: python manage.py runserver 0.0.0.0:8000
+    build: ./github_clone/
+    # container_name: github_clone
+    # command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn github_clone.wsgi:application --bind 0.0.0.0:8000
     networks:
-      - gitea
+      main:
+        aliases:
+            - web
     volumes:
-      - ./github_clone/:/usr/src/github_clone/
-    ports:
-      - 8000:8000
+      - ./github_clone/:/usr/src/app/
+    # ports:
+    #   - 8000:8000
+    expose:
+      - 8000
     env_file:
       - ./.env
     depends_on:
       - server
+
+####################################
+  nginx:
+    build:
+      context: ./nginx/
+    networks:
+        main:
+          aliases:
+              - nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on:
+      - server
+      - web
+####################################
+
   server:
     image: gitea/gitea:1.21.1
-    # container_name: gitea
+    container_name: gitea
     environment:
       - USER_UID=1000
       - USER_GID=1000

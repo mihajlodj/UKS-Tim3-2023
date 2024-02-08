@@ -1,8 +1,9 @@
 # pull official base image
-FROM python:3.10.5-slim-buster
+FROM python:3.10.2
 
 # set work directory
-WORKDIR /usr/src/github_clone
+# WORKDIR /usr/src/github_clone
+WORKDIR /usr/src/app
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
