@@ -1,8 +1,8 @@
 <template lang="en">
-    <div id="create-form">
+    <div id="create-form" >
         <div class="mb-3">
             <div class="d-flex flex-column">
-                <label class="mb-1">Title</label>
+                <label class="mb-1" style="color: beige">Title</label>
                 <input type="text" v-model="title" @input="validateMilestoneTitle" />
                 <div class="d-flex justify-content-start">
                     <font-awesome-icon v-if="!isValidMilestoneTitle" icon="fa-solid fa-triangle-exclamation"
@@ -15,12 +15,12 @@
         </div>
         <div class="mb-2">
             <div class="d-flex flex-column">
-                <label class="mb-1">Description</label>
+                <label class="mb-1" style="color: beige">Description</label>
                 <textarea type="text" v-model="description" ></textarea>
             </div>
         </div>
         <div class="mb-2">
-            <label for="due_date">Due date</label>
+            <label for="due_date" style="color: beige">Due date</label>
             <input id="due_date" class="form-control" type="date" data-date-format="YYYY-MM-DD " v-model="due_date" />
         </div>
         <div class="flex-container">
