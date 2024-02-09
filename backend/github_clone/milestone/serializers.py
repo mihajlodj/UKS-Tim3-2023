@@ -59,7 +59,11 @@ class MilestoneSerializer(serializers.Serializer):
             instance.description = validated_data.get('description', instance.description)
             instance.deadline = validated_data.get('deadline', instance.deadline)
 
-            new_state = validated_data.get('state', instance.state)
+            new_state_from_request = validated_data.get('state', instance.state)
+            if new_state_from_request == True:
+                new_state = MilestoneState.OPEN
+            else:
+                new_state = MilestoneState.CLOSED
             if new_state != instance.state:
                 instance.state = new_state
 

@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/github_clone/main/gitea_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/main/gitea_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/github_clone/milestone/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/views.py" afterDir="false" />
@@ -17,6 +18,10 @@
       <change beforePath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/ListMilestoneComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/ListMilestoneComponent.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../front/github_clone_front/src/services/MilestoneService.js" beforeDir="false" afterPath="$PROJECT_DIR$/../front/github_clone_front/src/services/MilestoneService.js" afterDir="false" />
 >>>>>>> Added endpoint for getting all milestones for repo on backend. #15
+=======
+      <change beforePath="$PROJECT_DIR$/github_clone/milestone/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/github_clone/milestone/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/ListMilestoneComponent.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../front/github_clone_front/src/components/milestone/ListMilestoneComponent.vue" afterDir="false" />
+>>>>>>> Fixed small bug when updating milestones. #15
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -125,12 +130,17 @@
       <workItem from="1707291307474" duration="18965000" />
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       <workItem from="1707388554259" duration="2133000" />
 >>>>>>> Milestone creation, linked front with back. #15
 =======
       <workItem from="1707388554259" duration="3886000" />
 >>>>>>> Added endpoint for getting all milestones for repo on backend. #15
+=======
+      <workItem from="1707388554259" duration="5939000" />
+      <workItem from="1707485486758" duration="3288000" />
+>>>>>>> Fixed small bug when updating milestones. #15
     </task>
     <servers />
   </component>
