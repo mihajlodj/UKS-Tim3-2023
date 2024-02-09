@@ -156,8 +156,8 @@ def get_developer_avatar(request, username):
         return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
 
     avatar_filename = developer.avatar
-    avatar_filename = avatar_filename.split('\\')[1]
-    avatar_url = f"http://localhost:8000/avatars/{avatar_filename}"
+    avatar_filename = avatar_filename.split('/')[3]
+    avatar_url = f"http://localhost/avatars/{avatar_filename}"
     return Response(avatar_url, status=status.HTTP_200_OK)
 
 
