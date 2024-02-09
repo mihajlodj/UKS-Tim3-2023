@@ -85,8 +85,8 @@ def delete_user_developer(request, usersPassowrd, username):
 def delete_developers_avatar(request, username):
     user = User.objects.get(username=username)
     developer = Developer.objects.get(user_id=user.id)
-    if developer.avatar is not None:
-        os.remove(developer.avatar)
+    # if developer.avatar is not None:
+    #     os.remove(developer.avatar[7:])
     developer.avatar = None
     developer.save()
     return Response(status=status.HTTP_200_OK)
@@ -156,7 +156,7 @@ def get_developer_avatar(request, username):
         return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
 
     avatar_filename = developer.avatar
-    avatar_filename = avatar_filename.split('/')[3]
+    avatar_filename = avatar_filename.split('/')[1]
     avatar_url = f"http://localhost/avatars/{avatar_filename}"
     return Response(avatar_url, status=status.HTTP_200_OK)
 
