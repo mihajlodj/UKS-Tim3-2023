@@ -10,11 +10,6 @@ headers = {
     'Authorization': f'Bearer {access_token}',
 }
 
-headers = {
-    'Accept': 'application/json',
-    'Authorization': f'Bearer {access_token}',
-}
-
 
 def save_user(user_data):
     api_endpoint = '/api/v1/admin/users'

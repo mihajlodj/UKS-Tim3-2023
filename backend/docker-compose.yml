@@ -13,12 +13,14 @@ services:
             - web
     volumes:
       - ./github_clone/:/usr/src/app/
+    # ports:
+    #   -8000:8000
     expose:
       - 8000
     env_file:
       - ./.env
     depends_on:
-      - server
+      - gitea
 
 ####################################
   nginx:
@@ -29,16 +31,15 @@ services:
           aliases:
             - nginx
     ports:
-      - 80:80
+      - "80:80"
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on:
       - web
 ####################################
 
-  server:
+  gitea:
     image: gitea/gitea:1.21.1
-    container_name: gitea
     environment:
       - USER_UID=1000
       - USER_GID=1000
@@ -51,6 +52,8 @@ services:
       - ./gitea:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    expose:
+      - 3000
     ports:
       - "3000:3000"
       - "222:22"
