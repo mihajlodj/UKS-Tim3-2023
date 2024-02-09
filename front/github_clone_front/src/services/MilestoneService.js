@@ -5,7 +5,7 @@ const createMilestone = (repoName, data) => {
 }
 
 const editMilestone = (title, data) => {
-    return api.patch(`milestone/update/${title}`, data);
+    return api.patch(`milestone/update/${title}/`, data);
 }
 
 const deleteMilestone = (username, repo_name, milestone_title) => {

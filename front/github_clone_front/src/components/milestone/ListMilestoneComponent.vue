@@ -9,10 +9,10 @@
       <div class="modal-content" style="background-color: #24292e;">
         <div class="modal-header">
           <h5 class="modal-title" id="exampleModalLabel" style="color: beige">Create new milestone</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" id="addModalCloseId" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <AddMilestoneComponent />
+          <AddMilestoneComponent @milestoneAdded="milestoneAdded"/>
         </div>
       </div>
     </div>
@@ -20,20 +20,14 @@
   <!-- Modal edit -->
   <div class="modal fade" id="exampleModalUpdate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
+    <div class="modal-dialog" role="document" style="background-color: #24292e; border: 2px solid;">
+      <div class="modal-content" style="background-color: #24292e;">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Update issue</h5>
-          <!-- <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span> -->
-          <!-- </button> -->
+          <h5 class="modal-title" id="exampleModalLabel" style="color: beige">Update milestone</h5>
+          <button type="button" id="editModalCloseId" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <UpdateIssueComponent title="" description="" id="" />
-        </div>
-        <div class="modal-footer">
-          <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Add</button> -->
+          <UpdateMilestoneComponent :selectedMilestone="selectedMilestone" @milestoneUpdated="milestoneUpdated" v-if="selectedMilestone !== null" />
         </div>
       </div>
     </div>
@@ -66,7 +60,7 @@
             <td class="tg-c7q8">{{ item.state }}</td>
             <td class="tg-c7q8">
               <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                data-bs-target="#exampleModalUpdate">Edit</button>
+                data-bs-target="#exampleModalUpdate" @click="setSelectedMilestone(item)">Edit</button>
             </td>
             <td class="tg-c7q8">
               <button type="button" class="btn btn-danger" @click="deleteMilestone(item.title)">Delete</button>
@@ -81,12 +75,13 @@
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
 import AddMilestoneComponent from '@/components/milestone/AddMilestoneComponent.vue';
 import MilestoneService from '@/services/MilestoneService';
-// import UpdateIssueComponent from './modals/UpdateIssueComponent.vue';
+import UpdateMilestoneComponent from '@/components/milestone/UpdateMilestoneComponent.vue';
+
 export default {
   name: 'ListIssueComponent',
   components: {
     AddMilestoneComponent,
-    // UpdateIssueComponent,
+    UpdateMilestoneComponent,
     RepoNavbar
   },
   mounted() {
@@ -95,7 +90,8 @@ export default {
   data() {
     return {
       repo: this.$route.params.repoName,
-      milestones: []
+      milestones: [],
+      selectedMilestone: null,
     }
   },
   methods: {
@@ -107,11 +103,8 @@ export default {
           console.log(err);
         })
     },
-    edit() {
-      //   IssueService.updateIssue({}).then((res) => console.log(res)).catch((err) => console.log(err));
-    },
-    add() {
-      //   IssueService.createIssue({}).then((res) => console.log(res)).catch((err) => console.log(err));
+    setSelectedMilestone(milestone) {
+      this.selectedMilestone = milestone;
     },
     deleteMilestone(milestone_title) {
       let username = localStorage.getItem("username");
@@ -122,6 +115,21 @@ export default {
         }).catch(err => {
           console.log(err);
         });
+    },
+    milestoneAdded() {
+      this.closeAddModal();
+      this.getAllMilestonesForRepo();
+    },
+    closeAddModal() {
+      document.getElementById('addModalCloseId').click();
+    },
+    milestoneUpdated() {
+      this.closeUpdateModal();
+      this.selectedMilestone = null;
+      this.getAllMilestonesForRepo();
+    },
+    closeUpdateModal() {
+      document.getElementById('editModalCloseId').click();
     }
   }
 }
