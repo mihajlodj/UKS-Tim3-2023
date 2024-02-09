@@ -58,7 +58,7 @@
               <button type="button" class="btn btn-primary"  data-bs-toggle="modal" data-bs-target="#exampleModalUpdate">Edit</button>
             </td>
             <td class="tg-c7q8">
-              <button type="button" class="btn btn-danger"  @click="(e) => { }">Delete</button>
+              <button type="button" class="btn btn-danger"  @click="deleteMilestone(item.title)">Delete</button>
             </td>
           </tr>
           <tr>
@@ -106,6 +106,16 @@ export default {
     },
     add() {
     //   IssueService.createIssue({}).then((res) => console.log(res)).catch((err) => console.log(err));
+    },
+    deleteMilestone(milestone_title) {
+      let username = localStorage.getItem("username");
+      MilestoneService.deleteMilestone(username, this.repo, milestone_title)
+      .then(res => {
+        console.log(res);
+        this.getAllMilestonesForRepo();
+      }).catch(err => {
+        console.log(err);
+      });
     }
   }
 }
