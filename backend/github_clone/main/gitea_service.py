@@ -7,6 +7,9 @@ gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
+gitea_host = 'gitea'
+# gitea_host = 'localhost' #for non-docker running 
+
 headers = {
     'Accept': 'application/json',
     'Authorization': f'Bearer {access_token}',
@@ -15,12 +18,12 @@ headers = {
 
 def save_user(user_data):
     api_endpoint = '/api/v1/admin/users'
-    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=user_data)
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=user_data)
 
 
 def delete_user(username):
     api_endpoint = f'/api/v1/admin/users/{username}'
-    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
 
 def get_user_token(username):
@@ -34,35 +37,35 @@ def get_user_token(username):
             'read:user', 'write:user'
         ]
     }
-    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data,
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data,
                              auth=(admin_username, admin_pass))
     return response.json().get('sha1')
 
 
 def get_user_avatar(username):
     api_endpoint = f'/api/v1/users/{username}'
-    response = requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers)
+    response = requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
     return response.json().get('avatar_url')
 
 
 def create_repository(repo_data, username):
     api_endpoint = f'/api/v1/admin/users/{username}/repos'
-    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=repo_data)
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=repo_data)
 
 
 def get_root_content(username, repository, ref):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents?ref={ref}'
-    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
 def get_folder_content(username, repository, branch, path):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
-    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
 def get_repository(owner, repository):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}'
-    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
 def update_repository(owner, repository, old_name):
@@ -73,12 +76,12 @@ def update_repository(owner, repository, old_name):
         'private': repository.access_modifier == 'Private',
         'default_branch': repository.default_branch.name
     }
-    requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
 
 
 def delete_repository(owner, repository_name):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}'
-    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
 
 # user crud
@@ -87,17 +90,17 @@ def update_developer_username(new_username, old_username):
     data = {
         'new_username': new_username,
     }
-    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
 
 
 def get_gitea_user_info_gitea_service(username):
     api_endpoint = f'/api/v1/users/{username}'
-    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
 def get_gitea_user_emails_gitea_service():
     api_endpoint = f'/api/v1/admin/emails'
-    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
 def update_developer_info(new_username, new_first_name, new_last_name):
@@ -105,7 +108,7 @@ def update_developer_info(new_username, new_first_name, new_last_name):
     data = {
         'full_name': new_first_name + " " + new_last_name,
     }
-    return requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    return requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
 
 
 def change_gitea_user_password_gitea_service(username, new_password):
@@ -113,13 +116,13 @@ def change_gitea_user_password_gitea_service(username, new_password):
     data = {
         'password': new_password,
     }
-    return requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    return requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
 
 
 def delete_gitea_user_gitea_service(username):
     print(username, " je proslijedjeni")
     api_endpoint = f'/api/v1/admin/users/{username}'
-    return requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+    return requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
 
 def create_branch(owner, repository_name, branch):
@@ -128,42 +131,43 @@ def create_branch(owner, repository_name, branch):
         'new_branch_name': branch.name,
         'old_ref_name': branch.parent.name
     }
-    requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
 
 
 def delete_branch(owner, repository_name, branch_name):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/branches/{branch_name}'
-    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
 
 
 def get_file(username, repository, branch, path):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
-    return requests.get(f'{gitea_base_url}{api_endpoint}', headers=headers).json()
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
+
 
 
 def edit_file(owner, repository, filepath, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
-    response = requests.put(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    response = requests.put(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()['content']['last_commit_sha']
 
 
 def delete_file(owner, repository, filepath, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
-    response = requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    response = requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()['commit']['sha']
 
 
 def create_file(owner, repository, filepath, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents/{filepath}'
-    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()['commit']['sha']
 
 
 def upload_files(owner, repository, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents'
-    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=body)
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()['commit']['sha']
-
 
 def create_milestone(owner, repository_name, milestone):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones'
@@ -174,7 +178,7 @@ def create_milestone(owner, repository_name, milestone):
         'due_on': formated_due_on,
         'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
     }
-    response = requests.post(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
     print(response.json())
     milestone_id = response.json()['id']
     print(milestone_id)
@@ -190,9 +194,9 @@ def update_milestone(owner, repository_name, milestone):
         'due_on': formated_due_on,
         'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
     }
-    requests.patch(f'{gitea_base_url}{api_endpoint}', headers=headers, json=data)
+    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
 
 
 def delete_milestone_from_gitea(owner, repository_name, milestone_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
-    requests.delete(f'{gitea_base_url}{api_endpoint}', headers=headers)
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)

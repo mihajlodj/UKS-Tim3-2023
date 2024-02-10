@@ -34,8 +34,6 @@ def confirm_registration(request):
             registration_candidate.user.save()
             dev = Developer.objects.create(user=registration_candidate.user, gitea_token=get_user_token(username))
             dev.save()
-            dev.avatar = get_user_avatar(username)
-            dev.save()
             registration_candidate.delete()
             return Response(status=status.HTTP_200_OK)
         else:
