@@ -6,22 +6,20 @@ from branch.serializers import BranchSerializer
 from main.gitea_service import get_gitea_user_info_gitea_service
 from main.models import Project, WorksOn, Branch, Commit, PullRequest
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import PermissionDenied
 from django.core.exceptions import ObjectDoesNotExist
-from main import gitea_service
+from main import gitea_service, permissions
 import threading
 
 
 class CreateBranchView(generics.CreateAPIView):
     queryset = Branch.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,permissions.CanCreateBranch,)
     serializer_class = BranchSerializer
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_all_branches(request, repository_name):
-    check_view_permission(request, repository_name)
     result = []
     branches = Branch.objects.filter(project__name=repository_name)
     for branch in branches:
@@ -52,34 +50,14 @@ def get_all_branches(request, repository_name):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def delete_branch(request, repository_name, branch_name):
     try:
         branch = Branch.objects.get(name=branch_name)
         repository = Project.objects.get(name=repository_name)
-        check_delete_permission(request, repository)
         threading.Thread(target=gitea_service.delete_branch, args=([request.user.username, repository_name, branch_name]), kwargs={}).start()
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
-
-def check_view_permission(request, repo_name):
-    logged_user = request.user.username
-    try:
-        repo = Project.objects.get(name=repo_name)
-        if repo.access_modifier == 'Private':
-            works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repo.name)]
-            if logged_user not in works_on_list:
-                raise PermissionDenied()
-    except ObjectDoesNotExist:
-        raise Http404()
-    
-    
-def check_delete_permission(request, repo):
-    logged_user = request.user.username
-    owner = WorksOn.objects.get(project__name=repo.name, role='Owner')
-    if owner.developer.user.username != logged_user:
-        raise PermissionDenied()
     
