@@ -14,6 +14,7 @@ import BranchesView from './components/repository/branch/BranchesView.vue';
 import FileDisplay from './components/repository/content/FileDisplay.vue';
 import CreateFile from './components/repository/content/CreateFile.vue';
 import UploadFile from './components/repository/content/upload/UploadFile.vue';
+import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponent.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -109,7 +110,11 @@ const routes = [
     {
         path: "/:username/:repoName/upload/:branchName",
         component: UploadFile
-    }
+    },
+    {
+        path: "/view/:username/:repoName/milestones",
+        component:ListMilestoneComponent
+    },
 ]
 
 const router = createRouter({

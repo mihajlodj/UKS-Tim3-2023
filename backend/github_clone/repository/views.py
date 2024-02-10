@@ -11,9 +11,9 @@ from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
 from rest_framework.decorators import api_view, permission_classes
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from main import gitea_service
-from rest_framework.exceptions import PermissionDenied
 import json
 from datetime import datetime
+from main import permissions
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -34,16 +34,15 @@ class ReadOwnerView(generics.RetrieveAPIView):
 
 class UpdateRepositoryView(generics.UpdateAPIView):
     queryset = Project.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,permissions.CanEditRepository,)
     serializer_class = RepositorySerializer
     lookup_field = 'name'
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
-    check_view_permission(request, repo)
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'], 'ssh': gitea_repo_data['ssh_url'], 'branches': []}
@@ -54,26 +53,23 @@ def get_repo_data_for_display(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_root_files(request, owner_username, repository_name, ref):
-    check_view_permission(request, Project.objects.get(name=repository_name))
     return Response(gitea_service.get_root_content(owner_username, repository_name, ref), status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.CanViewRepository])
 def get_folder_files(request, owner_username, repository_name, branch, path):
-    check_view_permission(request, Project.objects.get(name=repository_name))
     return Response(gitea_service.get_folder_content(owner_username, repository_name, branch, path), status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanDeleteRepository])
 def delete_repo(request, owner_username, repository_name):
     if not Project.objects.filter(name=repository_name).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     repository = Project.objects.get(name=repository_name)
-    check_delete_permission(request, repository)
     works_on_list = WorksOn.objects.filter(project__name=repository_name)
     for item in works_on_list:
         item.delete()
@@ -83,8 +79,8 @@ def delete_repo(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
+@permission_classes([permissions.CanViewRepository])
 def get_file(request, owner_username, repository_name, branch, path):
-    check_view_permission(request, Project.objects.get(name=repository_name))
     file_data = gitea_service.get_file(owner_username, repository_name, branch, path)
     content = file_data['content']
     is_text = True
@@ -100,7 +96,7 @@ def get_file(request, owner_username, repository_name, branch, path):
     return Response(result, status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def delete_file(request, owner_username, repository_name, path):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
@@ -124,7 +120,7 @@ def delete_file(request, owner_username, repository_name, path):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def create_file(request, owner_username, repository_name, path):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
@@ -149,7 +145,7 @@ def create_file(request, owner_username, repository_name, path):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def edit_file(request, owner_username, repository_name, path):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
@@ -158,7 +154,6 @@ def edit_file(request, owner_username, repository_name, path):
         
         timestamp = datetime.now()
         formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
-        print(json_data)
         old_file = gitea_service.get_file(owner_username, repository_name, json_data['branch'], json_data['from_path'])
         commit_data = {
             'author': { 'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}' },
@@ -179,7 +174,7 @@ def edit_file(request, owner_username, repository_name, path):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def upload_files(request, owner_username, repository_name):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
@@ -224,18 +219,3 @@ def save_commit(request, repository_name, json_data, timestamp, commit_sha):
     branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])
     Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp, 
                             message=json_data['message'], additional_description=json_data['additional_text'])
-
-
-def check_view_permission(request, repo):
-    logged_user = request.user.username
-    if repo.access_modifier == 'Private':
-        works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repo.name)]
-        if logged_user not in works_on_list:
-            raise PermissionDenied()
-
-
-def check_delete_permission(request, repo):
-    logged_user = request.user.username
-    owner = WorksOn.objects.get(project__name=repo.name, role='Owner')
-    if owner.developer.user.username != logged_user:
-        raise PermissionDenied()

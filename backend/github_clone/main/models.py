@@ -12,7 +12,7 @@ class AccessModifiers(models.TextChoices):
 class Role(models.TextChoices):
     ADMIN = 'Admin', 'Admin'
     UNREGISTERED = 'Unregistered', 'Unregistered'
-    REPORTER = 'Reporter', 'Reporter'
+    READONLY = 'Readonly', 'Readonly'
     DEVELOPER = 'Developer', 'Developer'
     MAINTAINER = 'Maintainer', 'Maintainer'
     OWNER = 'Owner', 'Owner'
@@ -23,6 +23,11 @@ class PullRequestStatus(models.TextChoices):
     OPEN = 'Open', 'Open'
     CLOSED = 'Closed', 'Closed'
     MERGED = 'Merged', 'Merged'
+
+
+class MilestoneState(models.TextChoices):
+    OPEN = 'Open', 'Open'
+    CLOSED = 'Closed', 'Closed'
 
 
 class Event(models.Model):
@@ -101,6 +106,10 @@ class Commit(models.Model):
 class Milestone(models.Model):
     deadline = models.DateField()
     project = models.ForeignKey(Project, related_name='milestones', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, default="")
+    description = models.TextField(null=True, blank=True)
+    state = models.CharField(max_length=10, choices=MilestoneState.choices, default=MilestoneState.OPEN)
+    id_from_gitea = models.IntegerField(blank=True, null=True)
 
 
 class Comment(Event):

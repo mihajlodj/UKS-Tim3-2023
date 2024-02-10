@@ -1,11 +1,15 @@
 import requests
 from django.conf import settings
 
+from main.models import MilestoneState
+
 gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
 gitea_host = 'gitea'
+# gitea_host = 'localhost' #for non-docker running 
+
 headers = {
     'Accept': 'application/json',
     'Authorization': f'Bearer {access_token}',
@@ -135,9 +139,11 @@ def delete_branch(owner, repository_name, branch_name):
     requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
 
+
 def get_file(username, repository, branch, path):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
     return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
+
 
 
 def edit_file(owner, repository, filepath, body):
@@ -162,3 +168,35 @@ def upload_files(owner, repository, body):
     api_endpoint = f'/api/v1/repos/{owner}/{repository}/contents'
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()['commit']['sha']
+
+def create_milestone(owner, repository_name, milestone):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones'
+    formated_due_on = milestone.deadline.strftime('%Y-%m-%d') + 'T00:01:00Z'
+    data = {
+        'title': milestone.title,
+        'description': milestone.description,
+        'due_on': formated_due_on,
+        'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
+    }
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
+    print(response.json())
+    milestone_id = response.json()['id']
+    print(milestone_id)
+    return milestone_id
+
+def update_milestone(owner, repository_name, milestone):
+    milestone_id = milestone.id_from_gitea
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
+    formated_due_on = milestone.deadline.strftime('%Y-%m-%d') + 'T00:01:00Z'
+    data = {
+        'title': milestone.title,
+        'description': milestone.description,
+        'due_on': formated_due_on,
+        'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
+    }
+    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
+
+
+def delete_milestone_from_gitea(owner, repository_name, milestone_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)

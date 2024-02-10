@@ -164,7 +164,7 @@ def test_delete_repo_does_not_exist(get_token):
     }
     url = f'/repository/delete/{username}/{repo_name2}/'
     response = client.delete(url, headers=headers)
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_403_FORBIDDEN
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
     assert Branch.objects.count() == 2
