@@ -25,6 +25,11 @@ class PullRequestStatus(models.TextChoices):
     MERGED = 'Merged', 'Merged'
 
 
+class MilestoneState(models.TextChoices):
+    OPEN = 'Open', 'Open'
+    CLOSED = 'Closed', 'Closed'
+
+
 class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
     caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
@@ -101,6 +106,10 @@ class Commit(models.Model):
 class Milestone(models.Model):
     deadline = models.DateField()
     project = models.ForeignKey(Project, related_name='milestones', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255, default="")
+    description = models.TextField(null=True, blank=True)
+    state = models.CharField(max_length=10, choices=MilestoneState.choices, default=MilestoneState.OPEN)
+    id_from_gitea = models.IntegerField(blank=True, null=True)
 
 
 class Comment(Event):
