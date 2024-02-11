@@ -3,6 +3,6 @@ from . import views
 from . import webhooks
 
 urlpatterns = [
-    path('', views.main, name='main-main'),
-    path('webhook/', webhooks.webhook, name='webhook'),
+    path('django-main/', views.main, name='main-main'),
+    path('django-main/webhook/', webhooks.webhook, name='webhook'),
 ]

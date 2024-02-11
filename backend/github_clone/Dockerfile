@@ -2,7 +2,7 @@
 FROM python:3.10.2
 
 # set work directory
-WORKDIR /usr/src/app
+WORKDIR /django
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
