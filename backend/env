@@ -1,7 +1,0 @@
-DEBUG=1
-SECRET_KEY=foo
-DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
-EMAIL_HOST_USER = 'projekatisa365@gmail.com'
-EMAIL_HOST_PASSWORD = 'qiyaqfzueciqvlpq'
-GITEA_BASE_URL = 'http://localhost:3000'
-GITEA_ACCESS_TOKEN = '8e315ebd114e15b7bfc7b8a8ae6cab33abe88bdf'
