@@ -77,5 +77,11 @@ services:
 
   redis:
     image: redis
+    networks:
+      main:
+        aliases:
+          - redis
+    ports:
+      - "6379:6379"
     expose:
       - '6379'
