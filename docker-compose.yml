@@ -74,3 +74,8 @@ services:
     ports:
       - "3000:3000"
       - "222:22"
+
+  redis:
+    image: redis
+    expose:
+      - '6379'
