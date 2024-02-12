@@ -1,11 +1,27 @@
-FROM node:16.14.2
+FROM node:16.14-alpine
 
-WORKDIR /vue
+WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY . .
 
 RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "serve"]
+RUN npm run build
+
+# CMD ["npm", "run", "serve"]
+
+
+
+# WORKDIR /app
+
+# COPY --chown=node:node package*.json ./
+
+# RUN npm install
+
+# COPY --chown=node:node . .
+
+# USER node
+
+# CMD ["npm", "run", "serve"]

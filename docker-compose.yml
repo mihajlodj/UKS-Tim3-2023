@@ -19,7 +19,7 @@ services:
     ports:
       - "8000:8000"
     expose:
-      - 3000
+      - 8000
     env_file:
       - ./backend/.env
     depends_on:
@@ -27,13 +27,16 @@ services:
 
   vue:
     build: ./front/github_clone_front
-    command: tail -f /dev/null
     networks:
         main:
           aliases:
             - vue
+    ports:
+      - 3001:3001
+    expose:
+      - 3001
     volumes:
-      - vue_build:/vue/build
+      - vue_build:/usr/src/app/dist
   
 
   nginx:
@@ -44,10 +47,10 @@ services:
           aliases:
             - nginx
     ports:
-      - 80:80
+      - 80:8080
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
-      - vue_build:/var/www/vue
+      - vue_build:/var/www
     depends_on:
       - django
       - vue
