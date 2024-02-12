@@ -71,6 +71,8 @@ export default {
                 this.$router.push(`/settings/${username}/${repoName}`);
             } else if (name == 'code') {
                 this.$router.push(`/view/${username}/${repoName}`);
+            } else if (name == 'issues') {
+                this.$router.push(`/view/${username}/${repoName}/issues`)
             }
         }
     }

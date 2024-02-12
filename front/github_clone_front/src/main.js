@@ -35,6 +35,10 @@ import 'vue-pdf-embed/dist/style/index.css'
 import 'vue-pdf-embed/dist/style/annotationLayer.css'
 import 'vue-pdf-embed/dist/style/textLayer.css'
 
+// test
+// import IssueComponent from './components/issue/IssueComponent'
+import ListIssueComponent from './components/issue/ListIssueComponent.vue'
+
 library.add(faAngleRight);
 library.add(faCircleInfo);
 library.add(faBookBookmark);
@@ -115,6 +119,10 @@ const routes = [
         path: "/view/:username/:repoName/milestones",
         component:ListMilestoneComponent
     },
+    {
+        path: '/view/:username/:repoName/issues',
+        component: ListIssueComponent
+    }
 ]
 
 const router = createRouter({
