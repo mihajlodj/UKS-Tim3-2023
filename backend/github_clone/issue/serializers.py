@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import serializers
 
 from main.models import Issue, Developer, Project, WorksOn
@@ -26,4 +27,17 @@ class IssueSerializer(serializers.Serializer):
         issue.save()  # nisam siguran dal treba ovo
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         create_issue(owner=owner, repo=issue.project.name, issue=issue)
-        return issue
+        return {
+            'title': issue.title,
+            'description': issue.description,
+            'open': issue.open,
+            'created': str(issue.created),
+            'manager': issue.manager.user.username,
+            'project': issue.project.name,
+            'milestone': serialize_milestone(issue)
+        }
+
+def serialize_milestone(issue):
+    if issue.milestone is None:
+        return ''
+    return issue.milestone.title
