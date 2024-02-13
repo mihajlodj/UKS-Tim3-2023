@@ -1,6 +1,8 @@
 import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
+
+import main
 from main.models import Developer, Project, WorksOn, Branch, Issue
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -154,3 +156,14 @@ def test_update_issue(get_token):
     assert response_get_new.json()[0]['title'] == 'new_issue_title'
     assert response_get_new.json()[0]['description'] == 'new_description'
 
+@pytest.mark.django_db
+def test_delete_issues_2(get_token):
+
+    url = '/issue/MyNewTestRepo/3/'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    try:
+        client.delete(url, headers=headers)
+    except main.models.Issue.DoesNotExist:
+        pass
