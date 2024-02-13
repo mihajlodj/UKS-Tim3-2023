@@ -224,7 +224,7 @@ def get_all_users_repo(request, owner_username):
         result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
                   'default_branch': repo.default_branch.name}
         repos.append(result)
-    cache.set(cache_key, repos, timeout=3600)
+    cache.set(cache_key, repos, timeout=30)
     return Response(repos, status=status.HTTP_200_OK)
 
 
