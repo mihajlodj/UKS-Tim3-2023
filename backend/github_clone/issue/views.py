@@ -59,11 +59,15 @@ def get_issue(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_issue(request, repo_name, pk):
-    issue = Issue.objects.get(pk=pk)
-    issue.delete()
-    owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
-    gitea_service.delete_issue(owner=owner, repo=repo_name, index=pk)
-    return HttpResponse(status=200)
+    try:
+        issue = Issue.objects.get(pk=pk)
+        issue.delete()
+        owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
+        gitea_service.delete_issue(owner=owner, repo=repo_name, index=pk)
+
+        return HttpResponse(status=200)
+    except BaseException:
+        return HttpResponse(content="Issue doesn't exist", status=400)
 
 
 @api_view(['PATCH'])
@@ -93,6 +97,7 @@ def get_issues(request, repo_name):
             'milestone': None if issue['milestone_id'] is None else serialize_milestone(Milestone.objects.get(id=issue['milestone_id']))
         })
     return JsonResponse(data, safe=False, status=200)
+
 
 def serialize_milestone(milestones):
     return {

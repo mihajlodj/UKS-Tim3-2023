@@ -1,8 +1,6 @@
 import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
-
-import main
 from main.models import Developer, Project, WorksOn, Branch, Issue
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -163,7 +161,16 @@ def test_delete_issues_2(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    try:
-        client.delete(url, headers=headers)
-    except main.models.Issue.DoesNotExist:
-        pass
+    response = client.delete(url, headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+@pytest.mark.django_db
+def test_get_issues_2(get_token):
+    url = '/issue/issues/MyNewTestRepo2/'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    response = client.get(url, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.content) == 2
+    assert len(response.json()) == 0
