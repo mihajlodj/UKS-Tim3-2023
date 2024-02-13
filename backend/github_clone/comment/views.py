@@ -33,10 +33,23 @@ def get_comments_for_type(request, type_for, type_id):
     return Response(serialized_comments, status=status.HTTP_200_OK)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_comment(request, comment_id):
+    if not comment_id.isdigit():
+        raise Http404()
+    if not Comment.objects.filter(id=comment_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    comment = Comment.objects.get(id=comment_id)
+    comment.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 def serialize_comments(comments):
     result = []
     for comment in comments:
         serialized_comment = {
+            'id': comment.id,
             'content': comment.content,
             'parent': comment.parent,
             'time': comment.time,
