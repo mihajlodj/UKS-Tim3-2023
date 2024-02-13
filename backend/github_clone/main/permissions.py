@@ -57,3 +57,17 @@ class CanEditRepositoryContent(BasePermission):
         if WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role == Role.READONLY:
             return False
         return True
+
+class CanUpdateMilestone(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        repository_name = obj.project.name
+        if not Project.objects.filter(name=repository_name).exists():
+            return False
+        project = Project.objects.get(name=repository_name)
+        logged_user = request.user.username
+        if not WorksOn.objects.filter(project=project, developer__user__username=logged_user).exists():
+            return False
+        role = WorksOn.objects.get(project=project, developer__user__username=logged_user).role
+        if role != Role.OWNER and role != Role.MAINTAINER:
+            return False
+        return True
