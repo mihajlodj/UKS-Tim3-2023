@@ -3,14 +3,15 @@ from django.shortcuts import render
 
 import requests
 from django.conf import settings
-from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from datetime import datetime
 import main
 from main import gitea_service
-from issue.serializers import IssueSerializer
+from issue.serializers import IssueSerializer, serialize_issue
 from main import permissions
 from main.models import Developer, Issue, Project, Milestone, WorksOn
 
@@ -19,11 +20,13 @@ access_token = settings.GITEA_ACCESS_TOKEN
 
 
 class IssueView(generics.CreateAPIView):
-    authentication_classes = ()
+    queryset = Issue.objects.all()
+    permission_classes = (IsAuthenticated,)
     serializer_class = IssueSerializer
 
 
 @api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
 def update_issue(request):
     pk = request.data.get('id')
     reponame = request.data['repoName']
@@ -40,12 +43,11 @@ def update_issue(request):
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
 
-    return HttpResponse(status=200)
+    return Response(serialize_issue(issue), status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated,])
 def get_issue(request, pk):
     try:
         issue = Issue.objects.get(pk=pk)
@@ -55,8 +57,7 @@ def get_issue(request, pk):
 
 
 @api_view(['DELETE'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
 def delete_issue(request, repo_name, pk):
     issue = Issue.objects.get(pk=pk)
     issue.delete()
@@ -66,8 +67,7 @@ def delete_issue(request, repo_name, pk):
 
 
 @api_view(['PATCH'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
 def close_issue(request, repo_name, pk):
     issue = Issue.objects.get(pk=pk)
     issue.open = False
@@ -77,8 +77,7 @@ def close_issue(request, repo_name, pk):
     return HttpResponse(status=200)
 
 @api_view(['GET'])
-@permission_classes([])
-@authentication_classes([])
+@permission_classes([IsAuthenticated])
 def get_issues(request, repo_name):
     projectName = repo_name
     data = []
