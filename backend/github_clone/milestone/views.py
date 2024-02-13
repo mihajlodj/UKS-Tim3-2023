@@ -53,6 +53,7 @@ def serialize_milestones(milestones):
     result = []
     for milestone in milestones:
         serialized_milestone = {
+            'id': milestone.id,
             'title': milestone.title,
             'description': milestone.description,
             'state': milestone.state,
