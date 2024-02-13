@@ -54,8 +54,6 @@ def save_issue(create_dev_and_repo):
 
 @pytest.mark.django_db
 def test_create_issue(get_token):
-    # dev2 = create_developers
-    # repo = create_repository
     url = '/issue/create/'
     issue_data = {
         'created': timezone.now(),
@@ -76,6 +74,48 @@ def test_create_issue(get_token):
 
 @pytest.mark.django_db
 def test_get_issues(get_token):
+    url = '/issue/issues/MyNewTestRepo'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    response = client.get(url, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.content) == 186
+    assert len(response.json()) == 1
+    assert response.json()[0]['project'] == repo_name
+    assert response.json()[0]['manager'] == username1
+    assert response.json()[0]['title'] == 'issue1'
+    assert response.json()[0]['description'] == 'description1'
+    assert response.json()[0]['id'] == 1
+
+@pytest.mark.django_db
+def test_get_issues(get_token):
+    url = '/issue/issues/MyNewTestRepo'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    response = client.get(url, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.content) == 186
+    assert len(response.json()) == 1
+    assert response.json()[0]['project'] == repo_name
+    assert response.json()[0]['manager'] == username1
+    assert response.json()[0]['title'] == 'issue1'
+    assert response.json()[0]['description'] == 'description1'
+    assert response.json()[0]['id'] == 1
+
+@pytest.mark.django_db
+def test_close_issue(get_token):
+    url = '/issue/close/MyNewTestRepo/1'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    response = client.patch(url, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    response = client.get('/issue/issues/MyNewTestRepo', headers=headers)
+    assert response.json()[0]['open'] is False
+@pytest.mark.django_db
+def test_delete_issues(get_token):
     # dev2 = create_developers
     # repo = create_repository
     url = '/issue/issues/MyNewTestRepo'
