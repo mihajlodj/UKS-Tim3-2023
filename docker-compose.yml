@@ -19,13 +19,13 @@ services:
     ports:
       - "8001:5432"
     environment:
-      - POSTGRES_PASSWORD=root
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
 
 
   django:
     build: ./backend/github_clone/
-    command: gunicorn github_clone.wsgi:application -w 4 -k gthread -b 0.0.0.0:8000 --threads 4
+    command: ["./scripts/wait_for_postgres.sh"]
     networks:
       main:
         aliases:
@@ -38,8 +38,12 @@ services:
       - 8000
     env_file:
       - ./backend/.env
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
     depends_on:
       - gitea
+      - db
 
   vue:
     build: ./front/github_clone_front
