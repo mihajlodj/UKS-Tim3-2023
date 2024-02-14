@@ -10,15 +10,16 @@ from main.models import Comment, Issue, Milestone, PullRequest
 
 from comment.serializers import CommentSerializer
 
+from main import permissions
 
 class CreateCommentView(generics.CreateAPIView):
     queryset = Comment.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,permissions.CanEditRepository,)
     serializer_class = CommentSerializer
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,permissions.CanEditRepository,])
 def get_comments_for_type(request, type_for, type_id):
     is_valid_type_for = valid_type_for(type_for)
     if not is_valid_type_for:
@@ -34,7 +35,7 @@ def get_comments_for_type(request, type_for, type_id):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated,permissions.CanEditRepository,])
 def delete_comment(request, comment_id):
     if not comment_id.isdigit():
         raise Http404()
