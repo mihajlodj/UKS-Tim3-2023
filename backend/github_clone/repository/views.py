@@ -1,22 +1,19 @@
 import base64
-
-from django.views.decorators.cache import cache_page
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics, status
-from rest_framework.response import Response
-from main.models import Commit, Project, WorksOn, Developer, Branch
-from django.contrib.auth.models import User
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import generics, status
-from rest_framework.response import Response
-from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
-from rest_framework.decorators import api_view, permission_classes
-from repository.serializers import RepositorySerializer, DeveloperSerializer
-from main import gitea_service
 import json
 from datetime import datetime
-from main import permissions
+
+from django.contrib.auth.models import User
 from django.core.cache import cache
+from rest_framework import generics, status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
+from main import gitea_service
+from main import permissions
+from main.models import Commit
+from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
+from repository.serializers import RepositorySerializer, DeveloperSerializer
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -59,14 +56,33 @@ def get_repo_data_for_display(request, owner_username, repository_name):
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
 def get_root_files(request, owner_username, repository_name, ref):
-    return Response(gitea_service.get_root_content(owner_username, repository_name, ref), status=status.HTTP_200_OK)
+    cache_key = f"root_files:{owner_username}:{repository_name}:{ref}"
+    cached_data = cache.get(cache_key)
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    result = gitea_service.get_root_content(owner_username, repository_name, ref)
+    if len(result) != 0:
+        cache.set(cache_key, result, timeout=30)
+
+    return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
 def get_folder_files(request, owner_username, repository_name, branch, path):
-    return Response(gitea_service.get_folder_content(owner_username, repository_name, branch, path),
-                    status=status.HTTP_200_OK)
+    cache_key = f"folder_files:{owner_username}:{repository_name}:{branch}:{path}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    result = gitea_service.get_folder_content(owner_username, repository_name, branch, path)
+
+    if len(result) != 0:
+        cache.set(cache_key, result, timeout=30)
+
+    return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
