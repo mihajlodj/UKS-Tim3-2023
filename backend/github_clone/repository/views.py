@@ -102,7 +102,14 @@ def delete_repo(request, owner_username, repository_name):
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
 def get_file(request, owner_username, repository_name, branch, path):
+    cache_key = f"file:{owner_username}:{repository_name}:{branch}:{path}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
     file_data = gitea_service.get_file(owner_username, repository_name, branch, path)
+
     content = file_data['content']
     is_text = True
     try:
@@ -110,12 +117,16 @@ def get_file(request, owner_username, repository_name, branch, path):
         content = base64.b64decode(content_bytes).decode('utf-8')
     except UnicodeDecodeError:
         is_text = False
+
     result = {
         'content': content, 'name': file_data['name'], 'path': file_data['path'],
         'last_commit_sha': file_data['last_commit_sha'], 'size': file_data['size'],
         'url': file_data['url'], 'html_url': file_data['html_url'], 'download_url': file_data['download_url'],
         'is_text': is_text
     }
+
+    cache.set(cache_key, result, timeout=30)
+
     return Response(result, status=status.HTTP_200_OK)
 
 
