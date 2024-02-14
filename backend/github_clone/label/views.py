@@ -14,3 +14,26 @@ class CreateLabelView(generics.CreateAPIView):
     queryset = Label.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = LabelSerializer
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_labels(request):
+    labels = Label.objects.all()
+    serialized_labels = serialize_labels(labels)
+    return Response(serialized_labels, status=status.HTTP_200_OK)
+
+
+def serialize_labels(labels):
+    result = []
+    for label in labels:
+        result.append(serialize_label(label))
+    return result
+
+
+def serialize_label(label):
+    return {
+        'id': label.id,
+        'name': label.name,
+        'description': label.description
+    }

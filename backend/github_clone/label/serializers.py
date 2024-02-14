@@ -26,7 +26,7 @@ class LabelSerializer(serializers.Serializer):
         except Exception:
             raise Http404()
 
-
     def duplicate_label_exists(self, name):
-        if Label.objects.filter(name=name).exists:
+        if Label.objects.filter(name=name).exists():
             return True
+        return False
