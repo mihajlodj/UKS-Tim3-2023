@@ -15,8 +15,8 @@ from main.models import Comment, Issue, Milestone, PullRequest, Developer
 class CommentSerializer(serializers.Serializer):
     content = serializers.CharField(required=True, allow_blank=False, max_length=500)
     parent = serializers.CharField(required=True, allow_blank=True, allow_null=True)
-    type_for = serializers.CharField(required=False, allow_blank=False, allow_null=False)    # issue, milestone, pull_request what is this comment for
-    type_id = serializers.IntegerField(required=False, allow_null=False)
+    type_for = serializers.CharField(required=False, allow_blank=True)    # issue, milestone, pull_request what is this comment for
+    type_id = serializers.IntegerField(required=False, allow_null=True)
 
     def create(self, validated_data):
         created_by_username = self.context['request'].auth.get('username', None)
@@ -81,7 +81,7 @@ class CommentSerializer(serializers.Serializer):
         return False
 
     def try_find_parent_comment(self, parent_id_param):
-        if parent_id_param is None:
+        if parent_id_param is None or parent_id_param == '':
             return None
         if not Comment.objects.filter(id=parent_id_param).exists():
             raise Http404()
