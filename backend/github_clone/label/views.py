@@ -24,6 +24,18 @@ def get_labels(request):
     return Response(serialized_labels, status=status.HTTP_200_OK)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_label(request, label_id):
+    if not label_id.isdigit():
+        raise Http404()
+    if not Label.objects.filter(id=label_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    label = Label.objects.get(id=label_id)
+    label.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 def serialize_labels(labels):
     result = []
     for label in labels:
