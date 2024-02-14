@@ -94,6 +94,11 @@ class Tag(Event):
     # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
+class Label(Event):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+
 class Commit(models.Model):
     hash = models.CharField(max_length=255)
     author = models.ForeignKey(Developer, related_name='authored_commits', on_delete=models.CASCADE)
