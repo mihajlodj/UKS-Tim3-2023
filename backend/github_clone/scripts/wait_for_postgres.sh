@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 # wait for Postgres to start
 function postgres_ready() {

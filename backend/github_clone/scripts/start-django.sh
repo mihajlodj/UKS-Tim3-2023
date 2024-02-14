@@ -1,5 +1,3 @@
-cd backend/github_clone
-
 python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py db_population
