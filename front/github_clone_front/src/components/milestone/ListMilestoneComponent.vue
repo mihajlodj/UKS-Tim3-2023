@@ -1,6 +1,6 @@
 <template>
   <div>
-    <RepoNavbar starting="issues" />
+    <RepoNavbar starting="milestones" />
   </div>
   <!-- Modal add -->
   <div class="modal fade" id="exampleModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"

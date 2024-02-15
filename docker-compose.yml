@@ -3,22 +3,41 @@ version: '3.8'
 networks:
   main:
 
+volumes:
+  vue_build:
+
 services:
-  web:
-    build: ./github_clone/
-    command: gunicorn github_clone.wsgi:application --bind 0.0.0.0:8000
+  django:
+    build: ./backend/github_clone/
+    command: gunicorn github_clone.wsgi --bind 0.0.0.0:8000
     networks:
       main:
         aliases:
-            - web
+            - django
     volumes:
       - ./github_clone/:/usr/src/app/
+    ports:
+      - "8000:8000"
     expose:
       - 8000
     env_file:
-      - ./.env
+      - ./backend/.env
     depends_on:
       - gitea
+
+  vue:
+    build: ./front/github_clone_front
+    networks:
+        main:
+          aliases:
+            - vue
+    ports:
+      - 3001:3001
+    expose:
+      - 3001
+    volumes:
+      - vue_build:/usr/src/app/dist
+  
 
   nginx:
     build:
@@ -28,11 +47,13 @@ services:
           aliases:
             - nginx
     ports:
-      - "80:80"
+      - 80:8080
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - vue_build:/var/www
     depends_on:
-      - web
+      - django
+      - vue
       
   gitea:
     image: gitea/gitea:1.21.1
