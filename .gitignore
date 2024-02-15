@@ -3,3 +3,5 @@ venv/
 gitea
 gitea/
 .idea/
+pgdata
+pgdata/
