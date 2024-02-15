@@ -15,6 +15,7 @@ import FileDisplay from './components/repository/content/FileDisplay.vue';
 import CreateFile from './components/repository/content/CreateFile.vue';
 import UploadFile from './components/repository/content/upload/UploadFile.vue';
 import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponent.vue'
+import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -115,6 +116,10 @@ const routes = [
         path: "/view/:username/:repoName/milestones",
         component:ListMilestoneComponent
     },
+    {
+        path: "/view/:username/:repoName/compare/:dest/:src",
+        component: CreatePrPage
+    }
 ]
 
 const router = createRouter({
