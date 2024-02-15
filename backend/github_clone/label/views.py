@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
-from main.models import Label
+from main.models import Label, Project
 
 from label.serializers import LabelSerializer
 
@@ -18,8 +18,11 @@ class CreateLabelView(generics.CreateAPIView):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_labels(request):
-    labels = Label.objects.all()
+def get_labels(request, repository_name):
+    if not Project.objects.filter(name=repository_name).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    project = Project.objects.get(name=repository_name)
+    labels = Label.objects.filter(project=project)
     serialized_labels = serialize_labels(labels)
     return Response(serialized_labels, status=status.HTTP_200_OK)
 
