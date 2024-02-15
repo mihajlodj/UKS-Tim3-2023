@@ -157,7 +157,9 @@ def get_developer_avatar(request, username):
 
     avatar_filename = developer.avatar
     avatar_filename = avatar_filename.split('/')[1]
-    avatar_url = f"http://localhost/avatars/{avatar_filename}"
+    avatar_url = 'http://localhost/avatars/git_profile_picture.png'
+    if avatar_filename != '':
+        avatar_url = f"http://localhost/avatars/{avatar_filename}"
     return Response(avatar_url, status=status.HTTP_200_OK)
 
 
