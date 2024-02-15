@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from datetime import datetime
 
-from main.models import Comment, Issue, Milestone, PullRequest, Developer, Label
+from main.models import Comment, Issue, Milestone, PullRequest, Developer, Label, Project
 
 
 class LabelSerializer(serializers.Serializer):
@@ -15,15 +15,19 @@ class LabelSerializer(serializers.Serializer):
     description = serializers.CharField(required=True, allow_blank=True, max_length=255)
 
     def create(self, validated_data):
+        project_name = self.context.get('request').parser_context.get('kwargs').get('repository_name', None)
+        if project_name is None:
+            raise Http404()
         try:
+            project = Project.objects.get(name=project_name)
             name = validated_data['name']
             description = validated_data['description']
 
             if self.duplicate_label_exists(name):
                 raise Http404()
-            label = Label.objects.create(name=name, description=description)
+            label = Label.objects.create(name=name, description=description, project=project)
             return label
-        except Exception:
+        except ObjectDoesNotExist:
             raise Http404()
 
     def duplicate_label_exists(self, name):
