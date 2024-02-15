@@ -1,0 +1,108 @@
+version: '3.8'
+
+networks:
+  main:
+
+volumes:
+  vue_build:
+
+services:
+  db:
+    restart: always
+    image: postgres
+    networks:
+      main:
+        aliases:
+            - db
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - "8001:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+
+
+  django:
+    build: ./backend/github_clone/
+    command: ["./scripts/wait_for_postgres.sh"]
+    networks:
+      main:
+        aliases:
+            - django
+    volumes:
+      - ./github_clone/:/usr/src/app/
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    env_file:
+      - ./backend/.env
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    depends_on:
+      - gitea
+      - db
+
+  vue:
+    build: ./front/github_clone_front
+    networks:
+        main:
+          aliases:
+            - vue
+    ports:
+      - 3001:3001
+    expose:
+      - 3001
+    volumes:
+      - vue_build:/usr/src/app/dist
+  
+
+  nginx:
+    build:
+      context: ./nginx/
+    networks:
+        main:
+          aliases:
+            - nginx
+    ports:
+      - 80:8080
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - vue_build:/var/www
+    depends_on:
+      - django
+      - vue
+      
+  gitea:
+    image: gitea/gitea:1.21.1
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+    restart: always
+    networks:
+      main:
+        aliases:
+          - gitea
+    volumes:
+      - ./gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    expose:
+      - 3000
+    ports:
+      - "3000:3000"
+      - "222:22"
+
+  redis:
+    image: redis
+    container_name: "redis"
+    networks:
+      main:
+        aliases:
+          - redis
+    ports:
+      - "6379:6379"
+    expose:
+      - '6379'

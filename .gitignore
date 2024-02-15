@@ -1,0 +1,7 @@
+venv/
+.env
+gitea
+gitea/
+.idea/
+pgdata
+pgdata/
