@@ -9,7 +9,7 @@ volumes:
 services:
   django:
     build: ./backend/github_clone/
-    command: gunicorn github_clone.wsgi --bind 0.0.0.0:8000
+    command: gunicorn github_clone.wsgi:application -w 4 -k gthread -b 0.0.0.0:8000 --threads 4
     networks:
       main:
         aliases:
@@ -74,3 +74,15 @@ services:
     ports:
       - "3000:3000"
       - "222:22"
+
+  redis:
+    image: redis
+    container_name: "redis"
+    networks:
+      main:
+        aliases:
+          - redis
+    ports:
+      - "6379:6379"
+    expose:
+      - '6379'
