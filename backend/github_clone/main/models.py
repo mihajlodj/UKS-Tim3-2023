@@ -64,20 +64,6 @@ class Task(models.Model):
     issue = models.ForeignKey('Issue', related_name='contains', on_delete=models.CASCADE)
 
 
-class Label(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-
-
-class Issue(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True,
-                                blank=True)
-    milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE)
-    labels = models.ManyToManyField(Label, related_name='issues', blank=True)
-
-
 class Project(models.Model):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(null=True, blank=True)
@@ -86,14 +72,22 @@ class Project(models.Model):
                                           blank=True)
 
 
+class Label(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name='labels', on_delete=models.CASCADE, null=True, blank=True)
+
+
 class Issue(models.Model):
     created = models.DateTimeField(default=timezone.now())
     title = models.CharField(max_length=255)
     description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True, blank=True)
+    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True,
+                                blank=True)
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
     open = models.BooleanField(default=True)
+    labels = models.ManyToManyField(Label, related_name='issues', blank=True)
 
 
 class Branch(models.Model):
