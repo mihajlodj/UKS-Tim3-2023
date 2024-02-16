@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
-from main.models import Label, Project
+from main.models import Label, Project, Milestone, Issue, PullRequest
 
 from label.serializers import LabelSerializer
 
@@ -45,6 +45,26 @@ def delete_label(request, label_id):
     label = Label.objects.get(id=label_id)
     label.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def link_label_to_milestone(request, label_id, milestone_id):
+    if not label_id.isdigit():
+        raise Http404()
+    if not Label.objects.filter(id=label_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if not milestone_id.isdigit():
+        raise Http404()
+    if not Milestone.objects.filter(id=milestone_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    label = Label.objects.get(id=label_id)
+    milestone = Milestone.objects.get(id=milestone_id)
+    if label.project != milestone.project:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    milestone.labels.add(label)
+    milestone.save()
+    return Response(status=status.HTTP_200_OK)
 
 
 def serialize_labels(labels):
