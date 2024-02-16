@@ -10,10 +10,18 @@ from main.models import Label, Project
 
 from label.serializers import LabelSerializer
 
+
 class CreateLabelView(generics.CreateAPIView):
     queryset = Label.objects.all()
     permission_classes = (IsAuthenticated,)
     serializer_class = LabelSerializer
+
+
+class UpdateLabelView(generics.UpdateAPIView):
+    queryset = Label.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = LabelSerializer
+    lookup_field = 'id'
 
 
 @api_view(['GET'])
