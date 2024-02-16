@@ -200,3 +200,8 @@ def update_milestone(owner, repository_name, milestone):
 def delete_milestone_from_gitea(owner, repository_name, milestone_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
     requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def create_pull_request(owner, repository_name, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls'
+    print(body)
+    return requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)

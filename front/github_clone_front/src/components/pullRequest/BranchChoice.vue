@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-start">
             <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown" role="button"
                 data-bs-toggle="dropdown" aria-expanded="false">
-                <span class="muted">{{ type }}:</span> {{ chosenBranch }}
+                <span class="muted">{{ type }}:</span> <span class="accent">{{ chosenBranch }}</span>
             </button>
             <ul class="dropdown-menu" id="branches-list" aria-labelledby="navbarDropdown">
                 <li class="mx-2">
@@ -56,6 +56,10 @@ export default {
 <style scoped>
 .muted {
     color: #a5b2bf;
+}
+
+.accent, .dropdown-toggle {
+    color: #d9e6f1;
 }
 
 .contain {

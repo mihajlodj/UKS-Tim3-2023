@@ -24,6 +24,7 @@
 <script>
 import RepoNavbar from "@/components/repository/RepoNavbar.vue"
 import BranchChoice from "./BranchChoice.vue"
+import PullRequestService from "@/services/PullRequestService"
 
 export default {
     name: 'CreatePrPage',
@@ -34,7 +35,13 @@ export default {
 
     methods: {
         createPullRequest() {
-
+            PullRequestService.create(this.$route.params.username, this.$route.params.repoName, {
+                "base": this.$route.params.dest, "compare": this.$route.params.src
+            }).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.log(err);
+            });
         }
     }
 }
@@ -54,7 +61,6 @@ export default {
 }
 
 .branches {
-    color: #a8b4c4;
     background-color: #2c333b;
     border: 1px solid #768491;
     border-radius: 7px;

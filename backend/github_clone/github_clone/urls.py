@@ -30,6 +30,7 @@ urlpatterns = [
     path('developer/', include('developer.urls')),
     path('branch/', include('branch.urls')),
     path('milestone/', include('milestone.urls')),
+    path('pr/', include('pull_request.urls')),
 ]
 
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))
