@@ -30,6 +30,22 @@ class LabelSerializer(serializers.Serializer):
         except ObjectDoesNotExist:
             raise Http404()
 
+    def update(self, instance, validated_data):
+        label_id = self.context.get('request').parser_context.get('kwargs').get('id', None)
+        if label_id is None or not label_id.isdigit():
+            raise Http404()
+        try:
+            new_name = validated_data.get('name', instance.name)
+            new_description = validated_data.get('description', instance.description)
+            if not (len(new_name) == 0) and not self.duplicate_label_exists(new_name):
+                instance.name = new_name
+            instance.description = new_description
+
+            instance.save()
+            return instance
+        except ObjectDoesNotExist:
+            raise Http404()
+
     def duplicate_label_exists(self, name):
         if Label.objects.filter(name=name).exists():
             return True
