@@ -159,6 +159,8 @@ class PullRequest(models.Model):
     reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers', blank=True)
     status = models.CharField(max_length=10, choices=PullRequestStatus.choices, default=PullRequestStatus.OPEN)
     timestamp = models.DateTimeField(default=timezone.now)
+    title = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True, null=True)
 
 
 class RegistrationCandidate(models.Model):

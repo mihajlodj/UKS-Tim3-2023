@@ -34,63 +34,42 @@
 
             <div class="w-25 me-5 mt-4">
                 <div ref="reviewers">
-                    <div class="d-flex justify-content-between">
+                    <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('reviewers')">
                         <label class="muted">Reviewers</label>
-                        <button type="button" class="btn-gear" @click="openModal('reviewers')">
-                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
-                        </button>
-                    </div>
-                    <div>
-                        <label v-if="reviews.length == 0" class="bright small">No reviews</label>
-                    </div>
-                    <ReviewersModal v-if="showModal['reviewers']" :x="modalX" :y="modalY" :w="modalW"
-                        @closeModal="toggleModal('reviewers')" />
+                        <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                    </button>
+                    <label v-if="reviews.length == 0" class="bright small">No reviews</label>
+                    <ReviewersModal v-if="showModal['reviewers']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('reviewers')" />
                 </div>
                 <hr class="muted" />
 
                 <div ref="assignees">
-                    <div class="">
-                        <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100"
-                            @click="openModal('assignees')">
-                            <label class="muted hoverable">Asignees</label>
-                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
-                        </button>
-                    </div>
-                    <div>
-                        <label v-if="assignees.length == 0" class="bright small">No one</label>
-                    </div>
-                    <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW"
-                        @closeModal="toggleModal('assignees')" />
+                    <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('assignees')">
+                        <label class="muted hoverable">Asignees</label>
+                        <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                    </button>
+                    <label v-if="assignees.length == 0" class="bright small">No one</label>
+                    <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('assignees')" />
                 </div>
                 <hr class="muted" />
 
                 <div ref="labels">
-                    <div>
-                        <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('labels')">
-                            <label class="muted hoverable">Labels</label>
-                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
-                        </button>
-                    </div>
-                    <div>
-                        <label v-if="labels.length == 0" class="bright small">None yet</label>
-                    </div>
-                    <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW"
-                        @closeModal="toggleModal('labels')" />
+                    <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('labels')">
+                        <label class="muted hoverable">Labels</label>
+                        <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                    </button>
+                    <label v-if="labels.length == 0" class="bright small">None yet</label>
+                    <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('labels')" />
                 </div>
                 <hr class="muted" />
 
                 <div ref="milestone">
-                    <div>
-                        <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('milestone')">
-                            <label class="muted hoverable">Milestone</label>
-                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
-                        </button>
-                    </div>
-                    <div>
-                        <label v-if="milestone == null" class="bright small">No milestone</label>
-                    </div>
-                    <MilestoneModal v-if="showModal['milestone']" :x="modalX" :y="modalY" :w="modalW"
-                        @closeModal="toggleModal('milestone')" />
+                    <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('milestone')">
+                        <label class="muted hoverable">Milestone</label>
+                        <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                    </button>
+                    <label v-if="milestone == null" class="bright small">No milestone</label>
+                    <MilestoneModal v-if="showModal['milestone']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('milestone')" />
                 </div>
             </div>
         </div>
