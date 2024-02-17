@@ -48,6 +48,9 @@ export default {
     methods: {
         selectedBranchChanged(branchName) {
             this.chosenBranch = branchName;
+            this.$emit('updateBranch', {
+                name: this.chosenBranch
+            });
         },
     }
 }

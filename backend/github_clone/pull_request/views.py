@@ -28,6 +28,6 @@ def create(request, owner_username, repository_name):
         dest = Branch.objects.get(name=base_name, project__name=repository_name)
         project = Project.objects.get(name=repository_name)
         PullRequest.objects.create(source=src, target=dest, project=project, author=author)
-        return Response(status=status.HTTP_201_CREATED)
+        return Response({'id': response.json()['id']}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
