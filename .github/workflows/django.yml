@@ -1,0 +1,73 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  tests:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ['3.10']
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Dependencies
+      run: |
+        cd backend/mysite
+        pwd
+        ls -la
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run Tests
+      id: tests
+      run: |
+        cd backend/mysite
+        pwd
+        ls -la
+        pytest ./tests/test*.py --ds=mysite.settings -s
+      continue-on-error: true
+
+    - name: Output test result
+      if: ${{ steps.tests.outcome == 'success' }}
+      run: echo "Tests passed, it is safe to merge!"
+
+    - name: Output test result
+      if: ${{ steps.tests.outcome != 'success' }}
+      run: |
+        echo "Tests failed, do not merge!" && exit 1
+
+  dockerize_and_push:
+    runs-on: ubuntu-latest
+    needs: tests
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ['3.10']
+      
+    steps:
+      - name: Set up Docker
+        uses: actions/checkout@v3
+
+      - name: Build and push Docker image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/test-image-name
+        run: |
+          cd backend/mysite
+          pwd
+          ls -la
+          echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+          docker build -t $IMAGE_NAME .
+          docker push $IMAGE_NAME
+          echo "Done!"
