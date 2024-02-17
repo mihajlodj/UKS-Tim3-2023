@@ -14,9 +14,9 @@
         <input type="text" v-model="searchQuery" placeholder="Find a repository..." class="search-bar">
       </div>
     <ul class="repo-ul">
-      <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id">
-        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
-        {{ repo.name }}
+      <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id" >
+        <img :src="currentAvatar" alt="Current Avatar"  class="profile-picture-main" />
+        <a :href="'/view/' + username +'/' + repo.name">{{ username + '/' + repo.name }}</a>
       </li>
     </ul>
   </div>
@@ -32,7 +32,6 @@ export default {
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
               this.currentAvatar = res.data
           })
           .catch(err => {

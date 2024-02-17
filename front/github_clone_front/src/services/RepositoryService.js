@@ -9,7 +9,7 @@ const get = (username, repoName) => {
 }
 
 const getAllUserRepos = (owner_username) => {
-    return api.get(`repository/all_repos/${owner_username}/`);
+    return api.get(`repository/all_repos/${owner_username}`);
 }
 
 const getOwner = (username) => {
