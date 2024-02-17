@@ -31,7 +31,7 @@ import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
-import { faEye, faStar, faFile, faFolder, faTrashCan } from '@fortawesome/free-regular-svg-icons'
+import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark } from '@fortawesome/free-regular-svg-icons'
 import { faFlask, faDownload } from '@fortawesome/free-solid-svg-icons'
 import 'vue-pdf-embed/dist/style/index.css'
 import 'vue-pdf-embed/dist/style/annotationLayer.css'
@@ -60,6 +60,7 @@ library.add(faFlask);
 library.add(faTrashCan);
 library.add(faDownload);
 library.add(faArrowLeftLong);
+library.add(faCircleXmark);
 
 const routes = [
     {
