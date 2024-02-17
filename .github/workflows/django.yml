@@ -23,7 +23,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
-        cd backend/mysite
+        cd backend/github_clone
         pwd
         ls -la
         python -m pip install --upgrade pip
@@ -31,7 +31,7 @@ jobs:
     - name: Run Tests
       id: tests
       run: |
-        cd backend/mysite
+        cd backend/github_clone
         pwd
         ls -la
         pytest ./tests/test*.py --ds=mysite.settings -s
@@ -62,9 +62,9 @@ jobs:
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/test-image-name
+          IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/github_clone
         run: |
-          cd backend/mysite
+          cd backend/github_clone
           pwd
           ls -la
           echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
