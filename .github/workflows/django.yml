@@ -63,6 +63,9 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/github_clone
+          DEBUG: 1
+          SECRET_KEY: foo
+          DJANGO_ALLOWED_HOSTS: 'localhost 127.0.0.1 [::1]'
         run: |
           cd backend/github_clone
           pwd
