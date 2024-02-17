@@ -1,8 +1,8 @@
 <template>
     <div class="contain p-2" :style="{ top: y + 'px', left: x + 'px', width: w + 'px' }" @click="preventClose">
-        <h6 class="mt-1 bright small">Request up to 15 reviewers</h6>
+        <h6 class="mt-1 bright small">Apply labels to this pull request</h6>
         <hr class="muted" />
-        <input type="text" v-model="search" class="w-100 p-2 muted" placeholder="Type or choose a user"/>
+        <input type="text" v-model="search" class="w-100 p-2 muted" placeholder="Filter lables"/>
         <hr class="muted" />
         <label class="mb-1 muted">Nothing to show</label>
     </div>
@@ -10,7 +10,7 @@
 
 <script>
 export default {
-    name: "ReviewersModal",
+    name: "LabelsModal",
     props: ["x", "y", "w"],
 
     data() {
@@ -25,7 +25,7 @@ export default {
             console.log(e.target.classList);
             if("cover" in e.target.classList){
                 this.$emit('closeModal', {
-                    name: 'reviews'
+                    name: 'labels'
                 });
             }
         }

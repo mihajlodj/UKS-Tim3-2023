@@ -32,11 +32,65 @@
                 </div>
             </div>
 
-            <div>
-                <div>
-                    <p>Reviewers</p>
-                    <button type="button" @click="requestReviewers">click</button>
-                    <ReviewersModal v-if="showModal" />
+            <div class="w-25 me-5 mt-4">
+                <div ref="reviewers">
+                    <div class="d-flex justify-content-between">
+                        <label class="muted">Reviewers</label>
+                        <button type="button" class="btn-gear" @click="openModal('reviewers')">
+                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                        </button>
+                    </div>
+                    <div>
+                        <label v-if="reviews.length == 0" class="bright small">No reviews</label>
+                    </div>
+                    <ReviewersModal v-if="showModal['reviewers']" :x="modalX" :y="modalY" :w="modalW"
+                        @closeModal="toggleModal('reviewers')" />
+                </div>
+                <hr class="muted" />
+
+                <div ref="assignees">
+                    <div class="">
+                        <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100"
+                            @click="openModal('assignees')">
+                            <label class="muted hoverable">Asignees</label>
+                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                        </button>
+                    </div>
+                    <div>
+                        <label v-if="assignees.length == 0" class="bright small">No one</label>
+                    </div>
+                    <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW"
+                        @closeModal="toggleModal('assignees')" />
+                </div>
+                <hr class="muted" />
+
+                <div ref="labels">
+                    <div>
+                        <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('labels')">
+                            <label class="muted hoverable">Labels</label>
+                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                        </button>
+                    </div>
+                    <div>
+                        <label v-if="labels.length == 0" class="bright small">None yet</label>
+                    </div>
+                    <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW"
+                        @closeModal="toggleModal('labels')" />
+                </div>
+                <hr class="muted" />
+
+                <div ref="milestone">
+                    <div>
+                        <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('milestone')">
+                            <label class="muted hoverable">Milestone</label>
+                            <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
+                        </button>
+                    </div>
+                    <div>
+                        <label v-if="milestone == null" class="bright small">No milestone</label>
+                    </div>
+                    <MilestoneModal v-if="showModal['milestone']" :x="modalX" :y="modalY" :w="modalW"
+                        @closeModal="toggleModal('milestone')" />
                 </div>
             </div>
         </div>
@@ -48,13 +102,20 @@ import RepoNavbar from "@/components/repository/RepoNavbar.vue"
 import BranchChoice from "./BranchChoice.vue"
 import PullRequestService from "@/services/PullRequestService"
 import ReviewersModal from "@/components/pullRequest/modals/ReviewersModal.vue"
+import AssigneesModal from "@/components/pullRequest/modals/AssigneesModal.vue"
+import LabelsModal from "@/components/pullRequest/modals/LabelsModal.vue"
+import MilestoneModal from "@/components/pullRequest/modals/MilestoneModal.vue"
+
 
 export default {
     name: 'CreatePrPage',
     components: {
         RepoNavbar,
         BranchChoice,
-        ReviewersModal
+        ReviewersModal,
+        AssigneesModal,
+        LabelsModal,
+        MilestoneModal
     },
 
     mounted() {
@@ -69,7 +130,19 @@ export default {
             compareName: "",
             title: "",
             description: "",
-            showModal: false
+            showModal: {
+                "reviewers": false,
+                "assignees": false,
+                "labels": false,
+                "milestone": false
+            },
+            modalX: 0,
+            modalY: 0,
+            modalW: 0,
+            reviews: [],
+            assignees: [],
+            labels: [],
+            milestone: null
         }
     },
 
@@ -93,8 +166,22 @@ export default {
             this.compareName = data.name;
         },
 
-        requestReviewers() {
-            this.showModal = !this.showModal;
+        toggleModal(name) {
+            this.showModal[name] = !this.showModal[name];
+            for (const key in this.showModal) {
+                if (key !== name) {
+                    this.showModal[key] = false;
+                }
+            }
+        },
+
+        openModal(refName) {
+            this.toggleModal(refName);
+            console.log(`refName: ${refName}`);
+            this.modalX = Math.trunc(this.$refs[refName].getBoundingClientRect().left + window.scrollX);
+            this.modalY = Math.trunc(this.$refs[refName].getBoundingClientRect().top + window.scrollY) + 30;
+            this.modalW = this.$refs[refName].offsetWidth;
+            console.log(this.$refs[refName]);
         }
     }
 }
@@ -136,5 +223,23 @@ export default {
 textarea {
     min-height: 200px;
     resize: none;
+}
+
+.btn-gear {
+    background-color: #22272d;
+    border: none;
+    padding-left: 0px;
+}
+
+.hoverable:hover {
+    cursor: pointer;
+}
+
+.small {
+    font-size: small;
+}
+
+hr {
+    z-index: 0;
 }
 </style>
