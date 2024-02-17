@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from main import gitea_service
 import json
 from main import permissions
-from main.models import PullRequest, Branch, Project, Developer
+from main.models import PullRequest, Branch, Project, Developer, Milestone
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
@@ -30,8 +30,12 @@ def create(request, owner_username, repository_name):
         print(response.json())
         src = Branch.objects.get(name=compare_name, project__name=repository_name)
         dest = Branch.objects.get(name=base_name, project__name=repository_name)
-        project = Project.objects.get(name=repository_name)
-        PullRequest.objects.create(source=src, target=dest, project=project, author=author, title=title, description=description)
+        project = Project.objects.get(name=repository_name)   
+        pull = PullRequest.objects.create(source=src, target=dest, project=project, author=author, title=title, description=description)
+        if 'milestone_id' in json_data and Milestone.objects.filter(id=json_data['milestone_id']).exists():
+            milestone = Milestone.objects.get(id=json_data['milestone_id'])
+            pull.milestone = milestone
+            pull.save()
         return Response({'id': response.json()['id']}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)

@@ -144,6 +144,7 @@ export default {
             let data = {
                 "base": this.baseName, "compare": this.compareName, "title": this.title, "description": this.description
             }
+            if (this.milestone != null) data["milestone_id"] = this.milestone.id;
             PullRequestService.create(this.$route.params.username, this.$route.params.repoName, data).then(res => {
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/pulls/${res.data.id}`);
             }).catch(err => {
