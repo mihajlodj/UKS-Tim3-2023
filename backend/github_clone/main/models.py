@@ -155,8 +155,8 @@ class PullRequest(models.Model):
     source = models.ForeignKey(Branch, related_name='pull_requests_source', on_delete=models.CASCADE)
     target = models.ForeignKey(Branch, related_name='pull_requests_target', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    author = models.OneToOneField(Developer, related_name='pull_requests_author', on_delete=models.DO_NOTHING)
-    reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers')
+    author = models.ForeignKey(Developer, related_name='pull_requests_author', on_delete=models.DO_NOTHING)
+    reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers', blank=True)
     status = models.CharField(max_length=10, choices=PullRequestStatus.choices, default=PullRequestStatus.OPEN)
     timestamp = models.DateTimeField(default=timezone.now)
 
