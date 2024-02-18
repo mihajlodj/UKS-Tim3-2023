@@ -3,6 +3,7 @@
 import pytest
 from django.contrib.auth.models import User
 
+from developer.serializers import UserSerializer
 from main import gitea_service
 from main.models import Developer, SecondaryEmail
 from rest_framework.test import APIClient
@@ -51,6 +52,15 @@ def disable_update_developer_username(monkeypatch):
         return 2
 
     monkeypatch.setattr(gitea_service, 'update_developer_username', mock_update_developer_username)
+    yield
+
+
+@pytest.fixture(autouse=True)
+def disable_gitea_update(monkeypatch):
+    def mock_gitea_update(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(UserSerializer, 'gitea_update', mock_gitea_update)
     yield
 
 @pytest.mark.django_db
