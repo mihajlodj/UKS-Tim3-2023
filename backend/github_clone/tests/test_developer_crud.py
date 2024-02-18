@@ -63,6 +63,14 @@ def disable_gitea_update(monkeypatch):
     monkeypatch.setattr(UserSerializer, 'gitea_update', mock_gitea_update)
     yield
 
+@pytest.fixture(autouse=True)
+def disable_change_gitea_user_password_gitea_service(monkeypatch):
+    def mock_change_gitea_user_password_gitea_service(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'change_gitea_user_password_gitea_service', mock_change_gitea_user_password_gitea_service)
+    yield
+
 @pytest.mark.django_db
 def test_update_user_info(get_token):
     headers = {

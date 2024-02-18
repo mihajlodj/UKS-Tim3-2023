@@ -1,9 +1,13 @@
 import pytest
 from django.contrib.auth.models import User
+
+from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
+
+from repository.serializers import RepositorySerializer
 
 client = APIClient()
 fake = Faker()
@@ -144,6 +148,14 @@ def test_create_repo_duplicate_name(get_token):
     assert Branch.objects.count() == 2
 
 
+@pytest.fixture(autouse=True)
+def disable_gitea_delete_repository(monkeypatch):
+    def mock_gitea_delete_repository(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'delete_repository', mock_gitea_delete_repository)
+    yield
+
 @pytest.mark.django_db
 def test_delete_repo_success(get_token):
     headers = {
@@ -170,6 +182,13 @@ def test_delete_repo_does_not_exist(get_token):
     assert Branch.objects.count() == 2
 
 
+@pytest.fixture(autouse=True)
+def disable_gitea_update(monkeypatch):
+    def mock_gitea_update(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(RepositorySerializer, 'gitea_update', mock_gitea_update)
+    yield
 @pytest.mark.django_db
 def test_update_repo_success(get_token):
     headers = {

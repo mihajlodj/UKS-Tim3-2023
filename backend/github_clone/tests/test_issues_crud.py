@@ -1,6 +1,8 @@
 import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
+
+from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch, Issue
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -51,6 +53,38 @@ def save_issue(create_dev_and_repo):
         created=timezone.now()
     )
     issue.save()
+
+@pytest.fixture(autouse=True)
+def disable_gitea_create_issue(monkeypatch):
+    def mock_gitea_create_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'create_issue', mock_gitea_create_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_close_issue(monkeypatch):
+    def mock_gitea_close_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'close_issue', mock_gitea_close_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_delete_issue(monkeypatch):
+    def mock_gitea_delete_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'delete_issue', mock_gitea_delete_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_update_issue(monkeypatch):
+    def mock_gitea_update_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'update_issue', mock_gitea_update_issue)
+    yield
 
 @pytest.mark.django_db
 def test_create_issue(get_token):
