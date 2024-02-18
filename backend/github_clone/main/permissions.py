@@ -163,3 +163,18 @@ class CanTransferOwnership(BasePermission):
             return False
         return WorksOn.objects.filter(developer__user__username=request.user.username, project__name=repository_name,
                                       role=Role.OWNER).exists()
+
+class CanUpdateLabel(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        repository_name = obj.project.name
+        print(repository_name)
+        if not Project.objects.filter(name=repository_name).exists():
+            return False
+        project = Project.objects.get(name=repository_name)
+        logged_user = request.user.username
+        if not WorksOn.objects.filter(project=project, developer__user__username=logged_user).exists():
+            return False
+        role = WorksOn.objects.get(project=project, developer__user__username=logged_user).role
+        if role != Role.OWNER and role != Role.MAINTAINER:
+            return False
+        return True
