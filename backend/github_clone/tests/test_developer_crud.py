@@ -2,6 +2,8 @@
 
 import pytest
 from django.contrib.auth.models import User
+
+from main import gitea_service
 from main.models import Developer, SecondaryEmail
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -36,6 +38,20 @@ def get_token(create_developer):
     response = client.post(url, payload)
     return response.data['access']
 
+@pytest.fixture(autouse=True)
+def disable_update_developer_info(monkeypatch):
+    def mock_update_developer_info(*args, **kwargs):
+        return 2
+    monkeypatch.setattr(gitea_service, 'update_developer_info', mock_update_developer_info)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_update_developer_username(monkeypatch):
+    def mock_update_developer_username(*args, **kwargs):
+        return 2
+
+    monkeypatch.setattr(gitea_service, 'update_developer_username', mock_update_developer_username)
+    yield
 
 @pytest.mark.django_db
 def test_update_user_info(get_token):
