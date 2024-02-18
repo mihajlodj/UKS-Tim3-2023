@@ -38,7 +38,7 @@ jobs:
         cd backend/github_clone
         pwd
         ls -la
-        pytest ./tests/test*.py --ds=github_clone.settings -s
+        pytest ./tests/test*.py --ds=github_clone.test_settings -s
       continue-on-error: true
 
     - name: Output test result
