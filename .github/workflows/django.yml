@@ -29,6 +29,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Setup Database
+      env:
+        DEBUG: 1
+        SECRET_KEY: foo
+        DJANGO_ALLOWED_HOSTS: localhost 127.0.0.1 [::1]
       run: |
         cd backend/github_clone
         python test_manage.py makemigrations
