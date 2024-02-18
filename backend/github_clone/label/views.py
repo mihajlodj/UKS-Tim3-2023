@@ -69,6 +69,26 @@ def link_label_to_milestone(request, label_id, milestone_id):
     return Response(status=status.HTTP_200_OK)
 
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def link_label_to_issue(request, label_id, issue_id):
+    if not label_id.isdigit():
+        raise Http404()
+    if not Label.objects.filter(id=label_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if not issue_id.isdigit():
+        raise Http404()
+    if not Issue.objects.filter(id=issue_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    label = Label.objects.get(id=label_id)
+    issue = Issue.objects.get(id=issue_id)
+    if label.project != issue.project:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    issue.labels.add(label)
+    issue.save()
+    return Response(status=status.HTTP_200_OK)
+
+
 def serialize_labels(labels):
     result = []
     for label in labels:
