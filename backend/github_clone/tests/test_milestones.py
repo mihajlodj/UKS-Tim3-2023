@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
-
+from milestone.serializers import MilestoneSerializer
 
 client = APIClient()
 fake = Faker()
@@ -50,6 +50,13 @@ def disable_gitea_create_milestone(monkeypatch):
     def mock_create_milestone(*args, **kwargs):
         return 2
     monkeypatch.setattr(gitea_service, 'create_milestone', mock_create_milestone)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_save_gitea_user(monkeypatch):
+    def mock_gitea_create_milestone(*args, **kwargs):
+        return 2
+    monkeypatch.setattr(MilestoneSerializer, 'gitea_create_milestone', mock_gitea_create_milestone)
     yield
 
 

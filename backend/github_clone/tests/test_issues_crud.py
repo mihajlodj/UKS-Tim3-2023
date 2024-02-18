@@ -113,7 +113,7 @@ def test_close_issue(get_token):
     }
     response = client.patch(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    response = client.get('/issue/issues/MyNewTestRepo', headers=headers)
+    response = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
     assert response.json()[0]['open'] is False
 
 @pytest.mark.django_db

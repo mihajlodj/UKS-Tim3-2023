@@ -28,6 +28,11 @@ jobs:
         ls -la
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    - name: Setup Database
+      run: |
+        cd backend/github_clone
+        python test_manage.py makemigrations
+        python test_manage.py migrate
     - name: Run Tests
       env:
         DEBUG: 1
