@@ -10,22 +10,24 @@ from main.models import Label, Project, Milestone, Issue, PullRequest
 
 from label.serializers import LabelSerializer
 
+from main import permissions
+
 
 class CreateLabelView(generics.CreateAPIView):
     queryset = Label.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,permissions.CanEditRepository)
     serializer_class = LabelSerializer
 
 
 class UpdateLabelView(generics.UpdateAPIView):
     queryset = Label.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,permissions.CanUpdateLabel)
     serializer_class = LabelSerializer
     lookup_field = 'id'
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
 def get_labels(request, repository_name):
     if not Project.objects.filter(name=repository_name).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -36,7 +38,7 @@ def get_labels(request, repository_name):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
 def delete_label(request, label_id):
     if not label_id.isdigit():
         raise Http404()
@@ -48,7 +50,7 @@ def delete_label(request, label_id):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
 def link_label_to_milestone(request, label_id, milestone_id):
     if not label_id.isdigit():
         raise Http404()
