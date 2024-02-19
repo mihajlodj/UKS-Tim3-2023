@@ -1,4 +1,4 @@
-# pytest --ds=github_clone.settings
+# pytest --ds=github_clone.test_settings
 
 import pytest
 from django.contrib.auth.models import User

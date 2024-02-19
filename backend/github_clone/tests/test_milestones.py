@@ -1,11 +1,11 @@
 import pytest
-from unittest.mock import patch
 from django.contrib.auth.models import User
 from main.models import Developer, Project, WorksOn, Branch, Milestone
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
+from milestone.serializers import MilestoneSerializer
 
 
 client = APIClient()
@@ -66,6 +66,13 @@ def disable_gitea_delete_milestone_from_gitea(monkeypatch):
     def mock_delete_milestone_from_gitea(*args, **kwargs):
         return
     monkeypatch.setattr(gitea_service, 'delete_milestone_from_gitea', mock_delete_milestone_from_gitea)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_save_gitea_user(monkeypatch):
+    def mock_gitea_create_milestone(*args, **kwargs):
+        return 2
+    monkeypatch.setattr(MilestoneSerializer, 'gitea_create_milestone', mock_gitea_create_milestone)
     yield
 
 
