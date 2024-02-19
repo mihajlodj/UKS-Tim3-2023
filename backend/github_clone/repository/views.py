@@ -1,6 +1,7 @@
 import base64
 import json
 from datetime import datetime
+from django.utils import timezone
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -135,8 +136,8 @@ def get_file(request, owner_username, repository_name, branch, path):
 def delete_file(request, owner_username, repository_name, path):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
-        timestamp = datetime.now()
-        formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        timestamp = timezone.localtime(timezone.now())
+        formatted_datetime = timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
         old_file = gitea_service.get_file(owner_username, repository_name, json_data['branch'], path)
 
         commit_data = {
@@ -162,8 +163,8 @@ def create_file(request, owner_username, repository_name, path):
         json_data = json.loads(request.body.decode('utf-8'))
         base64_bytes = base64.b64encode(json_data['content'].encode("utf-8"))
         content = base64_bytes.decode("utf-8")
-        timestamp = datetime.now()
-        formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        timestamp = timezone.localtime(timezone.now())
+        formatted_datetime = timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
         commit_data = {
             'author': {'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}'},
             'branch': json_data['branch'],
@@ -188,8 +189,8 @@ def edit_file(request, owner_username, repository_name, path):
         base64_bytes = base64.b64encode(json_data['content'].encode("utf-8"))
         content = base64_bytes.decode("utf-8")
 
-        timestamp = datetime.now()
-        formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        timestamp = timezone.localtime(timezone.now())
+        formatted_datetime = timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
         old_file = gitea_service.get_file(owner_username, repository_name, json_data['branch'], json_data['from_path'])
         commit_data = {
             'author': {'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}'},
@@ -215,8 +216,8 @@ def upload_files(request, owner_username, repository_name):
     try:
         json_data = json.loads(request.body.decode('utf-8'))
         files = [{'path': f['name'], 'operation': 'create', 'content': f['content']} for f in json_data['files']]
-        timestamp = datetime.now()
-        formatted_datetime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
+        timestamp = timezone.localtime(timezone.now())
+        formatted_datetime = timestamp.strftime('%Y-%m-%dT%H:%M:%S.%f')[:-3] + 'Z'
         commit_data = {
             'author': {'email': request.user.email, 'name': f'{request.user.first_name} {request.user.last_name}'},
             'branch': json_data['branch'],

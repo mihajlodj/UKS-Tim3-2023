@@ -11,7 +11,8 @@ from milestone.serializers import MilestoneSerializer
 
 from main.gitea_service import delete_milestone_from_gitea
 
-from main import permissions
+from main import permissions, gitea_service
+
 
 class CreateMilestoneView(generics.CreateAPIView):
     queryset = Milestone.objects.all()
@@ -35,7 +36,7 @@ def delete_milestone(request, owner_username, repository_name, title):
         return Response(status=status.HTTP_400_BAD_REQUEST)
     milestone = Milestone.objects.get(title=title, project=repository)
     owner = WorksOn.objects.get(project__name=repository.name, role='Owner')
-    delete_milestone_from_gitea(owner_username, repository.name, milestone.id_from_gitea)
+    gitea_service.delete_milestone_from_gitea(owner_username, repository.name, milestone.id_from_gitea)
     milestone.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 

@@ -65,6 +65,15 @@ def test_create_public_repo_success(get_token):
     assert works_on.developer.user.username == username
     assert works_on.role == 'Owner'
 
+@pytest.fixture(autouse=True)
+def disable_gitea_create_repository(monkeypatch):
+    def mock_gitea_create_repository(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'create_repository', mock_gitea_create_repository)
+    yield
+
+
 @pytest.mark.django_db
 def test_create_private_repo_success(get_token):
     url = '/repository/'

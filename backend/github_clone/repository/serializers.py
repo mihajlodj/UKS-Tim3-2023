@@ -3,6 +3,8 @@ from django.http import Http404
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import RegexValidator
+
+from main import gitea_service
 from main.gitea_service import create_repository, update_repository
 from main.models import Project, AccessModifiers, Branch, WorksOn, Developer
 from django.contrib.auth.models import User
@@ -57,7 +59,7 @@ class RepositorySerializer(serializers.Serializer):
         private = True
         if (project.access_modifier == "Public"):
             private = False
-        create_repository({
+        gitea_service.create_repository({
             'default_branch': branch_name,
             'description': description,
             'name': project.name,

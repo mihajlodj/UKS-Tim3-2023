@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+from issue.serializers import IssueSerializer
 from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch, Issue
 from rest_framework.test import APIClient
@@ -59,7 +60,7 @@ def disable_gitea_create_issue(monkeypatch):
     def mock_gitea_create_issue(*args, **kwargs):
         return
 
-    monkeypatch.setattr(gitea_service, 'create_issue', mock_gitea_create_issue)
+    monkeypatch.setattr(IssueSerializer, 'create_issue_in_gitea', mock_gitea_create_issue)
     yield
 
 @pytest.fixture(autouse=True)
@@ -88,6 +89,7 @@ def disable_gitea_update_issue(monkeypatch):
 
 @pytest.mark.django_db
 def test_create_issue(get_token):
+
     url = '/issue/create/'
     issue_data = {
         'created': timezone.now(),
