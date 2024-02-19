@@ -46,7 +46,7 @@
             <button type="button" @click="setActiveTab('files')">Files changes</button>
         </div>
 
-        <div class="px-5 mt-2 w-100 d-flex justify-content-between">
+        <div class="px-5 pb-5 mt-2 w-100 d-flex justify-content-between">
             <div class="w-75 pe-5">
                 <div v-if="chosenTab === 'conversation'">
                     <div>
@@ -62,10 +62,19 @@
                     <div class="mt-4 merge">
                         <MergeInfo :pull="pull" />
                     </div>
+
+                    <div class="mt-3">
+                        <h5 class="bright">Add a comment</h5>
+                        <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
+                        <div class="w-100 d-flex justify-content-end">
+                            <button type="button">Close pull request</button>
+                            <button type="button">Comment</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div v-if="chosenTab === 'commits'">
-
+                    <CommitsTable :commits="pull.commits" />
                 </div>
 
                 <div v-if="chosenTab === 'files'">
@@ -84,13 +93,15 @@
 import RepoNavbar from '../repository/RepoNavbar.vue';
 import AdditionalPrInfo from './AdditionalPrInfo.vue';
 import MergeInfo from './MergeInfo.vue'
+import CommitsTable from '../commit/CommitsTable.vue'
 
 export default {
     name: "PrDisplay",
     components: {
         RepoNavbar,
         AdditionalPrInfo,
-        MergeInfo
+        MergeInfo,
+        CommitsTable
     },
 
     data() {
@@ -105,7 +116,15 @@ export default {
                 },
                 base: "main",
                 compare: "develop",
-                commits: [],
+                commits: [{
+                    hash: "fweurh3iurhqlieurhoi3u434534fsdfa",
+                    message: "Ovo je moja commit poruka this isd asdkn vanfdv dsvufdnbvld vkbkv dsvlkabdfn v v;snbv dsfkvbdf vkndhbgvkd fkabdf vn",
+                    timestamp: "2024-02-01",
+                    author: {
+                        username: "elenore55",
+                        avatar: "http://localhost:3000/avatar/7bc306a1860b7f9fa06cbb9a27161a49"
+                    }
+                }],
                 milestone: {
                     id: 1,
                     title: "Kontrolna tacka"
@@ -121,7 +140,8 @@ export default {
                 review_requested: true,
                 conflicting_files: ["README.md", "main.js"]
             },
-            chosenTab: "conversation"
+            chosenTab: "conversation",
+            newComment: ""
         }
     },
 
@@ -199,5 +219,13 @@ div.merge {
     border: 1px solid #768491;
     border-radius: 7px;
     padding: 10px 15px;
+}
+
+textarea {
+    min-height: 150px;
+    resize: none;
+    background-color: #22272d;
+    border: 1px solid #768491;
+    border-radius: 7px;
 }
 </style>
