@@ -17,7 +17,7 @@
                             <input type="checkbox" />
                         </div>
                         <div class="col-5 d-flex justify-content-start">
-                            <button type="button" class="btn-num-req me-1" @click="setOpenPullsChosen">
+                            <button type="button" class="btn-num-req me-2" @click="setOpenPullsChosen">
                                 <label :class="openPullsChosen ? 'num-req-active' : 'num-req'">{{ openPulls.length }} Open</label>
                             </button>
                             <button type="button" class="btn-num-req" @click="setClosedPullsChosen">

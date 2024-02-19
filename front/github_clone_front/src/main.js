@@ -16,7 +16,7 @@ import CreateFile from './components/repository/content/CreateFile.vue';
 import UploadFile from './components/repository/content/upload/UploadFile.vue';
 import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponent.vue'
 import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
-import PrSetup from '@/components/pullRequest/PrSetup.vue'
+import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
@@ -33,7 +33,7 @@ import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-ico
 import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark } from '@fortawesome/free-regular-svg-icons'
-import { faFlask, faDownload, faTag } from '@fortawesome/free-solid-svg-icons'
+import { faFlask, faDownload, faTag, faCheck } from '@fortawesome/free-solid-svg-icons'
 import 'vue-pdf-embed/dist/style/index.css'
 import 'vue-pdf-embed/dist/style/annotationLayer.css'
 import 'vue-pdf-embed/dist/style/textLayer.css'
@@ -63,6 +63,7 @@ library.add(faDownload);
 library.add(faArrowLeftLong);
 library.add(faCircleXmark);
 library.add(faTag);
+library.add(faCheck);
 
 const routes = [
     {
@@ -131,7 +132,7 @@ const routes = [
     },
     {
         path: "/view/:username/:repoName/pulls/:id",
-        component: PrSetup
+        component: PrDisplay
     },
 ]
 
