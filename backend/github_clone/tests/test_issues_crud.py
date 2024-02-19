@@ -1,6 +1,9 @@
 import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
+
+from issue.serializers import IssueSerializer
+from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch, Issue
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -52,8 +55,41 @@ def save_issue(create_dev_and_repo):
     )
     issue.save()
 
+@pytest.fixture(autouse=True)
+def disable_gitea_create_issue(monkeypatch):
+    def mock_gitea_create_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(IssueSerializer, 'create_issue_in_gitea', mock_gitea_create_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_close_issue(monkeypatch):
+    def mock_gitea_close_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'close_issue', mock_gitea_close_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_delete_issue(monkeypatch):
+    def mock_gitea_delete_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'delete_issue', mock_gitea_delete_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_update_issue(monkeypatch):
+    def mock_gitea_update_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'update_issue', mock_gitea_update_issue)
+    yield
+
 @pytest.mark.django_db
 def test_create_issue(get_token):
+
     url = '/issue/create/'
     issue_data = {
         'created': timezone.now(),
@@ -113,7 +149,7 @@ def test_close_issue(get_token):
     }
     response = client.patch(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    response = client.get('/issue/issues/MyNewTestRepo', headers=headers)
+    response = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
     assert response.json()[0]['open'] is False
 
 @pytest.mark.django_db

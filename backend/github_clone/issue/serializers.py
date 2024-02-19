@@ -33,9 +33,12 @@ class IssueSerializer(serializers.Serializer):
 
         # issue.save()  # nisam siguran dal treba ovo
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
-        create_issue(owner=owner, repo=issue.project.name, issue=issue)
+        self.create_issue_in_gitea(owner, issue)
         return serialize_issue(issue)
         # return issue
+
+    def create_issue_in_gitea(self, owner, issue):
+        create_issue(owner=owner, repo=issue.project.name, issue=issue)
 
 def serialize_issue(issue):
     return {
