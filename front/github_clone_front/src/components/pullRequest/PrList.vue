@@ -11,23 +11,18 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mt-3">
-                    <div class="d-flex justify-content-start">
-
-                    </div>
-
-                    <div class="d-flex justify-content-end">
-
-                    </div>
-                </div>
-
-                <div class="container" id="pulls-table">
+                <div class="container mt-3" id="pulls-table">
                     <div class="row my-2">
                         <div class="col-1 check ms-2">
                             <input type="checkbox" />
                         </div>
-                        <div class="col-5">
-                            <label class="num-req">1 Open</label>
+                        <div class="col-5 d-flex justify-content-start">
+                            <button type="button" class="btn-num-req me-1" @click="setOpenPullsChosen">
+                                <label :class="openPullsChosen ? 'num-req-active' : 'num-req'">{{ openPulls.length }} Open</label>
+                            </button>
+                            <button type="button" class="btn-num-req" @click="setClosedPullsChosen">
+                                <label :class="!openPullsChosen ? 'num-req-active' : 'num-req'">{{ closedPulls.length }} Closed</label>
+                            </button>
                         </div>
                         <div class="col criterium d-flex justify-content-center">
                             Author
@@ -51,18 +46,23 @@
 
                     <div v-for="pull in pulls" :key="pull.id" class="row my-1">
                         <hr />
-                        <div class="col-1 check ms-2 mt-1">
+                        <div class="col-1 check ms-2">
                             <input type="checkbox" />
                         </div>
 
                         <div class="col-5">
                             <div class="d-flex justify-content-start">
-                                <button type="button" class="btn-link"><h5 class="me-2 mt-1">{{ pull.title }}</h5></button>
+                                <img v-if="pull.status === 'Open'" alt="pr" src="../../assets/open_pr_green.png" class="img-pr mt-1 me-2" />
+                                <img v-if="pull.status === 'Merged'" alt="pr" src="../../assets/merged_pr_purple.png" class="img-pr me-2" />
+                                <img v-if="pull.status === 'Closed'" alt="pr" src="../../assets/closed_pr_red.png" class="img-pr me-2" />
+                                <button type="button" class="btn-link">
+                                    <h5 class="me-2">{{ pull.title }}</h5>
+                                </button>
                                 <button v-for="lbl in pull.labels" :key="lbl" class="btn-label mx-1" type="button">{{ lbl }}</button>
                             </div>
-                            <div class="d-flex justify-content-start mt-2">
+                            <div class="d-flex justify-content-start mt-1">
                                 <label class="pull-desc">
-                                    #{{ pull.id }} opened on 2024-01-01 by 
+                                    #{{ pull.id }} opened on {{ pull.timestamp.slice(0, 10) }} by
                                     <button type="button" class="btn-link">{{ pull.author }}</button>
                                 </label>
                             </div>
@@ -72,8 +72,10 @@
                         <div class="col"></div>
                         <div class="col"></div>
                         <div class="col"></div>
-                        <div class="col criterium d-flex justify-content-center">
-                            <img v-if="pull.assignee" :src="pull.assignee.icon" class="user-icon"/>
+                        <div class="col criterium d-flex justify-content-center align-items-top">
+                            <button class="btn-img" type="button">
+                                <img v-if="pull.assignee" :src="pull.assignee.avatar" class="user-icon" />
+                            </button>
                         </div>
                         <div class="col"></div>
                     </div>
@@ -86,6 +88,7 @@
 <script>
 import RepoNavbar from "@/components/repository/RepoNavbar.vue"
 import FilterBar from "./FilterBar.vue";
+import PullRequestService from "@/services/PullRequestService"
 
 export default {
     name: "PrList",
@@ -95,63 +98,38 @@ export default {
     },
 
     mounted() {
-        this.pulls = [{
-            title: "Moj request",
-            status: "Open",
-            author: "elenore55",
-            timestamp: "",
-            id: 1,
-            labels: ["documentation", "feature"],
-            assignee: {
-                username: "elenore55",
-                icon: "http://localhost:3000/avatar/c07feba0edeab310e51a1d754c81c0ef?size=512"
-            },
-            milestone: "Kontrolna tacka 1",
-            reviews: []
-        }, {
-            title: "Moj request 2",
-            status: "Open",
-            author: "elenore55",
-            timestamp: "",
-            id: 1,
-            labels: ["frontend", "feature"],
-            assignee: {
-                username: "elenore55",
-                icon: "http://localhost:3000/avatar/c07feba0edeab310e51a1d754c81c0ef?size=512"
-            },
-            milestone: "Kontrolna tacka 1",
-            reviews: []
-        },
-    ]
+        PullRequestService.getAll(this.$route.params.repoName).then(res => {
+            console.log(res.data);
+            this.openPulls = res.data.filter(x => x.status === "Open");
+            this.closedPulls = res.data.filter(x => x.status !== "Open");
+            this.pulls = this.openPulls;
+        }).catch(err => {
+            console.log(err);
+        });
     },
 
     data() {
         return {
-            pulls: [
-                {
-                    title: "",
-                    status: "Open",
-                    author: "",
-                    timestamp: "",
-                    id: -1,
-                    labels: [],
-                    assignee: {
-                        username: "",
-                        icon: ""
-                    },
-                    milestone: "",
-                    reviews: []
-                },
-            ],
-
+            pulls: [],
             openPulls: [],
-            closedPulls: []
+            closedPulls: [],
+            openPullsChosen: true
         }
     },
 
     methods: {
         createPullRequest() {
 
+        },
+
+        setOpenPullsChosen() {
+            this.pulls = this.openPulls;
+            this.openPullsChosen = true;
+        },
+
+        setClosedPullsChosen() {
+            this.pulls = this.closedPulls;
+            this.openPullsChosen = false;
         }
     }
 }
@@ -170,13 +148,23 @@ export default {
     border: none;
 }
 
+.img-pr {
+    height: 18px;
+}
+
 .background {
     background-color: #22272d;
 }
 
 .fa-code-pull-request,
-.num-req, h5, hr {
+.num-req-active,
+h5,
+hr {
     color: #adbbc8;
+}
+
+.num-req {
+    color: #768491;
 }
 
 .criterium {
@@ -205,6 +193,7 @@ div.check {
     background-color: rgb(46, 27, 90);
     color: rgb(177, 154, 231);
     border: 1px solid rgb(177, 154, 231);
+    height: 26px;
 }
 
 hr {
@@ -216,18 +205,32 @@ hr {
     font-size: small;
 }
 
-.btn-link {
+.btn-link,
+.btn-img {
     background: none;
     border: none;
     text-decoration: none;
 }
 
-.pull-desc > .btn-link {
+.btn-img {
+    height: 25px;
+}
+
+.pull-desc>.btn-link {
     color: #5f6d7a;
 }
 
-.btn-link:hover, .btn-link > h5:hover {
+.btn-link:hover,
+.btn-link>h5:hover {
     color: #2671e2;
 }
 
+.btn-num-req {
+    background: none;
+    border: none;
+}
+
+.num-req:hover {
+    cursor: pointer;
+}
 </style>

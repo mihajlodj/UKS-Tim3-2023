@@ -27,7 +27,6 @@ def create(request, owner_username, repository_name):
     author = Developer.objects.get(user__username=request.user.username)
     response = gitea_service.create_pull_request(owner_username, repository_name, {'base': base_name, 'head': compare_name, 'title': title})
     if response.status_code == 201:
-        print(response.json())
         src = Branch.objects.get(name=compare_name, project__name=repository_name)
         dest = Branch.objects.get(name=base_name, project__name=repository_name)
         project = Project.objects.get(name=repository_name)   
@@ -39,3 +38,33 @@ def create(request, owner_username, repository_name):
         return Response({'id': response.json()['id']}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def get_all(request, repository_name):
+    requests = PullRequest.objects.filter(project__name=repository_name)
+    result = []
+    for req in requests:
+        obj = {
+            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username, 'id': req.id,
+            'labels': [], 'reviews': []
+        }
+        if req.milestone is not None:
+            obj['milestone'] = req.milestone.title
+        if req.assignee is not None:
+            obj['assignee'] = {
+                'username': req.assignee.user.username,
+                'avatar': get_assignee_avatar(req.assignee.user.username)
+            }
+        result.append(obj)
+    return Response(result, status=status.HTTP_200_OK)
+
+
+def get_assignee_avatar(username):
+    developer = Developer.objects.get(user__username=username)
+    if developer.avatar is None:
+        gitea_user_info = gitea_service.get_gitea_user_info_gitea_service(username)
+        return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
+    avatar_filename = developer.avatar.split('/')[1]
+    return f"http://localhost/avatars/{avatar_filename}"
