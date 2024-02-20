@@ -31,7 +31,7 @@
                         </div>
                     </td>
                     <td>
-                        <label>{{ c.message }}</label>
+                        <label class="msg">{{ c.message }}</label>
                     </td>
                     <td class="date">
                         <label>{{ c.timestamp }}</label>
@@ -110,6 +110,14 @@ td {
     font-weight: 600;
     border: 1px solid #6e7b88;
     padding: 5px 7px;
+}
+
+td {
+    font-weight: 500;
+}
+
+.msg {
+    font-size: 14px;
 }
 
 .btn-sha {

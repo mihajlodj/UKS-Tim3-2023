@@ -11,7 +11,6 @@
                 <button type="button" class="btn-edit-title bright me-2">
                     Edit
                 </button>
-
                 <button type="button" class="btn-review bright">
                     Review
                 </button>
@@ -40,22 +39,29 @@
             </div>
         </div>
 
-        <div class="px-5 w-100 d-flex justify-content-start my-3">
-            <button type="button" @click="setActiveTab('conversation')">Conversation</button>
-            <button type="button" @click="setActiveTab('commits')">Commits</button>
-            <button type="button" @click="setActiveTab('files')">Files changes</button>
+        <div class="d-flex justify-content-start mt-4 px-5 w-100">
+            <button type="button" :class="chosenTab === 'conversation' ? 'tab active' : 'tab'"  @click="setActiveTab('conversation')">
+                <font-awesome-icon icon="fa-regular fa-comments"></font-awesome-icon>
+                Conversation
+            </button>
+            <button type="button" :class="chosenTab === 'commits' ? 'tab active' : 'tab'" @click="setActiveTab('commits')">
+                <font-awesome-icon icon="fa-solid fa-code-commit"></font-awesome-icon>
+                Commits
+            </button>
+            <button type="button" :class="chosenTab === 'files' ? 'tab active' : 'tab'" @click="setActiveTab('files')">
+                <font-awesome-icon icon="fa-regular fa-file"></font-awesome-icon>
+                Files changes
+            </button>
         </div>
 
         <div class="px-5 pb-5 mt-2 w-100 d-flex justify-content-between">
             <div class="w-75 pe-5">
                 <div v-if="chosenTab === 'conversation'">
                     <div>
-                        Events - labele, milestone, assigning, reviewing, closing, opening
+                        Events - labels, milestones, assigning, reviewing, closing, opening
                     </div>
 
-                    <div>
-                        Comments
-                    </div>
+                    <div>Comments</div>
 
                     <hr class="bright" />
 
@@ -66,9 +72,12 @@
                     <div class="mt-3">
                         <h5 class="bright">Add a comment</h5>
                         <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
-                        <div class="w-100 d-flex justify-content-end">
-                            <button type="button">Close pull request</button>
-                            <button type="button">Comment</button>
+                        <div class="w-100 d-flex justify-content-end mt-2">
+                            <button type="button" class="btn-close-pr bright p-2 me-2">
+                                <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
+                                Close pull request
+                            </button>
+                            <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
                         </div>
                     </div>
                 </div>
@@ -177,6 +186,10 @@ export default {
     color: #768491;
 }
 
+.pr-icon {
+    height: 17px;
+}
+
 .btn-edit-title,
 .btn-review {
     height: 35px;
@@ -184,6 +197,43 @@ export default {
     background-color: #373e48;
     border: 1px solid #768491;
     border-radius: 5px;
+}
+
+.btn-close-pr {
+    background-color: #373e48;
+    border-radius: 5px;
+    border: 1px solid #768491;
+}
+
+.btn-comment {
+    background-color: #347d38;
+    border-radius: 5px;
+    border: none;
+    color: white;
+}
+
+.btn-comment:disabled {
+    background-color: #315f3a;
+    color: #adbbc8;
+}
+
+.tab {
+    background: none;
+    border: 1px solid #adbbc8;
+    min-width: 140px;
+    color: #768491;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    height: 40px;
+}
+
+.tab.active {
+    color: #adbbc8;
+    border-bottom: none;
+}
+
+.tab:hover {
+    color: #adbbc8;
 }
 
 .bg-none {
