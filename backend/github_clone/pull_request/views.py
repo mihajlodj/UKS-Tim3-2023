@@ -234,10 +234,16 @@ def parse_diff(diff_text):
         for hunk in patched_file:
             for line in hunk:
                 lines.append(str(line))
+        mode = 'update'
+        if patched_file.is_added_file:
+            mode = 'add'
+        elif patched_file.is_removed_file:
+            mode = 'delete'
         diff.append({
             'file_path': file_path,
             'content': lines,
             'additions': patched_file.added,
-            'deletions': patched_file.removed
+            'deletions': patched_file.removed,
+            'mode': mode
         })
     return diff, overall_additions, overall_deletions

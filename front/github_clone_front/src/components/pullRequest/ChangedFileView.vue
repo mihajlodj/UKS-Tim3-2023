@@ -8,6 +8,7 @@
                 <font-awesome-icon icon="fa-solid fa-angle-right"></font-awesome-icon>
             </button>
 
+            <label class="bright ms-2">{{ file.additions + file.deletions }}</label>
             <button type="button" class="btn-file-name ms-3">{{ file.file_path }}</button>
         </div>
 

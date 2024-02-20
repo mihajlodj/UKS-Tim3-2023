@@ -53,7 +53,7 @@
         </div>
 
         <div class="px-5 pb-5 mt-2 w-100 d-flex justify-content-between">
-            <div class="w-75 pe-5">
+            <div :class="chosenTab === 'conversation'? 'w-75 pe-5' : 'w-100 pe-5'">
                 <div v-if="chosenTab === 'conversation'">
                     <div>
                         Events - labels, milestones, assigning, reviewing, closing, opening
@@ -88,11 +88,11 @@
                 </div>
 
                 <div v-if="chosenTab === 'files'">
-                    <ChangedFiles :diff="pull.diff" />
-                </div>
+                    <ChangedFiles :diff="pull.diff" :overall_additions="pull.overall_additions" :overall_deletions="pull.overall_deletions" />
+                </div> 
             </div>
 
-            <div class="w-25">
+            <div v-if="chosenTab === 'conversation'" class="w-25">
                 <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
                 <hr class="bright"/>
                 <div class="w-100 d-flex justify-content-end mt-3">
