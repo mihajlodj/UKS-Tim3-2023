@@ -18,15 +18,7 @@
         </div>
 
         <div class="px-5 mt-2 d-flex justify-content-start">
-            <div v-if="pull.status === 'Open'" class="status-pill open">
-                <label>{{ pull.status }}</label>
-            </div>
-            <div v-if="pull.status === 'Closed'" class="status-pill closed">
-                <label>{{ pull.status }}</label>
-            </div>
-            <div v-if="pull.status === 'Merged'" class="status-pill merged">
-                <label>{{ pull.status }}</label>
-            </div>
+            <StatusPill :status="pull.status"/>
 
             <div class="d-flex justify-content-start ms-3">
                 <button class="bg-none muted" type="button">
@@ -50,7 +42,7 @@
             </button>
             <button type="button" :class="chosenTab === 'files' ? 'tab active' : 'tab'" @click="setActiveTab('files')">
                 <font-awesome-icon icon="fa-regular fa-file"></font-awesome-icon>
-                Files changes
+                Files changed
             </button>
         </div>
 
@@ -65,7 +57,7 @@
 
                     <hr class="bright" />
 
-                    <div class="mt-4 merge">
+                    <div v-if="pull.status === 'Open'" class="mt-4 merge">
                         <MergeInfo :pull="pull" />
                     </div>
 
@@ -73,9 +65,12 @@
                         <h5 class="bright">Add a comment</h5>
                         <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
                         <div class="w-100 d-flex justify-content-end mt-2">
-                            <button type="button" class="btn-close-pr bright p-2 me-2">
+                            <button v-if="pull.status === 'Open'" type="button" class="btn-close-pr bright p-2 me-2">
                                 <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
                                 Close pull request
+                            </button>
+                            <button v-if="pull.status === 'Closed'" type="button" class="btn-close-pr bright p-2 me-2">
+                                Reopen pull request
                             </button>
                             <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
                         </div>
@@ -103,6 +98,8 @@ import RepoNavbar from '../repository/RepoNavbar.vue';
 import AdditionalPrInfo from './AdditionalPrInfo.vue';
 import MergeInfo from './MergeInfo.vue'
 import CommitsTable from '../commit/CommitsTable.vue'
+import StatusPill from './StatusPill.vue';
+import PullRequestService from '@/services/PullRequestService'
 
 export default {
     name: "PrDisplay",
@@ -110,7 +107,16 @@ export default {
         RepoNavbar,
         AdditionalPrInfo,
         MergeInfo,
-        CommitsTable
+        CommitsTable,
+        StatusPill
+    },
+
+    mounted() {
+        PullRequestService.getOne(this.$route.params.repoName, this.$route.params.id).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
+        });
     },
 
     data() {
@@ -145,8 +151,7 @@ export default {
                 },
                 reviewers: [],
                 files_changed: [],
-                can_be_merged: false,
-                review_requested: true,
+                mergeable: false,
                 conflicting_files: ["README.md", "main.js"]
             },
             chosenTab: "conversation",
@@ -241,18 +246,6 @@ export default {
     border: none;
     height: 15px;
     font-weight: 600;
-}
-
-.status-pill {
-    font-size: large;
-    padding: 3px 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    color: white;
-}
-
-.open {
-    background-color: #347d38;
 }
 
 .btn-branch {

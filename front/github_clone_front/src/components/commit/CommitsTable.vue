@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="w-100 num-commits py-2 px-3">
+        <div class="w-100 num-commits py-2 px-3 mt-2">
             <h5 v-if="commits" class="bright">{{ commits.length }} commit(s) </h5>
         </div>
         <table>

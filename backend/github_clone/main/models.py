@@ -156,14 +156,16 @@ class PullRequest(models.Model):
     target = models.ForeignKey(Branch, related_name='pull_requests_target', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     author = models.ForeignKey(Developer, related_name='pull_requests_author', on_delete=models.DO_NOTHING)
-    assignee = models.ForeignKey(Developer, related_name='pull_requests_assignee', on_delete=models.DO_NOTHING, null=True)
+    assignee = models.ForeignKey(Developer, null=True, blank=True, related_name='pull_requests_assignee', on_delete=models.DO_NOTHING)
     milestone = models.ForeignKey(Milestone, related_name='pull_request_milestone', null=True, on_delete=models.DO_NOTHING)
     reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers', blank=True)
     status = models.CharField(max_length=10, choices=PullRequestStatus.choices, default=PullRequestStatus.OPEN)
     timestamp = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True, null=True)
-    
+    gitea_id = models.IntegerField(null=True)
+    mergable = models.BooleanField(null=True)
+
 
 class RegistrationCandidate(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

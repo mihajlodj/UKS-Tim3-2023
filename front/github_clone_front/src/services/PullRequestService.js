@@ -8,4 +8,8 @@ const getAll = (repoName) => {
     return api.get(`pr/get_all/${repoName}/`);
 }
 
-export default { create, getAll };
+const getOne = (repoName, pullId) => {
+    return api.get(`pr/get/${repoName}/${pullId}/`);
+}
+
+export default { create, getAll, getOne };
