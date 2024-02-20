@@ -30,7 +30,7 @@ import MilestoneService from "@/services/MilestoneService"
 
 export default {
     name: "MilestoneModal",
-    props: ["x", "y", "w"],
+    props: ["chosen", "x", "y", "w"],
 
     mounted() {
         MilestoneService.getAllMilestones(this.$route.params.repoName).then(res => {
@@ -40,6 +40,9 @@ export default {
         }).catch(err => {
             console.log(err);
         });
+        if (this.chosen) {
+            this.chosenMilestone = this.chosen;
+        }
     },
 
     data() {

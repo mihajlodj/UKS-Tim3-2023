@@ -58,7 +58,7 @@
                     <hr class="bright" />
 
                     <div v-if="pull.status === 'Open'" class="mt-4 merge">
-                        <MergeInfo :pull="pull" />
+                        <MergeInfo :key="mergeDataKey" :pull="pull" />
                     </div>
 
                     <div class="mt-3">
@@ -87,7 +87,7 @@
             </div>
 
             <div class="w-25">
-                <AdditionalPrInfo />
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
             </div>
         </div>
     </div>
@@ -113,7 +113,10 @@ export default {
 
     mounted() {
         PullRequestService.getOne(this.$route.params.repoName, this.$route.params.id).then(res => {
-            console.log(res);
+            console.log(res.data);
+            this.pull = res.data;
+            this.mergeDataKey += 1;
+            this.additionalInfoKey += 1;
         }).catch(err => {
             console.log(err);
         });
@@ -123,45 +126,35 @@ export default {
         return {
             milestone: null,
             pull: {
-                title: "Dev",
-                id: 1,
+                title: "",
+                id: -1,
                 status: "Open",
-                author: {
-                    username: "elenore55"
-                },
-                base: "main",
-                compare: "develop",
-                commits: [{
-                    hash: "fweurh3iurhqlieurhoi3u434534fsdfa",
-                    message: "Ovo je moja commit poruka this isd asdkn vanfdv dsvufdnbvld vkbkv dsvlkabdfn v v;snbv dsfkvbdf vkndhbgvkd fkabdf vn",
-                    timestamp: "2024-02-01",
-                    author: {
-                        username: "elenore55",
-                        avatar: "http://localhost:3000/avatar/7bc306a1860b7f9fa06cbb9a27161a49"
-                    }
-                }],
-                milestone: {
-                    id: 1,
-                    title: "Kontrolna tacka"
-                },
-                labels: ["feature", "backend"],
-                assignee: {
-                    username: "elenore55",
-                    avatar: ""
-                },
+                author: { username: "" },
+                base: "",
+                compare: "",
+                commits: [],
+                milestone: { id: -1, title: "" },
+                labels: [],
+                assignee: { username: "", avatar: "" },
                 reviewers: [],
                 files_changed: [],
                 mergeable: false,
-                conflicting_files: ["README.md", "main.js"]
+                conflicting_files: []
             },
+            mergeDataKey: 1,
             chosenTab: "conversation",
-            newComment: ""
+            newComment: "",
+            additionalInfoKey: 1
         }
     },
 
     methods: {
         updateMilestone(data) {
-            this.milestone = data;
+            this.pull.milestone = data;
+        },
+
+        updateAssignee(data) {
+            this.pull.assignee = data;
         },
 
         getMergeMsg() {

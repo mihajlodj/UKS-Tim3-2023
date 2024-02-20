@@ -3,13 +3,13 @@
         <div class="w-100 num-commits py-2 px-3 mt-2">
             <h5 v-if="commits" class="bright">{{ commits.length }} commit(s) </h5>
         </div>
-        <table>
+        <table class="w-100">
             <thead>
                 <tr>
                     <th scope="col" class="author">Author</th>
-                    <th scope="col">SHA1</th>
-                    <th scope="col">Message</th>
-                    <th scope="col" class="date d-flex justify-content-end">Date</th>
+                    <th scope="col" class="sha">SHA1</th>
+                    <th scope="col" class="message">Message</th>
+                    <th scope="col" class="date">Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -34,7 +34,7 @@
                         <label class="msg">{{ c.message }}</label>
                     </td>
                     <td class="date">
-                        <label>{{ c.timestamp }}</label>
+                        <label>{{ formatDate(c.timestamp) }}</label>
                     </td>
                 </tr>
             </tbody>
@@ -67,6 +67,11 @@ export default {
             } catch ($e) {
                 console.log('cannot copy')
             }
+        },
+
+        formatDate(dateStr) {
+            let arr = dateStr.split("T");
+            return `${arr[0]} ${arr[1].slice(0, 5)}`
         }
     }
 }
@@ -94,7 +99,15 @@ div {
 }
 
 .date {
+    width: 120px;
+}
+
+.sha {
     width: 100px;
+}
+
+td.date {
+    font-size: small;
 }
 
 .avatar {

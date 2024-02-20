@@ -12,4 +12,8 @@ const getOne = (repoName, pullId) => {
     return api.get(`pr/get/${repoName}/${pullId}/`);
 }
 
-export default { create, getAll, getOne };
+const getPossibleAssignees = (repoName) => {
+    return api.get(`pr/assignees/${repoName}/`);
+}
+
+export default { create, getAll, getOne, getPossibleAssignees };

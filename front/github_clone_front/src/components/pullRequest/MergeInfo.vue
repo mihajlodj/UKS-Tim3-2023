@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="!pull.can_be_merged" class="d-flex justify-content-start">
+        <div v-if="!pull.mergeable" class="d-flex justify-content-start">
             <div class="warn d-flex justify-content-center mt-1">
                 <font-awesome-icon icon="fa-solid fa-triangle-exclamation" class="mt-1"></font-awesome-icon>
             </div>
@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <button class="merge my-2 py-2 px-3" :disabled="!pull.can_be_merged">
+        <button class="merge my-2 py-2 px-3" :disabled="!pull.mergeable">
             Merge pull request
         </button>
     </div>

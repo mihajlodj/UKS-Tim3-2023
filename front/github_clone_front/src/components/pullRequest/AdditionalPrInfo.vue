@@ -14,11 +14,20 @@
         <div ref="assignees">
             <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100"
                 @click="openModal('assignees')">
-                <label class="muted hoverable">Asignees</label>
+                <label class="muted hoverable">Assignee</label>
                 <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
             </button>
-            <label v-if="assignees.length == 0" class="bright small">No one</label>
-            <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('assignees')" />
+            <label v-if="!assignee" class="bright small">No one</label>
+            <div v-else class="mt-1 d-flex justify-content-between">
+                <button type="button" class="btn-assignee w-100 d-flex justify-content-start">
+                    <img class="avatar mt-1 me-1" :src="assignee.avatar"/>
+                    <label class="bright hoverable">{{ assignee.username }}</label>
+                </button>
+                <button type="button" class="btn-remove">
+                    <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeAssignee" />
+                </button>
+            </div>
+            <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW" @chooseAssignee="chooseAssignee" @closeModal="toggleModal('assignees')" />
         </div>
         <hr class="muted" />
 
@@ -45,7 +54,7 @@
                     <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeMilestone" />
                 </button>
             </div>
-            <MilestoneModal v-if="showModal['milestone']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('milestone')" @milestoneChosen="milestoneChosen" />
+            <MilestoneModal v-if="showModal['milestone']" :key="milestoneKey" :x="modalX" :y="modalY" :w="modalW" :chosen="chosenMilestone" @closeModal="toggleModal('milestone')" @milestoneChosen="milestoneChosen" />
         </div>
     </div>
 </template>
@@ -58,11 +67,16 @@ import MilestoneModal from "@/components/pullRequest/modals/MilestoneModal.vue"
 
 export default {
     name: "AdditionalPrInfo",
+    props: ["chosenMilestone", "chosenAssignee"],
     components: {
         ReviewersModal,
         AssigneesModal,
         LabelsModal,
         MilestoneModal
+    },
+    mounted() {
+        this.milestone = this.chosenMilestone;
+        this.assignee = this.chosenAssignee;
     },
     data() {
         return {
@@ -78,7 +92,9 @@ export default {
             reviews: [],
             assignees: [],
             labels: [],
-            milestone: null
+            milestone: null,
+            milestoneKey: 1,
+            assignee: null
         }
     },
 
@@ -108,6 +124,17 @@ export default {
         removeMilestone() {
             this.milestone = null;
             this.$emit('updateMilestone', this.milestone);
+        },
+
+        chooseAssignee(data) {
+            this.assignee = data;
+            this.toggleModal("assignees");
+            this.$emit('updateAssignee', this.assignee);
+        },
+
+        removeAssignee() {
+            this.assignee = null;
+            this.$emit('updateAssignee', this.assignee);
         }
     }
 }
@@ -143,5 +170,15 @@ hr {
 .btn-remove {
     background: none;
     border: none;
+}
+
+.avatar {
+    height: 20px;
+    border-radius: 50%;
+}
+
+.btn-assignee {
+    border: none;
+    background: none;
 }
 </style>

@@ -113,6 +113,17 @@ def get_one(request, repository_name, pull_id):
     return Response(result, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def get_possible_assignees(request, repository_name):
+    result = []
+    works_on_list = WorksOn.objects.filter(project__name=repository_name)
+    for obj in works_on_list:
+        if obj.role != Role.IS_BANNED:
+            result.append({'username': obj.developer.user.username, 'avatar': get_dev_avatar(obj.developer.user.username)})
+    return Response(result, status=status.HTTP_200_OK)
+
+
 def get_dev_avatar(username):
     developer = Developer.objects.get(user__username=username)
     if developer.avatar is None:

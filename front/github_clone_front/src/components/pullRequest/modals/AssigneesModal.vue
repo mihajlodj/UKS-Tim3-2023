@@ -4,18 +4,39 @@
         <hr class="muted" />
         <input type="text" v-model="search" class="w-100 p-2 muted" placeholder="Type or choose a user"/>
         <hr class="muted" />
-        <label class="mb-1 muted">Nothing to show</label>
+        <label v-if="available.length === 0" class="mb-1 muted">Nothing to show</label>
+        <div v-else class="hoverable">
+            <button v-for="a in available" :key="a.username" class="btn-assignee w-100 d-flex justify-content-start p-2" @click="chooseAssignee(a)">
+                <img class="avatar mt-1 me-1" :src="a.avatar"/>
+                <label class="bright hoverable">{{ a.username }}</label>
+            </button>
+        </div>
     </div>
 </template>
 
 <script>
+import PullRequestService from "@/services/PullRequestService"
+
 export default {
     name: "AssigneesModal",
-    props: ["x", "y", "w"],
+    props: ["x", "y", "w", "assignee"],
+
+    mounted() {
+        if (this.assignee) {
+            this.chosenAssignee = this.assignee;
+        }
+        PullRequestService.getPossibleAssignees(this.$route.params.repoName).then(res => {
+            this.available = res.data;
+        }).catch(err => {
+            console.log(err);
+        });
+    },
 
     data() {
         return {
-            search: ''
+            search: '',
+            available: [],
+            chosenAssignee: null
         }
     },
 
@@ -28,6 +49,10 @@ export default {
                     name: 'assignees'
                 });
             }
+        },
+
+        chooseAssignee(assignee) {
+            this.$emit('chooseAssignee', assignee);
         }
     }
 }
@@ -63,5 +88,19 @@ input {
 
 .small {
     font-size: small;
+}
+
+.avatar {
+    height: 20px;
+    border-radius: 50%;
+}
+
+.btn-assignee {
+    border: none;
+    background: none;
+}
+
+.hoverable:hover {
+    cursor: pointer;
 }
 </style>
