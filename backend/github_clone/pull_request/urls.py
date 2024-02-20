@@ -8,4 +8,6 @@ urlpatterns = [
     path('assignees/<str:repository_name>/', get_possible_assignees, name='get_possible_assignees'),
     path('update/<str:repository_name>/<int:pull_id>/', update, name='update'),
     path('title/<str:repository_name>/<int:pull_id>/', update_title, name='update_title'),
+    path('close/<str:repository_name>/<int:pull_id>/', close, name='close'),
+    path('reopen/<str:repository_name>/<int:pull_id>/', reopen, name='reopen'),
 ]

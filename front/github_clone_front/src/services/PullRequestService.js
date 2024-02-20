@@ -24,4 +24,12 @@ const updateTitle = (repoName, pullId, data) => {
     return api.post(`pr/title/${repoName}/${pullId}/`, data);
 }
 
-export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle };
+const close = (repoName, pullId) => {
+    return api.post(`pr/close/${repoName}/${pullId}/`);
+}
+
+const reopen = (repoName, pullId) => {
+    return api.post(`pr/reopen/${repoName}/${pullId}/`);
+}
+
+export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, close, reopen };

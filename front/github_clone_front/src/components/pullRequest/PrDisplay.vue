@@ -71,11 +71,11 @@
                         <h5 class="bright">Add a comment</h5>
                         <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
                         <div class="w-100 d-flex justify-content-end mt-2">
-                            <button v-if="pull.status === 'Open'" type="button" class="btn-close-pr bright p-2 me-2">
+                            <button v-if="pull.status === 'Open'" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
                                 <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
                                 Close pull request
                             </button>
-                            <button v-if="pull.status === 'Closed'" type="button" class="btn-close-pr bright p-2 me-2">
+                            <button v-if="pull.status === 'Closed'" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
                                 Reopen pull request
                             </button>
                             <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
@@ -93,7 +93,7 @@
             </div>
 
             <div class="w-25">
-                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
                 <hr class="bright"/>
                 <div class="w-100 d-flex justify-content-end mt-3">
                     <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -183,7 +183,7 @@ export default {
         },
 
         update() {
-            let data = {'milestone_id': this.pull.milestone.id, 'assignee_id': this.pull.assignee.id};
+            let data = {'milestone_id': this.pull.milestone.id, 'assignee_username': this.pull.assignee.username};
             PullRequestService.update(this.$route.params.repoName, this.$route.params.id, data).then(res => {
                 console.log(res);
                 toast("Changes saved!", {
@@ -213,7 +213,23 @@ export default {
                     });
                 });
             }      
-        }
+        },
+
+        close() {
+            PullRequestService.close(this.$route.params.repoName, this.$route.params.id).then(res => {
+                this.pull.status = res.data;
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+
+        reopen() {
+            PullRequestService.reopen(this.$route.params.repoName, this.$route.params.id).then(res => {
+                this.pull.status = res.data;
+            }).catch(err => {
+                console.log(err);
+            });
+        },
     }
 }
 </script>

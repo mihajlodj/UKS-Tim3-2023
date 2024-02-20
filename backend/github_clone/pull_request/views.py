@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from main import gitea_service
 import json
 from main import permissions
-from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role
+from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role, PullRequestStatus
 import re
 import git
 from unidiff import PatchSet
@@ -127,7 +127,7 @@ def get_possible_assignees(request, repository_name):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def update(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists:
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     json_data = json.loads(request.body.decode('utf-8'))
@@ -153,7 +153,7 @@ def update(request, repository_name, pull_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def update_title(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists:
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     title = json.loads(request.body.decode('utf-8'))['title']
@@ -162,6 +162,31 @@ def update_title(request, repository_name, pull_id):
     req.save()
     return Response(title, status=status.HTTP_200_OK)
         
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def close(request, repository_name, pull_id):
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    if req.status != PullRequestStatus.OPEN:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    req.status = PullRequestStatus.CLOSED
+    req.save()
+    return Response(req.status, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def reopen(request, repository_name, pull_id):
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    if req.status != PullRequestStatus.CLOSED:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    req.status = PullRequestStatus.OPEN
+    req.save()
+    return Response(req.status, status=status.HTTP_200_OK)
 
 
 def get_dev_avatar(username):
