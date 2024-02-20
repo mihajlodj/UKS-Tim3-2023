@@ -88,6 +88,10 @@
 
             <div class="w-25">
                 <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
+                <hr class="bright"/>
+                <div class="w-100 d-flex justify-content-end mt-3">
+                    <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
+                </div>
             </div>
         </div>
     </div>
@@ -100,6 +104,7 @@ import MergeInfo from './MergeInfo.vue'
 import CommitsTable from '../commit/CommitsTable.vue'
 import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
+import { toast } from 'vue3-toastify';
 
 export default {
     name: "PrDisplay",
@@ -166,6 +171,21 @@ export default {
 
         setActiveTab(value) {
             this.chosenTab = value;
+        },
+
+        update() {
+            let data = {'milestone_id': this.pull.milestone.id, 'assignee_id': this.pull.assignee.id};
+            PullRequestService.update(this.$route.params.repoName, this.$route.params.id, data).then(res => {
+                console.log(res);
+                toast("Changes saved!", {
+                    autoClose: 500,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                    theme: toast.THEME.DARK
+                });
+            }).catch(err => {
+                console.log(err);
+            })
         }
     }
 }
@@ -263,5 +283,12 @@ textarea {
     background-color: #22272d;
     border: 1px solid #768491;
     border-radius: 7px;
+}
+
+.btn-save {
+    width: 120px;
+    background-color: #373e48;
+    border: 1px solid #768491;
+    border-radius: 5px;
 }
 </style>

@@ -55,7 +55,7 @@ def get_all(request, repository_name):
     result = []
     for req in requests:
         obj = {
-            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username, 'id': req.id,
+            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username, 'id': req.gitea_id,
             'labels': [], 'reviews': []
         }
         if req.milestone is not None:
@@ -78,7 +78,7 @@ def get_one(request, repository_name, pull_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(gitea_id=pull_id)
     result = {
-        'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': {'username': req.author.user.username}, 'id': req.id,
+        'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': {'username': req.author.user.username}, 'id': pull_id,
         'labels': [], 'reviews': [], 'reviewers': [], 'mergeable': req.mergable, 'base': req.target.name, 'compare': req.source.name, 
         'commits': [], 'conflicting_files': []
     }
@@ -122,6 +122,33 @@ def get_possible_assignees(request, repository_name):
         if obj.role != Role.IS_BANNED:
             result.append({'username': obj.developer.user.username, 'avatar': get_dev_avatar(obj.developer.user.username)})
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def update(request, repository_name, pull_id):
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    json_data = json.loads(request.body.decode('utf-8'))
+    if 'milestone_id' in json_data:
+        milestone_id = json_data['milestone_id']
+        if not Milestone.objects.filter(id=milestone_id).exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        milestone = Milestone.objects.get(id=milestone_id)
+        req.milestone = milestone
+    if 'assignee_username' in json_data:
+        assignee_username = json_data['assignee_username']
+        if not WorksOn.objects.filter(project__name=repository_name, developer__user__username=assignee_username).exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        works_on = WorksOn.objects.get(project__name=repository_name, developer__user__username=assignee_username)
+        if works_on.role == Role.IS_BANNED:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        developer = Developer.objects.get(user__username=assignee_username)
+        req.assignee = developer
+    req.save()
+    return Response(status=status.HTTP_200_OK)
+        
 
 
 def get_dev_avatar(username):
