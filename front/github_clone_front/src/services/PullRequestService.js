@@ -32,4 +32,12 @@ const reopen = (repoName, pullId) => {
     return api.post(`pr/reopen/${repoName}/${pullId}/`);
 }
 
-export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, close, reopen };
+const markClosed = (repoName, data) => {
+    return api.post(`pr/mark_closed/${repoName}/`, data);
+}
+
+const markOpen = (repoName, data) => {
+    return api.post(`pr/mark_open/${repoName}/`, data);
+}
+
+export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, close, reopen, markOpen, markClosed };

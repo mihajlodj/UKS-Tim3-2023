@@ -14,7 +14,7 @@
                 <div class="container mt-3" id="pulls-table">
                     <div class="row my-2">
                         <div class="col-1 check ms-2">
-                            <input type="checkbox" />
+                            <input type="checkbox" v-model="allSelected" @input="setAllChecked"/>
                         </div>
                         <div class="col-5 d-flex justify-content-start">
                             <button type="button" class="btn-num-req me-2" @click="setOpenPullsChosen">
@@ -24,6 +24,22 @@
                                 <label :class="!openPullsChosen ? 'num-req-active' : 'num-req'">{{ closedPulls.length }} Closed</label>
                             </button>
                         </div>
+
+                        <div class="col" v-if="!selected.every(value => value === false)">
+                            <button class="nav-link dropdown-toggle bright me-2" type="button" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Mark as
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <button class="dropdown-item btn-mark-as" @click="markOpened">Open</button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item btn-mark-as" @click="markClosed">Closed</button>
+                                </li>
+                            </ul>
+                        </div>
+
                         <div class="col criterium d-flex justify-content-center">
                             Author
                         </div>
@@ -44,10 +60,10 @@
                         </div>
                     </div>
 
-                    <div v-for="pull in pulls" :key="pull.id" class="row my-1">
+                    <div v-for="pull, i in pulls" :key="pull.id" class="row my-1">
                         <hr />
                         <div class="col-1 check ms-2">
-                            <input type="checkbox" />
+                            <input type="checkbox" v-model="selected[i]" @input="setChecked(i)" />
                         </div>
 
                         <div class="col-5">
@@ -98,11 +114,12 @@ export default {
     },
 
     mounted() {
+        /* eslint-disable */
         PullRequestService.getAll(this.$route.params.repoName).then(res => {
-            console.log(res.data);
             this.openPulls = res.data.filter(x => x.status === "Open");
             this.closedPulls = res.data.filter(x => x.status !== "Open");
             this.pulls = this.openPulls;
+            this.selected = this.pulls.map(x => false);
         }).catch(err => {
             console.log(err);
         });
@@ -113,7 +130,9 @@ export default {
             pulls: [],
             openPulls: [],
             closedPulls: [],
-            openPullsChosen: true
+            openPullsChosen: true,
+            selected: [],
+            allSelected: false
         }
     },
 
@@ -125,11 +144,88 @@ export default {
         setOpenPullsChosen() {
             this.pulls = this.openPulls;
             this.openPullsChosen = true;
+            this.unselect();
         },
 
         setClosedPullsChosen() {
             this.pulls = this.closedPulls;
             this.openPullsChosen = false;
+            this.unselect();
+        },
+
+        setChecked(i) {
+            this.selected[i] = !this.selected[i];
+            if (this.selected.every(value => value === true)) {
+                this.allSelected = true;
+            } else {
+                this.allSelected = false;
+            }
+        },
+
+        setAllChecked() {
+            this.allSelected = !this.allSelected;
+            if (this.allSelected) {
+                this.selected.fill(true);
+            } else {
+                this.selected.fill(false);
+            }
+        },
+
+        markClosed() {
+            if (this.openPullsChosen) {
+                let ids = []
+                this.selected.forEach((value, index) => {
+                    if (value) ids.push(this.pulls[index].id);
+                });
+                PullRequestService.markClosed(this.$route.params.repoName, {ids}).then(res => {
+                    console.log(res);
+                    let remainingObjects = this.openPulls.filter(obj => {
+                        if (ids.includes(obj.id)) {
+                            obj.status = "Closed";
+                            this.closedPulls.push(obj);
+                            return false;
+                        }
+                        return true;
+                    });
+                    this.openPulls = remainingObjects;
+                    this.pulls = this.closedPulls;
+                    this.unselect()
+                    this.openPullsChosen = false;
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        },
+
+        markOpened() {
+            if (!this.openPullsChosen) {
+                let ids = []
+                this.selected.forEach((value, index) => {
+                    if (value) ids.push(this.pulls[index].id);
+                });
+                PullRequestService.markOpen(this.$route.params.repoName, {ids}).then(res => {
+                    console.log(res);
+                    let remainingObjects = this.closedPulls.filter(obj => {
+                        if (ids.includes(obj.id)) {
+                            obj.status = "Open";
+                            this.openPulls.push(obj);
+                            return false;
+                        }
+                        return true;
+                    });
+                    this.closedPulls = remainingObjects;
+                    this.pulls = this.openPulls;
+                    this.unselect();
+                    this.openPullsChosen = true;
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        },
+
+        unselect() {
+            this.selected.fill(false);
+            this.allSelected = false;
         }
     }
 }
@@ -148,6 +244,20 @@ export default {
     border: none;
 }
 
+.btn-mark-as {
+    background-color: #2c333b;
+    color: #adbbc8;
+}
+
+.dropdown-menu {
+    background-color: #2c333b;
+}
+
+.btn-mark-as:hover {
+    background-color: #3a434e;
+    color: #adbbc8;
+}
+
 .img-pr {
     height: 18px;
 }
@@ -163,6 +273,10 @@ hr {
     color: #adbbc8;
 }
 
+.nav-link:hover {
+    color: #adbbc8;
+}
+
 .num-req {
     color: #768491;
 }
@@ -175,10 +289,15 @@ div.check {
     width: 40px;
 }
 
+.bright {
+    color: #adbbc8;
+}
+
 #pulls-table {
     border: 1px solid #768491;
     width: 100%;
     border-radius: 7px;
+    background-color: #2c333b;
 }
 
 .user-icon {

@@ -1,7 +1,6 @@
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
-from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -9,8 +8,6 @@ from main import gitea_service
 import json
 from main import permissions
 from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role, PullRequestStatus
-import re
-import git
 from unidiff import PatchSet
 from io import StringIO
 
@@ -187,6 +184,32 @@ def reopen(request, repository_name, pull_id):
     req.status = PullRequestStatus.OPEN
     req.save()
     return Response(req.status, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def mark_as_open(request, repository_name):
+    pull_ids = json.loads(request.body.decode('utf-8'))['ids']
+    for id in pull_ids:
+        if PullRequest.objects.filter(project__name=repository_name, gitea_id=id).exists():
+            pull = PullRequest.objects.get(project__name=repository_name, gitea_id=id)
+            if pull.status == PullRequestStatus.CLOSED:
+                pull.status = PullRequestStatus.OPEN
+                pull.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def mark_as_closed(request, repository_name):
+    pull_ids = json.loads(request.body.decode('utf-8'))['ids']
+    for id in pull_ids:
+        if PullRequest.objects.filter(project__name=repository_name, gitea_id=id).exists():
+            pull = PullRequest.objects.get(project__name=repository_name, gitea_id=id)
+            if pull.status == PullRequestStatus.OPEN:
+                pull.status = PullRequestStatus.CLOSED
+                pull.save()
+    return Response(status=status.HTTP_200_OK)
 
 
 def get_dev_avatar(username):
