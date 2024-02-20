@@ -88,7 +88,7 @@
                 </div>
 
                 <div v-if="chosenTab === 'files'">
-
+                    <ChangedFiles :diff="pull.diff" />
                 </div>
             </div>
 
@@ -110,6 +110,7 @@ import MergeInfo from './MergeInfo.vue'
 import CommitsTable from '../commit/CommitsTable.vue'
 import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
+import ChangedFiles from "./ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -119,7 +120,8 @@ export default {
         AdditionalPrInfo,
         MergeInfo,
         CommitsTable,
-        StatusPill
+        StatusPill,
+        ChangedFiles
     },
 
     mounted() {
