@@ -148,6 +148,19 @@ def update(request, repository_name, pull_id):
         req.assignee = developer
     req.save()
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def update_title(request, repository_name, pull_id):
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    title = json.loads(request.body.decode('utf-8'))['title']
+    print(title)
+    req.title = title
+    req.save()
+    return Response(title, status=status.HTTP_200_OK)
         
 
 

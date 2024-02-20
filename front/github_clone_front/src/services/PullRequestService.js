@@ -20,4 +20,8 @@ const update = (repoName, pullId, data) => {
     return api.post(`pr/update/${repoName}/${pullId}/`, data);
 }
 
-export default { create, getAll, getOne, getPossibleAssignees, update };
+const updateTitle = (repoName, pullId, data) => {
+    return api.post(`pr/title/${repoName}/${pullId}/`, data);
+}
+
+export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle };

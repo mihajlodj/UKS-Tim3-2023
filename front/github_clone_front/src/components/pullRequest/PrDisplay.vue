@@ -2,14 +2,20 @@
     <div class="background is-fullheight min-vh-100">
         <RepoNavbar starting="pullRequests" />
         <div class="d-flex justify-content-between px-5 pt-4">
-            <div class="d-flex justify-content-start">
+            <div v-if="!editingTitle" class="d-flex justify-content-start">
                 <h2 class="bright me-2">{{ pull.title }}</h2>
                 <h2 class="muted">#{{ pull.id }}</h2>
             </div>
+            <div v-else class="w-100">
+                <input type="text" v-model="newTitle" class="edit" />
+            </div>
 
             <div class="d-flex justify-content-end">
-                <button type="button" class="btn-edit-title bright me-2">
+                <button v-if="!editingTitle" type="button" class="btn-edit-title bright me-2" @click="() => editingTitle = true">
                     Edit
+                </button>
+                <button v-else type="button" class="btn-save bright me-2" @click="updateTitle">
+                    Save changes
                 </button>
                 <button type="button" class="btn-review bright">
                     Review
@@ -122,6 +128,7 @@ export default {
             this.pull = res.data;
             this.mergeDataKey += 1;
             this.additionalInfoKey += 1;
+            this.newTitle = this.pull.title;
         }).catch(err => {
             console.log(err);
         });
@@ -149,7 +156,9 @@ export default {
             mergeDataKey: 1,
             chosenTab: "conversation",
             newComment: "",
-            additionalInfoKey: 1
+            additionalInfoKey: 1,
+            newTitle: "",
+            editingTitle: false
         }
     },
 
@@ -185,7 +194,25 @@ export default {
                 });
             }).catch(err => {
                 console.log(err);
-            })
+            });
+        },
+
+        updateTitle() {
+            if (this.newTitle.trim() !== "") {
+                this.editingTitle = false;
+                let data = {"title": this.newTitle};
+                PullRequestService.updateTitle(this.$route.params.repoName, this.$route.params.id, data).then(res => {
+                    this.pull.title = res.data;
+                }).catch(err => {
+                    console.log(err);
+                    toast("Unable to update!", {
+                        autoClose: 500,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+            }      
         }
     }
 }
@@ -204,13 +231,22 @@ export default {
     color: #768491;
 }
 
+
+input.edit {
+    width: 75%;
+    height: 40px;
+    border-radius: 5px;
+    background-color: #1c2127;
+    color: #adbbc8;
+    border: 1px solid #768491;
+}
 .pr-icon {
     height: 17px;
 }
 
 .btn-edit-title,
 .btn-review {
-    height: 35px;
+    height: 40px;
     width: 70px;
     background-color: #373e48;
     border: 1px solid #768491;
