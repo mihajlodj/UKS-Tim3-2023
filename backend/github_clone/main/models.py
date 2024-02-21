@@ -165,6 +165,7 @@ class PullRequest(models.Model):
     description = models.TextField(blank=True, null=True)
     gitea_id = models.IntegerField(null=True)
     mergeable = models.BooleanField(null=True)
+    merged_by = models.ForeignKey(Developer, null=True, blank=True, related_name='pull_requests_merged_by', on_delete=models.DO_NOTHING)
 
 
 class RegistrationCandidate(models.Model):

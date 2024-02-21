@@ -218,6 +218,7 @@ def get_pull_request_diff(owner, repository_name, pull_id):
     return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
 def merge_pull_request(owner, repository_name, pull_id):
-    data = { 'Do': 'merge' }
+    data = { 'Do': 'merge', 'MergeCommitID': 'f55da258a202abdb26eb4be298997956b776819d', 'delete_branch_after_merge': False }
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/merge'
-    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
+    print(response.status_code)

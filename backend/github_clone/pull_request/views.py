@@ -11,6 +11,7 @@ from main import permissions
 from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role, PullRequestStatus
 from unidiff import PatchSet
 from io import StringIO
+import re
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
@@ -72,7 +73,7 @@ def get_all(request, repository_name):
 def get_one(request, repository_name, pull_id):
     
     # *** Basic data
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists:
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(gitea_id=pull_id)
     result = {
@@ -96,7 +97,7 @@ def get_one(request, repository_name, pull_id):
             'hash': commit_data['sha'],
             'message': commit_data['commit']['message'],
             'timestamp': commit_data['created'],
-            'author': {'username': commit_data['author']['login'], 'avatar': get_dev_avatar(commit_data['author']['login'])},
+            'author': get_commit_author(commit_data['author']['login'], commit_data['commit']['message']),
             'files': commit_data['files'],
             'stats': commit_data['stats']
         })
@@ -221,7 +222,9 @@ def merge(request, repository_name, pull_id):
     if req.status != PullRequestStatus.OPEN or not req.mergeable:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.MERGED
-    req.timestamp = timezone.localtime(timezone.now())
+    # req.timestamp = timezone.localtime(timezone.now())
+    merged_by = Developer.objects.get(user__username=request.user.username)
+    req.merged_by = merged_by
     req.save()
     owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
     gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
@@ -263,3 +266,19 @@ def parse_diff(diff_text):
             'mode': mode
         })
     return diff, overall_additions, overall_deletions
+
+
+def get_pull_request_from_merge_commit(msg):
+    pattern = r'\(#(\d+)\)'
+    matches = re.findall(pattern, msg)
+    if matches:
+        pull_id = int(matches[0])
+        return PullRequest.objects.get(gitea_id=pull_id)
+    else:
+        print("No number found in brackets")
+
+def get_commit_author(username, msg):
+    if Developer.objects.filter(user__username=username).exists():
+        return {'username': username, 'avatar': get_dev_avatar(username)}
+    req = get_pull_request_from_merge_commit(msg)
+    return {'username': req.merged_by.user.username, 'avatar': get_dev_avatar(req.merged_by.user.username)}
