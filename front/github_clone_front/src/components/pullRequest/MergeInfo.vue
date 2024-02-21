@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <button class="merge my-2 py-2 px-3" :disabled="!pull.mergeable">
+        <button class="merge my-2 py-2 px-3" :disabled="!pull.mergeable" @click="merge">
             Merge pull request
         </button>
     </div>

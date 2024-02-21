@@ -17,27 +17,32 @@ const getPossibleAssignees = (repoName) => {
 }
 
 const update = (repoName, pullId, data) => {
-    return api.post(`pr/update/${repoName}/${pullId}/`, data);
+    return api.put(`pr/update/${repoName}/${pullId}/`, data);
 }
 
 const updateTitle = (repoName, pullId, data) => {
-    return api.post(`pr/title/${repoName}/${pullId}/`, data);
+    return api.put(`pr/title/${repoName}/${pullId}/`, data);
 }
 
 const close = (repoName, pullId) => {
-    return api.post(`pr/close/${repoName}/${pullId}/`);
+    return api.put(`pr/close/${repoName}/${pullId}/`);
 }
 
 const reopen = (repoName, pullId) => {
-    return api.post(`pr/reopen/${repoName}/${pullId}/`);
+    return api.put(`pr/reopen/${repoName}/${pullId}/`);
 }
 
 const markClosed = (repoName, data) => {
-    return api.post(`pr/mark_closed/${repoName}/`, data);
+    return api.put(`pr/mark_closed/${repoName}/`, data);
 }
 
 const markOpen = (repoName, data) => {
-    return api.post(`pr/mark_open/${repoName}/`, data);
+    return api.put(`pr/mark_open/${repoName}/`, data);
 }
 
-export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, close, reopen, markOpen, markClosed };
+const merge = (repoName, pullId) => {
+    return api.put(`pr/merge/${repoName}/${pullId}/`);
+}
+
+export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, 
+    close, reopen, markOpen, markClosed, merge };

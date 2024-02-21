@@ -216,3 +216,8 @@ def get_pull_request_changed_files(owner, repository_name, pull_id):
 def get_pull_request_diff(owner, repository_name, pull_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}.diff'
     return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def merge_pull_request(owner, repository_name, pull_id):
+    data = { 'Do': 'merge' }
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/merge'
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)

@@ -12,4 +12,5 @@ urlpatterns = [
     path('reopen/<str:repository_name>/<int:pull_id>/', reopen, name='reopen'),
     path('mark_closed/<str:repository_name>/', mark_as_closed, name='mark_closed'),
     path('mark_open/<str:repository_name>/', mark_as_open, name='mark_open'),
+    path('merge/<str:repository_name>/<int:pull_id>/', merge, name='merge'),
 ]

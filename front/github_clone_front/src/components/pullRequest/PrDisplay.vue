@@ -56,6 +56,9 @@
             <div :class="chosenTab === 'conversation'? 'w-75 pe-5' : 'w-100 pe-5'">
                 <div v-if="chosenTab === 'conversation'">
                     <div>
+                        <div v-if="pull.description" class="description w-100 mt-2">
+                            <label class="bright">{{ pull.description }}</label>
+                        </div>
                         Events - labels, milestones, assigning, reviewing, closing, opening
                     </div>
 
@@ -64,7 +67,7 @@
                     <hr class="bright" />
 
                     <div v-if="pull.status === 'Open'" class="mt-4 merge">
-                        <MergeInfo :key="mergeDataKey" :pull="pull" />
+                        <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
                     <div class="mt-3">
@@ -232,6 +235,14 @@ export default {
                 console.log(err);
             });
         },
+
+        merge() {
+            PullRequestService.merge(this.$route.params.repoName, this.$route.params.id).then(res => {
+                console.log(res);
+            }).catch(err => {
+                console.log(err);
+            });
+        }
     }
 }
 </script>
@@ -243,6 +254,14 @@ export default {
 
 .bright {
     color: #adbbc8;
+}
+
+.description {
+    min-height: 100px;
+    background: none;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #0298db;
 }
 
 .muted {

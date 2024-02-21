@@ -38,7 +38,7 @@ def create(request, owner_username, repository_name):
             pull.save()
         id = response.json()['id']
         pull.gitea_id = id
-        pull.mergable = response.json()['mergeable']
+        pull.mergeable = response.json()['mergeable']
         pull.save()
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
@@ -76,8 +76,8 @@ def get_one(request, repository_name, pull_id):
     req = PullRequest.objects.get(gitea_id=pull_id)
     result = {
         'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': {'username': req.author.user.username}, 'id': pull_id,
-        'labels': [], 'reviews': [], 'reviewers': [], 'mergeable': req.mergable, 'base': req.target.name, 'compare': req.source.name, 
-        'commits': [], 'conflicting_files': []
+        'labels': [], 'reviews': [], 'reviewers': [], 'mergeable': req.mergeable, 'base': req.target.name, 'compare': req.source.name, 
+        'commits': [], 'conflicting_files': [], 'description': req.description
     }
     if req.milestone is not None:
         result['milestone'] = {'id': req.milestone.id, 'title': req.milestone.title}
@@ -121,7 +121,7 @@ def get_possible_assignees(request, repository_name):
     return Response(result, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def update(request, repository_name, pull_id):
     if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
@@ -147,7 +147,7 @@ def update(request, repository_name, pull_id):
     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def update_title(request, repository_name, pull_id):
     if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
@@ -160,7 +160,7 @@ def update_title(request, repository_name, pull_id):
     return Response(title, status=status.HTTP_200_OK)
         
     
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def close(request, repository_name, pull_id):
     if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
@@ -173,7 +173,7 @@ def close(request, repository_name, pull_id):
     return Response(req.status, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def reopen(request, repository_name, pull_id):
     if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
@@ -186,7 +186,7 @@ def reopen(request, repository_name, pull_id):
     return Response(req.status, status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def mark_as_open(request, repository_name):
     pull_ids = json.loads(request.body.decode('utf-8'))['ids']
@@ -199,7 +199,7 @@ def mark_as_open(request, repository_name):
     return Response(status=status.HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def mark_as_closed(request, repository_name):
     pull_ids = json.loads(request.body.decode('utf-8'))['ids']
@@ -211,6 +211,19 @@ def mark_as_closed(request, repository_name):
                 pull.save()
     return Response(status=status.HTTP_200_OK)
 
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
+def merge(request, repository_name, pull_id):
+    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    if req.status != PullRequestStatus.OPEN or not req.mergeable:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
+    gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
+    return Response(status=status.HTTP_200_OK)
+    
 
 def get_dev_avatar(username):
     developer = Developer.objects.get(user__username=username)

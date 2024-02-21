@@ -164,7 +164,7 @@ class PullRequest(models.Model):
     title = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True, null=True)
     gitea_id = models.IntegerField(null=True)
-    mergable = models.BooleanField(null=True)
+    mergeable = models.BooleanField(null=True)
 
 
 class RegistrationCandidate(models.Model):
