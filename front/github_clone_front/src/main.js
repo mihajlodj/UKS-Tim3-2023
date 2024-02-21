@@ -130,7 +130,7 @@ const routes = [
         component:ListMilestoneComponent
     },
     {
-        path: "/view/:username/:repoName/compare/:dest/:src",
+        path: "/view/:username/:repoName/compare",
         component: CreatePrPage
     },
     {

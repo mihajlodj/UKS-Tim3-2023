@@ -55,8 +55,6 @@ export default {
     },
 
     mounted() {
-        this.baseName = this.$route.params.dest;
-        this.compareName = this.$route.params.src;
         this.title = this.compareName;
     },
 

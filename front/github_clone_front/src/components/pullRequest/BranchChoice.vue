@@ -23,17 +23,19 @@
 </template>
 
 <script>
+import BranchService from '@/services/BranchService';
+
 export default {
     name: 'BranchChoice',
     props: ['type'],
 
     mounted() {
-        if (this.type === "base") {
-            this.chosenBranch = this.$route.params.dest;
-        }
-        else if (this.type === "compare") {
-            this.chosenBranch = this.$route.params.src;
-        }
+        BranchService.getAllBranches(this.$route.params.repoName).then(res => {
+            this.branches = res.data;
+            this.chosenBranch = res.data[0].name;
+        }).catch(err => {
+            console.log(err);
+        });
     },
 
     data() {
@@ -41,7 +43,7 @@ export default {
             dest: "",
             src: "",
             chosenBranch: "",
-            branches: [{name: "main"}, {name: "develop"}],
+            branches: [],
         }
     },
 
