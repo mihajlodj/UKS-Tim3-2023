@@ -239,6 +239,13 @@ export default {
         merge() {
             PullRequestService.merge(this.$route.params.repoName, this.$route.params.id).then(res => {
                 console.log(res);
+                this.pull.status = "Merged";
+                toast("Pull request merged!", {
+                    autoClose: 500,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                    theme: toast.THEME.DARK
+                });
             }).catch(err => {
                 console.log(err);
             });

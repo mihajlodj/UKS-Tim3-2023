@@ -69,8 +69,8 @@
                         <div class="col-5">
                             <div class="d-flex justify-content-start">
                                 <img v-if="pull.status === 'Open'" alt="pr" src="../../assets/open_pr_green.png" class="img-pr mt-1 me-2" />
-                                <img v-if="pull.status === 'Merged'" alt="pr" src="../../assets/merged_pr_purple.png" class="img-pr me-2" />
-                                <img v-if="pull.status === 'Closed'" alt="pr" src="../../assets/closed_pr_red.png" class="img-pr me-2" />
+                                <img v-if="pull.status === 'Merged'" alt="pr" src="../../assets/merged_pr_purple.png" class="img-pr mt-1 me-2" />
+                                <img v-if="pull.status === 'Closed'" alt="pr" src="../../assets/closed_pr_red.png" class="img-pr mt-1 me-2" />
                                 <button type="button" class="btn-link">
                                     <h5 class="me-2">{{ pull.title }}</h5>
                                 </button>

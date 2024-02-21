@@ -1,3 +1,4 @@
+from datetime import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
@@ -154,7 +155,6 @@ def update_title(request, repository_name, pull_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     title = json.loads(request.body.decode('utf-8'))['title']
-    print(title)
     req.title = title
     req.save()
     return Response(title, status=status.HTTP_200_OK)
@@ -220,6 +220,9 @@ def merge(request, repository_name, pull_id):
     req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     if req.status != PullRequestStatus.OPEN or not req.mergeable:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    req.status = PullRequestStatus.MERGED
+    req.timestamp = timezone.localtime(timezone.now())
+    req.save()
     owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
     gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
     return Response(status=status.HTTP_200_OK)
