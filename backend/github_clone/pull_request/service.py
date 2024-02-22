@@ -1,20 +1,15 @@
 from django.http import Http404
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.response import Response
 from main import gitea_service
 from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role
 import re
-import json
 
 def get_pull_title(json_data):
     if 'title' not in json_data:
         return json_data['compare']
     return json_data['title']
 
-def save_pull_request(request, repository_name, response):
-    json_data = json.loads(request.body.decode('utf-8'))
-    author = Developer.objects.get(user__username=request.user.username)
+def save_pull_request(author_username, repository_name, json_data, response):
+    author = Developer.objects.get(user__username=author_username)
     src = Branch.objects.get(name=json_data['compare'], project__name=repository_name)
     dest = Branch.objects.get(name=json_data['base'], project__name=repository_name)
     project = Project.objects.get(name=repository_name)   

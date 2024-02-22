@@ -2,6 +2,7 @@ from unidiff import PatchSet
 from io import StringIO
 
 def parse_diff(diff_text):
+    print(diff_text)
     patch_set = PatchSet(StringIO(diff_text))
     diff = []
     overall_additions = 0

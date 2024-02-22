@@ -1,4 +1,3 @@
-from django.http import Http404
 from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -7,8 +6,8 @@ from rest_framework.decorators import api_view, permission_classes
 from main import gitea_service, permissions
 import json
 from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus
-from pull_request import diff_parser
-from pull_request import service
+from pull_request import diff_parser, service
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
@@ -22,7 +21,7 @@ def create(request, owner_username, repository_name):
         return Response(status=status.HTTP_404_NOT_FOUND)
     response = gitea_service.create_pull_request(owner_username, repository_name, {'base': json_data['base'], 'head': json_data['compare'], 'title': service.get_pull_title(json_data)})
     if response.status_code == 201:
-        id = service.save_pull_request(request, repository_name, response)
+        id = service.save_pull_request(request.user.username, repository_name, json_data, response)
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
