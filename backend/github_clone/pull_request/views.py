@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
@@ -19,6 +19,8 @@ def create(request, owner_username, repository_name):
     json_data = json.loads(request.body.decode('utf-8'))
     base_name = json_data['base']
     compare_name = json_data['compare']
+    if PullRequest.objects.filter(project__name=repository_name, source__name=compare_name, target__name=base_name):
+        return Response("Pull request already exists", status=status.HTTP_400_BAD_REQUEST)
     title = json_data['title']
     description = json_data['description']
     if not title:
@@ -159,9 +161,11 @@ def update_title(request, repository_name, pull_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     title = json.loads(request.body.decode('utf-8'))['title']
-    req.title = title
-    req.save()
-    return Response(title, status=status.HTTP_200_OK)
+    if title.strip() != '':
+        req.title = title
+        req.save()
+        return Response(title, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
         
     
 @api_view(['PUT'])
@@ -225,7 +229,7 @@ def merge(request, repository_name, pull_id):
     if req.status != PullRequestStatus.OPEN or not req.mergeable:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.MERGED
-    # req.timestamp = timezone.localtime(timezone.now())
+    req.timestamp = timezone.localtime(timezone.now())
     merged_by = Developer.objects.get(user__username=request.user.username)
     req.merged_by = merged_by
     req.save()
