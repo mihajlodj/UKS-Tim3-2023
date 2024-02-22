@@ -6,7 +6,7 @@
         <repository-list :repositories="repositories" />
       </div>
       <div class="middle-section">
-        
+        <router-view name="middle_section"></router-view>
       </div>
     </div>
   </div>
@@ -15,11 +15,19 @@
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import RepositoryList from '../util/MainPageUtil/RepositoryList.vue';
+import RepositoryService from '@/services/RepositoryService';
 
 export default {
   components: {
     NavBar,
     RepositoryList
+  },
+  mounted() {
+    console.log(localStorage.getItem('username'));
+    RepositoryService.getAllUserRepos(localStorage.getItem('username')).then((res) => {
+      console.log(res);
+      this.repositories = res.data;
+    })
   },
   data() {
     return {

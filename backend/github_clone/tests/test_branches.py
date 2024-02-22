@@ -1,5 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
+
+from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -56,6 +58,14 @@ def test_get_all_branches(get_token):
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 4
 
+@pytest.fixture(autouse=True)
+def disable_gitea_create_branch(monkeypatch):
+    def mock_gitea_create_branch(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'create_branch', mock_gitea_create_branch)
+    yield
+
 @pytest.mark.django_db
 def test_create_branch_success(get_token):
     url = f'/branch/create/{username1}/{repo_name}/'
@@ -98,6 +108,14 @@ def test_create_branch_invalid_parent(get_token):
     response = client.post(url, data, headers=headers)
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert Branch.objects.count() == 4
+
+@pytest.fixture(autouse=True)
+def disable_gitea_delete_branch(monkeypatch):
+    def mock_gitea_delete_branch(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'delete_branch', mock_gitea_delete_branch)
+    yield
 
 @pytest.mark.django_db
 def test_delete_branch_success(get_token):

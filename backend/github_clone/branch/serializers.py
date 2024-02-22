@@ -3,6 +3,8 @@ from django.http import Http404, HttpResponseBadRequest
 from rest_framework import serializers
 from django.core.validators import RegexValidator
 from rest_framework.exceptions import ParseError
+
+from main import gitea_service
 from main.gitea_service import create_branch
 from main.models import Project, Branch, Developer, WorksOn
 from django.core.exceptions import ObjectDoesNotExist
@@ -32,4 +34,4 @@ class BranchSerializer(serializers.Serializer):
             raise Http404()
 
     def gitea_create_branch(self, owner, repository_name, branch):
-        create_branch(owner, repository_name, branch)
+        gitea_service.create_branch(owner, repository_name, branch)
