@@ -41,6 +41,8 @@ def create(request, owner_username, repository_name):
         id = response.json()['id']
         pull.gitea_id = id
         pull.mergeable = response.json()['mergeable']
+        if 'assignee' in json_data and Developer.objects.filter(user__username=json_data['assignee']).exists():
+            pull.assignee = Developer.objects.get(user__username=json_data['assignee'])
         pull.save()
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
@@ -71,8 +73,7 @@ def get_all(request, repository_name):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
 def get_one(request, repository_name, pull_id):
-    
-    # *** Basic data
+    # Basic data
     if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(gitea_id=pull_id)
@@ -85,9 +86,8 @@ def get_one(request, repository_name, pull_id):
         result['milestone'] = {'id': req.milestone.id, 'title': req.milestone.title}
     if req.assignee is not None:
         result['assignee'] = {'username': req.assignee.user.username, 'avatar': get_dev_avatar(req.assignee.user.username)}
-    # ***
     
-    # *** Commits data
+    # Commits data
     owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
     response = gitea_service.get_pull_request_commits(owner_username, repository_name, pull_id)
 
@@ -101,9 +101,8 @@ def get_one(request, repository_name, pull_id):
             'files': commit_data['files'],
             'stats': commit_data['stats']
         })
-    # ***
 
-    # *** Diff
+    # Diff
     response = gitea_service.get_pull_request_diff(owner_username, repository_name, pull_id)
     diff, overall_additions, overall_deletions = parse_diff(response.text)
     result['diff'] = diff
@@ -136,6 +135,8 @@ def update(request, repository_name, pull_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
         milestone = Milestone.objects.get(id=milestone_id)
         req.milestone = milestone
+    else:
+        req.milestone = None
     if 'assignee_username' in json_data:
         assignee_username = json_data['assignee_username']
         if not WorksOn.objects.filter(project__name=repository_name, developer__user__username=assignee_username).exists():
@@ -145,6 +146,8 @@ def update(request, repository_name, pull_id):
             return Response(status=status.HTTP_404_NOT_FOUND)
         developer = Developer.objects.get(user__username=assignee_username)
         req.assignee = developer
+    else:
+        req.assignee = None
     req.save()
     return Response(status=status.HTTP_200_OK)
 

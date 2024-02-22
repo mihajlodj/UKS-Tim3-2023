@@ -188,7 +188,9 @@ export default {
         },
 
         update() {
-            let data = {'milestone_id': this.pull.milestone.id, 'assignee_username': this.pull.assignee.username};
+            let data = {};
+            if (this.pull.milestone) data['milestone_id'] = this.pull.milestone.id;
+            if (this.pull.assignee) data['assignee_username'] = this.pull.assignee.username;
             PullRequestService.update(this.$route.params.repoName, this.$route.params.id, data).then(res => {
                 console.log(res);
                 toast("Changes saved!", {

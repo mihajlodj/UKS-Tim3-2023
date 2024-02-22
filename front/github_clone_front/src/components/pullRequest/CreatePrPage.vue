@@ -33,7 +33,7 @@
             </div>
 
             <div class="w-25 me-5 mt-4">
-                <AdditionalPrInfo @updateMilestone="updateMilestone" />
+                <AdditionalPrInfo @updateMilestone="updateMilestone" @updateAssignee="updateAssignee" />
             </div>
         </div>
     </div>
@@ -64,7 +64,8 @@ export default {
             compareName: "",
             title: "",
             description: "",
-            milestone: null
+            milestone: null,
+            assignee: null
         }
     },
 
@@ -73,6 +74,7 @@ export default {
             let data = {
                 "base": this.baseName, "compare": this.compareName, "title": this.title, "description": this.description
             }
+            if (this.assignee !== null) data["assignee"] = this.assignee.username;
             if (this.milestone != null) data["milestone_id"] = this.milestone.id;
             PullRequestService.create(this.$route.params.username, this.$route.params.repoName, data).then(res => {
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/pulls/${res.data.id}`);
@@ -91,6 +93,10 @@ export default {
 
         updateMilestone(data) {
             this.milestone = data;
+        },
+
+        updateAssignee(data) {
+            this.assignee = data;
         }
     }
 }
