@@ -13,7 +13,6 @@ from pull_request import diff_parser, service
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def create(request, owner_username, repository_name):
     json_data = json.loads(request.body.decode('utf-8'))
-    print(json_data)
     if PullRequest.objects.filter(project__name=repository_name, source__name=json_data['compare'], target__name=json_data['base']):
         return Response("Pull request already exists", status=status.HTTP_400_BAD_REQUEST)   
     if not Branch.objects.filter(name=json_data['base'], project__name=repository_name).exists():
@@ -132,6 +131,7 @@ def close(request, repository_name, pull_id):
     if req.status != PullRequestStatus.OPEN:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.CLOSED
+    req.timestamp = timezone.localtime(timezone.now())
     req.save()
     return Response(req.status, status=status.HTTP_200_OK)
 
@@ -145,6 +145,7 @@ def reopen(request, repository_name, pull_id):
     if req.status != PullRequestStatus.CLOSED:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.OPEN
+    req.timestamp = timezone.localtime(timezone.now())
     req.save()
     return Response(req.status, status=status.HTTP_200_OK)
 
@@ -158,6 +159,7 @@ def mark_as_open(request, repository_name):
             pull = PullRequest.objects.get(project__name=repository_name, gitea_id=id)
             if pull.status == PullRequestStatus.CLOSED:
                 pull.status = PullRequestStatus.OPEN
+                pull.timestamp = timezone.localtime(timezone.now())
                 pull.save()
     return Response(status=status.HTTP_200_OK)
 
@@ -171,6 +173,7 @@ def mark_as_closed(request, repository_name):
             pull = PullRequest.objects.get(project__name=repository_name, gitea_id=id)
             if pull.status == PullRequestStatus.OPEN:
                 pull.status = PullRequestStatus.CLOSED
+                pull.timestamp = timezone.localtime(timezone.now())
                 pull.save()
     return Response(status=status.HTTP_200_OK)
 

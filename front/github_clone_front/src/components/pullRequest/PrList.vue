@@ -79,7 +79,7 @@
                             </div>
                             <div class="d-flex justify-content-start mt-1">
                                 <label class="pull-desc">
-                                    #{{ pull.id }} opened on {{ pull.timestamp.slice(0, 10) }} by
+                                    #{{ pull.id }} {{ getStatusText(pull.status) }} on {{ pull.timestamp.slice(0, 10) }} by
                                     <button type="button" class="btn-link">{{ pull.author }}</button>
                                 </label>
                             </div>
@@ -223,6 +223,12 @@ export default {
         unselect() {
             this.selected.fill(false);
             this.allSelected = false;
+        },
+
+        getStatusText(status) {
+            if (status === "Merged") return "merged";
+            if (status === "Closed") return "closed";
+            return "opened"
         }
     }
 }
