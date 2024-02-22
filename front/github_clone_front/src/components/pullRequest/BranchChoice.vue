@@ -33,6 +33,7 @@ export default {
         BranchService.getAllBranches(this.$route.params.repoName).then(res => {
             this.branches = res.data;
             this.chosenBranch = res.data[0].name;
+            this.selectedBranchChanged(this.chosenBranch);
         }).catch(err => {
             console.log(err);
         });

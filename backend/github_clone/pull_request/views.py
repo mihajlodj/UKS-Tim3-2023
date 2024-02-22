@@ -13,6 +13,7 @@ from pull_request import diff_parser, service
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def create(request, owner_username, repository_name):
     json_data = json.loads(request.body.decode('utf-8'))
+    print(json_data)
     if PullRequest.objects.filter(project__name=repository_name, source__name=json_data['compare'], target__name=json_data['base']):
         return Response("Pull request already exists", status=status.HTTP_400_BAD_REQUEST)   
     if not Branch.objects.filter(name=json_data['base'], project__name=repository_name).exists():

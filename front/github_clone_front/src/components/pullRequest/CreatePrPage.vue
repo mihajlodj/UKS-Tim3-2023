@@ -44,7 +44,7 @@ import RepoNavbar from "@/components/repository/RepoNavbar.vue"
 import BranchChoice from "./BranchChoice.vue"
 import PullRequestService from "@/services/PullRequestService"
 import AdditionalPrInfo from "./AdditionalPrInfo.vue"
-
+import { toast } from 'vue3-toastify';
 
 export default {
     name: 'CreatePrPage',
@@ -79,7 +79,21 @@ export default {
             PullRequestService.create(this.$route.params.username, this.$route.params.repoName, data).then(res => {
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/pulls/${res.data.id}`);
             }).catch(err => {
-                console.log(err);
+                if (err.response.data === "Pull request already exists") {
+                    toast("Pull request already exists!", {
+                        autoClose: 500,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                } else {
+                    toast("Unable to create pull request!", {
+                        autoClose: 500,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                }
             });
         },
 
