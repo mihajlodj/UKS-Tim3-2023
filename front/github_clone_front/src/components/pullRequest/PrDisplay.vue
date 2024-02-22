@@ -31,9 +31,9 @@
                     {{ pull.author.username }}
                 </button>
                 <label class="muted">{{ getMergeMsg() }} {{ pull.commits.length }} commits into</label>
-                <button type="button" class="btn-branch d-flex align-items-center">{{ pull.base }}</button> <label
-                    class="muted">from</label>
-                <button type="button" class="btn-branch d-flex align-items-center">{{ pull.compare }}</button>
+                <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.base)">{{ pull.base }}</button> 
+                <label class="muted">from</label>
+                <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.compare)">{{ pull.compare }}</button>
             </div>
         </div>
 
@@ -168,6 +168,10 @@ export default {
     },
 
     methods: {
+        viewBranch(name) {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}?chosen=${name}`);
+        },
+
         updateMilestone(data) {
             this.pull.milestone = data;
         },
@@ -177,9 +181,7 @@ export default {
         },
 
         getMergeMsg() {
-            if (this.pull.status === "Merged") {
-                return "merged";
-            }
+            if (this.pull.status === "Merged") return "merged";
             return "wants to merge"
         },
 

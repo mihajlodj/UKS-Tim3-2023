@@ -68,8 +68,6 @@ export default {
 .binary {
     background: none;
     border: 1px solid #768491;
-    border-bottom-left-radius: 7px;
-    border-bottom-right-radius: 7px;
 }
 
 .green-line {

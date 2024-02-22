@@ -10,7 +10,7 @@
         <div class="d-flex justify-content-between">
             <div class="list d-flex flex-column mt-3">
                 <div v-for="file in diff" :key="file.file_path" class="d-flex justify-content-start">
-                    <button  class="btn-file bright p-1 w-100 d-flex justify-content-between me-3">
+                    <button  class="btn-file bright p-1 w-100 d-flex justify-content-between me-3" @click="scrollToElement(file.file_path)">
                         {{ file.file_path }}
                         <font-awesome-icon v-if="file.mode === 'add'" icon="fa-solid fa-circle-plus" class="mt-1"></font-awesome-icon>
                         <font-awesome-icon v-else-if="file.mode === 'delete'" icon="fa-solid fa-circle-minus" class="mt-1"></font-awesome-icon>
@@ -20,7 +20,9 @@
             </div>
 
             <div class="files">
-                <ChangedFileView v-for="obj in diff" :key="obj.file_path" :file="obj" />
+                <div v-for="obj in diff" :key="obj.file_path" :ref="obj.file_path">
+                    <ChangedFileView :file="obj" />
+                </div>
             </div>
         </div>
     </div>
@@ -34,6 +36,15 @@ export default {
     props: ["diff", "overall_additions", "overall_deletions"],
     components: {
         ChangedFileView,
+    },
+
+    methods: {
+        scrollToElement(path) {
+            const [el] = this.$refs[path];
+            if (el) {
+                el.scrollIntoView({ behavior: "smooth" });
+            }
+        }
     }
 }
 </script>

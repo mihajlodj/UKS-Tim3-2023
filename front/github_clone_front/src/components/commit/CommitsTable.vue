@@ -138,6 +138,7 @@ td {
     border-bottom-right-radius: 5px;
     background-color: #373e48;
     border: 1px solid #6e7b88;
+    min-width: 70px;
 }
 
 .btn-copy {

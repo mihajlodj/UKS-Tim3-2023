@@ -6,8 +6,9 @@
                 <div class="d-flex justify-content-between mt-5">
                     <FilterBar />
                     <div class="d-flex justify-content-end">
-                        <button type="button" class="btn-create py-2 px-3" @click="createPullRequest">New pull
-                            request</button>
+                        <button type="button" class="btn-create py-2 px-3" @click="$router.push('compare')">
+                            New pull request
+                        </button>
                     </div>
                 </div>
 
@@ -137,10 +138,6 @@ export default {
     },
 
     methods: {
-        createPullRequest() {
-
-        },
-
         setOpenPullsChosen() {
             this.pulls = this.openPulls;
             this.openPullsChosen = true;
