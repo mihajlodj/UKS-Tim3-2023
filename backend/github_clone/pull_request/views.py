@@ -51,7 +51,7 @@ def get_one(request, repository_name, pull_id):
     # Basic data
     if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(gitea_id=pull_id)
+    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     result = {
         'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': {'username': req.author.user.username}, 'id': pull_id,
         'labels': [], 'reviews': [], 'reviewers': [], 'mergeable': req.mergeable, 'base': req.target.name, 'compare': req.source.name, 
@@ -71,7 +71,7 @@ def get_one(request, repository_name, pull_id):
             'hash': commit_data['sha'],
             'message': commit_data['commit']['message'],
             'timestamp': commit_data['created'],
-            'author': service.get_commit_author(commit_data['author']['login'], commit_data['commit']['message']),
+            'author': service.get_commit_author(commit_data['author']['login'], commit_data['commit']['message'], repository_name),
             'files': commit_data['files'],
             'stats': commit_data['stats']
         })

@@ -75,7 +75,7 @@ def disable_gitea_merge_pull_request(monkeypatch):
 def disable_gitea_create_pull_request(monkeypatch):
     def mock_create_pull_request(*args, **kwargs):
         response = Response()
-        content = {'id': 1, 'mergeable': True}
+        content = {'number': 1, 'mergeable': True}
         response.json = lambda: content
         response.status_code = 201
         return response

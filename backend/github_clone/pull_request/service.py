@@ -18,7 +18,7 @@ def save_pull_request(author_username, repository_name, json_data, response):
         milestone = Milestone.objects.get(id=json_data['milestone_id'])
         pull.milestone = milestone
         pull.save()
-    pull.gitea_id = response.json()['id']
+    pull.gitea_id = response.json()['number']
     pull.mergeable = response.json()['mergeable']
     if 'assignee' in json_data and Developer.objects.filter(user__username=json_data['assignee']).exists():
         pull.assignee = Developer.objects.get(user__username=json_data['assignee'])
@@ -58,15 +58,15 @@ def get_dev_avatar(username):
     avatar_filename = developer.avatar.split('/')[1]
     return f"http://localhost/avatars/{avatar_filename}"
 
-def get_pull_request_from_merge_commit(msg):
+def get_pull_request_from_merge_commit(msg, repo_name):
     pattern = r'\(#(\d+)\)'
     matches = re.findall(pattern, msg)
     if matches:
         pull_id = int(matches[0])
-        return PullRequest.objects.get(gitea_id=pull_id)
+        return PullRequest.objects.get(gitea_id=pull_id, project__name=repo_name)
 
-def get_commit_author(username, msg):
+def get_commit_author(username, msg, repo_name):
     if Developer.objects.filter(user__username=username).exists():
         return {'username': username, 'avatar': get_dev_avatar(username)}
-    req = get_pull_request_from_merge_commit(msg)
+    req = get_pull_request_from_merge_commit(msg, repo_name)
     return {'username': req.merged_by.user.username, 'avatar': get_dev_avatar(req.merged_by.user.username)}

@@ -67,7 +67,7 @@ def test_save_pull_request_with_milestone_and_assignee_success(save_milestone):
         'milestone_id': milestone.id
     }
     response = Response()
-    content = {'id': 1, 'mergeable': True}
+    content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
     id = service.save_pull_request(username1, repo_name, data, response)
@@ -88,7 +88,7 @@ def test_save_pull_request_with_milestone(save_milestone):
         'milestone_id': milestone.id
     }
     response = Response()
-    content = {'id': 1, 'mergeable': True}
+    content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
     id = service.save_pull_request(username1, repo_name, data, response)
@@ -108,7 +108,7 @@ def test_save_pull_request_assignee_success():
         'assignee': username2
     }
     response = Response()
-    content = {'id': 1, 'mergeable': True}
+    content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
     id = service.save_pull_request(username1, repo_name, data, response)
@@ -127,7 +127,7 @@ def test_save_pull_request_no_milestone_or_assignee_success():
         'description': 'Description'
     }
     response = Response()
-    content = {'id': 1, 'mergeable': True}
+    content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
     id = service.save_pull_request(username1, repo_name, data, response)
@@ -193,7 +193,7 @@ def test_save_update_assignee_throws_404():
 @pytest.mark.django_db
 def test_get_pr_from_merge_commit_success():
     msg = "Merge pull request 'Another pull' (#12) from abcdef into develop"
-    pull = service.get_pull_request_from_merge_commit(msg)
+    pull = service.get_pull_request_from_merge_commit(msg, repo_name)
     assert pull is not None
     assert pull.gitea_id == 12
 
