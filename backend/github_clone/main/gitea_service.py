@@ -1,5 +1,8 @@
+import json
+
 import requests
 from django.conf import settings
+from django.utils import timezone
 
 from main.models import MilestoneState
 
@@ -8,7 +11,7 @@ access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
 # gitea_host = 'gitea'
-gitea_host = 'localhost' #for non-docker running 
+gitea_host = 'localhost' #for non-docker running
 
 headers = {
     'Accept': 'application/json',
@@ -169,6 +172,7 @@ def upload_files(owner, repository, body):
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()['commit']['sha']
 
+
 def create_milestone(owner, repository_name, milestone):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones'
     formated_due_on = milestone.deadline.strftime('%Y-%m-%d') + 'T00:01:00Z'
@@ -222,3 +226,53 @@ def merge_pull_request(owner, repository_name, pull_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/merge'
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
     print(response.status_code)
+
+def create_issue(owner, repo, issue):
+    body = {
+        'id': issue.id,
+        'title': issue.title,
+        'description': issue.description,
+        'milestone': issue.milestone,
+        'closed': False,
+        'created_at': issue.created.strftime('%Y-%m-%d') + 'T00:01:00Z',
+        # 'state': 'open'
+    }
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues'
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+    return response.json()
+
+
+def update_issue(owner, repo, issue, index):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}'
+    body = {
+        'id': issue.id,
+        'title': issue.title,
+        'body': issue.description,
+        'milestone': issue.milestone
+    }
+    response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+    return response.json()
+
+
+def delete_issue(owner, repo, index):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}'
+    response = requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+    return response.json()
+
+
+def get_issues(owner, repo):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
+
+
+def close_issue(owner, repo, issue, index):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}'
+    body = {
+        'id': issue.id,
+        'closed': True,
+        'closed_at': timezone.now().strftime('%Y-%m-%d') + 'T00:01:00Z',
+        'state': 'closed'
+    }
+    response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+    return response.json()
+

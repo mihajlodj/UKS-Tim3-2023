@@ -7,9 +7,25 @@ volumes:
   vue_build:
 
 services:
+  db:
+    restart: always
+    image: postgres
+    networks:
+      main:
+        aliases:
+            - db
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - "8001:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+
+
   django:
     build: ./backend/github_clone/
-    command: gunicorn github_clone.wsgi --bind 0.0.0.0:8000
+    command: ["./scripts/wait_for_postgres.sh"]
     networks:
       main:
         aliases:
@@ -22,8 +38,12 @@ services:
       - 8000
     env_file:
       - ./backend/.env
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
     depends_on:
       - gitea
+      - db
 
   vue:
     build: ./front/github_clone_front
@@ -74,3 +94,15 @@ services:
     ports:
       - "3000:3000"
       - "222:22"
+
+  redis:
+    image: redis
+    container_name: "redis"
+    networks:
+      main:
+        aliases:
+          - redis
+    ports:
+      - "6379:6379"
+    expose:
+      - '6379'

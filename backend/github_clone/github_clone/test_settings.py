@@ -32,6 +32,8 @@ DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
+INTERNAL_IPS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
+
 GITEA_BASE_URL = os.environ.get("GITEA_BASE_URL")
 GITEA_ACCESS_TOKEN = os.environ.get("GITEA_ACCESS_TOKEN")
 GITEA_ADMIN_USERNAME = os.environ.get("GITEA_ADMIN_USERNAME")
@@ -98,6 +100,7 @@ WSGI_APPLICATION = 'github_clone.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -155,6 +158,18 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
 }
+
+CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://redis:6379",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient"
+            },
+            "KEY_PREFIX": "example"
+        }
+    }
+
 
 
 # Internationalization

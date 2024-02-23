@@ -12,6 +12,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from developer.serializers import DeveloperSerializer, UserSerializer
+from main import gitea_service
 from main.models import Developer, SecondaryEmail
 from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
     change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
@@ -58,7 +59,7 @@ def change_users_password(request, username):
                 user.set_password(new_password)
                 user.save()
                 print(new_password)
-                response_gitea = change_gitea_user_password_gitea_service(username, new_password)
+                response_gitea = gitea_service.change_gitea_user_password_gitea_service(username, new_password)
                 print(response_gitea)
                 return Response(status=status.HTTP_200_OK)
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -157,7 +158,9 @@ def get_developer_avatar(request, username):
 
     avatar_filename = developer.avatar
     avatar_filename = avatar_filename.split('/')[1]
-    avatar_url = f"http://localhost/avatars/{avatar_filename}"
+    avatar_url = 'http://localhost/avatars/git_profile_picture.png'
+    if avatar_filename != '':
+        avatar_url = f"http://localhost/avatars/{avatar_filename}"
     return Response(avatar_url, status=status.HTTP_200_OK)
 
 

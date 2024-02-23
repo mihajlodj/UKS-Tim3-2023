@@ -64,20 +64,22 @@ class Task(models.Model):
     issue = models.ForeignKey('Issue', related_name='contains', on_delete=models.CASCADE)
 
 
-class Issue(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True,
-                                blank=True)
-    milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE)
-
-
 class Project(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     description = models.TextField(null=True, blank=True)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
     default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True,
                                           blank=True)
+
+
+class Issue(models.Model):
+    created = models.DateTimeField(default=timezone.now())
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True, blank=True)
+    milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
+    project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
+    open = models.BooleanField(default=True)
 
 
 class Branch(models.Model):

@@ -1,3 +1,4 @@
+from main import gitea_service
 from main.models import RegistrationCandidate, Developer
 from .serializers import RegistrationSerializer, MyTokenObtainPairSerializer, LogoutSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -32,7 +33,7 @@ def confirm_registration(request):
         if registration_candidate.code == code:
             registration_candidate.user.is_active = True
             registration_candidate.user.save()
-            dev = Developer.objects.create(user=registration_candidate.user, gitea_token=get_user_token(username))
+            dev = Developer.objects.create(user=registration_candidate.user, gitea_token=gitea_service.get_user_token(username))
             dev.save()
             registration_candidate.delete()
             return Response(status=status.HTTP_200_OK)
