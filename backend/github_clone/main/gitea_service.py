@@ -205,6 +205,28 @@ def delete_milestone_from_gitea(owner, repository_name, milestone_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
     requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
+def create_pull_request(owner, repository_name, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls'
+    return requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+def get_pull_request_commits(owner, repository_name, pull_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/commits?verification=false'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def get_pull_request_changed_files(owner, repository_name, pull_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/files'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def get_pull_request_diff(owner, repository_name, pull_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}.diff'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def merge_pull_request(owner, repository_name, pull_id):
+    data = { 'Do': 'merge', 'MergeCommitID': 'f55da258a202abdb26eb4be298997956b776819d', 'delete_branch_after_merge': False }
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/merge'
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
+    print(response.status_code)
+
 def create_issue(owner, repo, issue):
     body = {
         'id': issue.id,
@@ -253,3 +275,4 @@ def close_issue(owner, repo, issue, index):
     }
     response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
+

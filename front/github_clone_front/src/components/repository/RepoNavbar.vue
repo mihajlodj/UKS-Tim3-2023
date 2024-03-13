@@ -84,8 +84,9 @@ export default {
                 this.$router.push(`/view/${username}/${repoName}/issues`)
             } else if (name == 'milestones') {
                 this.$router.push(`/view/${username}/${repoName}/milestones`);
+            } else if (name == 'pullRequests') {
+                this.$router.push(`/view/${username}/${repoName}/pulls`);
             }
-
         }
     }
 }

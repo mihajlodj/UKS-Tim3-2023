@@ -30,6 +30,7 @@ urlpatterns = [
     path('developer/', include('developer.urls')),
     path('branch/', include('branch.urls')),
     path('milestone/', include('milestone.urls')),
+    path('pr/', include('pull_request.urls')),
     path('issue/', include('issue.urls'))
 ]
 
