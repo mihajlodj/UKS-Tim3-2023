@@ -18,6 +18,7 @@ import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponen
 import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
+import HistoryView from '@/components/repository/HistoryView.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -148,6 +149,10 @@ const routes = [
     {
         path: '/view/:username/:repoName/issues',
         component: ListIssueComponent
+    },
+    {
+        path: "/view/:username:/:repoName/commits/:branchName",
+        component: HistoryView
     }
 ]
 

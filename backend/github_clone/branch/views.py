@@ -53,11 +53,21 @@ def get_all_branches(request, repository_name):
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def delete_branch(request, repository_name, branch_name):
     try:
-        branch = Branch.objects.get(name=branch_name)
-        repository = Project.objects.get(name=repository_name)
+        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
         threading.Thread(target=gitea_service.delete_branch, args=([request.user.username, repository_name, branch_name]), kwargs={}).start()
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(['GET'])
+@permission_classes([permissions.CanViewRepository])
+def get_commits(request, repository_name, branch_name):
+    try:
+        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        commits = Commit.objects.filter(branch=branch)
+        return Response(commits, status=status.HTTP_204_NO_CONTENT)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
