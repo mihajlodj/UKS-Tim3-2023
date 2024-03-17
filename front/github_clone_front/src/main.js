@@ -19,6 +19,7 @@ import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
 import HistoryView from '@/components/repository/HistoryView.vue'
+import CommitDisplay from './components/commit/CommitDisplay.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -153,6 +154,10 @@ const routes = [
     {
         path: "/view/:username:/:repoName/commits/:branchName",
         component: HistoryView
+    },
+    {
+        path: "/view/:username/:repoName/commit/:sha",
+        component: CommitDisplay
     }
 ]
 

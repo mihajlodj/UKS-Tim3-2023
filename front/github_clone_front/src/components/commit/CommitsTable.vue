@@ -25,7 +25,7 @@
                             <button type="button" class="btn-copy" @click="copySha(c.hash)">
                                 <font-awesome-icon icon="fa-regular fa-copy"></font-awesome-icon>
                             </button>
-                            <button type="button" class="btn-sha">
+                            <button type="button" class="btn-sha" @click="displayCommit(c.hash)">
                                 <label class="bright">{{ c.hash.slice(0, 7) }}</label>
                             </button>
                         </div>
@@ -72,6 +72,10 @@ export default {
         formatDate(dateStr) {
             let arr = dateStr.split("T");
             return `${arr[0]} ${arr[1].slice(0, 5)}`
+        },
+
+        displayCommit(sha) {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/commit/${sha}`);
         }
     }
 }
