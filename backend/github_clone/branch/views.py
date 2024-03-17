@@ -1,14 +1,14 @@
-from django.http import Http404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, generics
 from rest_framework.response import Response
 from branch.serializers import BranchSerializer
 from main.gitea_service import get_gitea_user_info_gitea_service
-from main.models import Project, WorksOn, Branch, Commit, PullRequest
+from main.models import Branch, Commit, PullRequest
 from rest_framework.decorators import api_view, permission_classes
 from django.core.exceptions import ObjectDoesNotExist
 from main import gitea_service, permissions
 import threading
+from developer import service as developer_service
 
 
 class CreateBranchView(generics.CreateAPIView):
@@ -67,7 +67,20 @@ def get_commits(request, repository_name, branch_name):
     try:
         branch = Branch.objects.get(name=branch_name, project__name=repository_name)
         commits = Commit.objects.filter(branch=branch)
-        return Response(commits, status=status.HTTP_204_NO_CONTENT)
+        return Response(serialize_commits(commits), status=status.HTTP_200_OK)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+def serialize_commits(commits):
+    return [{
+        'hash': commit.hash, 
+        'message': commit.message,
+        'author': {
+            'username': commit.author.user.username,
+            'avatar': developer_service.get_dev_avatar(commit.author.user.username)
+        },
+        'timestamp': commit.timestamp
+    } for commit in commits]
+
     

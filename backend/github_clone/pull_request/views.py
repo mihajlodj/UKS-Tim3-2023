@@ -7,6 +7,7 @@ from main import gitea_service, permissions
 import json
 from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus
 from pull_request import diff_parser, service
+from developer import service as developer_service
 
 
 @api_view(['POST'])
@@ -40,7 +41,7 @@ def get_all(request, repository_name):
         if req.milestone is not None:
             obj['milestone'] = req.milestone.title
         if req.assignee is not None:
-            obj['assignee'] = { 'username': req.assignee.user.username, 'avatar': service.get_dev_avatar(req.assignee.user.username) }
+            obj['assignee'] = { 'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username) }
         result.append(obj)
     return Response(result, status=status.HTTP_200_OK)
 
@@ -60,7 +61,7 @@ def get_one(request, repository_name, pull_id):
     if req.milestone is not None:
         result['milestone'] = {'id': req.milestone.id, 'title': req.milestone.title}
     if req.assignee is not None:
-        result['assignee'] = {'username': req.assignee.user.username, 'avatar': service.get_dev_avatar(req.assignee.user.username)}
+        result['assignee'] = {'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username)}
     
     # Commits data
     owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
@@ -92,7 +93,7 @@ def get_possible_assignees(request, repository_name):
     works_on_list = WorksOn.objects.filter(project__name=repository_name)
     for obj in works_on_list:
         if obj.role != Role.IS_BANNED:
-            result.append({'username': obj.developer.user.username, 'avatar': service.get_dev_avatar(obj.developer.user.username)})
+            result.append({'username': obj.developer.user.username, 'avatar': developer_service.get_dev_avatar(obj.developer.user.username)})
     return Response(result, status=status.HTTP_200_OK)
 
 

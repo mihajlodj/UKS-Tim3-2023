@@ -4,13 +4,14 @@
             Commits
         </h1>
         <div>
-            <CommitsTable />
+            <CommitsTable :commits="commits" />
         </div>
     </div>
 </template>
 
 <script>
 import CommitsTable from '../commit/CommitsTable.vue';
+import BranchService from '@/services/BranchService';
 
 export default {
     name: "HistoryView",
@@ -19,12 +20,16 @@ export default {
     },
 
     mounted() {
-        // Fetch commits on branch
+        BranchService.getCommits(this.$route.params.repoName, this.$route.params.branchName).then(res => {
+            this.commits = res.data;
+        }).catch(err => {
+            console.log(err);
+        });
     },
 
     data() {
         return {
-
+            commits: []
         }
     }
 }
