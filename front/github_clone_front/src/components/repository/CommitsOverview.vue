@@ -76,8 +76,8 @@ img {
     background-color: #2c333b;
     padding: 10px 15px;
     border: 1px solid #343b42;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
 }
 
 button {
