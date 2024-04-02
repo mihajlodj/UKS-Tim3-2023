@@ -18,7 +18,7 @@
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li class="mx-2">
-                                <input type="text" placeholder="Search branches" class="px-1" v-model="searchTerm" @input="searchTermChanged"/>
+                                <input type="text" placeholder="Search branches" class="px-2 py-1" v-model="searchTerm" @input="searchTermChanged"/>
                             </li>
                             <li v-for="b in filteredBranches" :key="b.name">
                                 <button class="btn dropdown-item branch-name" @click="selectedBranchChanged(b.name)">
@@ -129,9 +129,18 @@ hr {
 
 .dropdown-menu {
     background-color: #2c333b;
+    border: 1px solid #646b72;
 }
 
 .branch-name {
     color: #c5d1df;
+}
+
+input {
+    background-color: #22272d;
+    color: #b1bdca;
+    border: 1px solid #646b72;;
+    border-radius: 5px;
+    min-width: 250px;
 }
 </style>
