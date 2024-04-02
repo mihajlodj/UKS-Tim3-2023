@@ -33,7 +33,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot, faComments } from '@fortawesome/free-regular-svg-icons'
-import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
+import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark, faCopy } from '@fortawesome/free-regular-svg-icons'
 import { faFlask, faDownload, faTag, faCheck, faCodeCommit, faAngleDown, faCirclePlus, faCircleMinus, faCircleStop } from '@fortawesome/free-solid-svg-icons'
 import 'vue-pdf-embed/dist/style/index.css'
@@ -77,6 +77,7 @@ library.add(faAngleDown);
 library.add(faCirclePlus);
 library.add(faCircleMinus);
 library.add(faCircleStop);
+library.add(faClockRotateLeft);
 
 const routes = [
     {

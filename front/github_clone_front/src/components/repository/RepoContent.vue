@@ -1,6 +1,6 @@
 <template>
     <div>
-        <table class="table mt-3">
+        <table class="table">
             <tbody>
                 <tr v-if="displayRoot == 'false' && content.length > 0">
                     <td>
