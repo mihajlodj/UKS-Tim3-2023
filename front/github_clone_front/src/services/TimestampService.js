@@ -1,6 +1,12 @@
 const howLongAgo = (timestamp) => {
     const currentDate = new Date();
-    const previousDate = new Date(timestamp);
+    try {
+        const previousDate = new Date(timestamp);
+     
+    
+    console.log("PREV DATE:");
+    console.log(previousDate);
+    console.log(timestamp);
     const seconds = Math.floor((currentDate - previousDate) / 1000);
     let interval = Math.floor(seconds / 31536000);
 
@@ -24,6 +30,12 @@ const howLongAgo = (timestamp) => {
         return interval + " minute" + (interval === 1 ? "" : "s") + " ago";
     }
     return Math.floor(seconds) + " second" + (Math.floor(seconds) === 1 ? "" : "s") + " ago";
+}
+    catch {
+        console.log("AAAAA");
+        console.log(timestamp);
+        return "aaa";
+    }
 }
 
 export default {howLongAgo}

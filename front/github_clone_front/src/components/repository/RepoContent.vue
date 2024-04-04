@@ -15,7 +15,7 @@
                     </td>
                 </tr>
                 <tr v-for="file in content" :key="file.name">
-                    <td>
+                    <td class="w-50">
                         <button v-if="file.type == 'file'" type="button" class="btn" @click="fileClicked(file.name)">
                             <font-awesome-icon icon="fa-regular fa-file" class="me-2 mt-1" />
                             {{ file.name }}
@@ -26,6 +26,19 @@
                             {{ file.name }}
                         </button>
                     </td>
+
+                    <td>
+                        <button type="button" class="btn-last-commit-msg" @click="displayLastCommit(file.lastCommitSHA)">
+                            {{ file.lastCommitMessage }}
+                        </button>
+                    </td>
+
+                    <td class="d-flex justify-content-end border-0">
+                        <span v-if="file.lastCommitTimestamp !== null && file.lastCommitTimestamp !== '' && file.lastCommitTimestamp !== undefined"
+                            class="timestamp">
+                            {{ howLongAgo(file.lastCommitTimestamp) }}
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -34,6 +47,8 @@
 
 <script>
 import RepositoryService from '@/services/RepositoryService';
+import TimestampService from '@/services/TimestampService';
+
 /* eslint-disable */
 export default {
     name: "RepoContent",
@@ -47,7 +62,7 @@ export default {
                 for (let obj of res.data) {
                     this.content.push({
                         "name": obj.name, "type": obj.type, "content": obj.content, "path": obj.path, "downloadURL": obj.download_url,
-                        "htmlURL": obj.html_url, "lastCommitSHA": obj.last_commit_sha
+                        "htmlURL": obj.html_url, "lastCommitSHA": obj.last_commit_sha, "lastCommitMessage": obj.last_commit_message, "lastCommitTimestamp": obj.last_commit_timestamp
                     });
                 }
             }).catch(err => {
@@ -59,7 +74,7 @@ export default {
                 for (let obj of res.data) {
                     this.content.push({
                         "name": obj.name, "type": obj.type, "content": obj.content, "path": obj.path, "downloadURL": obj.download_url,
-                        "htmlURL": obj.html_url, "lastCommitSHA": obj.last_commit_sha
+                        "htmlURL": obj.html_url, "lastCommitSHA": obj.last_commit_sha, "lastCommitMessage": obj.last_commit_message, "lastCommitTimestamp": obj.last_commit_timestamp
                     });
                 }
             }).catch(err => {
@@ -87,6 +102,18 @@ export default {
 
         fileClicked(name) {
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/blob/${this.branch}/${this.foldersPath}${name}`);
+        },
+
+        howLongAgo(timestamp) {
+            let res = TimestampService.howLongAgo(timestamp);
+            console.log(res);
+            return res;
+        },
+
+        displayLastCommit(sha) {
+            const username = this.$route.params.username;
+            const repoName = this.$route.params.repoName;
+            this.$router.push(`/view/${username}/${repoName}/commit/${sha}`);
         }
     }
 }
@@ -107,4 +134,20 @@ td button {
     margin-right: 1px;
     margin-top: -1px;
 }
+
+.btn-last-commit-msg {
+    border: none;
+    background: none;
+}
+
+.btn-last-commit-msg:hover {
+    color: #549bf5;
+    text-decoration: underline;
+}
+
+span.timestamp {
+    font-size: small;
+    margin-top: 7px;
+}
+
 </style>

@@ -84,6 +84,16 @@ def get_root_files(request, owner_username, repository_name, ref):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     result = gitea_service.get_root_content(owner_username, repository_name, ref)
+    for item in result:
+        last_commit_sha = item['last_commit_sha']
+        if Commit.objects.filter(hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(hash=last_commit_sha)
+            item['last_commit_message'] = last_commit.message
+            item['last_commit_timestamp'] = last_commit.timestamp
+        else:
+            item['last_commit_message'] = ''
+            item['last_commit_timestamp'] = None
+    print(result)
     if len(result) != 0:
         cache.set(cache_key, result, timeout=30)
 
@@ -100,6 +110,17 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     result = gitea_service.get_folder_content(owner_username, repository_name, branch, path)
+    for item in result:
+        last_commit_sha = item['last_commit_sha']
+        if Commit.objects.filter(hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(hash=last_commit_sha)
+            item['last_commit_message'] = last_commit.message
+            item['last_commit_timestamp'] = last_commit.timestamp
+        else:
+            item['last_commit_message'] = ''
+            item['last_commit_timestamp'] = None
+
+    print(result)
 
     if len(result) != 0:
         cache.set(cache_key, result, timeout=30)
