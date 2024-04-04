@@ -16,4 +16,8 @@ const getCommits = (repoName, branchName) => {
     return api.get(`branch/commits/${repoName}/${branchName}`);
 }
 
-export default { getAllBranches, createBranch, deleteBranch, getCommits }
+const getCommitters = (repoName, branchName) => {
+    return api.get(`branch/committers/${repoName}/${branchName}`);
+}
+
+export default { getAllBranches, createBranch, deleteBranch, getCommits, getCommitters }

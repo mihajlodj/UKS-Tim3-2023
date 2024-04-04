@@ -72,6 +72,21 @@ def get_commits(request, repository_name, branch_name):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
+@permission_classes([permissions.CanViewRepository])
+def get_committers(request, repository_name, branch_name):
+    try:
+        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        commits = Commit.objects.filter(branch=branch)
+        committers = [{
+            'username': dev.user.username,
+            'avatar': developer_service.get_dev_avatar(dev.user.username)
+        } for dev in set([commit.author for commit in commits])]
+        return Response(committers, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 def serialize_commits(commits):
     return [{
         'hash': commit.hash, 
