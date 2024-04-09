@@ -8,6 +8,7 @@ import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
+import SearchPage from './components/pages/SearchPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
 import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
@@ -80,6 +81,10 @@ const routes = [
     {
         path: "/main",
         component: MainPage
+    },
+    {
+        path: "/search",
+        component: SearchPage
     },
     {
         path: "/register",

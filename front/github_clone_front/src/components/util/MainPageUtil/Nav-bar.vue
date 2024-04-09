@@ -18,7 +18,7 @@
       </div>
     </div>
 
-    <div id="id-search-bar">
+    <div id="id-search-bar" v-if="!isSearchPage">
       <search-bar></search-bar>
     </div>
 
@@ -74,6 +74,11 @@ export default {
   },
   props: {
     user: Object,
+  },
+  computed:{
+    isSearchPage() {
+      return this.$route.path === '/search';
+    }
   },
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
