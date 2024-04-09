@@ -23,16 +23,23 @@
           <a href="#" class="filter-buttons">&#128996; &nbsp; CSS</a>
         </div>
 
+        <div class="left-section-state">
+          <label class="filter-text-2">State</label>
+          <a href="#" class="filter-buttons">&#8857; &nbsp; Open</a>
+          <a href="#" class="filter-buttons">&#10003; &nbsp; Closed</a>
+        </div>
+
         <div class="left-section-advanced">
           <label class="filter-text-2">Advanced</label>
           <a href="#" class="filter-buttons">&#43; &nbsp; Owner</a>
           <a href="#" class="filter-buttons">&#43; &nbsp; Public</a>
           <a href="#" class="filter-buttons">&#43; &nbsp; Private</a>
           <a href="#" class="filter-buttons">&#43; &nbsp; Date created</a>
+          <a href="#" class="filter-buttons">&#43; &nbsp; Assignee</a>
           <a href="#" class="filter-buttons">&#43; &nbsp; Number of followers</a>
           <a href="#" class="filter-buttons">&#43; &nbsp; Number of stars</a>
+          <a href="#" class="filter-buttons">&#43; &nbsp; Number of repositories</a>
         </div>
-
       </div>
       <div class="middle-section">
       </div>
@@ -150,6 +157,14 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
+  border-bottom: 0.5px solid gainsboro;
+}
+
+.left-section-state{
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 0.5px solid gainsboro;
 }
 
 .middle-section {
