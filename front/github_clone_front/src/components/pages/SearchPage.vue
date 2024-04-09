@@ -15,12 +15,12 @@
 
         <div class="left-section-languages">
           <label class="filter-text-2">Languages</label>
-          <a href="#" class="filter-buttons">&#128308; &nbsp; JavaScript</a>
-          <a href="#" class="filter-buttons">&#128309; &nbsp; Python</a>
-          <a href="#" class="filter-buttons">&#128994; &nbsp; Java</a>
-          <a href="#" class="filter-buttons">&#128995; &nbsp; HTML</a>
-          <a href="#" class="filter-buttons">&#128992; &nbsp; C++</a>
-          <a href="#" class="filter-buttons">&#128996; &nbsp; CSS</a>
+          <a :href="generateSearchLink('language:JavaScript')" class="filter-buttons">&#128308; &nbsp; JavaScript</a>
+          <a :href="generateSearchLink('language:Python')" class="filter-buttons">&#128309; &nbsp; Python</a>
+          <a :href="generateSearchLink('language:Java')" class="filter-buttons">&#128994; &nbsp; Java</a>
+          <a :href="generateSearchLink('language:HTML')" class="filter-buttons">&#128995; &nbsp; HTML</a>
+          <a :href="generateSearchLink('language:C++')" class="filter-buttons">&#128992; &nbsp; C++</a>
+          <a :href="generateSearchLink('language:CSS')" class="filter-buttons">&#128996; &nbsp; CSS</a>
         </div>
 
         <div class="left-section-state">
@@ -65,21 +65,11 @@ export default {
     };
   },
   methods: {
-    async searchRepositories() {
-      this.loading = true;
-      this.error = null;
-      
-      try {
-        const response = await fetch(`YOUR_API_ENDPOINT?q=${this.query}&language=${this.language}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch repositories');
-        }
-        this.repositories = await response.json();
-      } catch (error) {
-        this.error = error.message;
-      } finally {
-        this.loading = false;
-      }
+    generateSearchLink(query) {
+      const currentQuery = this.$route.query.q || '';
+      const combinedQuery = currentQuery + ' ' + query;
+      const encodedQuery = encodeURIComponent(combinedQuery);
+      return '/search?q=' + encodedQuery;
     }
   }
 };

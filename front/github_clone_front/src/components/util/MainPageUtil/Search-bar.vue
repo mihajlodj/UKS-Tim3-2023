@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button @click="openPopup" id="id-open-popup"><i class="bi bi-search"></i></button>
+    <button @click="openPopup" id="id-open-popup"><i class="bi bi-search"></i> &nbsp; {{searchQuery}}</button>
     <div v-if="isPopupOpen" class="popup-overlay" @click="closePopup">
       <div class="popup" @click.stop>
         <div class="search-bar-popup">
@@ -29,6 +29,12 @@ export default {
     },
     closePopup() {
       this.isPopupOpen = false;
+    }
+  },
+  created() {
+    const query = this.$route.query.q;
+    if (query) {
+      this.searchQuery += query;
     }
   }
 };
