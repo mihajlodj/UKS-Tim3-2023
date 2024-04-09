@@ -38,7 +38,7 @@ export default {
 #id-open-popup {
     background: none;
     border: 1px solid rgb(152, 152, 152);
-    width: 15rem;
+    width: 100%;
     text-align: left;
     color: white;
 }

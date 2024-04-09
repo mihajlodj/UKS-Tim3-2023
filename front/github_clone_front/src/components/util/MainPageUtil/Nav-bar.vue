@@ -22,6 +22,10 @@
       <search-bar></search-bar>
     </div>
 
+    <div id="id-search-bar-2" v-if="isSearchPage">
+      <search-bar></search-bar>
+    </div>
+
     <div class="right-btns-navbar">
       <div class="dropdown" :class="{ 'isDropdownOpen': isDropdownOpen }">
         <button class="notification_button" @click="toggleDropdown">
@@ -134,7 +138,14 @@ export default {
   float:left;
 }
 #id-search-bar{
-  float: left;
+  width: 15rem;
+  float: right;
+  z-index: 99;
+}
+
+#id-search-bar-2{
+  width: 60%;
+  float: right;
   z-index: 99;
 }
 #id-user-profile{
