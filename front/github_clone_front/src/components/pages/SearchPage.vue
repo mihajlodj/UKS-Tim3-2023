@@ -5,12 +5,12 @@
       <div class="left-section">
         <div class="left-section-filters">
           <label class="filter-text">Filter by </label>
-          <a href="#" class="filter-buttons"><i class="bi bi-code">&nbsp;</i> Code</a>
-          <a href="#" class="filter-buttons"><i class="bi bi-journal-bookmark"></i>&nbsp; Repositories</a>
-          <a href="#" class="filter-buttons"><i class="bi bi-record-circle">&nbsp;</i> Issues</a>
-          <a href="#" class="filter-buttons"><i class="bi bi-bezier2">&nbsp;</i> Pull requests</a>
-          <a href="#" class="filter-buttons"><i class="bi bi-person">&nbsp;</i> Users</a>
-          <a href="#" class="filter-buttons"><i class="bi bi-bezier">&nbsp;</i> Commits</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Repositories' }" @click="preselected_field = 'Repositories'"><i class="bi bi-journal-bookmark"></i>&nbsp; Repositories</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Code' }" @click="preselected_field = 'Code'"><i class="bi bi-code">&nbsp;</i> Code</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Issues' }" @click="preselected_field = 'Issues'"><i class="bi bi-record-circle">&nbsp;</i> Issues</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Pull_requests' }" @click="preselected_field = 'Pull_requests'"><i class="bi bi-bezier2">&nbsp;</i> Pull requests</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Users' }" @click="preselected_field = 'Users'"><i class="bi bi-person">&nbsp;</i> Users</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Commits' }" @click="preselected_field = 'Commits'"><i class="bi bi-bezier">&nbsp;</i> Commits</a>
         </div>
 
         <div class="left-section-languages">
@@ -55,10 +55,14 @@ export default {
   components: {
     NavBar,
   },
+  created(){
+    this.preselected_field = 'Repositories';
+  },
   data() {
     return {
       query: '',
       language: '',
+      preselected_field: '',
       loading: false,
       repositories: [],
       error: null
@@ -67,7 +71,7 @@ export default {
   methods: {
     generateSearchLink(query) {
       const currentQuery = this.$route.query.q || '';
-      const combinedQuery = currentQuery + ' ' + query;
+      const combinedQuery = currentQuery + '&' + query;
       const encodedQuery = encodeURIComponent(combinedQuery);
       return '/search?q=' + encodedQuery;
     }
@@ -76,6 +80,11 @@ export default {
 </script>
 
 <style scoped>
+.selected-filter {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
 .filter-text{
   color: white;
   margin-top: 5px;

@@ -5,7 +5,7 @@
       <div class="popup" @click.stop>
         <div class="search-bar-popup">
             &#160;<i class="bi bi-search"></i>
-            <input v-model="searchQuery" type="text" id="id-search-input">
+            <input v-model="searchQuery" type="text" id="id-search-input" @keyup.enter="search">
         </div>
         <div class="popup-content">
           
@@ -29,6 +29,12 @@ export default {
     },
     closePopup() {
       this.isPopupOpen = false;
+    },
+    search() {
+      if (this.searchQuery.trim() !== '') {
+        this.$router.push({ path: '/search', query: { q: this.searchQuery } });
+        this.closePopup();
+      }
     }
   },
   created() {
