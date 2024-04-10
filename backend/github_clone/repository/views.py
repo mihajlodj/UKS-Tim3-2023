@@ -48,11 +48,19 @@ def get_all_repos(request, query):
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
 
-    result = Project.objects.filter(name__icontains=query)
+    results = WorksOn.objects.filter(project__name__icontains=query, role__icontains="Owner")
 
-    if result.exists():
-        serializer = RepositorySerializer(result, many=True)
-        serialized_data = serializer.data
+    if results.exists():
+        serialized_data = []
+        for result in results:
+            project_serializer = RepositorySerializer(result.project)
+            project = project_serializer.data
+
+            developer_serializer = DeveloperSerializer(result.developer)
+            developer = developer_serializer.data
+
+            serialized_data.append({'developer': developer, 'project': project})
+
         cache.set(cache_key, serialized_data, timeout=30)
 
         return Response(serialized_data, status=status.HTTP_200_OK)

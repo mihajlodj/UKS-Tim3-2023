@@ -64,7 +64,8 @@ export default {
         immediate: true,
         handler(newQuery, oldQuery) {
           if (newQuery !== oldQuery) {
-            this.fetchRepositories();
+            if (this.preselected_field=='Repositories')
+              this.fetchRepositories();
           }
         },
       },
