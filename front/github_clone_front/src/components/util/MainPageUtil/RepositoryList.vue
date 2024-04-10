@@ -16,7 +16,7 @@
     <ul class="repo-ul">
       <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id" >
         <img :src="currentAvatar" alt="Current Avatar"  class="profile-picture-main" />
-        <a :href="'/view/' + username +'/' + repo.name">{{ username + '/' + repo.name }}</a>
+        <a :href="'/view/' + username +'/' + repo.name" class="links-pretty">{{ username + '/' + repo.name }}</a>
       </li>
     </ul>
   </div>
@@ -124,6 +124,14 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.links-pretty{
+  background: none;
+  color: white;
+  width: 90%;
+  padding: 5px;
+  text-decoration: none;
 }
 
 #profile-name {
