@@ -42,6 +42,15 @@
         </div>
       </div>
       <div class="middle-section">
+          <repo-box 
+          v-for="(result, index) in repositories"
+            :key="index"
+            :username="result.developer.user.username"
+            :avatar="result.developer.avatar"
+            :name="result.project.name"
+            :description="result.project.description"
+            :access_modifier="result.project.access_modifier"
+          />
       </div>
     </div>
   </div>
@@ -50,11 +59,12 @@
 
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
+import RepoBox from '../util/SearchPageUtil/RepoBox.vue';
 import RepositoryService from '@/services/RepositoryService';
 
 export default {
   components: {
-    NavBar,
+    NavBar,RepoBox
   },
   created(){
     this.preselected_field = 'Repositories';
@@ -91,7 +101,8 @@ export default {
     fetchRepositories() {
       RepositoryService.getAllQueryRepos(this.$route.query.q)
           .then(res => {
-                  console.log(res)
+                  this.repositories = res.data
+                  console.log(res.data)
               })
               .catch(err => {
                   console.log(err);
