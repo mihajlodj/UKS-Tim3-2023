@@ -28,7 +28,7 @@ export default {
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
+              // console.log(res);
               this.currentAvatar = res.data
           })
           .catch(err => {
@@ -37,7 +37,7 @@ export default {
 
     RepositoryService.getAllUserRepos(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
+              // console.log(res);
               this.repos = res.data
           })
           .catch(err => {

@@ -50,6 +50,7 @@
 
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
+import RepositoryService from '@/services/RepositoryService';
 
 export default {
   components: {
@@ -57,6 +58,7 @@ export default {
   },
   created(){
     this.preselected_field = 'Repositories';
+    this.fetchRepositories();
   },
   data() {
     return {
@@ -74,7 +76,16 @@ export default {
       const combinedQuery = currentQuery + '&' + query;
       const encodedQuery = encodeURIComponent(combinedQuery);
       return '/search?q=' + encodedQuery;
-    }
+    },
+    fetchRepositories() {
+      RepositoryService.getAllQueryRepos(this.$route.query.q)
+          .then(res => {
+                  console.log(res)
+              })
+              .catch(err => {
+                  console.log(err);
+              });
+    },
   }
 };
 </script>

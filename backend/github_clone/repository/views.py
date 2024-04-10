@@ -41,6 +41,48 @@ class UpdateRepositoryView(generics.UpdateAPIView):
 
 
 @api_view(['GET'])
+def get_all_repos(request, query):
+    cache_key = f"folder_files:{query}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    result = Project.objects.filter(name__icontains=query)
+
+    if result.exists():
+        serializer = RepositorySerializer(result, many=True)
+        serialized_data = serializer.data
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_users_repo(request, owner_username):
+    user = User.objects.get(username=owner_username)
+    developer = Developer.objects.get(user_id=user.id)
+
+    cache_key = f"repos:{developer.id}"
+    cached_data = cache.get(cache_key)
+    if cached_data is not None and (len(cached_data) != 0 or str(cached_data) == "None"):
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    repos = []
+    for temp_repo in WorksOn.objects.filter(developer_id=developer.id):
+        repo = Project.objects.get(id=temp_repo.project_id)
+        is_private = repo.access_modifier == AccessModifiers.PRIVATE
+        result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
+                  'default_branch': repo.default_branch.name}
+        repos.append(result)
+    cache.set(cache_key, repos, timeout=30)
+    return Response(repos, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
 def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
@@ -232,28 +274,6 @@ def upload_files(request, owner_username, repository_name):
     except Exception as ex:
         print(ex)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_all_users_repo(request, owner_username):
-    user = User.objects.get(username=owner_username)
-    developer = Developer.objects.get(user_id=user.id)
-
-    cache_key = f"repos:{developer.id}"
-    cached_data = cache.get(cache_key)
-    if cached_data is not None and (len(cached_data) != 0 or str(cached_data) == "None"):
-        return Response(cached_data, status=status.HTTP_200_OK)
-
-    repos = []
-    for temp_repo in WorksOn.objects.filter(developer_id=developer.id):
-        repo = Project.objects.get(id=temp_repo.project_id)
-        is_private = repo.access_modifier == AccessModifiers.PRIVATE
-        result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
-                  'default_branch': repo.default_branch.name}
-        repos.append(result)
-    cache.set(cache_key, repos, timeout=30)
-    return Response(repos, status=status.HTTP_200_OK)
 
 
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):
