@@ -58,13 +58,23 @@ export default {
   },
   created(){
     this.preselected_field = 'Repositories';
-    this.fetchRepositories();
+  },
+  watch: {
+      '$route.query.q': {
+        immediate: true,
+        handler(newQuery, oldQuery) {
+          if (newQuery !== oldQuery) {
+            this.fetchRepositories();
+          }
+        },
+      },
   },
   data() {
     return {
       query: '',
       language: '',
       preselected_field: '',
+      user : localStorage.getItem("username"),
       loading: false,
       repositories: [],
       error: null

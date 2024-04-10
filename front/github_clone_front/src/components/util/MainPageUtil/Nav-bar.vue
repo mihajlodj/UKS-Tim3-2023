@@ -76,9 +76,10 @@ export default {
     SearchBar,
     SlideProfileMenu
   },
-  props: {
-    user: Object,
-  },
+  // Nisam siguran da li ce trebati
+  // props: {
+  //   user: Object,
+  // },
   computed:{
     isSearchPage() {
       return this.$route.path === '/search';
