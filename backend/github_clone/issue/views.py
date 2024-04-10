@@ -71,8 +71,8 @@ def get_all_issues(request, query):
             milestone_serializer = MilestoneSerializer(result.milestone)
             milestone = milestone_serializer.data
 
-            serialized_data.append({'created':result.created, 'developer': developer, 'project': project,
-                                    'description': result.description,'milestone': milestone})
+            serialized_data.append({'created':result.created, 'developer': developer, 'project': project,'title': result.title,
+                                    'description': result.description,'milestone': milestone, 'open':result.open})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

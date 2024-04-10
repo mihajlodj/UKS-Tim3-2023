@@ -35,7 +35,7 @@ export default {
         this.$router.push({ path: '/search', query: { q: this.searchQuery } });
         this.closePopup();
       }
-    }
+    },
   },
   created() {
     const query = this.$route.query.q;

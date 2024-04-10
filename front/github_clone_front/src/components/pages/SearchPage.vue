@@ -1,11 +1,11 @@
 <template>
   <div class="search-page">
-    <nav-bar :user="user" />
+    <nav-bar :user="user"/>
     <div class="main-content">
       <div class="left-section">
         <div class="left-section-filters">
           <label class="filter-text">Filter by </label>
-          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Repositories' }" @click="preselected_field = 'Repositories'"><i class="bi bi-journal-bookmark"></i>&nbsp; Repositories</a>
+          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Repositories' }" @click="preselected_field = 'Repositories'; clearSearchLink()"><i class="bi bi-journal-bookmark"></i>&nbsp; Repositories</a>
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Code' }" @click="preselected_field = 'Code'"><i class="bi bi-code">&nbsp;</i> Code</a>
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Issues' }" @click="preselected_field = 'Issues'"><i class="bi bi-record-circle">&nbsp;</i> Issues</a>
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Pull_requests' }" @click="preselected_field = 'Pull_requests'"><i class="bi bi-bezier2">&nbsp;</i> Pull requests</a>
@@ -41,8 +41,8 @@
           <a :href="generateSearchLink('repositories:')" class="filter-buttons">&#43; &nbsp; Number of repositories</a>
         </div>
       </div>
-      <div class="middle-section">
-          <repo-box 
+      <div class="middle-section" v-if="this.preselected_field=='Repositories'">
+          <repo-box
           v-for="(result, index) in repositories"
             :key="index"
             :username="result.developer.user.username"
@@ -50,6 +50,19 @@
             :name="result.project.name"
             :description="result.project.description"
             :access_modifier="result.project.access_modifier"
+          />
+      </div>
+      <div class="middle-section" v-if="this.preselected_field=='Issues'">
+          <issue-box
+          v-for="(result, index) in issues"
+            :key="index"
+            :username="result.developer.user.username"
+            :created="result.created"
+            :name="result.project.name"
+            :title="result.title"
+            :description="result.description"
+            :open="result.open"
+            :milestone_title="result.milestone.title"
           />
       </div>
     </div>
@@ -60,11 +73,13 @@
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import RepoBox from '../util/SearchPageUtil/RepoBox.vue';
+import IssueBox from '../util/SearchPageUtil/IssueBox.vue';
 import RepositoryService from '@/services/RepositoryService';
+import IssueService from '@/services/IssueService';
 
 export default {
   components: {
-    NavBar,RepoBox
+    NavBar,RepoBox,IssueBox
   },
   created(){
     this.preselected_field = 'Repositories';
@@ -84,9 +99,16 @@ export default {
             if (this.preselected_field=='Repositories'){
               console.log(this.preselected_field);
               this.fetchRepositories();
+              this.issues = []
+            }
+            else if (this.preselected_field=='Issues'){
+              console.log(this.preselected_field);
+              this.getIssues();
+              this.repositories = []
             }
             else{
               this.repositories = []
+              this.issues = []
             }
           }
         },
@@ -100,6 +122,7 @@ export default {
       user : localStorage.getItem("username"),
       loading: false,
       repositories: [],
+      issues: [],
       error: null
     };
   },
@@ -110,10 +133,23 @@ export default {
       const encodedQuery = encodeURIComponent(combinedQuery);
       return '/search?q=' + encodedQuery;
     },
+    clearSearchLink(){
+      this.$router.replace({ query: { q: '' } });
+    },
     fetchRepositories() {
       RepositoryService.getAllQueryRepos(this.$route.query.q)
           .then(res => {
                   this.repositories = res.data
+                  console.log(res.data)
+              })
+              .catch(err => {
+                  console.log(err);
+              });
+    },
+    getIssues() {
+      IssueService.getAllQueryIssues(this.$route.query.q)
+          .then(res => {
+                  this.issues = res.data
                   console.log(res.data)
               })
               .catch(err => {
