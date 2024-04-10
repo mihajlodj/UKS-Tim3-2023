@@ -3,6 +3,7 @@ from issue.views import *
 
 urlpatterns = [
     path('create/', IssueView.as_view(), name='create_issue'),
+    path('query_issues/<str:query>/', get_all_issues, name='get_all_issues'),
     path('<int:pk>/', get_issue, name='get_issue'),
     path('<str:repo_name>/<int:pk>/', delete_issue, name='delete_issue'),
     path('close/<str:repo_name>/<int:pk>/', close_issue, name='delete_issue'),

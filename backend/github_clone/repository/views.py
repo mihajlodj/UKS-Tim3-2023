@@ -42,7 +42,7 @@ class UpdateRepositoryView(generics.UpdateAPIView):
 
 @api_view(['GET'])
 def get_all_repos(request, query):
-    cache_key = f"folder_files:{query}"
+    cache_key = f"query_repo:{query}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:

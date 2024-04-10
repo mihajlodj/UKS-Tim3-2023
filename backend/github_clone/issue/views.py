@@ -12,8 +12,11 @@ from datetime import datetime
 import main
 from main import gitea_service
 from issue.serializers import IssueSerializer, serialize_issue
+from repository.serializers import RepositorySerializer, DeveloperSerializer
+from milestone.serializers import MilestoneSerializer
 from main import permissions
 from main.models import Developer, Issue, Project, Milestone, WorksOn
+from django.core.cache import cache
 
 gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
@@ -44,6 +47,38 @@ def update_issue(request):
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
 
     return Response(serialize_issue(issue), status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_all_issues(request, query):
+    cache_key = f"issue_repo:{query}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    results = Issue.objects.filter(title__contains=query)
+
+    if results.exists():
+        serialized_data = []
+        for result in results:
+            project_serializer = RepositorySerializer(result.project)
+            project = project_serializer.data
+
+            developer_serializer = DeveloperSerializer(result.manager)
+            developer = developer_serializer.data
+
+            milestone_serializer = MilestoneSerializer(result.milestone)
+            milestone = milestone_serializer.data
+
+            serialized_data.append({'created':result.created, 'developer': developer, 'project': project,
+                                    'description': result.description,'milestone': milestone})
+
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
