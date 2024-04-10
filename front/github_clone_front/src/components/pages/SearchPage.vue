@@ -68,14 +68,26 @@ export default {
   },
   created(){
     this.preselected_field = 'Repositories';
+    if (this.preselected_field=='Repositories'){
+      console.log(this.preselected_field);
+      this.fetchRepositories();
+    }
+    else{
+      this.repositories = []
+    }
   },
   watch: {
       '$route.query.q': {
         immediate: true,
         handler(newQuery, oldQuery) {
           if (newQuery !== oldQuery) {
-            if (this.preselected_field=='Repositories')
+            if (this.preselected_field=='Repositories'){
+              console.log(this.preselected_field);
               this.fetchRepositories();
+            }
+            else{
+              this.repositories = []
+            }
           }
         },
       },
@@ -84,7 +96,7 @@ export default {
     return {
       query: '',
       language: '',
-      preselected_field: '',
+      preselected_field: 'Repositories',
       user : localStorage.getItem("username"),
       loading: false,
       repositories: [],

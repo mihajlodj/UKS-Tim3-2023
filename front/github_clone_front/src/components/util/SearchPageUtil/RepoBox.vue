@@ -3,7 +3,7 @@
     <div class="repo-header">
       <img :src="avatar" alt="User Avatar" class="repo-avatar">
       <div class="repo-info">
-        <h3 class="repo-name">{{ name }}</h3>
+        <a href="#" class="repo-name">{{username}}/{{ name }}</a>
         <p class="repo-description">{{ description }}</p>
         <p class="repo-access">{{ access_modifier }}</p>
       </div>
@@ -24,11 +24,13 @@ export default {
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
+  color: white;
 }
 
 .repo-header {
   display: flex;
   align-items: center;
+  color: white;
 }
 
 .repo-avatar {
@@ -39,23 +41,36 @@ export default {
 }
 
 .repo-info {
+  display: flex;
+  align-items: center;
   flex: 1;
+  padding: 0.5rem;
 }
 
 .repo-name {
   font-size: 1.2rem;
-  margin: 0;
+  align-content: center;
+  padding: 0.5rem;
+  max-width: 20rem;
+  min-width: 15rem;
+  color: rgb(16, 109, 249);
 }
 
 .repo-description {
+  padding: 0.5rem;
   margin-top: 5px;
   margin-bottom: 5px;
-  color: #666;
+  color: white;
 }
 
 .repo-access {
-  font-style: italic;
-  color: #888;
+  padding: 0.5rem;
+  font-style: italic; 
+  font-weight: 600;
+  background: rgb(92, 92, 92);
+  border-radius: 1rem;
+  margin-left: auto;
+  color: white;
 }
 </style>
 
