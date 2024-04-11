@@ -65,6 +65,18 @@
             :milestone_title="result.milestone.title"
           />
       </div>
+      <div class="middle-section" v-if="this.preselected_field=='Pull_requests'">
+          <pr-box
+          v-for="(result, index) in prs"
+            :key="index"
+            :developer="result.developer"
+            :project="result.project.name"
+            :title="result.title"
+            :author="result.author.user.username"
+            :timestamp="result.timestamp"
+            :status="result.Status"
+          />
+      </div>
     </div>
   </div>
     
@@ -73,13 +85,15 @@
 <script>
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import RepoBox from '../util/SearchPageUtil/RepoBox.vue';
+import PrBox from '../util/SearchPageUtil/PrBox.vue';
 import IssueBox from '../util/SearchPageUtil/IssueBox.vue';
 import RepositoryService from '@/services/RepositoryService';
 import IssueService from '@/services/IssueService';
+import PullRequestService from '@/services/PullRequestService';
 
 export default {
   components: {
-    NavBar,RepoBox,IssueBox
+    NavBar,RepoBox,IssueBox,PrBox
   },
   created(){
     this.preselected_field = 'Repositories';
@@ -100,15 +114,24 @@ export default {
               console.log(this.preselected_field);
               this.fetchRepositories();
               this.issues = []
+              this.prs=[]
             }
             else if (this.preselected_field=='Issues'){
               console.log(this.preselected_field);
               this.getIssues();
               this.repositories = []
+              this.prs=[]
+            }
+            else if (this.preselected_field=='Pull_requests'){
+              console.log(this.preselected_field);
+              this.getPrs();
+              this.repositories = []
+              this.issues = []
             }
             else{
               this.repositories = []
               this.issues = []
+              this.prs=[]
             }
           }
         },
@@ -123,6 +146,7 @@ export default {
       loading: false,
       repositories: [],
       issues: [],
+      prs: [],
       error: null
     };
   },
@@ -150,6 +174,16 @@ export default {
       IssueService.getAllQueryIssues(this.$route.query.q)
           .then(res => {
                   this.issues = res.data
+                  console.log(res.data)
+              })
+              .catch(err => {
+                  console.log(err);
+              });
+    },
+    getPrs() {
+      PullRequestService.getAllQueryPrs(this.$route.query.q)
+          .then(res => {
+                  this.prs = res.data
                   console.log(res.data)
               })
               .catch(err => {
