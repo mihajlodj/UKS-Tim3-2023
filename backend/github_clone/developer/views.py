@@ -16,6 +16,7 @@ from main import gitea_service
 from main.models import Developer, SecondaryEmail
 from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
     change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
+from django.core.cache import cache
 
 
 class UpdateDeveloperView(generics.UpdateAPIView):
@@ -44,6 +45,35 @@ def add_new_email(request, username):
     )
     secondary_email.save()
     return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def get_all_devs(request, query):
+    cache_key = f"developer_query:{query}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    all_results = Developer.objects.all()
+    results = []
+    for result in all_results:
+        if result.user.username.lower().__contains__(query.lower()):
+            results.append(result)
+
+    if len(results) > 0:
+        serialized_data = []
+        for result in results:
+            developer_serializer = DeveloperSerializer(result)
+            developer = developer_serializer.data
+
+            serialized_data.append(developer)
+
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
