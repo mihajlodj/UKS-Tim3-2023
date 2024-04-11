@@ -2,12 +2,12 @@
   <div class="issue-box">
     <div class="issue-header">
       <div class="issue-info">
-        <p class="issue-description">{{ title }}</p>
-        <a href="#" class="issue-name">{{username}}/{{ name }}</a>
+        <p class="issue-name">{{ title }}</p>
         <p class="issue-description">{{ description }}</p>
-        <p class="issue-description">{{ milestone_title }}</p>
-        <p class="issue-access">{{ created }}</p>
-        <p class="issue-access">{{ open }}</p>
+        <a href="#" class="issue-milestone">{{ milestone_title }}</a>
+        <a href="#" class="issue-repo">{{username}}/{{ name }}</a>
+        <p class="issue-access">{{ formattedDate  }}</p>
+        <p class="issue-access">{{ openStatus }}</p>
       </div>
     </div>
   </div>
@@ -16,7 +16,16 @@
 <script>
 export default {
   name: 'IssueBox',
-  props: ['username', 'created', 'name', 'title', 'milestone_title','description','open']
+  props: ['username', 'created', 'name', 'title', 'milestone_title','description','open'],
+  computed: {
+    formattedDate() {
+      const date = new Date(this.created);
+      return date.toLocaleString();
+    },
+    openStatus() {
+      return this.open ? 'Open' : 'Closed';
+    }
+  }
 };
 </script>
 
@@ -46,15 +55,37 @@ export default {
   font-size: 1.2rem;
   align-content: center;
   padding: 0.5rem;
+  font-weight: 600;
+  max-width: 20rem;
+  min-width: 15rem;
+}
+
+.issue-repo {
+  font-size: 1.2rem;
+  align-content: center;
+  padding: 0.5rem;
   max-width: 20rem;
   min-width: 15rem;
   color: rgb(16, 109, 249);
 }
 
-.issue-description {
+.issue-milestone {
   padding: 0.5rem;
+  text-align: center;
   margin-top: 5px;
   margin-bottom: 5px;
+  max-width: 20rem;
+  min-width: 20rem;
+  color:rgb(16, 109, 249);
+}
+
+.issue-description {
+  padding: 0.5rem;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  max-width: 20rem;
+  min-width: 20rem;
   color: white;
 }
 
