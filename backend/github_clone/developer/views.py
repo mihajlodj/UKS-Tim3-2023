@@ -12,8 +12,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from developer.serializers import DeveloperSerializer, UserSerializer
+from branch.serializers import BranchSerializer
 from main import gitea_service
-from main.models import Developer, SecondaryEmail
+from main.models import Developer, SecondaryEmail, Commit
 from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
     change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
 from django.core.cache import cache
@@ -68,6 +69,39 @@ def get_all_devs(request, query):
             developer = developer_serializer.data
 
             serialized_data.append(developer)
+
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_all_commits(request, query):
+    cache_key = f"commit_query:{query}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    results = Commit.objects.filter(message__contains=query)
+
+    if results.exists():
+        serialized_data = []
+        for result in results:
+            author_serializer = DeveloperSerializer(result.author)
+            author = author_serializer.data
+
+            committer_serializer = DeveloperSerializer(result.committer)
+            committer = committer_serializer.data
+
+            branch_serializer = BranchSerializer(result.branch)
+            branch = branch_serializer.data
+
+            serialized_data.append(
+                {'message': result.message, 'branch': branch, 'author': author,
+                 'committer': committer, 'timestamp': result.timestamp})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

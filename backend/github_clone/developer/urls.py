@@ -6,6 +6,7 @@ from github_clone.settings import BASE_DIR
 urlpatterns = [
     path('update/<str:username>/', UpdateUserView.as_view(), name='update_developer_username'),
     path('query_devs/<str:query>/', get_all_devs, name='get_all_devs'),
+    path('query_commits/<str:query>/', get_all_commits, name='get_all_commits'),
     path('update/password/<str:username>/', change_users_password, name='change_users_password'),
     path('newEmail/<str:username>/', add_new_email, name='add_new_email'),
     path('delete/self/<str:username>/<str:usersPassowrd>', delete_user_developer, name='delete_user_developer'),
