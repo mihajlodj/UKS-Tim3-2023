@@ -5,6 +5,11 @@ const update = (developerData, username) => {
     return api.patch(`developer/update/${username}/`, developerData);
 }
 
+const getAllQueryDevelopers = (query) => {
+    return api.get(`developer/query_devs/${query}`);
+}
+
+
 const deleteUser = (usersPassword, username) => {
     return api.delete(`developer/delete/self/${username}/${usersPassword}`);
 }
@@ -47,4 +52,4 @@ const getUsersEmails = (username) => {
 
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress, deleteUsersAvatar};
+     deleteEmailAddress, deleteUsersAvatar, getAllQueryDevelopers};

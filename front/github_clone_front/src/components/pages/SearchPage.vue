@@ -77,6 +77,13 @@
             :status="result.Status"
           />
       </div>
+      <div class="middle-section" v-if="this.preselected_field=='Users'">
+          <dev-box
+          v-for="(result, index) in devs"
+            :key="index"
+            :developer="result"
+          />
+      </div>
     </div>
   </div>
     
@@ -86,14 +93,16 @@
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import RepoBox from '../util/SearchPageUtil/RepoBox.vue';
 import PrBox from '../util/SearchPageUtil/PrBox.vue';
+import DevBox from '../util/SearchPageUtil/DevBox.vue';
 import IssueBox from '../util/SearchPageUtil/IssueBox.vue';
 import RepositoryService from '@/services/RepositoryService';
 import IssueService from '@/services/IssueService';
+import DeveloperService from '@/services/DeveloperService';
 import PullRequestService from '@/services/PullRequestService';
 
 export default {
   components: {
-    NavBar,RepoBox,IssueBox,PrBox
+    NavBar,RepoBox,IssueBox,PrBox,DevBox
   },
   created(){
     this.preselected_field = 'Repositories';
@@ -115,23 +124,34 @@ export default {
               this.fetchRepositories();
               this.issues = []
               this.prs=[]
+              this.devs=[]
             }
             else if (this.preselected_field=='Issues'){
               console.log(this.preselected_field);
               this.getIssues();
               this.repositories = []
               this.prs=[]
+              this.devs=[]
             }
             else if (this.preselected_field=='Pull_requests'){
               console.log(this.preselected_field);
               this.getPrs();
               this.repositories = []
               this.issues = []
+              this.devs=[]
+            }
+            else if (this.preselected_field=='Users'){
+              console.log(this.preselected_field);
+              this.getDevs();
+              this.repositories = []
+              this.issues = []
+              this.prs=[]
             }
             else{
               this.repositories = []
               this.issues = []
               this.prs=[]
+              this.devs=[]
             }
           }
         },
@@ -147,6 +167,7 @@ export default {
       repositories: [],
       issues: [],
       prs: [],
+      devs: [],
       error: null
     };
   },
@@ -184,6 +205,16 @@ export default {
       PullRequestService.getAllQueryPrs(this.$route.query.q)
           .then(res => {
                   this.prs = res.data
+                  console.log(res.data)
+              })
+              .catch(err => {
+                  console.log(err);
+              });
+    },
+    getDevs() {
+      DeveloperService.getAllQueryDevelopers(this.$route.query.q)
+          .then(res => {
+                  this.devs = res.data
                   console.log(res.data)
               })
               .catch(err => {
