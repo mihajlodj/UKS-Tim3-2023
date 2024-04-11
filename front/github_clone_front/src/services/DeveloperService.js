@@ -9,6 +9,9 @@ const getAllQueryDevelopers = (query) => {
     return api.get(`developer/query_devs/${query}`);
 }
 
+const getAllQueryCommitts = (query) => {
+    return api.get(`developer/query_commits/${query}`);
+}
 
 const deleteUser = (usersPassword, username) => {
     return api.delete(`developer/delete/self/${username}/${usersPassword}`);
@@ -52,4 +55,4 @@ const getUsersEmails = (username) => {
 
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress, deleteUsersAvatar, getAllQueryDevelopers};
+     deleteEmailAddress, deleteUsersAvatar, getAllQueryDevelopers, getAllQueryCommitts};

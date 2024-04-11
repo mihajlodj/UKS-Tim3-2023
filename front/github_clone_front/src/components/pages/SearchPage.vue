@@ -84,6 +84,17 @@
             :developer="result"
           />
       </div>
+      <div class="middle-section" v-if="this.preselected_field=='Commits'">
+          <commit-box
+          v-for="(result, index) in commits"
+            :key="index"
+            :message="result.message"
+            :branch="result.branch"
+            :author="result.author"
+            :committer="result.committer"
+            :timestamp="result.timestamp"
+          />
+      </div>
     </div>
   </div>
     
@@ -93,6 +104,7 @@
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import RepoBox from '../util/SearchPageUtil/RepoBox.vue';
 import PrBox from '../util/SearchPageUtil/PrBox.vue';
+import CommitBox from '../util/SearchPageUtil/CommitBox.vue';
 import DevBox from '../util/SearchPageUtil/DevBox.vue';
 import IssueBox from '../util/SearchPageUtil/IssueBox.vue';
 import RepositoryService from '@/services/RepositoryService';
@@ -102,7 +114,7 @@ import PullRequestService from '@/services/PullRequestService';
 
 export default {
   components: {
-    NavBar,RepoBox,IssueBox,PrBox,DevBox
+    NavBar,RepoBox,IssueBox,PrBox,DevBox,CommitBox
   },
   created(){
     this.preselected_field = 'Repositories';
@@ -125,6 +137,7 @@ export default {
               this.issues = []
               this.prs=[]
               this.devs=[]
+              this.commits = []
             }
             else if (this.preselected_field=='Issues'){
               console.log(this.preselected_field);
@@ -132,6 +145,7 @@ export default {
               this.repositories = []
               this.prs=[]
               this.devs=[]
+              this.commits = []
             }
             else if (this.preselected_field=='Pull_requests'){
               console.log(this.preselected_field);
@@ -139,6 +153,7 @@ export default {
               this.repositories = []
               this.issues = []
               this.devs=[]
+              this.commits = []
             }
             else if (this.preselected_field=='Users'){
               console.log(this.preselected_field);
@@ -146,6 +161,15 @@ export default {
               this.repositories = []
               this.issues = []
               this.prs=[]
+              this.commits = []
+            }
+             else if (this.preselected_field=='Commits'){
+              console.log(this.preselected_field);
+              this.getCommits();
+              this.repositories = []
+              this.issues = []
+              this.prs=[]
+              this.devs=[]
             }
             else{
               this.repositories = []
@@ -168,6 +192,7 @@ export default {
       issues: [],
       prs: [],
       devs: [],
+      commits: [],
       error: null
     };
   },
@@ -215,6 +240,16 @@ export default {
       DeveloperService.getAllQueryDevelopers(this.$route.query.q)
           .then(res => {
                   this.devs = res.data
+                  console.log(res.data)
+              })
+              .catch(err => {
+                  console.log(err);
+              });
+    },
+    getCommits() {
+      DeveloperService.getAllQueryCommitts(this.$route.query.q)
+          .then(res => {
+                  this.commits = res.data
                   console.log(res.data)
               })
               .catch(err => {
@@ -318,3 +353,4 @@ export default {
   padding: 20px;
 }
 </style>
+
