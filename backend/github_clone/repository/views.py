@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Commit
+from main.models import Commit, Watches
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 
@@ -42,19 +42,73 @@ class UpdateRepositoryView(generics.UpdateAPIView):
 
 @api_view(['GET'])
 def get_all_repos(request, query):
-    cache_key = f"query_repo:{query}"
+    owner = ''
+    is_public = None
+    assignee = ''
+    followers = None
+    stars = None
+    created_date = None
+    language = ''
+
+    parts = query.split('&')
+    print(parts)
+    for part in parts:
+        if 'owner:' in part:
+            owner = part.split('owner:', 1)[1].strip()
+        elif 'is:' in part:
+            is_public = True if part.split('is:', 1)[1].strip() == 'public' else False
+        elif 'followers:' in part:
+            followers = int(part.split('followers:', 1)[1].strip())
+        elif 'stars:' in part:
+            stars = int(part.split('stars:', 1)[1].strip())
+        elif 'created:' in part:
+            created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
+        elif 'language:' in part:
+            language = part.split('language:', 1)[1].strip()
+        else:
+            query = part.strip()
+
+    print(query, owner, is_public, followers, stars, created_date, language)
+
+    cache_key = f"query_repo:{query}:{owner}:{is_public}:{followers}:{stars}:{created_date}:{language}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
 
-    results = WorksOn.objects.filter(project__name__icontains=query, role__icontains="Owner")
+    results = WorksOn.objects.filter(role__icontains="Owner")
+
+    if query:
+        results = results.filter(project__name__icontains=query)
+    if owner:
+        results = results.filter(developer__user__username__contains=owner)
+    if is_public is not None:
+        if is_public:
+            results = results.filter(project__access_modifier__contains="Public")
+        if not is_public:
+            results = results.filter(project__access_modifier__contains="Private")
+    if created_date:
+        results = results.filter(project__timestamp__gte=created_date)
+
 
     if results.exists():
         serialized_data = []
         for result in results:
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
+
+
+
+            # todo ostatak filtriranja mozda mora preko gitee
+            # if language:
+            #     results = results.filter(language__icontain=language)
+            # if followers is not None:
+            #     allWatches = len(Watches.objects.filter(project__name=query))
+            #     results = results.filter(project__watches=followers)
+            # if stars is not None:
+            #     results = results.filter(project__stars=stars)
+
+
 
             developer_serializer = DeveloperSerializer(result.developer)
             developer = developer_serializer.data
