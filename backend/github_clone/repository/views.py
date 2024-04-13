@@ -51,7 +51,7 @@ def get_all_repos(request, query):
     language = ''
 
     parts = query.split('&')
-    print(parts)
+    # print(parts)
     for part in parts:
         if 'owner:' in part:
             owner = part.split('owner:', 1)[1].strip()
@@ -68,7 +68,7 @@ def get_all_repos(request, query):
         else:
             query = part.strip()
 
-    print(query, owner, is_public, followers, stars, created_date, language)
+    # print(query, owner, is_public, followers, stars, created_date, language)
 
     cache_key = f"query_repo:{query}:{owner}:{is_public}:{followers}:{stars}:{created_date}:{language}"
     cached_data = cache.get(cache_key)
@@ -90,30 +90,29 @@ def get_all_repos(request, query):
     if created_date:
         results = results.filter(project__timestamp__gte=created_date)
 
-
     if results.exists():
         serialized_data = []
         for result in results:
+            isExcluded = False
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
-
-
 
             # todo ostatak filtriranja mozda mora preko gitee
             # if language:
             #     results = results.filter(language__icontain=language)
-            # if followers is not None:
-            #     allWatches = len(Watches.objects.filter(project__name=query))
-            #     results = results.filter(project__watches=followers)
+            if followers is not None:
+                allWatches = len(Watches.objects.filter(project__name=project['name']))
+                if allWatches < followers:
+                    results = results.exclude(project__name__exact=project['name'])
+                    isExcluded = True
             # if stars is not None:
             #     results = results.filter(project__stars=stars)
-
-
 
             developer_serializer = DeveloperSerializer(result.developer)
             developer = developer_serializer.data
 
-            serialized_data.append({'developer': developer, 'project': project})
+            if not isExcluded:
+                serialized_data.append({'developer': developer, 'project': project})
 
         cache.set(cache_key, serialized_data, timeout=30)
 
