@@ -40,6 +40,9 @@ import 'vue-pdf-embed/dist/style/index.css'
 import 'vue-pdf-embed/dist/style/annotationLayer.css'
 import 'vue-pdf-embed/dist/style/textLayer.css'
 
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+
 // test
 // import IssueComponent from './components/issue/IssueComponent'
 import ListIssueComponent from './components/issue/ListIssueComponent.vue'
@@ -169,4 +172,5 @@ const router = createRouter({
 });
 
 const app = createApp(App).use(router).component('font-awesome-icon', FontAwesomeIcon);
+app.component('VueDatePicker', VueDatePicker);
 app.mount("#app");

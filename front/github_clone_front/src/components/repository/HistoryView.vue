@@ -42,6 +42,7 @@
                                         {{ selectedCommitter.username }}
                                 </span>
                             </button>
+                            
                             <ul class="dropdown-menu" aria-labelledby="navbarCommitterDropdown">
                                 <li class="mx-2">
                                     <input type="text" placeholder="Find a user" class="px-2 py-1 mb-2"
@@ -63,19 +64,56 @@
                             </ul>
                         </div>
 
-                        <div>
-
+                        <div class="ms-3">
+                            <VueDatePicker 
+                                ref="datePicker"
+                                range
+                                v-model="date"
+                                placeholder="All time"
+                                :format="format"
+                                @range-start="dateInputStarted"
+                                @range-end="dateInputEnded"
+                                @cleared="cleared"
+                                @closed="closed"
+                            ></VueDatePicker>
                         </div>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-center w-100">
-                    <CommitsTable :commits="commitsByCommitter" class="w-100" :ref="commitsTableRef" />
+                    <CommitsTable :commits="filteredCommits" class="w-100" :ref="commitsTableRef" />
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<script setup>
+
+const format = (date) => {
+    if (Array.isArray(date)) {
+        const d1 = new Date(date[0]);
+        const d2 = new Date(date[1]);
+
+        const day1 = d1.getDate();
+        const month1 = d1.getMonth() + 1;
+        const year1 = d1.getFullYear();
+
+        const day2 = d2.getDate();
+        const month2 = d2.getMonth() + 1;
+        const year2 = d2.getFullYear();
+
+        return `${day1}/${month1}/${year1} - ${day2}/${month2}/${year2}`;
+    }
+    date = new Date(date);
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+}
+
+</script>
 
 <script>
 import CommitsTable from '../commit/CommitsTable.vue';
@@ -112,7 +150,7 @@ export default {
     data() {
         return {
             commits: [],
-            commitsByCommitter: [],
+            filteredCommits: [],
             branches: [],
             filteredBranches: [],
             committers: [],
@@ -121,7 +159,10 @@ export default {
             searchTerm: "",
             committerSearchTerm: "",
             selectedCommitter: null,
-            commitsTableRef: 1
+            commitsTableRef: 1,
+            date: null,
+            startDate: null,
+            endDate: null
         }
     },
 
@@ -129,7 +170,7 @@ export default {
         loadCommits() {
             BranchService.getCommits(this.$route.params.repoName, this.selectedBranch).then(res => {
                 this.commits = res.data;
-                this.commitsByCommitter = res.data;
+                this.filteredCommits = res.data;
             }).catch(err => {
                 console.log(err);
             });
@@ -138,18 +179,20 @@ export default {
         selectedBranchChanged(branchName) {
             this.selectedBranch = branchName;
             this.loadCommits();
+            this.$refs.datePicker.clearValue();
+            this.startDate = null;
+            this.endDate = null;
+            this.selectedCommitter = null;
         },
 
         selectedCommitterChanged(committer) {
             this.selectedCommitter = committer;
-            this.commitsByCommitter = this.commits.filter(c => c.author.username.toLowerCase().includes(committer.username.toLowerCase()));
-            this.commitsTableRef++;
+            this.filterCommits();
         },
 
         displayCommitsAllUsers() {
             this.selectedCommitter = null;
-            this.commitsByCommitter = this.commits;
-            this.commitsTableRef++;
+            this.filterCommits();
         },
 
         searchTermChanged() {
@@ -166,6 +209,45 @@ export default {
             } else {
                 this.filteredCommitters = this.committers.filter(c => c.username.toLowerCase().includes(this.committerSearchTerm.toLowerCase()));
             }
+        },
+
+        dateInputStarted(value) {
+            this.startDate = value;
+        },
+
+        dateInputEnded(value) {
+            this.endDate = value;
+        },
+
+        cleared() {
+            this.startDate = null;
+            this.endDate = null;
+            this.filterCommits();
+        },
+
+        closed() {
+            this.filterCommits();
+        },
+
+        filterCommits() {
+            if (this.selectedCommitter !== null) {
+                this.filteredCommits = this.commits.filter(c => c.author.username.toLowerCase().includes(this.selectedCommitter.username.toLowerCase()));
+            } else {
+                this.filteredCommits = this.commits;
+            }
+
+            if (this.startDate !== null && this.endDate !== null) {
+                this.filteredCommits = this.filteredCommits.filter(c => {
+                    const ts = new Date(c.timestamp);
+                    return ts >= this.startDate && ts <= this.endDate;
+                });
+            } else if (this.startDate !== null) {
+                this.filteredCommits = this.filteredCommits.filter(c => new Date(c.timestamp) >= this.startDate);
+            } else if (this.endDate !== null) {
+                this.filteredCommits = this.filteredCommits.filter(c => new Date(c.timestamp) <= this.endDate);
+            }
+
+            this.commitsTableRef++;
         }
     }
 }
@@ -196,8 +278,6 @@ hr {
     padding: 5px 10px;
 }
 
-
-
 .dropdown-menu {
     background-color: #2c333b;
     border: 1px solid #646b72;
@@ -211,7 +291,6 @@ input {
     background-color: #22272d;
     color: #b1bdca;
     border: 1px solid #646b72;
-    ;
     border-radius: 5px;
     min-width: 250px;
 }
@@ -234,5 +313,35 @@ img {
     color: #22272d ;
     background-color: #e1e7ee;
     width: 100%;
+}
+
+.dp__theme_light {
+    --dp-background-color: #373e48;
+    --dp-text-color: #fff;
+    --dp-hover-color: #484848;
+    --dp-hover-text-color: #c5d1df;
+    --dp-hover-icon-color: #c5d1df;
+    --dp-primary-color: #005cb2;
+    --dp-primary-disabled-color: #61a8ea;
+    --dp-primary-text-color: #c5d1df;
+    --dp-secondary-color: #c5d1df;
+    --dp-border-color: #b1bdca;
+    --dp-menu-border-color: #2d2d2d;
+    --dp-border-color-hover: #b1bdca;
+    --dp-disabled-color: #737373;
+    --dp-disabled-color-text: #d0d0d0;
+    --dp-scroll-bar-background: #212121;
+    --dp-scroll-bar-color: #484848;
+    --dp-success-color: #00701a;
+    --dp-success-color-disabled: #428f59;
+    --dp-icon-color: #c5d1df;
+}
+
+.dp__instance_calendar {
+    background-color: red;
+}
+
+:root {
+    --dp-border-radius: 7px;
 }
 </style>
