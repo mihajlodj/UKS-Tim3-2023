@@ -6,7 +6,7 @@ import CodeVerification from './components/auth/CodeVerification.vue'
 import LoginPage from './components/auth/LoginPage.vue'
 import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
-import RepoSettings from './components/repository/RepoSettings.vue';
+import RepoSettings from './components/repository/settings/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
 import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
@@ -31,7 +31,7 @@ import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
-import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
+import { faCodePullRequest, faCodeBranch, faUserLock } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot, faComments } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark, faCopy } from '@fortawesome/free-regular-svg-icons'
@@ -82,6 +82,7 @@ library.add(faCircleMinus);
 library.add(faCircleStop);
 library.add(faClockRotateLeft);
 library.add(faUsers);
+library.add(faUserLock);
 
 const routes = [
     {
