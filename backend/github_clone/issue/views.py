@@ -51,13 +51,47 @@ def update_issue(request):
 
 @api_view(['GET'])
 def get_all_issues(request, query):
-    cache_key = f"issue_repo:{query}"
+    creator = ''
+    is_open = None
+    created_date = None
+    assignee = ''
+
+    parts = query.split('&')
+    for part in parts:
+        if 'creator:' in part:
+            creator = part.split('creator:', 1)[1].strip()
+        elif 'is:' in part:
+            is_open = True if part.split('is:', 1)[1].strip() == 'open' else False
+        elif 'assignee:' in part:
+            assignee = part.split('assignee:', 1)[1].strip()
+        elif 'created:' in part:
+            created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
+        else:
+            query = part.strip()
+
+    print(creator ,"->creator",is_open,"->is_open",assignee,"->assignee",created_date,"->created_date",query,"->query")
+
+    cache_key = f"issue_repo:{query}:{creator}:{is_open}:{assignee}:{created_date}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
 
-    results = Issue.objects.filter(title__contains=query)
+    results = Issue.objects.all()
+
+    if query:
+        results = results.filter(title__contains=query)
+    if creator:
+        results = results.filter(creator__user__username__contains=creator)
+    if assignee:
+        results = results.filter(manager__user__username__contains=assignee)
+    if is_open is not None:
+        if is_open:
+            results = results.filter(open=True)
+        if not is_open:
+            results = results.filter(open=False)
+    if created_date:
+        results = results.filter(created__gte=created_date)
 
     if results.exists():
         serialized_data = []
@@ -65,14 +99,20 @@ def get_all_issues(request, query):
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
 
-            developer_serializer = DeveloperSerializer(result.manager)
+            developer_serializer = DeveloperSerializer(result.creator)
             developer = developer_serializer.data
 
             milestone_serializer = MilestoneSerializer(result.milestone)
             milestone = milestone_serializer.data
 
-            serialized_data.append({'created':result.created, 'developer': developer, 'project': project,'title': result.title,
-                                    'description': result.description,'milestone': milestone, 'open':result.open})
+            managers_data = []
+            for manager in result.manager.all():
+                manager_serializer = DeveloperSerializer(manager)
+                managers_data.append(manager_serializer.data)
+
+            serialized_data.append(
+                {'created': result.created, 'developer': developer, 'project': project, 'title': result.title,
+                 'description': result.description, 'milestone': milestone, 'open': result.open, 'managers':managers_data})
 
         cache.set(cache_key, serialized_data, timeout=30)
 
@@ -82,7 +122,7 @@ def get_all_issues(request, query):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated,])
+@permission_classes([IsAuthenticated, ])
 def get_issue(request, pk):
     try:
         issue = Issue.objects.get(pk=pk)
@@ -115,6 +155,7 @@ def close_issue(request, repo_name, pk):
     gitea_service.close_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
     return HttpResponse(status=200)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_issues(request, repo_name):
@@ -129,7 +170,8 @@ def get_issues(request, repo_name):
             'created': issue['created'],
             'manager': Developer.objects.get(user__id=issue['manager_id']).user.username,
             'project': Project.objects.get(id=issue['project_id']).name,
-            'milestone': None if issue['milestone_id'] is None else serialize_milestone(Milestone.objects.get(id=issue['milestone_id']))
+            'milestone': None if issue['milestone_id'] is None else serialize_milestone(
+                Milestone.objects.get(id=issue['milestone_id']))
         })
     return JsonResponse(data, safe=False, status=200)
 
