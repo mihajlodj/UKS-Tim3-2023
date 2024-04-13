@@ -44,14 +44,12 @@ class UpdateRepositoryView(generics.UpdateAPIView):
 def get_all_repos(request, query):
     owner = ''
     is_public = None
-    assignee = ''
     followers = None
     stars = None
     created_date = None
     language = ''
 
     parts = query.split('&')
-    # print(parts)
     for part in parts:
         if 'owner:' in part:
             owner = part.split('owner:', 1)[1].strip()
@@ -67,8 +65,6 @@ def get_all_repos(request, query):
             language = part.split('language:', 1)[1].strip()
         else:
             query = part.strip()
-
-    # print(query, owner, is_public, followers, stars, created_date, language)
 
     cache_key = f"query_repo:{query}:{owner}:{is_public}:{followers}:{stars}:{created_date}:{language}"
     cached_data = cache.get(cache_key)
@@ -97,7 +93,7 @@ def get_all_repos(request, query):
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
 
-            # todo ostatak filtriranja mozda mora preko gitee
+            # TODO programski jezik repoa mozda preko giteee moze !?!?
             # if language:
             #     results = results.filter(language__icontain=language)
             if followers is not None:
@@ -105,8 +101,11 @@ def get_all_repos(request, query):
                 if allWatches < followers:
                     results = results.exclude(project__name__exact=project['name'])
                     isExcluded = True
-            # if stars is not None:
-            #     results = results.filter(project__stars=stars)
+            if stars is not None:
+                allStars = len(Watches.objects.filter(project__name=project['name']))
+                if allStars < stars:
+                    results = results.exclude(project__name__exact=project['name'])
+                    isExcluded = True
 
             developer_serializer = DeveloperSerializer(result.developer)
             developer = developer_serializer.data
