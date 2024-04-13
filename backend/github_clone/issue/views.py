@@ -58,8 +58,8 @@ def get_all_issues(request, query):
 
     parts = query.split('&')
     for part in parts:
-        if 'creator:' in part:
-            creator = part.split('creator:', 1)[1].strip()
+        if 'owner:' in part:
+            creator = part.split('owner:', 1)[1].strip()
         elif 'is:' in part:
             is_open = True if part.split('is:', 1)[1].strip() == 'open' else False
         elif 'assignee:' in part:
