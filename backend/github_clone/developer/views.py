@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
 from main import gitea_service
-from main.models import Developer, SecondaryEmail, WorksOn
+from main.models import Developer, Invitation, SecondaryEmail, WorksOn
 from main.gitea_service import get_gitea_user_info_gitea_service
 
 
@@ -173,5 +173,7 @@ def get_developers(request, repository_name):
         'username': d.user.username,
         'avatar': service.get_dev_avatar(d.user.username),
         'email': d.user.email
-        } for d in developers if not WorksOn.objects.filter(developer=d, project__name=repository_name)]
+        } for d in developers 
+        if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists() 
+            and not Invitation.objects.filter(developer=d, project__name=repository_name).exists()]
     return Response(result, status=status.HTTP_200_OK)
