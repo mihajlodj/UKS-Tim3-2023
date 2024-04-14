@@ -20,6 +20,7 @@ import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
 import HistoryView from '@/components/repository/HistoryView.vue'
 import CommitDisplay from './components/commit/CommitDisplay.vue'
+import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -165,6 +166,10 @@ const routes = [
     {
         path: "/view/:username/:repoName/commit/:sha",
         component: CommitDisplay
+    },
+    {
+        path: "/view/:username/:repoName/invitations/:invitedUsername",
+        component: CollaborationInvitation
     }
 ]
 

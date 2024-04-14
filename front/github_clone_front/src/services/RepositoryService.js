@@ -52,5 +52,13 @@ const inviteCollaborator = (repoName, invitedUsername) => {
     return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
 }
 
+const respondToInvitation = (repoName, invitedUsername, choice) => {
+    return api.post(`repository/inviteResponse/${repoName}/${invitedUsername}/${choice}`);
+}
+
+const getInvitation = (repoName, invitedUsername) => {
+    return api.get(`repository/invitation/${repoName}/${invitedUsername}`);
+}
+
 export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, 
-    editFile, deleteFile, createFile, inviteCollaborator };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation };

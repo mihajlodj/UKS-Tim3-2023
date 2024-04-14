@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Invitation, Commit
+from main.models import Project, Role, WorksOn, Developer, Branch, AccessModifiers, Invitation, Commit
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
 from . import service
@@ -315,6 +315,45 @@ def invite_collaborator(request, repository_name, invited_username):
         service.invite_collaborator(developer, request.user.username, project)
         
         return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def respond_to_invitation(request, repository_name, invited_username, choice):
+    developer = Developer.objects.filter(user__username=invited_username)
+    project = Project.objects.filter(name=repository_name)
+    invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
+    if developer.exists() and project.exists and invitation.exists():
+        developer = developer.first()
+        project = project.first()
+        invitation = invitation.first()
+
+        invitation.delete()
+        if (choice == 'accept'):
+            WorksOn.objects.create(developer=developer, project=project, role=Role.DEVELOPER)
+        return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_invitation(request, repository_name, invited_username):
+    if request.user.username != invited_username:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    project = Project.objects.filter(name=repository_name)
+    invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
+    invited_user = Developer.objects.filter(user__username=invited_username)
+    if invitation.exists() and project.exists and invited_user.exists():
+        invitation = invitation.first()
+        project = project.first()
+        owner = WorksOn.objects.filter(project=project, role=Role.OWNER).first().developer
+        result = {
+            'owner_username': owner.user.username, 
+            'owner_avatar': developer_service.get_dev_avatar(owner.user.username),
+            'invited_user_avatar': developer_service.get_dev_avatar(invited_username)
+        }
+        return Response(result, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
