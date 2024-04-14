@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from developer.serializers import DeveloperSerializer, UserSerializer
 from branch.serializers import BranchSerializer
 from main import gitea_service
-from main.models import Developer, SecondaryEmail, Commit
+from main.models import Developer, SecondaryEmail, Commit, Watches
 from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
     change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
 from django.core.cache import cache
@@ -50,7 +50,16 @@ def add_new_email(request, username):
 
 @api_view(['GET'])
 def get_all_devs(request, query):
-    cache_key = f"developer_query:{query}"
+    repositories = None
+
+    parts = query.split('&')
+    for part in parts:
+        if 'repositories:' in part:
+            repositories = int(part.split('repositories:', 1)[1].strip())
+        else:
+            query = part.strip()
+
+    cache_key = f"developer_query:{query}{repositories}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:
@@ -65,10 +74,16 @@ def get_all_devs(request, query):
     if len(results) > 0:
         serialized_data = []
         for result in results:
+            isExcluded = False
             developer_serializer = DeveloperSerializer(result)
             developer = developer_serializer.data
 
-            serialized_data.append(developer)
+            if repositories is not None:
+                allUserRepos = len(Watches.objects.filter(developer__user__username__contains=developer['user']['username'],developer__workson__role__exact="Owner"))
+                if allUserRepos < repositories:
+                    isExcluded = True
+            if not isExcluded:
+                serialized_data.append(developer)
 
         cache.set(cache_key, serialized_data, timeout=30)
 
