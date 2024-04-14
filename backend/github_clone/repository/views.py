@@ -1,6 +1,5 @@
 import base64
 import json
-from datetime import datetime
 from django.utils import timezone
 
 from django.contrib.auth.models import User
@@ -15,6 +14,7 @@ from main import permissions
 from main.models import Commit
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
 from repository.serializers import RepositorySerializer, DeveloperSerializer
+from developer import service as developer_service
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -51,6 +51,27 @@ def get_repo_data_for_display(request, owner_username, repository_name):
     branches = Branch.objects.filter(project__name=repository_name)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names
+
+    branch_commits_overview = {}
+    for branch in branches:
+        branch_commits = Commit.objects.filter(branch=branch)
+        if len(branch_commits) > 0:
+            latest_commit_obj = branch_commits.order_by('-timestamp').first()
+            latest_commit = {
+                'author': {
+                    'username': latest_commit_obj.author.user.username,
+                    'avatar': developer_service.get_dev_avatar(latest_commit_obj.author.user.username)
+                },
+                'sha': latest_commit_obj.hash,
+                'message': latest_commit_obj.message,
+                'timestamp': latest_commit_obj.timestamp,
+
+            }
+        branch_commits_overview[branch.name] = {
+            'latest_commit': latest_commit,
+            'num_commits': len(branch_commits)
+        }  
+    result['commits_overview'] = branch_commits_overview   
     return Response(result, status=status.HTTP_200_OK)
 
 
@@ -63,6 +84,16 @@ def get_root_files(request, owner_username, repository_name, ref):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     result = gitea_service.get_root_content(owner_username, repository_name, ref)
+    for item in result:
+        last_commit_sha = item['last_commit_sha']
+        if Commit.objects.filter(hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(hash=last_commit_sha)
+            item['last_commit_message'] = last_commit.message
+            item['last_commit_timestamp'] = last_commit.timestamp
+        else:
+            item['last_commit_message'] = ''
+            item['last_commit_timestamp'] = None
+    print(result)
     if len(result) != 0:
         cache.set(cache_key, result, timeout=30)
 
@@ -79,6 +110,17 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     result = gitea_service.get_folder_content(owner_username, repository_name, branch, path)
+    for item in result:
+        last_commit_sha = item['last_commit_sha']
+        if Commit.objects.filter(hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(hash=last_commit_sha)
+            item['last_commit_message'] = last_commit.message
+            item['last_commit_timestamp'] = last_commit.timestamp
+        else:
+            item['last_commit_message'] = ''
+            item['last_commit_timestamp'] = None
+
+    print(result)
 
     if len(result) != 0:
         cache.set(cache_key, result, timeout=30)

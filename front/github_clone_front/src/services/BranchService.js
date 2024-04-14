@@ -12,4 +12,12 @@ const deleteBranch = (repoName, branchName) => {
     return api.delete(`branch/delete/${repoName}/${branchName}/`);
 }
 
-export default { getAllBranches, createBranch, deleteBranch }
+const getCommits = (repoName, branchName) => {
+    return api.get(`branch/commits/${repoName}/${branchName}`);
+}
+
+const getCommitters = (repoName, branchName) => {
+    return api.get(`branch/committers/${repoName}/${branchName}`);
+}
+
+export default { getAllBranches, createBranch, deleteBranch, getCommits, getCommitters }

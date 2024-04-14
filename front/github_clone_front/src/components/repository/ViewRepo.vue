@@ -83,6 +83,11 @@
                     </div>
 
                     <div>
+                        <CommitsOverview class="mt-3"
+                            :latestCommit="repo.commitsOverview[repo.chosenBranch].latest_commit"
+                            :numCommits="repo.commitsOverview[repo.chosenBranch].num_commits"
+                            :branchName="repo.chosenBranch"
+                        />
                         <RepoContent :refName="repo.chosenBranch" :key="contentKey" :displayRoot="repo.displayRoot"
                             @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent"
                             :branch="repo.chosenBranch" />
@@ -113,6 +118,7 @@ import RepoContent from '@/components/repository/RepoContent.vue'
 import RepoNavbar from './RepoNavbar.vue';
 import NotFoundPage from '../util/NotFoundPage.vue';
 import DeveloperService from '@/services/DeveloperService';
+import CommitsOverview from './CommitsOverview.vue';
 
 export default {
     name: 'ViewRepo',
@@ -120,7 +126,8 @@ export default {
     components: {
         RepoContent,
         RepoNavbar,
-        NotFoundPage
+        NotFoundPage,
+        CommitsOverview
     },
 
     mounted() {
@@ -131,6 +138,7 @@ export default {
             this.repo.http = res.data.http;
             this.repo.ssh = res.data.ssh;
             this.repo.defaultBranch = res.data.default_branch;
+            this.repo.commitsOverview = res.data.commits_overview;
 
             this.repo.chosenBranch = res.data.default_branch;
             if (this.$route.query.chosen) {

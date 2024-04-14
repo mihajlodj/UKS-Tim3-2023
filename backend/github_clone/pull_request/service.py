@@ -1,7 +1,7 @@
 from django.http import Http404
-from main import gitea_service
 from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role
 import re
+from developer import service as developer_service
 
 def get_pull_title(json_data):
     if 'title' not in json_data:
@@ -50,14 +50,6 @@ def update_assignee(json_data, req, repository_name):
         req.assignee = None
     req.save()
 
-def get_dev_avatar(username):
-    developer = Developer.objects.get(user__username=username)
-    if developer.avatar is None:
-        gitea_user_info = gitea_service.get_gitea_user_info_gitea_service(username)
-        return gitea_user_info['avatar_url']
-    avatar_filename = developer.avatar.split('/')[1]
-    return f"http://localhost/avatars/{avatar_filename}"
-
 def get_pull_request_from_merge_commit(msg, repo_name):
     pattern = r'\(#(\d+)\)'
     matches = re.findall(pattern, msg)
@@ -67,6 +59,6 @@ def get_pull_request_from_merge_commit(msg, repo_name):
 
 def get_commit_author(username, msg, repo_name):
     if Developer.objects.filter(user__username=username).exists():
-        return {'username': username, 'avatar': get_dev_avatar(username)}
+        return {'username': username, 'avatar': developer_service.get_dev_avatar(username)}
     req = get_pull_request_from_merge_commit(msg, repo_name)
-    return {'username': req.merged_by.user.username, 'avatar': get_dev_avatar(req.merged_by.user.username)}
+    return {'username': req.merged_by.user.username, 'avatar': developer_service.get_dev_avatar(req.merged_by.user.username)}

@@ -113,7 +113,7 @@ import MergeInfo from './MergeInfo.vue'
 import CommitsTable from '../commit/CommitsTable.vue'
 import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
-import ChangedFiles from "./ChangedFiles.vue"
+import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -375,4 +375,4 @@ textarea {
     border: 1px solid #768491;
     border-radius: 5px;
 }
-</style>
+</style>../commit/ChangedFiles.vue
