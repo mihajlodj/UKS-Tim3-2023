@@ -31,7 +31,7 @@ import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
-import { faCodePullRequest, faCodeBranch, faUserLock } from '@fortawesome/free-solid-svg-icons'
+import { faCodePullRequest, faCodeBranch, faUserLock, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot, faComments } from '@fortawesome/free-regular-svg-icons'
 import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark, faCopy } from '@fortawesome/free-regular-svg-icons'
@@ -83,6 +83,7 @@ library.add(faCircleStop);
 library.add(faClockRotateLeft);
 library.add(faUsers);
 library.add(faUserLock);
+library.add(faXmark);
 
 const routes = [
     {

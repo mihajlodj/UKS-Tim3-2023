@@ -164,3 +164,14 @@ def get_developers_emails(request, username):
     primary_email = user.email
     users_emails.append({'email': primary_email, 'primary': True, 'verified': True})
     return Response(users_emails[::-1], status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_developers(request):
+    developers = Developer.objects.filter()
+    result = [{
+        'username': d.user.username,
+        'avatar': service.get_dev_avatar(d.user.username),
+        'email': d.user.email
+        } for d in developers]
+    return Response(result, status=status.HTTP_200_OK)

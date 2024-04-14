@@ -16,5 +16,6 @@ urlpatterns = [
     path('avatar/<str:username>/', get_developer_avatar, name='get_developer_avatar'),
     # path('emails/gitea/<str:username>/', get_developers_emails_gitea, name='get_developer_emails'),
     path('emails/<str:username>/', get_developers_emails, name='get_developer_emails'),
+    path('all', get_developers, name='get_developers'),
 ]
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))

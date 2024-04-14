@@ -45,6 +45,10 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
+const getDevelopers = () => {
+    return api.get('developer/all');
+}
+
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress, deleteUsersAvatar};
+     deleteEmailAddress, deleteUsersAvatar, getDevelopers};
