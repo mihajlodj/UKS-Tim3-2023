@@ -88,7 +88,7 @@ export default {
     name: "CollaboratorsSettings",
 
     mounted() {
-        DeveloperService.getDevelopers().then(res => {
+        DeveloperService.getDevelopers(this.$route.params.repoName).then(res => {
             this.developers = res.data.filter(dev => dev.avatar !== null);
             console.log(this.developers);
         }).catch(err => {

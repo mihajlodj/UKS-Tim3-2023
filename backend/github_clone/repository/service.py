@@ -21,7 +21,7 @@ def send_email(invited_developer, inviter_username, owner_username, repository_n
         'link_to_repo': f'http://localhost:3001/view/{owner_username}/{repository_name}',
         'link_to_owner': 'http://google.com',  # TODO
         'owner_username': owner_username,
-        'link_to_invitation': 'http://google.com' # TODO
+        'link_to_invitation': 'http://localhost:3001/view/{owner_username}/{repository_name}/invitations/{invited_username}'
     }
     html_message = render_to_string('collaboration_invitation_email.html', template_vars)
     plain_message = strip_tags(html_message)
