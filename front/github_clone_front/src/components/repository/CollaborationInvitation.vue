@@ -62,6 +62,7 @@ export default {
         accept() {
             RepositoryService.respondToInvitation(this.$route.params.repoName, this.$route.params.invitedUsername, "accept").then(res => {
                 console.log(res);
+                this.$router.push(`/view/${this.invitationInfo.owner_username}/${this.$route.params.repoName}`);
             }).catch(err => {
                 console.log(err);
             });
@@ -70,6 +71,7 @@ export default {
         decline() {
             RepositoryService.respondToInvitation(this.$route.params.repoName, this.$route.params.invitedUsername, "decline").then(res => {
                 console.log(res);
+                this.$router.push('/main');
             }).catch(err => {
                 console.log(err);
             });

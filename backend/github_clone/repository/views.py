@@ -329,7 +329,8 @@ def respond_to_invitation(request, repository_name, invited_username, choice):
         project = project.first()
         invitation = invitation.first()
 
-        invitation.delete()
+        Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name).delete()
+
         if (choice == 'accept'):
             WorksOn.objects.create(developer=developer, project=project, role=Role.DEVELOPER)
         return Response(status=status.HTTP_200_OK)
