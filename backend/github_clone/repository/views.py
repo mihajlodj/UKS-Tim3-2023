@@ -93,9 +93,14 @@ def get_all_repos(request, query):
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
 
-            # TODO programski jezik repoa mozda preko giteee moze !?!?
-            # if language:
-            #     results = results.filter(language__icontain=language)
+            developer_serializer = DeveloperSerializer(result.developer)
+            developer = developer_serializer.data
+
+            if language != '':
+                gitea_project = gitea_service.get_repo_language(developer['user']['username'], project['name'])
+                if language != gitea_project['data'][0]['language']:
+                    isExcluded = True
+                    results = results.exclude(project__name=project['name'])
             if followers is not None:
                 allWatches = len(Watches.objects.filter(project__name=project['name']))
                 if allWatches < followers:
@@ -106,9 +111,6 @@ def get_all_repos(request, query):
                 if allStars < stars:
                     results = results.exclude(project__name__exact=project['name'])
                     isExcluded = True
-
-            developer_serializer = DeveloperSerializer(result.developer)
-            developer = developer_serializer.data
 
             if not isExcluded:
                 serialized_data.append({'developer': developer, 'project': project})
