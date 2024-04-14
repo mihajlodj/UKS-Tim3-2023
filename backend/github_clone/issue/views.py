@@ -69,9 +69,9 @@ def get_all_issues(request, query):
         else:
             query = part.strip()
 
-    print(creator ,"->creator",is_open,"->is_open",assignee,"->assignee",created_date,"->created_date",query,"->query")
+    # print(creator ,"->creator",is_open,"->is_open",assignee,"->assignee",created_date,"->created_date",query,"->query")
 
-    cache_key = f"issue_repo:{query}:{creator}:{is_open}:{assignee}:{created_date}"
+    cache_key = f"issue_query:{query}:{creator}:{is_open}:{assignee}:{created_date}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:

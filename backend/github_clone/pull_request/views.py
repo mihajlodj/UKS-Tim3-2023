@@ -9,6 +9,7 @@ from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullReque
 from pull_request import diff_parser, service
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from django.core.cache import cache
+from datetime import datetime
 
 
 @api_view(['POST'])
@@ -34,13 +35,48 @@ def create(request, owner_username, repository_name):
 
 @api_view(['GET'])
 def get_all_pull_reqs(request, query):
-    cache_key = f"pull_request_query:{query}"
+    creator = ''
+    is_open = None
+    created_date = None
+    assignee = ''
+
+    parts = query.split('&')
+    for part in parts:
+        if 'owner:' in part:
+            creator = part.split('owner:', 1)[1].strip()
+        elif 'is:' in part:
+            is_open = True if part.split('is:', 1)[1].strip() == 'open' else False
+        elif 'assignee:' in part:
+            assignee = part.split('assignee:', 1)[1].strip()
+        elif 'created:' in part:
+            created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
+        else:
+            query = part.strip()
+
+    print(creator, "->creator", is_open, "->is_open", assignee, "->assignee", created_date, "->created_date", query,
+          "->query")
+
+    cache_key = f"pull_request_query:{query}:{creator}:{is_open}:{assignee}:{created_date}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
 
-    results = PullRequest.objects.filter(title__contains=query)
+    results = PullRequest.objects.all()
+
+    if query:
+        results = results.filter(title__contains=query)
+    if creator:
+        results = results.filter(author__user__username__contains=creator)
+    if assignee:
+        results = results.filter(assignee__user__username__contains=assignee)
+    if is_open is not None:
+        if is_open:
+            results = results.filter(status__contains="open")
+        if not is_open:
+            results = results.filter(status__contains="closed")
+    if created_date:
+        results = results.filter(timestamp__gt=created_date)
 
     if results.exists():
         serialized_data = []
@@ -51,11 +87,11 @@ def get_all_pull_reqs(request, query):
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
 
-            workson = WorksOn.objects.get(project__name=project['name'], role__exact="Owner")
+            worksOn = WorksOn.objects.get(project__name=project['name'], role__exact="Owner")
 
             serialized_data.append(
                 {'title': result.title, 'timestamp': result.timestamp, 'project': project, 'author': author,
-                 'Status': result.status, 'developer': workson.developer.user.username})
+                 'Status': result.status, 'developer': worksOn.developer.user.username})
 
         cache.set(cache_key, serialized_data, timeout=30)
 
