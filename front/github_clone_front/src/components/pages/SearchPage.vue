@@ -36,6 +36,7 @@
           <a :href="generateSearchLink('is:private')" class="filter-buttons">&#43; &nbsp; Private</a>
           <a :href="generateSearchLink('created:')" class="filter-buttons">&#43; &nbsp; Date created</a>
           <a :href="generateSearchLink('assignee:')" class="filter-buttons">&#43; &nbsp; Assignee</a>
+          <a :href="generateSearchLink('committer:')" class="filter-buttons">&#43; &nbsp; Committer</a>
           <a :href="generateSearchLink('followers:')" class="filter-buttons">&#43; &nbsp; Number of followers</a>
           <a :href="generateSearchLink('stars:')" class="filter-buttons">&#43; &nbsp; Number of stars</a>
           <a :href="generateSearchLink('repositories:')" class="filter-buttons">&#43; &nbsp; Number of repositories</a>

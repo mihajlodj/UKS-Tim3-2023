@@ -18,6 +18,7 @@ from main.models import Developer, SecondaryEmail, Commit, Watches
 from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
     change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
 from django.core.cache import cache
+from datetime import datetime
 
 
 class UpdateDeveloperView(generics.UpdateAPIView):
@@ -94,13 +95,40 @@ def get_all_devs(request, query):
 
 @api_view(['GET'])
 def get_all_commits(request, query):
-    cache_key = f"commit_query:{query}"
+    owner = ''
+    committer = ''
+    created_date = None
+
+    parts = query.split('&')
+    for part in parts:
+        if 'owner:' in part:
+            owner = part.split('owner:', 1)[1].strip()
+        elif 'committer:' in part:
+            committer = part.split('committer:', 1)[1].strip()
+        elif 'created:' in part:
+            created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
+        else:
+            query = part.strip()
+
+
+
+    cache_key = f"commit_query:{query}{owner}{committer}{created_date}"
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
 
-    results = Commit.objects.filter(message__contains=query)
+    # results = Commit.objects.filter(message__contains=query)
+    results = Commit.objects.all()
+
+    if query:
+        results = results.filter(message__contains=query)
+    if owner:
+        results = results.filter(author__user__username__contains=owner)
+    if committer:
+        results = results.filter(committer__user__username__contains=committer)
+    if created_date:
+        results = results.filter(project__timestamp__gte=created_date)
 
     if results.exists():
         serialized_data = []
