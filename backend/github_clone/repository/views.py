@@ -11,10 +11,10 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Commit
-from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
+from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Invitation, Commit
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
+from . import service
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -298,8 +298,29 @@ def get_all_users_repo(request, owner_username):
     return Response(repos, status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
+def invite_collaborator(request, repository_name, invited_username):
+    developer = Developer.objects.filter(user__username=invited_username)
+    project = Project.objects.filter(name=repository_name)
+    if developer.exists() and project.exists:
+        developer = developer.first()
+        project = project.first()
+        if WorksOn.objects.filter(developer=developer, project=project):
+            return Response("User already works on repository", status=status.HTTP_400_BAD_REQUEST)
+        if Invitation.objects.filter(developer=developer, project=project):
+            return Response("User already invited to repository", status=status.HTTP_400_BAD_REQUEST)
+        
+        Invitation.objects.create(developer=developer, project=project)
+        service.invite_collaborator(developer, request.user.username, project)
+        
+        return Response(status=status.HTTP_201_CREATED)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):
     author = Developer.objects.get(user__username=request.user.username)
     branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])
     Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp,
                           message=json_data['message'], additional_description=json_data['additional_text'])
+    

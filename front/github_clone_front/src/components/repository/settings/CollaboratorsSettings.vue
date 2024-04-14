@@ -68,7 +68,7 @@
                         </div>
 
                         <div class="d-flex justify-content-center mt-4 mb-2">
-                            <button type="button" class="btn-invite">
+                            <button type="button" class="btn-invite" :disabled="selectedCollaborator === null" @click="inviteCollaborator">
                                 Invite
                             </button>
                         </div>
@@ -82,6 +82,7 @@
 
 <script>
 import DeveloperService from '@/services/DeveloperService';
+import RepositoryService from '@/services/RepositoryService';
 
 export default {
     name: "CollaboratorsSettings",
@@ -124,6 +125,16 @@ export default {
 
         removeCollaborator() {
             this.selectedCollaborator = null;
+        },
+
+        inviteCollaborator() {
+            if (this.selectedCollaborator !== null) {
+                RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username).then(res => {
+                    console.log(res);
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
         }
     }
 }

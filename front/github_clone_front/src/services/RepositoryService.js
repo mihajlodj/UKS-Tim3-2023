@@ -5,7 +5,7 @@ const create = (repoData) => {
 }
 
 const get = (username, repoName) => {
-    return api.get(`repository/${username}/${repoName}`);
+    return api.get(`repository/data/${username}/${repoName}`);
 }
 
 const getAllUserRepos = (owner_username) => {
@@ -48,4 +48,9 @@ const createFile = (username, repoName, path, data) => {
     return api.post(`repository/create_file/${username}/${repoName}/${path}/`, data);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, editFile, deleteFile, createFile };
+const inviteCollaborator = (repoName, invitedUsername) => {
+    return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
+}
+
+export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, 
+    editFile, deleteFile, createFile, inviteCollaborator };

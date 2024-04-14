@@ -71,3 +71,10 @@ class CanUpdateMilestone(BasePermission):
         if role != Role.OWNER and role != Role.MAINTAINER:
             return False
         return True
+    
+class CanInviteCollaborator(BasePermission):
+    def has_permission(self, request, view):
+        repository_name = view.kwargs.get('repository_name')
+        if not Project.objects.filter(name=repository_name).exists():
+            return False
+        return WorksOn.objects.filter(developer__user__username=request.user.username, project__name=repository_name, role=Role.OWNER).exists()
