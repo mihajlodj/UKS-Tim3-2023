@@ -6,7 +6,7 @@
         <div class="left-section-filters">
           <label class="filter-text">Filter by </label>
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Repositories' }" @click="preselected_field = 'Repositories'; clearSearchLink()"><i class="bi bi-journal-bookmark"></i>&nbsp; Repositories</a>
-          <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Code' }" @click="preselected_field = 'Code'; clearSearchLink()"><i class="bi bi-code">&nbsp;</i> Code</a>
+          <!-- <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Code' }" @click="preselected_field = 'Code'; clearSearchLink()"><i class="bi bi-code">&nbsp;</i> Code</a> -->
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Issues' }" @click="preselected_field = 'Issues'; clearSearchLink()"><i class="bi bi-record-circle">&nbsp;</i> Issues</a>
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Pull_requests' }" @click="preselected_field = 'Pull_requests'; clearSearchLink()"><i class="bi bi-bezier2">&nbsp;</i> Pull requests</a>
           <a href="#" class="filter-buttons" :class="{ 'selected-filter': preselected_field === 'Users' }" @click="preselected_field = 'Users'; clearSearchLink()"><i class="bi bi-person">&nbsp;</i> Users</a>
