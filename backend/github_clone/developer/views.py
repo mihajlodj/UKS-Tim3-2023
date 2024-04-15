@@ -11,12 +11,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
+from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
 from branch.serializers import BranchSerializer
 from main import gitea_service
 from main.models import Developer, SecondaryEmail, Commit, Watches
-from main.gitea_service import get_gitea_user_info_gitea_service, get_gitea_user_emails_gitea_service, \
-    change_gitea_user_password_gitea_service, delete_gitea_user_gitea_service
+from main.gitea_service import get_gitea_user_info_gitea_service
 from django.core.cache import cache
 from datetime import datetime
 
@@ -256,19 +256,7 @@ def get_gitea_user_info(request, username):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_developer_avatar(request, username):
-    user = User.objects.get(username=username)
-    developer = Developer.objects.get(user_id=user.id)
-
-    if developer.avatar is None:
-        gitea_user_info = get_gitea_user_info_gitea_service(username)
-        return Response(gitea_user_info['avatar_url'], status=status.HTTP_200_OK)
-
-    avatar_filename = developer.avatar
-    avatar_filename = avatar_filename.split('/')[1]
-    avatar_url = 'http://localhost/avatars/git_profile_picture.png'
-    if avatar_filename != '':
-        avatar_url = f"http://localhost/avatars/{avatar_filename}"
-    return Response(avatar_url, status=status.HTTP_200_OK)
+    return Response(service.get_dev_avatar(username), status=status.HTTP_200_OK)
 
 
 # @api_view(['GET'])

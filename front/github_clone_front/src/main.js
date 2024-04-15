@@ -19,6 +19,8 @@ import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponen
 import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
+import HistoryView from '@/components/repository/HistoryView.vue'
+import CommitDisplay from './components/commit/CommitDisplay.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -32,12 +34,15 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot, faComments } from '@fortawesome/free-regular-svg-icons'
-import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons'
+import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark, faCopy } from '@fortawesome/free-regular-svg-icons'
-import { faFlask, faDownload, faTag, faCheck, faCodeCommit, faAngleDown, faCirclePlus, faCircleMinus, faCircleStop } from '@fortawesome/free-solid-svg-icons'
+import { faFlask, faDownload, faTag, faCheck, faCodeCommit, faAngleDown, faCirclePlus, faCircleMinus, faCircleStop, faUsers } from '@fortawesome/free-solid-svg-icons'
 import 'vue-pdf-embed/dist/style/index.css'
 import 'vue-pdf-embed/dist/style/annotationLayer.css'
 import 'vue-pdf-embed/dist/style/textLayer.css'
+
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 // test
 // import IssueComponent from './components/issue/IssueComponent'
@@ -76,6 +81,8 @@ library.add(faAngleDown);
 library.add(faCirclePlus);
 library.add(faCircleMinus);
 library.add(faCircleStop);
+library.add(faClockRotateLeft);
+library.add(faUsers);
 
 const routes = [
     {
@@ -153,6 +160,14 @@ const routes = [
     {
         path: '/view/:username/:repoName/issues',
         component: ListIssueComponent
+    },
+    {
+        path: "/view/:username:/:repoName/commits/:branchName",
+        component: HistoryView
+    },
+    {
+        path: "/view/:username/:repoName/commit/:sha",
+        component: CommitDisplay
     }
 ]
 
@@ -162,4 +177,5 @@ const router = createRouter({
 });
 
 const app = createApp(App).use(router).component('font-awesome-icon', FontAwesomeIcon);
+app.component('VueDatePicker', VueDatePicker);
 app.mount("#app");

@@ -1,14 +1,14 @@
-from django.http import Http404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, generics
 from rest_framework.response import Response
 from branch.serializers import BranchSerializer
 from main.gitea_service import get_gitea_user_info_gitea_service
-from main.models import Project, WorksOn, Branch, Commit, PullRequest
+from main.models import Branch, Commit, PullRequest
 from rest_framework.decorators import api_view, permission_classes
 from django.core.exceptions import ObjectDoesNotExist
 from main import gitea_service, permissions
 import threading
+from developer import service as developer_service
 
 
 class CreateBranchView(generics.CreateAPIView):
@@ -53,11 +53,49 @@ def get_all_branches(request, repository_name):
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def delete_branch(request, repository_name, branch_name):
     try:
-        branch = Branch.objects.get(name=branch_name)
-        repository = Project.objects.get(name=repository_name)
+        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
         threading.Thread(target=gitea_service.delete_branch, args=([request.user.username, repository_name, branch_name]), kwargs={}).start()
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except ObjectDoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    
+
+@api_view(['GET'])
+@permission_classes([permissions.CanViewRepository])
+def get_commits(request, repository_name, branch_name):
+    try:
+        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        commits = Commit.objects.filter(branch=branch)
+        return Response(serialize_commits(commits), status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.CanViewRepository])
+def get_committers(request, repository_name, branch_name):
+    try:
+        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        commits = Commit.objects.filter(branch=branch)
+        committers = [{
+            'username': dev.user.username,
+            'avatar': developer_service.get_dev_avatar(dev.user.username)
+        } for dev in set([commit.author for commit in commits])]
+        return Response(committers, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+def serialize_commits(commits):
+    return [{
+        'hash': commit.hash, 
+        'message': commit.message,
+        'author': {
+            'username': commit.author.user.username,
+            'avatar': developer_service.get_dev_avatar(commit.author.user.username)
+        },
+        'timestamp': commit.timestamp
+    } for commit in commits]
+
     
