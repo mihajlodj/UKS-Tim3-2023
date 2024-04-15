@@ -358,6 +358,18 @@ def get_invitation(request, repository_name, invited_username):
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def get_collaborators(request, owner_username, repository_name):
+    works_on_list = WorksOn.objects.filter(project__name=repository_name)
+    result = [{
+        'username': elem.developer.user.username,
+        'avatar': service.get_dev_avatar(elem.developer.user.username),
+        'role': elem.role
+    } for elem in works_on_list if elem.developer.user.username != owner_username]
+    return Response(result, status=status.HTTP_200_OK)
+
+
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):
     author = Developer.objects.get(user__username=request.user.username)
     branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])

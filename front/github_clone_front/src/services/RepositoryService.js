@@ -60,5 +60,9 @@ const getInvitation = (repoName, invitedUsername) => {
     return api.get(`repository/invitation/${repoName}/${invitedUsername}`);
 }
 
+const getCollaborators = (ownerUsername, repoName) => {
+    return api.get(`repository/collaborators/${ownerUsername}/${repoName}`);
+}
+
 export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, 
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators };

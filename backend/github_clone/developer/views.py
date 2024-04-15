@@ -11,6 +11,7 @@ from developer.serializers import DeveloperSerializer, UserSerializer
 from main import gitea_service
 from main.models import Developer, Invitation, SecondaryEmail, WorksOn
 from main.gitea_service import get_gitea_user_info_gitea_service
+from main import permissions
 
 
 class UpdateDeveloperView(generics.UpdateAPIView):
