@@ -1,5 +1,6 @@
 import base64
 import json
+import threading
 from django.utils import timezone
 
 from django.contrib.auth.models import User
@@ -320,7 +321,7 @@ def invite_collaborator(request, repository_name, invited_username):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def respond_to_invitation(request, repository_name, invited_username, choice):
+def respond_to_invitation(request, owner_username, repository_name, invited_username, choice):
     developer = Developer.objects.filter(user__username=invited_username)
     project = Project.objects.filter(name=repository_name)
     invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
@@ -333,6 +334,7 @@ def respond_to_invitation(request, repository_name, invited_username, choice):
 
         if (choice == 'accept'):
             WorksOn.objects.create(developer=developer, project=project, role=Role.DEVELOPER)
+            threading.Thread(target=gitea_service.add_collaborator, args=([owner_username, repository_name, invited_username]), kwargs={}).start()
         return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 

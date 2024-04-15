@@ -52,8 +52,8 @@ const inviteCollaborator = (repoName, invitedUsername) => {
     return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
 }
 
-const respondToInvitation = (repoName, invitedUsername, choice) => {
-    return api.post(`repository/inviteResponse/${repoName}/${invitedUsername}/${choice}/`);
+const respondToInvitation = (ownerUsername, repoName, invitedUsername, choice) => {
+    return api.post(`repository/inviteResponse/${ownerUsername}/${repoName}/${invitedUsername}/${choice}/`);
 }
 
 const getInvitation = (repoName, invitedUsername) => {
