@@ -384,6 +384,22 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
     return Response(result, status=status.HTTP_200_OK)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
+def remove_collaborator(request, owner_username, repository_name, collaborator_username):
+    if WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():
+        worksOn = WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
+        if worksOn.role != Role.OWNER:
+            worksOn.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if Invitation.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():
+        invitation = Invitation.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
+        invitation.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):
     author = Developer.objects.get(user__username=request.user.username)
     branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])

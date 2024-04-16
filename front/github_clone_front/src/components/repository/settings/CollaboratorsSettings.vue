@@ -179,7 +179,7 @@ export default {
         inviteCollaborator() {
             if (this.selectedCollaborator !== null) {
                 RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username).then(res => {
-                    console.log(res);
+                    this.existingCollaborators.push(res.data);
                     this.existingCollaboratorsSearchTerm = "";
                 }).catch(err => {
                     console.log(err);
