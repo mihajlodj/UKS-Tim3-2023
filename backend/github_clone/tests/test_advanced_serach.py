@@ -27,13 +27,13 @@ def setup_data():
     WorksOn.objects.create(developer=dev1, project=project2, role=Role.OWNER)
     WorksOn.objects.create(developer=dev2, project=project2, role=Role.DEVELOPER)
 
-    issue1 = Issue.objects.create(title="sample_issue_1", project=project1, creator=dev1)
+    issue1 = Issue.objects.create(title="sample_issue_1", project=project1, creator=dev1, open=True)
     issue2 = Issue.objects.create(title="sample_issue_2", project=project2, creator=dev2)
 
     pr1 = PullRequest.objects.create(title="sample_pr_1", project=project1, author=dev1, source=branch1,
                                      target=branch1)
     pr2 = PullRequest.objects.create(title="sample_pr_2", project=project2, author=dev2, source=branch2,
-                                     target=branch2)
+                                     target=branch2,assignee=dev2)
 
     commit1 = Commit.objects.create(message="sample_commit_1", author=dev1, branch=branch1, committer=dev1)
     commit2 = Commit.objects.create(message="sample_commit_2", author=dev2, branch=branch2, committer=dev2)
@@ -114,3 +114,32 @@ def test_get_all_commits_no_results(setup_data):
     response = get_all_commits(request, query="com&author:john")
     assert response.status_code == status.HTTP_200_OK
     assert not response.data
+
+
+# @pytest.mark.django_db
+# def test_complex_query_get_all_issues(setup_data):
+#     factory = APIRequestFactory()
+#     request = factory.get('/api/issue/')
+#     response = get_all_issues(request, query="sample&is:open&owner:john_doe")
+#     assert response.status_code == status.HTTP_200_OK
+#     assert response.data
+#     assert len(response.data) == 1
+
+
+@pytest.mark.django_db
+def test_complex_query_get_all_pull_reqs(setup_data):
+    factory = APIRequestFactory()
+    request = factory.get('/api/pr/')
+    response = get_all_pull_reqs(request, query="sample&is:open&assignee:jane_smith")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data
+    assert len(response.data) == 1
+
+
+@pytest.mark.django_db
+def test_complex_query_get_all_commits(setup_data):
+    factory = APIRequestFactory()
+    request = factory.get('/api/developer/')
+    response = get_all_commits(request, query="sample&author:john_doe&committer:jane_smith")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == []
