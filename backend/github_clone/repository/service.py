@@ -18,10 +18,10 @@ def send_email(invited_developer, inviter_username, owner_username, repository_n
         'name': invited_developer.user.username,
         'inviter_username': inviter_username,
         'repository_name': f'{owner_username}/{repository_name}',
-        'link_to_repo': f'http://localhost:3001/view/{owner_username}/{repository_name}',
-        'link_to_owner': 'http://google.com',  # TODO
+        'link_to_repo': f'{settings.ACTIVE_ORIGIN}/view/{owner_username}/{repository_name}',
+        'link_to_owner': f'{settings.ACTIVE_ORIGIN}/profile/{inviter_username}',
         'owner_username': owner_username,
-        'link_to_invitation': f'http://localhost:3001/view/{owner_username}/{repository_name}/invitations/{invited_developer.user.username}'
+        'link_to_invitation': f'{settings.ACTIVE_ORIGIN}/view/{owner_username}/{repository_name}/invitations/{invited_developer.user.username}'
     }
     html_message = render_to_string('collaboration_invitation_email.html', template_vars)
     plain_message = strip_tags(html_message)
