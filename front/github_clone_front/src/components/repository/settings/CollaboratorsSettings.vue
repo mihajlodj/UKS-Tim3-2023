@@ -126,7 +126,6 @@ export default {
     mounted() {
         DeveloperService.getDevelopers(this.$route.params.repoName).then(res => {
             this.developers = res.data.filter(dev => dev.avatar !== null);
-            console.log(this.developers);
         }).catch(err => {
             console.log(err);
         });
@@ -180,7 +179,10 @@ export default {
             if (this.selectedCollaborator !== null) {
                 RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username).then(res => {
                     this.existingCollaborators.push(res.data);
+                    this.filteredExistingCollaborators = this.existingCollaborators;
                     this.existingCollaboratorsSearchTerm = "";
+                    this.selectedCollaborator = null;
+                    this.collaboratorsExist = true;
                 }).catch(err => {
                     console.log(err);
                 });
@@ -192,6 +194,14 @@ export default {
                 console.log(res);
                 this.existingCollaborators = this.existingCollaborators.filter(x => x.username !== username);
                 this.filteredExistingCollaborators = this.filteredExistingCollaborators.filter(x => x.username !== username);
+                DeveloperService.getDevelopers(this.$route.params.repoName).then(res => {
+                    this.developers = res.data.filter(dev => dev.avatar !== null);
+                }).catch(err => {
+                    console.log(err);
+                });
+                if (this.existingCollaborators.length == 0) {
+                    this.collaboratorsExist = false;
+                }
             }).catch(err => {
                 console.log(err);
             });
