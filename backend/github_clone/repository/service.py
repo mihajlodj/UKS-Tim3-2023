@@ -9,7 +9,7 @@ from django.utils.html import strip_tags
 def invite_collaborator(developer, inviter_username, project):
     Invitation.objects.create(developer=developer, project=project)
     owner_username = WorksOn.objects.filter(role=Role.OWNER, project=project).first().developer.user.username
-    threading.Thread(target=send_email, args=([developer, inviter_username, owner_username, project.name]), kwargs={}).start()
+    threading.Thread(target=send_email, args=([developer, inviter_username, owner_username, project.name]), kwargs={}).start()    
 
 
 def send_email(invited_developer, inviter_username, owner_username, repository_name):

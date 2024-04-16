@@ -391,6 +391,7 @@ def remove_collaborator(request, owner_username, repository_name, collaborator_u
         worksOn = WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
         if worksOn.role != Role.OWNER:
             worksOn.delete()
+            threading.Thread(target=gitea_service.delete_collaborator, args=([owner_username, repository_name, collaborator_username]), kwargs={}).start()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if Invitation.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():

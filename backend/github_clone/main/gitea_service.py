@@ -284,3 +284,7 @@ def add_collaborator(owner_username, repository_name, collaborator_username, per
     api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/collaborators/{collaborator_username}'
     body = {'permission': permission}
     requests.put(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+def delete_collaborator(owner_username, repository_name, collaborator_username):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/collaborators/{collaborator_username}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
