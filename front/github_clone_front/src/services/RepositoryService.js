@@ -64,5 +64,9 @@ const getCollaborators = (ownerUsername, repoName) => {
     return api.get(`repository/collaborators/${ownerUsername}/${repoName}`);
 }
 
+const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
+    return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}/`);
+}
+
 export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, 
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };

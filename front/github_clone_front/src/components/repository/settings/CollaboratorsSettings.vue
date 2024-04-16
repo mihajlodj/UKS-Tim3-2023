@@ -21,12 +21,12 @@
 
         <div v-else class="mt-3">
             <div class="d-flex justify-content-between p-3" style="border: 1px solid #72808d;">
-                <input placeholder="Find a collaborator..."/>
+                <input v-model="existingCollaboratorsSearchTerm" placeholder="Find a collaborator..." @input="existingCollaboratorsSearchTermChanged"/>
                 
             </div>
 
             <div>
-                <div v-for="collaborator in existingCollaborators" :key="collaborator.username">
+                <div v-for="collaborator in filteredExistingCollaborators" :key="collaborator.username">
                     <CollaboratorDisplay :collaborator="collaborator" @remove="deleteExistingCollaborator"/>
                 </div>
             </div>
@@ -129,7 +129,8 @@ export default {
             searchTerm: "",
             existingCollaborators: [],
             filteredExistingCollaborators: [],
-            collaboratorsExist: false
+            collaboratorsExist: false,
+            existingCollaboratorsSearchTerm: ""
         }
     },
 
@@ -166,8 +167,24 @@ export default {
         },
 
         deleteExistingCollaborator(username) {
-            alert(username);
-        }
+            RepositoryService.removeCollaborator(this.$route.params.username, this.$route.params.repoName, username).then(res => {
+                console.log(res);
+                this.existingCollaborators = this.existingCollaborators.filter(x => x.username !== username);
+                this.filteredExistingCollaborators = this.filteredExistingCollaborators.filter(x => x.username !== username);
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+
+        existingCollaboratorsSearchTermChanged() {
+            if (this.existingCollaboratorsSearchTerm !== "" && this.existingCollaboratorsSearchTerm !== null) {
+                let term = this.existingCollaboratorsSearchTerm.toLowerCase();
+                console.log(term);
+                this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.username.toLowerCase().includes(term));
+            } else {
+                this.filteredExistingCollaborators = this.existingCollaborators;
+            }
+        },
     }
 }
 </script>
