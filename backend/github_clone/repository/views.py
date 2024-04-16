@@ -302,7 +302,6 @@ def get_all_users_repo(request, owner_username):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
 def invite_collaborator(request, repository_name, invited_username):
-    print('INVITING')
     developer = Developer.objects.filter(user__username=invited_username)
     project = Project.objects.filter(name=repository_name)
     if developer.exists() and project.exists:
@@ -315,7 +314,12 @@ def invite_collaborator(request, repository_name, invited_username):
         
         service.invite_collaborator(developer, request.user.username, project)
         
-        return Response(status=status.HTTP_201_CREATED)
+        collaborator = {
+        'username': developer.user.username,
+        'avatar': developer_service.get_dev_avatar(developer.user.username),
+        'role': 'Pending'
+    }
+        return Response(collaborator, status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 

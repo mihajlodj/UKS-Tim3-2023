@@ -11,18 +11,37 @@
                 <h4>You haven't invited any collaborators yet</h4>
             </div>
 
-            <div class="d-flex justify-content-center align-items-center h-31 mb-4" data-bs-toggle="modal"
-                data-bs-target="#add-people-modal">
+            <div class="d-flex justify-content-center align-items-center h-31 mb-4" data-bs-toggle="modal" data-bs-target="#add-people-modal">
                 <button type="button" class="btn-add-people">
                     Add people
                 </button>
             </div>
         </div>
 
-        <div v-else class="mt-3">
+        <div v-else>
+            <div class="d-flex justify-content-end" data-bs-toggle="modal" data-bs-target="#add-people-modal">
+                <button type="button" class="btn-add-people mb-1">Add people</button>
+            </div>
             <div class="d-flex justify-content-between p-3" style="border: 1px solid #72808d;">
                 <input v-model="existingCollaboratorsSearchTerm" placeholder="Find a collaborator..." @input="existingCollaboratorsSearchTermChanged"/>
                 
+                <div class="d-flex justify-content-start ms-4 me-1">
+                    <button class="btn nav-link dropdown-toggle" type="button" id="navbarDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false" style="color: #717f8c;">
+                        <span >Type</span>
+                    </button>
+                    <ul class="dropdown-menu" id="collab-type-list" aria-labelledby="navbarDropdown" style="background-color: #2c333b">
+                        <li>
+                            <button class="dropdown-item" @click="displayAll" style="color: #a5b2bf;">All</button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" @click="displayCollaborators" style="color: #a5b2bf;">Collaborators</button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" @click="displayPending" style="color: #a5b2bf;">Pending invitations</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div>
@@ -81,7 +100,7 @@
                         </div>
 
                         <div class="d-flex justify-content-center mt-4 mb-2">
-                            <button type="button" class="btn-invite" :disabled="selectedCollaborator === null" @click="inviteCollaborator">
+                            <button type="button" class="btn-invite" :disabled="selectedCollaborator === null" data-bs-dismiss="modal" @click="inviteCollaborator">
                                 Invite
                             </button>
                         </div>
@@ -130,7 +149,8 @@ export default {
             existingCollaborators: [],
             filteredExistingCollaborators: [],
             collaboratorsExist: false,
-            existingCollaboratorsSearchTerm: ""
+            existingCollaboratorsSearchTerm: "",
+            chosenType: "all"
         }
     },
 
@@ -160,6 +180,7 @@ export default {
             if (this.selectedCollaborator !== null) {
                 RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username).then(res => {
                     console.log(res);
+                    this.existingCollaboratorsSearchTerm = "";
                 }).catch(err => {
                     console.log(err);
                 });
@@ -178,13 +199,33 @@ export default {
 
         existingCollaboratorsSearchTermChanged() {
             if (this.existingCollaboratorsSearchTerm !== "" && this.existingCollaboratorsSearchTerm !== null) {
-                let term = this.existingCollaboratorsSearchTerm.toLowerCase();
-                console.log(term);
-                this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.username.toLowerCase().includes(term));
+                if (this.existingCollaboratorsSearchTerm === "filter:collaborators") {
+                    this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.role !== "Pending");
+                } else if (this.existingCollaboratorsSearchTerm == "filter:pending_invitations") {
+                    this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.role === "Pending");
+                } else {
+                    let term = this.existingCollaboratorsSearchTerm.toLowerCase();
+                    this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.username.toLowerCase().includes(term));
+                }
             } else {
                 this.filteredExistingCollaborators = this.existingCollaborators;
             }
         },
+
+        displayAll() {
+            this.existingCollaboratorsSearchTerm = "";
+            this.filteredExistingCollaborators = this.existingCollaborators;
+        },
+
+        displayCollaborators() {
+            this.existingCollaboratorsSearchTerm = "filter:collaborators";
+            this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.role !== "Pending");
+        },
+
+        displayPending() {
+            this.existingCollaboratorsSearchTerm = "filter:pending_invitations";
+            this.filteredExistingCollaborators = this.existingCollaborators.filter(dev => dev.role === "Pending");
+        }
     }
 }
 </script>
@@ -298,6 +339,10 @@ input {
     background-color: #253141;
     border: 1px solid #2c4a72;
     border-radius: 7px;
+}
+
+button.dropdown-item:hover {
+    background-color: #414957 !important;
 }
 
 </style>
