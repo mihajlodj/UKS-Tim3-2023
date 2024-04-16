@@ -128,7 +128,7 @@ def get_all_commits(request, query):
     if committer:
         results = results.filter(committer__user__username__contains=committer)
     if created_date:
-        results = results.filter(project__timestamp__gte=created_date)
+        results = results.filter(timestamp__gt=created_date)
 
     if results.exists():
         serialized_data = []
