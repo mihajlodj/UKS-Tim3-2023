@@ -180,7 +180,12 @@ export default {
                 RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username).then(res => {
                     this.existingCollaborators.push(res.data);
                     this.filteredExistingCollaborators = this.existingCollaborators;
+
+                    this.developers = this.developers.filter(x => x.username !== this.selectedCollaborator.username);
+                    this.filteredDevelopers = [];
+
                     this.existingCollaboratorsSearchTerm = "";
+                    this.searchTerm = "";
                     this.selectedCollaborator = null;
                     this.collaboratorsExist = true;
                 }).catch(err => {
