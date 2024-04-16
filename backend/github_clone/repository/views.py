@@ -362,13 +362,21 @@ def get_invitation(request, repository_name, invited_username):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
-def get_collaborators(request, owner_username, repository_name):
+def get_collaborators_and_pending_invitations(request, owner_username, repository_name):
     works_on_list = WorksOn.objects.filter(project__name=repository_name)
     result = [{
         'username': elem.developer.user.username,
-        'avatar': service.get_dev_avatar(elem.developer.user.username),
+        'avatar': developer_service.get_dev_avatar(elem.developer.user.username),
         'role': elem.role
     } for elem in works_on_list if elem.developer.user.username != owner_username]
+
+    pending_invitations = Invitation.objects.filter(project__name=repository_name)
+    for invitation in pending_invitations:
+        result.append({
+            'username': invitation.developer.user.username,
+            'avatar': developer_service.get_dev_avatar(invitation.developer.user.username),
+            'role': 'Pending'
+        })
     return Response(result, status=status.HTTP_200_OK)
 
 

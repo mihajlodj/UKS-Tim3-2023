@@ -18,5 +18,5 @@ urlpatterns = [
     path('upload/<str:owner_username>/<str:repository_name>/', upload_files, name='upload_files'),
     path('inviteResponse/<str:owner_username>/<str:repository_name>/<str:invited_username>/<str:choice>/', respond_to_invitation, name='respond_to_invitation'),
     path('invitation/<str:repository_name>/<str:invited_username>/', get_invitation, name='get_invitation'),
-    path('collaborators/<str:owner_username>/<str:repository_name>', get_collaborators, name='get_collaborators'),
+    path('collaborators/<str:owner_username>/<str:repository_name>', get_collaborators_and_pending_invitations, name='get_collaborators'),
 ]

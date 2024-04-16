@@ -2,7 +2,7 @@
     <div class="mt-4 container">
         <h3>Manage access</h3>
 
-        <div class="no-collaborators d-flex flex-column mt-3">
+        <div v-if="!collaboratorsExist" class="no-collaborators d-flex flex-column mt-3">
             <div class="d-flex justify-content-center align-items-center h-31 mt-4">
                 <font-awesome-icon icon="fa-solid fa-user-lock"></font-awesome-icon>
             </div>
@@ -16,6 +16,19 @@
                 <button type="button" class="btn-add-people">
                     Add people
                 </button>
+            </div>
+        </div>
+
+        <div v-else class="mt-3">
+            <div class="d-flex justify-content-between p-3" style="border: 1px solid #72808d;">
+                <input placeholder="Find a collaborator..."/>
+                
+            </div>
+
+            <div>
+                <div v-for="collaborator in existingCollaborators" :key="collaborator.username">
+                    <CollaboratorDisplay :collaborator="collaborator" @remove="deleteExistingCollaborator"/>
+                </div>
             </div>
         </div>
 
@@ -83,9 +96,13 @@
 <script>
 import DeveloperService from '@/services/DeveloperService';
 import RepositoryService from '@/services/RepositoryService';
+import CollaboratorDisplay from '../CollaboratorDisplay.vue'
 
 export default {
     name: "CollaboratorsSettings",
+    components: {
+        CollaboratorDisplay
+    },
 
     mounted() {
         DeveloperService.getDevelopers(this.$route.params.repoName).then(res => {
@@ -94,6 +111,14 @@ export default {
         }).catch(err => {
             console.log(err);
         });
+
+        RepositoryService.getCollaborators(this.$route.params.username, this.$route.params.repoName).then(res => {
+            this.existingCollaborators = res.data;
+            this.filteredExistingCollaborators = res.data;
+            this.collaboratorsExist = this.existingCollaborators.length > 0;
+        }).catch(err => {
+            console.log(err);
+        })
     },
 
     data() {
@@ -101,7 +126,10 @@ export default {
             developers: [],
             filteredDevelopers: [],
             selectedCollaborator: null,
-            searchTerm: ""
+            searchTerm: "",
+            existingCollaborators: [],
+            filteredExistingCollaborators: [],
+            collaboratorsExist: false
         }
     },
 
@@ -135,6 +163,10 @@ export default {
                     console.log(err);
                 });
             }
+        },
+
+        deleteExistingCollaborator(username) {
+            alert(username);
         }
     }
 }
