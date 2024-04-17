@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from main import gitea_service
@@ -124,7 +124,7 @@ def get_all_repos(request, query):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def get_all_users_repo(request, owner_username):
     user = User.objects.get(username=owner_username)
     developer = Developer.objects.get(user_id=user.id)

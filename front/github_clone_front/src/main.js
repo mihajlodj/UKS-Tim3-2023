@@ -10,6 +10,7 @@ import RepoSettings from './components/repository/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
 import SearchPage from './components/pages/SearchPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
+import ProfilePageView from './components/profile/non_registered/ProfilePageView.vue'
 import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
 import FileDisplay from './components/repository/content/FileDisplay.vue';
@@ -120,6 +121,10 @@ const routes = [
     {
         path: "/profile",
         component: ProfilePage
+    },
+    {
+        path: "/profile/:username",
+        component: ProfilePageView
     },
     {
         path: "/profile/settings",

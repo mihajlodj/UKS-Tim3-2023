@@ -46,6 +46,7 @@ const getUserGiteaBasicInfo = (username) => {
 }
 
 const getUserAvatar = (username) => {
+    console.log(username)
     return api.get(`developer/avatar/${username}`);
 }
 
