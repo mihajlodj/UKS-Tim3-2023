@@ -152,13 +152,14 @@ export default {
 
 input {
     border-radius: 5px;
-    border: 1px solid #d0d7df;
-    background-color: #f7f8fa;
-    height: 32px;
+    border: 1px solid #787c80;
+    color: #c5d1df;
+    background-color: #2c333b;
+    height: 40px;
 }
 
 .sub {
-    color: #656e77;
+    color: #88929d;
 }
 
 .bold {
@@ -216,5 +217,13 @@ select {
     width: 50%;
     min-width: 700px;
     max-width: 850px;
+}
+
+h3, label {
+    color: #c5d1df
+}
+
+hr {
+    color: #b9c3cf;
 }
 </style>

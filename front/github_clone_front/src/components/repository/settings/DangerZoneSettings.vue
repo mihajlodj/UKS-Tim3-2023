@@ -147,4 +147,8 @@ export default {
     width: 70px;
     color: rgb(59, 58, 58);
 }
+
+h3, h6, span {
+    color: #c5d1df
+}
 </style>
