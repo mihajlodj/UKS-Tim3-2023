@@ -1,9 +1,10 @@
 <template>
-    <div>
+    <div class="bg min-vh-100 is-fullheight pb-3">
         <div v-if="allowed == true">
             <RepoNavbar starting="settings" />
             <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
                 :branchName="repo.defaultBranch" />
+            <CollaboratorsSettings />
             <DangerZoneSettings :accessModifier="repo.accessModifier" />
         </div>
 
@@ -14,11 +15,12 @@
 </template>
 
 <script>
-import RepoNavbar from './RepoNavbar.vue';
+import RepoNavbar from '../RepoNavbar.vue';
 import GeneralSettings from './GeneralSettings.vue'
+import CollaboratorsSettings from './CollaboratorsSettings.vue';
 import DangerZoneSettings from './DangerZoneSettings.vue';
 import RepositoryService from '@/services/RepositoryService';
-import NotFoundPage from '../util/NotFoundPage.vue';
+import NotFoundPage from '../../util/NotFoundPage.vue';
 
 // transfer ownership
 
@@ -28,6 +30,7 @@ export default {
     components: {
         RepoNavbar,
         GeneralSettings,
+        CollaboratorsSettings,
         DangerZoneSettings,
         NotFoundPage
     },
@@ -74,4 +77,9 @@ export default {
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.bg {
+    background-color: #22272d;
+}
+
+</style>
