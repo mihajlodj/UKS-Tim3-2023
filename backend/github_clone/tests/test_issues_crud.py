@@ -50,7 +50,7 @@ def save_issue(create_dev_and_repo):
         open=True,
         milestone=None,
         project=repo,
-        manager=dev1,
+        creator=dev1,
         created=timezone.now()
     )
     issue.save()
@@ -95,7 +95,8 @@ def test_create_issue(get_token):
         'created': timezone.now(),
         'title': 'issue2',
         'description': 'description2',
-        'manager': username1,
+        'creator': username1,
+        # 'manager': None,
         'project': repo_name,
         'milestone': '',
     }
@@ -106,7 +107,7 @@ def test_create_issue(get_token):
     response = client.post(url, issue_data, headers=headers)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data['project'] == repo_name
-    assert response.data['manager'] == username1
+    assert response.data['creator'] == username1
 
 
 @pytest.mark.django_db
@@ -120,7 +121,7 @@ def test_get_issues(get_token):
     assert len(response.content) == 186
     assert len(response.json()) == 1
     assert response.json()[0]['project'] == repo_name
-    assert response.json()[0]['manager'] == username1
+    assert response.json()[0]['creator'] == username1
     assert response.json()[0]['title'] == 'issue1'
     assert response.json()[0]['description'] == 'description1'
     assert response.json()[0]['id'] == 1
@@ -136,7 +137,7 @@ def test_get_issues(get_token):
     assert len(response.content) == 186
     assert len(response.json()) == 1
     assert response.json()[0]['project'] == repo_name
-    assert response.json()[0]['manager'] == username1
+    assert response.json()[0]['creator'] == username1
     assert response.json()[0]['title'] == 'issue1'
     assert response.json()[0]['description'] == 'description1'
     assert response.json()[0]['id'] == 1
