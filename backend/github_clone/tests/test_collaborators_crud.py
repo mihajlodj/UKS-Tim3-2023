@@ -1,14 +1,11 @@
 import pytest
 from django.contrib.auth.models import User
-from requests import Response
 from main.models import Developer, Invitation, Project, WorksOn, Branch, Commit, PullRequest, PullRequestStatus, Milestone
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
 from repository import service
-import json
-from django.utils import timezone
 
 client = APIClient()
 fake = Faker()
@@ -106,6 +103,14 @@ def create_repository(create_developers):
     WorksOn.objects.create(role='Developer', project=repo, developer=developer)
     WorksOn.objects.create(role='Readonly', project=repo, developer=readonly)
     return repo
+
+
+@pytest.fixture(autouse=True)
+def disable_get_gitea_user_info_gitea_service(monkeypatch):
+    def mock_get_gitea_user_info_gitea_service(*args, **kwargs):
+        return {'username': 'abc', 'avatar': 'avatar', 'email': 'email'}
+    monkeypatch.setattr(gitea_service, 'get_gitea_user_info_gitea_service', mock_get_gitea_user_info_gitea_service)
+    yield
 
 
 @pytest.fixture(autouse=True)
