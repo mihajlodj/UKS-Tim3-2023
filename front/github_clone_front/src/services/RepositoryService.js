@@ -20,6 +20,10 @@ const getOwner = (username) => {
     return api.get(`repository/owner/${username}`);
 }
 
+const getIsUsersRepo = (username,repository) => {
+    return api.get(`repository/is_users_repo/${username}/${repository}`);
+}
+
 const getRootContent = (username, repoName, refName) => {
     return api.get(`repository/content/${username}/${repoName}/${refName}/`);
 }
@@ -53,4 +57,4 @@ const createFile = (username, repoName, path, data) => {
     return api.post(`repository/create_file/${username}/${repoName}/${path}/`, data);
 }
 
-export default { create, get, getAllQueryRepos, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, editFile, deleteFile, createFile };
+export default { create, get, getAllQueryRepos, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, editFile, deleteFile, createFile, getIsUsersRepo };

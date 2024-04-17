@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from main import gitea_service
 from main import permissions
 from main.models import Commit, Watches
-from main.models import Project, WorksOn, Developer, Branch, AccessModifiers
+from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
 from datetime import datetime
@@ -26,7 +26,7 @@ class CreateRepositoryView(generics.CreateAPIView):
 
 class ReadOwnerView(generics.RetrieveAPIView):
     queryset = Developer.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = DeveloperSerializer
 
     def get_object(self):
@@ -146,7 +146,7 @@ def get_all_users_repo(request, owner_username):
 
 
 @api_view(['GET'])
-@permission_classes([permissions.CanViewRepository])
+@permission_classes([AllowAny])
 def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
@@ -175,8 +175,18 @@ def get_repo_data_for_display(request, owner_username, repository_name):
         branch_commits_overview[branch.name] = {
             'latest_commit': latest_commit,
             'num_commits': len(branch_commits)
-        }  
-    result['commits_overview'] = branch_commits_overview   
+        }
+    result['commits_overview'] = branch_commits_overview
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def is_users_repo(request, owner_username, repository_name):
+    worksOn = WorksOn.objects.get(developer__user__username__exact=owner_username, role__exact=Role.OWNER, project__name=repository_name)
+    result = False
+    if worksOn:
+        result = True
     return Response(result, status=status.HTTP_200_OK)
 
 

@@ -36,7 +36,7 @@
                                 </div>
                             </button>
                         </li>
-                        <li class="nav-item mx-2">
+                        <li class="nav-item mx-2" v-if="yourRepo">
                             <button :class="(activeLink=='settings') ? 'nav-link active' : 'nav-link'" @click="setActiveLink('settings')">
                                 <div class="d-flex justify-content-start">
                                     <font-awesome-icon icon="fa-solid fa-gear" class="me-2 mt-1" />
@@ -52,13 +52,24 @@
 </template>
 
 <script>
+import RepositoryService from '@/services/RepositoryService';
 
 export default {
     name: 'RepoNavbar',
 
     props: ['starting'],
 
+
     mounted() {
+        RepositoryService.getIsUsersRepo(this.$route.params.username,this.$route.params.repoName)
+            .then(res => {
+              console.log(res);
+              this.yourRepo = res.data && localStorage.getItem("username")===this.$route.params.username
+          })
+          .catch(err => {
+              console.log(err);
+          });
+
         if (this.starting) {
             this.activeLink = this.starting;
         }
@@ -67,6 +78,7 @@ export default {
     data() {
         return {
             activeLink: 'code',
+            yourRepo:''
         }
     },
 

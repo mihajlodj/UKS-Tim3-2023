@@ -169,7 +169,7 @@ export default {
         });
 
 
-        DeveloperService.getUserAvatar(localStorage.getItem("username"))
+        DeveloperService.getUserAvatar(this.$route.params.username)
             .then(res => {
                 this.owner.avatar = res.data
             })
