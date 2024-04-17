@@ -7,14 +7,13 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Commit, Watches
-from main.models import Project, WorksOn
-from main.models import Role, Developer, Branch, AccessModifiers, Invitation, Commit
+from main.models import Developer, Branch, Invitation, Commit,Watches
+from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
 from datetime import datetime
@@ -29,7 +28,7 @@ class CreateRepositoryView(generics.CreateAPIView):
 
 class ReadOwnerView(generics.RetrieveAPIView):
     queryset = Developer.objects.all()
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (AllowAny,)
     serializer_class = DeveloperSerializer
 
     def get_object(self):
@@ -127,7 +126,7 @@ def get_all_repos(request, query):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def get_all_users_repo(request, owner_username):
     user = User.objects.get(username=owner_username)
     developer = Developer.objects.get(user_id=user.id)
@@ -149,7 +148,7 @@ def get_all_users_repo(request, owner_username):
 
 
 @api_view(['GET'])
-@permission_classes([permissions.CanViewRepository])
+@permission_classes([AllowAny])
 def get_repo_data_for_display(request, owner_username, repository_name):
     repo = Project.objects.get(name=repository_name)
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
@@ -178,8 +177,18 @@ def get_repo_data_for_display(request, owner_username, repository_name):
         branch_commits_overview[branch.name] = {
             'latest_commit': latest_commit,
             'num_commits': len(branch_commits)
-        }  
-    result['commits_overview'] = branch_commits_overview   
+        }
+    result['commits_overview'] = branch_commits_overview
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def is_users_repo(request, owner_username, repository_name):
+    worksOn = WorksOn.objects.get(developer__user__username__exact=owner_username, role__exact=Role.OWNER, project__name=repository_name)
+    result = False
+    if worksOn:
+        result = True
     return Response(result, status=status.HTTP_200_OK)
 
 

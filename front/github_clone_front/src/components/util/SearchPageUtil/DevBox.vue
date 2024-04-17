@@ -5,7 +5,7 @@
       <div class="dev-info">
         <a href="#" class="dev-name">{{developer.user.username}}</a>
         <button type="button" class="btn btn-secondary" id="btn-confirm">
-                      Confirm
+                      Follow
         </button>
       </div>
     </div>

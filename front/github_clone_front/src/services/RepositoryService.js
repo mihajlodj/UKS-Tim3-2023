@@ -20,6 +20,10 @@ const getOwner = (username) => {
     return api.get(`repository/owner/${username}`);
 }
 
+const getIsUsersRepo = (username,repository) => {
+    return api.get(`repository/is_users_repo/${username}/${repository}`);
+}
+
 const getRootContent = (username, repoName, refName) => {
     return api.get(`repository/content/${username}/${repoName}/${refName}/`);
 }
@@ -73,5 +77,5 @@ const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
     return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}`);
 }
 
-export default { getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
+export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
     editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };

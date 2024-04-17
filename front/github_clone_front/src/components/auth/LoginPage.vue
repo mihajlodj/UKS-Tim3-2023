@@ -56,6 +56,9 @@ export default {
     components: {
         InputField,
     },
+    created(){
+        console.log(localStorage.getItem("access_token"));
+    },
 
     data() {
         return {
