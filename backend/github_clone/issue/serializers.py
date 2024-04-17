@@ -23,7 +23,8 @@ class IssueSerializer(serializers.Serializer):
             title=validated_data['title'],
             description=validated_data['description'],
             project=Project.objects.get(name=validated_data['project']),
-            manager=Developer.objects.get(user__username=validated_data['manager'])
+            manager=Developer.objects.get(user__username=validated_data['manager']),
+            tags=[]
         )
         # issue = Issue()
         # issue.title = validated_data['title']
@@ -45,10 +46,16 @@ def serialize_issue(issue):
         'created': str(issue.created),
         'manager': issue.manager.user.username,
         'project': issue.project.name,
-        'milestone': serialize_milestone(issue)
+        'milestone': serialize_milestone(issue),
+        'tags': serialize_label_tags(issue)
     }
 
 def serialize_milestone(issue):
     if issue.milestone is None:
         return ''
     return issue.milestone.title
+
+def serialize_label_tags(issue):
+    if issue.tags is None or issue.tags == []:
+        return []
+    return [tag.name for tag in issue.tags]

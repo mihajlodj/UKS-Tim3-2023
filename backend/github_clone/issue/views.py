@@ -94,7 +94,8 @@ def get_issues(request, repo_name):
             'created': issue['created'],
             'manager': Developer.objects.get(user__id=issue['manager_id']).user.username,
             'project': Project.objects.get(id=issue['project_id']).name,
-            'milestone': None if issue['milestone_id'] is None else serialize_milestone(Milestone.objects.get(id=issue['milestone_id']))
+            'milestone': None if issue['milestone_id'] is None else serialize_milestone(Milestone.objects.get(id=issue['milestone_id'])),
+            'tags': []
         })
     return JsonResponse(data, safe=False, status=200)
 

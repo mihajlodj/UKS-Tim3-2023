@@ -71,6 +71,10 @@ class Project(models.Model):
     default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True,
                                           blank=True)
 
+class Tag(Event):
+    name = models.CharField(max_length=255)
+    # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
+
 
 class Issue(models.Model):
     created = models.DateTimeField(default=timezone.now())
@@ -80,6 +84,7 @@ class Issue(models.Model):
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
     open = models.BooleanField(default=True)
+    tags = models.ManyToManyField(Tag, related_name='labels', blank=True)
 
 
 class Branch(models.Model):
@@ -88,10 +93,6 @@ class Branch(models.Model):
     parent = models.ForeignKey('self', related_name='branches', on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(Developer, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
-
-class Tag(Event):
-    name = models.CharField(max_length=255)
-    # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
 class Commit(models.Model):
