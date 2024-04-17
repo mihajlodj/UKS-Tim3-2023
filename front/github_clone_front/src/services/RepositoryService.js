@@ -5,7 +5,7 @@ const create = (repoData) => {
 }
 
 const get = (username, repoName) => {
-    return api.get(`repository/${username}/${repoName}`);
+    return api.get(`repository/data/${username}/${repoName}`);
 }
 
 const getAllQueryRepos = (query) => {
@@ -40,7 +40,6 @@ const deleteReposiory = (username, repoName) => {
     return api.delete(`repository/delete/${username}/${repoName}`);
 }
 
-//TODO za code search
 const getFile = (username, repoName, branchName, path) => {
     return api.get(`repository/file/${username}/${repoName}/${branchName}/${path}/`);
 }
@@ -57,4 +56,26 @@ const createFile = (username, repoName, path, data) => {
     return api.post(`repository/create_file/${username}/${repoName}/${path}/`, data);
 }
 
-export default { create, get, getAllQueryRepos, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, editFile, deleteFile, createFile, getIsUsersRepo };
+
+const inviteCollaborator = (repoName, invitedUsername) => {
+    return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
+}
+
+const respondToInvitation = (ownerUsername, repoName, invitedUsername, choice) => {
+    return api.post(`repository/inviteResponse/${ownerUsername}/${repoName}/${invitedUsername}/${choice}/`);
+}
+
+const getInvitation = (repoName, invitedUsername) => {
+    return api.get(`repository/invitation/${repoName}/${invitedUsername}`);
+}
+
+const getCollaborators = (ownerUsername, repoName) => {
+    return api.get(`repository/collaborators/${ownerUsername}/${repoName}`);
+}
+
+const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
+    return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}`);
+}
+
+export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };

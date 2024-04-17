@@ -15,8 +15,10 @@ from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
 from branch.serializers import BranchSerializer
 from main import gitea_service
+from main.models import Invitation, WorksOn
 from main.models import Developer, SecondaryEmail, Commit, Watches
 from main.gitea_service import get_gitea_user_info_gitea_service
+from main import permissions
 from django.core.cache import cache
 from datetime import datetime
 
@@ -276,3 +278,16 @@ def get_developers_emails(request, username):
     primary_email = user.email
     users_emails.append({'email': primary_email, 'primary': True, 'verified': True})
     return Response(users_emails[::-1], status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_developers(request, repository_name):
+    developers = Developer.objects.filter()
+    result = [{
+        'username': d.user.username,
+        'avatar': service.get_dev_avatar(d.user.username),
+        'email': d.user.email
+        } for d in developers
+        if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists()
+            and not Invitation.objects.filter(developer=d, project__name=repository_name).exists()]
+    return Response(result, status=status.HTTP_200_OK)

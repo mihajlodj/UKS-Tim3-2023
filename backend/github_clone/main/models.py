@@ -176,3 +176,9 @@ class RegistrationCandidate(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(default=timezone.now, blank=True)
+
+
+class Invitation(models.Model):
+    developer = models.ForeignKey(Developer, null=False, blank=False, related_name='invited_developer', on_delete=models.DO_NOTHING)
+    project = models.ForeignKey(Project, null=False, blank=False, related_name='invited_to', on_delete=models.DO_NOTHING)
+    timestamp = models.DateTimeField(default=timezone.now)
