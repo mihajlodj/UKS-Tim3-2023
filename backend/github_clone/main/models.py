@@ -78,7 +78,7 @@ class Issue(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     creator = models.ForeignKey(Developer, related_name='created_issue', on_delete=models.DO_NOTHING, null=True, blank=True)
-    manager = models.ManyToManyField(Developer, related_name='managed_issues', blank=True)
+    manager = models.ManyToManyField(Developer, related_name='managed_issues', blank=True, null=True)
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
     open = models.BooleanField(default=True)
