@@ -15,7 +15,7 @@ class IssueSerializer(serializers.Serializer):
     )
     # created = serializers.DateTimeField()
     # manager = DeveloperSerializer()
-    manager = serializers.CharField(allow_blank=False)
+    creator = serializers.CharField(allow_blank=False)
     project = serializers.CharField(allow_blank=False)
     milestone = serializers.CharField(allow_blank=True)
     def create(self, validated_data):
@@ -23,7 +23,8 @@ class IssueSerializer(serializers.Serializer):
             title=validated_data['title'],
             description=validated_data['description'],
             project=Project.objects.get(name=validated_data['project']),
-            manager=Developer.objects.get(user__username=validated_data['manager'])
+            creator=Developer.objects.get(user__username=validated_data['creator']),
+            # manager=set()
         )
         # issue = Issue()
         # issue.title = validated_data['title']
@@ -46,10 +47,17 @@ def serialize_issue(issue):
         'description': issue.description,
         'open': issue.open,
         'created': str(issue.created),
-        'manager': issue.manager.user.username,
+        'creator': issue.creator.user.username,
+        'managers': serialize_managers(issue),
         'project': issue.project.name,
         'milestone': serialize_milestone(issue)
     }
+
+def serialize_managers(issue):
+    if issue.manager:
+        return [{'username': dev.username} for dev in issue.manager.all()]
+    else:
+        return []
 
 def serialize_milestone(issue):
     if issue.milestone is None:

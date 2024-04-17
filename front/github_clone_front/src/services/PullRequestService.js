@@ -8,6 +8,10 @@ const getAll = (repoName) => {
     return api.get(`pr/get_all/${repoName}/`);
 }
 
+const getAllQueryPrs = (query) => {
+    return api.get(`pr/query_pull_reqs/${query}`);
+}
+
 const getOne = (repoName, pullId) => {
     return api.get(`pr/get/${repoName}/${pullId}/`);
 }
@@ -45,4 +49,4 @@ const merge = (repoName, pullId) => {
 }
 
 export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, 
-    close, reopen, markOpen, markClosed, merge };
+    close, reopen, markOpen, markClosed, merge, getAllQueryPrs };

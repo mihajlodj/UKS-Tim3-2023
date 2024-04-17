@@ -61,6 +61,11 @@ def get_root_content(username, repository, ref):
     return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
+def get_repo_language(username,repo):
+    api_endpoint = f'/api/v1/repos/search?q={username}/{repo}'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
+
+
 def get_folder_content(username, repository, branch, path):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents/{path}?ref={branch}'
     return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()

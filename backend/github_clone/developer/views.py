@@ -1,17 +1,26 @@
 import os
 
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.files import File
+from django.http import FileResponse
 from rest_framework import generics, status
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
+from branch.serializers import BranchSerializer
 from main import gitea_service
-from main.models import Developer, Invitation, SecondaryEmail, WorksOn
+from main.models import Invitation, WorksOn
+from main.models import Developer, SecondaryEmail, Commit, Watches
 from main.gitea_service import get_gitea_user_info_gitea_service
 from main import permissions
+from django.core.cache import cache
+from datetime import datetime
 
 
 class UpdateDeveloperView(generics.UpdateAPIView):
@@ -40,6 +49,110 @@ def add_new_email(request, username):
     )
     secondary_email.save()
     return Response(status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def get_all_devs(request, query):
+    repositories = None
+
+    parts = query.split('&')
+    for part in parts:
+        if 'repositories:' in part:
+            repositories = int(part.split('repositories:', 1)[1].strip())
+        else:
+            query = part.strip()
+
+    cache_key = f"developer_query:{query}{repositories}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    all_results = Developer.objects.all()
+    results = []
+    for result in all_results:
+        if result.user.username.lower().__contains__(query.lower()):
+            results.append(result)
+
+    if len(results) > 0:
+        serialized_data = []
+        for result in results:
+            isExcluded = False
+            developer_serializer = DeveloperSerializer(result)
+            developer = developer_serializer.data
+
+            if repositories is not None:
+                allUserRepos = len(Watches.objects.filter(developer__user__username__contains=developer['user']['username'],developer__workson__role__exact="Owner"))
+                if allUserRepos < repositories:
+                    isExcluded = True
+            if not isExcluded:
+                serialized_data.append(developer)
+
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_all_commits(request, query):
+    owner = ''
+    committer = ''
+    created_date = None
+
+    parts = query.split('&')
+    for part in parts:
+        if 'owner:' in part:
+            owner = part.split('owner:', 1)[1].strip()
+        elif 'committer:' in part:
+            committer = part.split('committer:', 1)[1].strip()
+        elif 'created:' in part:
+            created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
+        else:
+            query = part.strip()
+
+
+
+    cache_key = f"commit_query:{query}{owner}{committer}{created_date}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    # results = Commit.objects.filter(message__contains=query)
+    results = Commit.objects.all()
+
+    if query:
+        results = results.filter(message__contains=query)
+    if owner:
+        results = results.filter(author__user__username__contains=owner)
+    if committer:
+        results = results.filter(committer__user__username__contains=committer)
+    if created_date:
+        results = results.filter(timestamp__gt=created_date)
+
+    if results.exists():
+        serialized_data = []
+        for result in results:
+            author_serializer = DeveloperSerializer(result.author)
+            author = author_serializer.data
+
+            committer_serializer = DeveloperSerializer(result.committer)
+            committer = committer_serializer.data
+
+            branch_serializer = BranchSerializer(result.branch)
+            branch = branch_serializer.data
+
+            serialized_data.append(
+                {'message': result.message, 'branch': branch, 'author': author,
+                 'committer': committer, 'timestamp': result.timestamp})
+
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
@@ -174,7 +287,7 @@ def get_developers(request, repository_name):
         'username': d.user.username,
         'avatar': service.get_dev_avatar(d.user.username),
         'email': d.user.email
-        } for d in developers 
-        if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists() 
+        } for d in developers
+        if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists()
             and not Invitation.objects.filter(developer=d, project__name=repository_name).exists()]
     return Response(result, status=status.HTTP_200_OK)

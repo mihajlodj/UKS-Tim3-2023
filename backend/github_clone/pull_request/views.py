@@ -8,25 +8,98 @@ import json
 from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus
 from pull_request import diff_parser, service
 from developer import service as developer_service
+from repository.serializers import RepositorySerializer, DeveloperSerializer
+from django.core.cache import cache
+from datetime import datetime
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def create(request, owner_username, repository_name):
     json_data = json.loads(request.body.decode('utf-8'))
-    if PullRequest.objects.filter(project__name=repository_name, source__name=json_data['compare'], target__name=json_data['base']):
-        return Response("Pull request already exists", status=status.HTTP_400_BAD_REQUEST)   
+    if PullRequest.objects.filter(project__name=repository_name, source__name=json_data['compare'],
+                                  target__name=json_data['base']):
+        return Response("Pull request already exists", status=status.HTTP_400_BAD_REQUEST)
     if not Branch.objects.filter(name=json_data['base'], project__name=repository_name).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     if not Branch.objects.filter(name=json_data['compare'], project__name=repository_name).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    response = gitea_service.create_pull_request(owner_username, repository_name, {'base': json_data['base'], 'head': json_data['compare'], 'title': service.get_pull_title(json_data)})
+    response = gitea_service.create_pull_request(owner_username, repository_name,
+                                                 {'base': json_data['base'], 'head': json_data['compare'],
+                                                  'title': service.get_pull_title(json_data)})
     if response.status_code == 201:
         id = service.save_pull_request(request.user.username, repository_name, json_data, response)
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+@api_view(['GET'])
+def get_all_pull_reqs(request, query):
+    creator = ''
+    is_open = None
+    created_date = None
+    assignee = ''
+
+    parts = query.split('&')
+    for part in parts:
+        if 'owner:' in part:
+            creator = part.split('owner:', 1)[1].strip()
+        elif 'is:' in part:
+            is_open = True if part.split('is:', 1)[1].strip() == 'open' else False
+        elif 'assignee:' in part:
+            assignee = part.split('assignee:', 1)[1].strip()
+        elif 'created:' in part:
+            created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
+        else:
+            query = part.strip()
+
+    print(creator, "->creator", is_open, "->is_open", assignee, "->assignee", created_date, "->created_date", query,
+          "->query")
+
+    cache_key = f"pull_request_query:{query}:{creator}:{is_open}:{assignee}:{created_date}"
+    cached_data = cache.get(cache_key)
+
+    if cached_data is not None:
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    results = PullRequest.objects.all()
+
+    if query:
+        results = results.filter(title__contains=query)
+    if creator:
+        results = results.filter(author__user__username__contains=creator)
+    if assignee:
+        results = results.filter(assignee__user__username__contains=assignee)
+    if is_open is not None:
+        if is_open:
+            results = results.filter(status__contains="open")
+        if not is_open:
+            results = results.filter(status__contains="closed")
+    if created_date:
+        results = results.filter(timestamp__gt=created_date)
+
+    if results.exists():
+        serialized_data = []
+        for result in results:
+            developer_serializer = DeveloperSerializer(result.author)
+            author = developer_serializer.data
+
+            project_serializer = RepositorySerializer(result.project)
+            project = project_serializer.data
+
+            worksOn = WorksOn.objects.get(project__name=project['name'], role__exact="Owner")
+
+            serialized_data.append(
+                {'title': result.title, 'timestamp': result.timestamp, 'project': project, 'author': author,
+                 'Status': result.status, 'developer': worksOn.developer.user.username})
+
+        cache.set(cache_key, serialized_data, timeout=30)
+
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
@@ -35,7 +108,8 @@ def get_all(request, repository_name):
     result = []
     for req in requests:
         obj = {
-            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username, 'id': req.gitea_id,
+            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username,
+            'id': req.gitea_id,
             'labels': [], 'reviews': []
         }
         if req.milestone is not None:
@@ -54,15 +128,17 @@ def get_one(request, repository_name, pull_id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
     result = {
-        'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': {'username': req.author.user.username}, 'id': pull_id,
-        'labels': [], 'reviews': [], 'reviewers': [], 'mergeable': req.mergeable, 'base': req.target.name, 'compare': req.source.name, 
+        'title': req.title, 'status': req.status, 'timestamp': req.timestamp,
+        'author': {'username': req.author.user.username}, 'id': pull_id,
+        'labels': [], 'reviews': [], 'reviewers': [], 'mergeable': req.mergeable, 'base': req.target.name,
+        'compare': req.source.name,
         'commits': [], 'conflicting_files': [], 'description': req.description
     }
     if req.milestone is not None:
         result['milestone'] = {'id': req.milestone.id, 'title': req.milestone.title}
     if req.assignee is not None:
         result['assignee'] = {'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username)}
-    
+
     # Commits data
     owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
     response = gitea_service.get_pull_request_commits(owner_username, repository_name, pull_id)
@@ -72,7 +148,8 @@ def get_one(request, repository_name, pull_id):
             'hash': commit_data['sha'],
             'message': commit_data['commit']['message'],
             'timestamp': commit_data['created'],
-            'author': service.get_commit_author(commit_data['author']['login'], commit_data['commit']['message'], repository_name),
+            'author': service.get_commit_author(commit_data['author']['login'], commit_data['commit']['message'],
+                                                repository_name),
             'files': commit_data['files'],
             'stats': commit_data['stats']
         })
@@ -121,8 +198,8 @@ def update_title(request, repository_name, pull_id):
         req.save()
         return Response(title, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
-        
-    
+
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def close(request, repository_name, pull_id):

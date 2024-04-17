@@ -8,6 +8,10 @@ const get = (username, repoName) => {
     return api.get(`repository/data/${username}/${repoName}`);
 }
 
+const getAllQueryRepos = (query) => {
+    return api.get(`repository/query_repos/${query}`);
+}
+
 const getAllUserRepos = (owner_username) => {
     return api.get(`repository/all_repos/${owner_username}`);
 }
@@ -48,6 +52,7 @@ const createFile = (username, repoName, path, data) => {
     return api.post(`repository/create_file/${username}/${repoName}/${path}/`, data);
 }
 
+
 const inviteCollaborator = (repoName, invitedUsername) => {
     return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
 }
@@ -68,5 +73,5 @@ const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
     return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}`);
 }
 
-export default { create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile, 
+export default { getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
     editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };

@@ -5,6 +5,14 @@ const update = (developerData, username) => {
     return api.patch(`developer/update/${username}/`, developerData);
 }
 
+const getAllQueryDevelopers = (query) => {
+    return api.get(`developer/query_devs/${query}`);
+}
+
+const getAllQueryCommitts = (query) => {
+    return api.get(`developer/query_commits/${query}`);
+}
+
 const deleteUser = (usersPassword, username) => {
     return api.delete(`developer/delete/self/${username}/${usersPassword}`);
 }
@@ -50,5 +58,5 @@ const getDevelopers = (repoName) => {
 }
 
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
-     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress, deleteUsersAvatar, getDevelopers};
+     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress
+    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers};
