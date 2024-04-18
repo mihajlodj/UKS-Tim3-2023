@@ -82,7 +82,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div v-if="repo.commitsOverview[repo.chosenBranch] !== undefined">
                         <CommitsOverview class="mt-3"
                             :latestCommit="repo.commitsOverview[repo.chosenBranch].latest_commit"
                             :numCommits="repo.commitsOverview[repo.chosenBranch].num_commits"

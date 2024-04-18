@@ -174,10 +174,10 @@ def get_repo_data_for_display(request, owner_username, repository_name):
                 'timestamp': latest_commit_obj.timestamp,
 
             }
-        branch_commits_overview[branch.name] = {
-            'latest_commit': latest_commit,
-            'num_commits': len(branch_commits)
-        }
+            branch_commits_overview[branch.name] = {
+                'latest_commit': latest_commit,
+                'num_commits': len(branch_commits)
+            }
     result['commits_overview'] = branch_commits_overview
     return Response(result, status=status.HTTP_200_OK)
 
