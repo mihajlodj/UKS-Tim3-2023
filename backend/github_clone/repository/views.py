@@ -38,7 +38,7 @@ class ReadOwnerView(generics.RetrieveAPIView):
 
 class UpdateRepositoryView(generics.UpdateAPIView):
     queryset = Project.objects.all()
-    permission_classes = (IsAuthenticated, permissions.CanEditRepository,)
+    permission_classes = (IsAuthenticated, permissions.CanEditRepository)
     serializer_class = RepositorySerializer
     lookup_field = 'name'
 
