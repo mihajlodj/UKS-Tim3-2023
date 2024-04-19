@@ -64,7 +64,7 @@ export default {
         RepositoryService.getIsUsersRepo(this.$route.params.username,this.$route.params.repoName)
             .then(res => {
               console.log(res);
-              this.yourRepo = res.data && localStorage.getItem("username")===this.$route.params.username
+              this.yourRepo = res.data && (localStorage.getItem("username")===this.$route.params.username || localStorage.getItem("username")==="administrator")
           })
           .catch(err => {
               console.log(err);
