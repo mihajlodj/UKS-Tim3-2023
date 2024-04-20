@@ -181,4 +181,5 @@ class RegistrationCandidate(models.Model):
 class Invitation(models.Model):
     developer = models.ForeignKey(Developer, null=False, blank=False, related_name='invited_developer', on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, null=False, blank=False, related_name='invited_to', on_delete=models.DO_NOTHING)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
     timestamp = models.DateTimeField(default=timezone.now)

@@ -7,7 +7,7 @@
 
             <div class="ms-1 mt-1">
                 <button type="button" class="btn-username">{{ collaborator.username }}</button>
-                <h6 class="role ms-1">{{ collaborator.role }}</h6>
+                <h6 class="role ms-1">{{ role }}</h6>
             </div>
         </div>
 
@@ -25,6 +25,12 @@ export default {
     methods: {
         remove() {
             this.$emit('remove', this.collaborator.username);
+        }
+    },
+
+    computed: {
+        role() {
+            return this.collaborator.role.charAt(0).toUpperCase() + this.collaborator.role.slice(1).toLowerCase();
         }
     }
 }

@@ -428,7 +428,8 @@ def invite_collaborator(request, repository_name, invited_username):
         if Invitation.objects.filter(developer=developer, project=project):
             return Response("User already invited to repository", status=status.HTTP_400_BAD_REQUEST)
 
-        service.invite_collaborator(developer, request.user.username, project)
+        json_data = json.loads(request.body.decode('utf-8'))
+        service.invite_collaborator(developer, request.user.username, project, json_data['role'])
 
         collaborator = {
             'username': developer.user.username,
@@ -450,11 +451,15 @@ def respond_to_invitation(request, owner_username, repository_name, invited_user
         project = project.first()
         invitation = invitation.first()
 
-        Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name).delete()
-
         if (choice == 'accept'):
-            WorksOn.objects.create(developer=developer, project=project, role=Role.DEVELOPER)
-            threading.Thread(target=gitea_service.add_collaborator, args=([owner_username, repository_name, invited_username]), kwargs={}).start()
+            WorksOn.objects.create(developer=developer, project=project, role=invitation.role)
+            gitea_permissions = 'write'
+            if (invitation.role == 'READONLY'):
+                gitea_permissions = 'read'
+            threading.Thread(target=gitea_service.add_collaborator, args=([owner_username, repository_name, invited_username, gitea_permissions]), kwargs={}).start()
+        
+        Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name).delete()
+        
         return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 

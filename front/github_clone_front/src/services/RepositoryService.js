@@ -57,8 +57,8 @@ const createFile = (username, repoName, path, data) => {
 }
 
 
-const inviteCollaborator = (repoName, invitedUsername) => {
-    return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
+const inviteCollaborator = (repoName, invitedUsername, role) => {
+    return api.post(`repository/invite/${repoName}/${invitedUsername}/`, {'role': role});
 }
 
 const respondToInvitation = (ownerUsername, repoName, invitedUsername, choice) => {
