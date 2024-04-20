@@ -18,7 +18,7 @@
     </div>
   </div>
   <!-- Modal edit -->
-  <div class="modal fade" id="exampleModalUpdate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  <div  class="modal fade" id="exampleModalUpdate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document" style="background-color: #24292e; border: 2px solid;">
       <div class="modal-content" style="background-color: #24292e;">
@@ -37,8 +37,9 @@
     <div class="container w-75 pt-4" style="background-color: #24292e;">
       <div class="d-flex justify-content-between">
         <h3 style="color: beige;">Milestones</h3>
-        <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd" class="btn btn-create">Create new
-          milestone</button>
+        <button v-if="canModifyMilestones()" type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd" class="btn btn-create">
+          Create new milestone
+        </button>
       </div>
     </div>
     <div style="background-color: #24292e;">
@@ -59,11 +60,11 @@
             <td class="tg-c7q8">{{ item.due_date }}</td>
             <td class="tg-c7q8">{{ item.state }}</td>
             <td class="tg-c7q8">
-              <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+              <button v-if="canModifyMilestones()" type="button" class="btn btn-primary" data-bs-toggle="modal"
                 data-bs-target="#exampleModalUpdate" @click="setSelectedMilestone(item)">Edit</button>
             </td>
             <td class="tg-c7q8">
-              <button type="button" class="btn btn-danger" @click="deleteMilestone(item.title)">Delete</button>
+              <button v-if="canModifyMilestones()" type="button" class="btn btn-danger" @click="deleteMilestone(item.title)">Delete</button>
             </td>
           </tr>
         </tbody>
@@ -130,6 +131,11 @@ export default {
     },
     closeUpdateModal() {
       document.getElementById('editModalCloseId').click();
+    },
+
+    canModifyMilestones() {
+      const role = localStorage.getItem(this.$route.params.repoName);
+      return role === "Owner" || role === "Developer" || role === "Maintainer";
     }
   }
 }

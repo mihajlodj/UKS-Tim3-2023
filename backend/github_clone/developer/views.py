@@ -291,3 +291,14 @@ def get_developers(request, repository_name):
         if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists()
             and not Invitation.objects.filter(developer=d, project__name=repository_name).exists()]
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_developer_roles(request, username):
+    works_on_list = WorksOn.objects.filter(developer__user__username=username)
+    result = [{
+        'repository': obj.project.name,
+        'role': obj.role
+    } for obj in works_on_list]
+    return Response(result, status=status.HTTP_200_OK)

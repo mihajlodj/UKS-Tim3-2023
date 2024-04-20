@@ -5,7 +5,7 @@
             <div class="contain">
                 <div class="d-flex justify-content-between mt-5">
                     <FilterBar />
-                    <div class="d-flex justify-content-end">
+                    <div v-if="canCreatePull()" class="d-flex justify-content-end">
                         <button type="button" class="btn-create py-2 px-3" @click="$router.push('compare')">
                             New pull request
                         </button>
@@ -26,7 +26,7 @@
                             </button>
                         </div>
 
-                        <div class="col" v-if="!selected.every(value => value === false)">
+                        <div v-if="canCreatePull() && !selected.every(value => value === false)" class="col">
                             <button class="nav-link dropdown-toggle bright me-2" type="button" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 Mark as
@@ -148,6 +148,11 @@ export default {
             this.pulls = this.closedPulls;
             this.openPullsChosen = false;
             this.unselect();
+        },
+
+        canCreatePull() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
         },
 
         setChecked(i) {

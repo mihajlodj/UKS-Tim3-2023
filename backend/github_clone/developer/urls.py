@@ -19,5 +19,6 @@ urlpatterns = [
     # path('emails/gitea/<str:username>/', get_developers_emails_gitea, name='get_developer_emails'),
     path('emails/<str:username>/', get_developers_emails, name='get_developer_emails'),
     path('all/<str:repository_name>', get_developers, name='get_developers'),
+    path('roles/<str:username>', get_developer_roles, name='get_developer_roles'),
 ]
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))

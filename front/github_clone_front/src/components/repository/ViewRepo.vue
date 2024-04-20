@@ -55,22 +55,24 @@
 
                         <div class="d-flex justify-content-end">
 
-                            <button class="btn nav-link dropdown-toggle btn-gray me-2" type="button" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Add file
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <button class="btn dropdown-item" @click="createNewFile">
-                                        <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="btn dropdown-item" @click="uploadFiles">
-                                        <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
-                                    </button>
-                                </li>
-                            </ul>
+                            <div v-if="canAddFiles()">
+                                <button class="btn nav-link dropdown-toggle btn-gray me-2" type="button" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Add file
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <button class="btn dropdown-item" @click="createNewFile">
+                                            <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="btn dropdown-item" @click="uploadFiles">
+                                            <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
 
 
                             <button type="button" :class="(httpChosen) ? 'btn btn-chosen' : 'btn'"
@@ -252,6 +254,11 @@ export default {
 
         uploadFiles() {
             this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/upload/${this.repo.chosenBranch}`);
+        },
+
+        canAddFiles() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
         }
     },
 

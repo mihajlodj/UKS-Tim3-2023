@@ -5,7 +5,7 @@
             <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
                 :branchName="repo.defaultBranch" />
             <CollaboratorsSettings />
-            <DangerZoneSettings :accessModifier="repo.accessModifier" />
+            <DangerZoneSettings v-if="canViewDangerZone" :accessModifier="repo.accessModifier" />
         </div>
 
         <div v-if="allowed == false">
@@ -72,6 +72,11 @@ export default {
         forceRerender() {
             this.generalKey += 1;
         },
+
+        canViewDangerZone() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner";
+        }
     }
 }
 
