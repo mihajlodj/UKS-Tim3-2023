@@ -18,12 +18,6 @@ def fork(original_repository: Project, new_repository_info, original_owner_usern
                                             access_modifier=original_repository.access_modifier)
     WorksOn.objects.create(developer=new_owner, project=new_repository, role=Role.OWNER)
 
-    old_repo_collaborators = WorksOn.objects.filter(project=original_repository)
-    for obj in old_repo_collaborators:
-        dev = obj.developer
-        if dev.user.username != new_owner.user.username:
-            WorksOn.objects.create(developer=dev, project=new_repository, role=Role.DEVELOPER)
-
     branches = Branch.objects.filter(project=original_repository)
     for branch in branches:
         new_branch = Branch.objects.create(name=branch.name, project=new_repository, created_by=branch.created_by)
