@@ -49,7 +49,7 @@
                 <h6 class="bright bold">
                     Type {{ $route.params.username }}/{{ $route.params.repoName }} to confirm.
                 </h6>
-                <input v-model="confirmation" class="bright" />
+                <input v-model="confirmation" class="bright" @click.right.prevent @copy.prevent @paste.prevent />
                 <div class="w-100 d-flex justify-content-end">
                     <button type="button" class="btn-transfer mt-3" :disabled="!canTransfer()" @click="transfer">
                         I understand, I transfer this repository.
