@@ -81,5 +81,9 @@ const changeRole = (ownerUsername, repoName, collaboratorUsername, role) => {
     return api.put(`repository/editRole/${ownerUsername}/${repoName}/${collaboratorUsername}/`, {'role': role});
 }
 
+const transfer = (ownerUsername, repoName, newOwnerUsername) => {
+    return api.post(`repository/transfer/${ownerUsername}/${repoName}/`, {'new_owner': newOwnerUsername});
+}
+
 export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer };

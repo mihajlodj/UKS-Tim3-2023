@@ -549,6 +549,24 @@ def change_role(request, owner_username, repository_name, collaborator_username)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanTransferOwnership])
+def transfer_ownership(request, owner_username, repository_name):
+    new_owner_username = json.loads(request.body.decode('utf-8'))['new_owner']
+    works_on_old_owner = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    works_on_new_owner = WorksOn.objects.filter(developer__user__username=new_owner_username, project__name=repository_name)
+    if (not works_on_old_owner.exists() or not works_on_new_owner.exists()):
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    old_owner = works_on_old_owner.first()
+    new_owner = works_on_new_owner.first()
+    old_owner.role = Role.MAINTAINER
+    new_owner.role = Role.OWNER
+    old_owner.save()
+    new_owner.save()
+    threading.Thread(target=gitea_service.transfer_ownership, args=([owner_username, repository_name, new_owner_username]), kwargs={}).start()
+    return Response(status=status.HTTP_200_OK)
+
+
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):
     author = Developer.objects.get(user__username=request.user.username)
     branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])

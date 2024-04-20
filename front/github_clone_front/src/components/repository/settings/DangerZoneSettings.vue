@@ -21,7 +21,7 @@
             </div>
 
             <div>
-                <button class="btn btn-outline-danger mt-1">Transfer ownership</button>
+                <button class="btn btn-outline-danger mt-1" @click="transferOwnership">Transfer ownership</button>
             </div>
         </div>
         <div class="cell last d-flex justify-content-between">
@@ -101,6 +101,10 @@ export default {
                 console.log(err);
             });
             this.$router.push('/main')
+        },
+
+        transferOwnership() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/transfer`)
         }
     }
 }

@@ -51,7 +51,9 @@
                 </h6>
                 <input v-model="confirmation" class="bright" />
                 <div class="w-100 d-flex justify-content-end">
-                    <button type="button" class="btn-transfer mt-3" :disabled="!canTransfer()">I understand, I transfer this repository.</button>
+                    <button type="button" class="btn-transfer mt-3" :disabled="!canTransfer()" @click="transfer">
+                        I understand, I transfer this repository.
+                    </button>
                 </div>
             </div> 
         </div>
@@ -91,7 +93,14 @@ export default {
     methods: {
         transfer() {
             if (this.canTransfer()) {
-                console.log("transfer");
+                RepositoryService.transfer(this.$route.params.username, this.$route.params.repoName, this.selectedCollaborator.username)
+                .then(res => {
+                    console.log(res);
+                    localStorage.setItem(this.$route.params.repoName, 'Maintainer');
+                    this.$router.push(`/view/${this.selectedCollaborator.username}/${this.$route.params.repoName}`);    
+                }).catch(err => {
+                    console.log(err);
+                })
             }
         },
 
