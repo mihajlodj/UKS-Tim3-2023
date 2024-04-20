@@ -203,8 +203,8 @@ def get_root_files(request, owner_username, repository_name, ref):
     result = gitea_service.get_root_content(owner_username, repository_name, ref)
     for item in result:
         last_commit_sha = item['last_commit_sha']
-        if Commit.objects.filter(hash=last_commit_sha).exists():
-            last_commit = Commit.objects.get(hash=last_commit_sha)
+        if Commit.objects.filter(branch__project__name=repository_name, hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(branch__project__name=repository_name, hash=last_commit_sha)
             item['last_commit_message'] = last_commit.message
             item['last_commit_timestamp'] = last_commit.timestamp
         else:
@@ -229,8 +229,8 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
     result = gitea_service.get_folder_content(owner_username, repository_name, branch, path)
     for item in result:
         last_commit_sha = item['last_commit_sha']
-        if Commit.objects.filter(hash=last_commit_sha).exists():
-            last_commit = Commit.objects.get(hash=last_commit_sha)
+        if Commit.objects.filter(branch__project__name=repository_name, hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(branch__project__name=repository_name, hash=last_commit_sha)
             item['last_commit_message'] = last_commit.message
             item['last_commit_timestamp'] = last_commit.timestamp
         else:
@@ -567,6 +567,19 @@ def transfer_ownership(request, owner_username, repository_name):
     old_owner.save()
     new_owner.save()
     threading.Thread(target=gitea_service.transfer_ownership, args=([owner_username, repository_name, new_owner_username]), kwargs={}).start()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def fork(request, owner_username, repository_name):
+    new_repo_info = json.loads(request.body.decode('utf-8'))
+    owner = Developer.objects.filter(user__username=owner_username)
+    new_owner = Developer.objects.filter(user__username=request.user.username)
+    repository = Project.objects.filter(name=repository_name)
+    if not owner.exists() or not new_owner.exists() or not repository.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    service.fork(repository.first(), new_repo_info, owner_username, new_owner.first())
     return Response(status=status.HTTP_200_OK)
 
 

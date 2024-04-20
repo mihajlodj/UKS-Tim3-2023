@@ -72,6 +72,16 @@ export default {
             /* eslint-disable */
             if (this.isValidName) {
 
+                RepositoryService.fork(this.$route.params.username, this.$route.params.repoName, {
+                    name: this.name,
+                    description: this.description 
+                }).then(res => {
+                    console.log(res);
+                    this.$router.push(`/view/${localStorage.username}/${this.name}`);
+                }).catch(err => {
+                    console.log(err);
+                });
+
                 // RepositoryService.create({
                 //     name: this.name,
                 //     description: this.description,

@@ -85,5 +85,9 @@ const transfer = (ownerUsername, repoName, newOwnerUsername) => {
     return api.post(`repository/transfer/${ownerUsername}/${repoName}/`, {'new_owner': newOwnerUsername});
 }
 
+const fork = (ownerUsername, repoName, data) => {
+    return api.post(`repository/fork/${ownerUsername}/${repoName}/`, data);
+}
+
 export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork };

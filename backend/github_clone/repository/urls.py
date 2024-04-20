@@ -24,4 +24,5 @@ urlpatterns = [
     path('removeCollaborator/<str:owner_username>/<str:repository_name>/<str:collaborator_username>', remove_collaborator, name='remove_collaborator'),
     path('editRole/<str:owner_username>/<str:repository_name>/<str:collaborator_username>/', change_role, name='change_role'),
     path('transfer/<str:owner_username>/<str:repository_name>/', transfer_ownership, name='transfer_ownership'),
+    path('fork/<str:owner_username>/<str:repository_name>/', fork, name='fork'),
 ]

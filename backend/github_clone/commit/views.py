@@ -24,9 +24,9 @@ def get_diff(request, repository_name, sha):
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
 def get(request, repository_name, sha):
-    if not Commit.objects.filter(hash=sha).exists():
+    if not Commit.objects.filter(branch__project__name=repository_name, hash=sha).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    commit = Commit.objects.get(hash=sha)
+    commit = Commit.objects.get(branch__project__name=repository_name, hash=sha)
     result = {
         'sha': sha,
         'message': commit.message,
