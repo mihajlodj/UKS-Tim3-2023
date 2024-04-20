@@ -80,6 +80,7 @@ export default {
                     "username": this.username,
                     "password": this.password
                 }).then(result => {
+                    localStorage.clear();
                     localStorage.setItem("access_token", result.data.access);
                     localStorage.setItem("refresh_token", result.data.refresh);
                     localStorage.setItem("username", this.username);
