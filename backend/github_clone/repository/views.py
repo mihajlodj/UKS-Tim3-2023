@@ -512,7 +512,7 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
 def remove_collaborator(request, owner_username, repository_name, collaborator_username):
     if WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():
         worksOn = WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
-        if worksOn.role != Role.OWNER:
+        if worksOn.role != Role.OWNER and collaborator_username != request.user.username:
             worksOn.delete()
             threading.Thread(target=gitea_service.delete_collaborator, args=([owner_username, repository_name, collaborator_username]), kwargs={}).start()
             return Response(status=status.HTTP_204_NO_CONTENT)

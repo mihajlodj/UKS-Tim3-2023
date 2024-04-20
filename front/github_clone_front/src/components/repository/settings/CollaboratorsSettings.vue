@@ -209,8 +209,7 @@ export default {
 
         inviteCollaborator() {
             if (this.selectedCollaborator !== null) {
-                const role = this.chosenRole.toUpperCase();
-                RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username, role)
+                RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username, this.chosenRole)
                 .then(res => {
                     this.existingCollaborators.push(res.data);
                     this.filteredExistingCollaborators = this.existingCollaborators;

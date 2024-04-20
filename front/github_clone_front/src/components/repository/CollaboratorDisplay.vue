@@ -21,20 +21,17 @@
                     </button>
                     <ul class="dropdown-menu" id="branches-list" aria-labelledby="roleChoice" style="background-color: #2c333b">
                         <li>
-                            <button class="btn dropdown-item" @click="changeRole('Readonly')"
-                                style="color: #a5b2bf;">
+                            <button class="btn dropdown-item" @click="changeRole('Readonly')" style="color: #a5b2bf;">
                                 Readonly
                             </button>
                         </li>
                         <li>
-                            <button class="btn dropdown-item" @click="changeRole('Developer')"
-                                style="color: #a5b2bf;">
+                            <button class="btn dropdown-item" @click="changeRole('Developer')" style="color: #a5b2bf;">
                                 Developer
                             </button>
                         </li>
                         <li>
-                            <button class="btn dropdown-item" @click="changeRole('Maintainer')"
-                                style="color: #a5b2bf;">
+                            <button class="btn dropdown-item" @click="changeRole('Maintainer')" style="color: #a5b2bf;">
                                 Maintainer
                             </button>
                         </li>
@@ -68,7 +65,7 @@ export default {
 
         changeRole(newRole) {
             this.changingRole = false;
-            this.$emit('changeRole', {role: newRole.toUpperCase(), username: this.collaborator.username});
+            this.$emit('changeRole', {role: newRole, username: this.collaborator.username});
             this.role = newRole;
         },
 
