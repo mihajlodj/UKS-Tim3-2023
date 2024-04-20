@@ -537,12 +537,15 @@ def change_role(request, owner_username, repository_name, collaborator_username)
         works_on = WorksOn.objects.filter(developer=developer, project=project).first()
 
         new_role = json.loads(request.body.decode('utf-8'))['role']
+        if new_role != Role.READONLY and new_role != Role.DEVELOPER and new_role != Role.MAINTAINER:
+            return Response("Invalid role", status=status.HTTP_400_BAD_REQUEST)
+
         if new_role != works_on.role:
             works_on.role = new_role
             works_on.save()
 
             gitea_permissions = 'write'
-            if (new_role == 'READONLY'):
+            if (new_role == Role.READONLY):
                 gitea_permissions = 'read'
             threading.Thread(target=gitea_service.change_collaborator_role, args=([owner_username, repository_name, collaborator_username, gitea_permissions]), kwargs={}).start()
         return Response(status=status.HTTP_200_OK)

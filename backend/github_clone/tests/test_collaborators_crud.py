@@ -131,6 +131,22 @@ def disable_gitea_delete_collaborator(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def disable_gitea_change_collaborator_role(monkeypatch):
+    def mock_change_collaborator_role(*args, **kwargs):
+        return
+    monkeypatch.setattr(gitea_service, 'change_collaborator_role', mock_change_collaborator_role)
+    yield
+
+
+@pytest.fixture(autouse=True)
+def disable_gitea_transfer_ownership(monkeypatch):
+    def mock_transfer_ownership(*args, **kwargs):
+        return
+    monkeypatch.setattr(gitea_service, 'transfer_ownership', mock_transfer_ownership)
+    yield
+
+
+@pytest.fixture(autouse=True)
 def disable_send_email(monkeypatch):
     def mock_send_email(*args, **kwargs):
         return
@@ -308,3 +324,91 @@ def test_remove_does_not_exist(get_token_as_owner):
     url = f'/repository/removeCollaborator/{username_owner}/{repo_name}/{username_non_member}'
     response = client.delete(url, headers=headers)
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_change_role_success(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.DEVELOPER}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    assert not WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.DEVELOPER).exists()
+
+
+@pytest.mark.django_db
+def test_change_role_invalid_role_owner(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.OWNER}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == 'Invalid role'
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+@pytest.mark.django_db
+def test_change_role_invalid_role_owner(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.ADMIN}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == 'Invalid role'
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+@pytest.mark.django_db
+def test_change_role_invalid_role_owner(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.IS_BANNED}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == 'Invalid role'
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+
+@pytest.mark.django_db
+def test_transfer_ownership_success(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = { 'new_owner': username_maintainer }
+    url = f'/repository/transfer/{username_owner}/{repo_name}/'
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.MAINTAINER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.OWNER).exists()
+
+
+@pytest.mark.django_db
+def test_transfer_ownership_collaborator_does_not_exist(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_non_member, project=repo).exists()
+
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = { 'new_owner': username_non_member }
+    url = f'/repository/transfer/{username_owner}/{repo_name}/'
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_non_member, project=repo, role=Role.OWNER).exists()
