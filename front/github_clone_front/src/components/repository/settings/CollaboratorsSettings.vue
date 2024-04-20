@@ -167,7 +167,7 @@ export default {
             this.collaboratorsExist = this.existingCollaborators.length > 0;
         }).catch(err => {
             console.log(err);
-        })
+        });
     },
 
     data() {

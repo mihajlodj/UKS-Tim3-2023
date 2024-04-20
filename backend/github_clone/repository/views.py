@@ -492,7 +492,8 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
     result = [{
         'username': elem.developer.user.username,
         'avatar': developer_service.get_dev_avatar(elem.developer.user.username),
-        'role': elem.role
+        'role': elem.role,
+        'email': elem.developer.user.email
     } for elem in works_on_list if elem.developer.user.username != owner_username]
 
     pending_invitations = Invitation.objects.filter(project__name=repository_name)
@@ -500,7 +501,8 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
         result.append({
             'username': invitation.developer.user.username,
             'avatar': developer_service.get_dev_avatar(invitation.developer.user.username),
-            'role': 'Pending'
+            'role': 'Pending',
+            'email': invitation.developer.user.email
         })
     return Response(result, status=status.HTTP_200_OK)
 
