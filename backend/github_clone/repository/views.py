@@ -150,7 +150,10 @@ def get_all_users_repo(request, owner_username):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_repo_data_for_display(request, owner_username, repository_name):
-    repo = Project.objects.get(name=repository_name)
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    repo = works_on.first().project
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'],

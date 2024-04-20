@@ -65,7 +65,7 @@ class Task(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
     timestamp = models.DateTimeField(default=timezone.now)

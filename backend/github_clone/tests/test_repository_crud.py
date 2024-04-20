@@ -151,7 +151,7 @@ def test_create_repo_duplicate_name(get_token):
     }
     response = client.post(url, repo_data, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data['name'][0] == 'This field must be unique.'
+    assert response.data['name'][0] == 'Repository with this name already exists for this owner.'
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
     assert Branch.objects.count() == 2
