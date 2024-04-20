@@ -1,6 +1,7 @@
+import json
 import pytest
 from django.contrib.auth.models import User
-from main.models import Developer, Invitation, Project, WorksOn, Branch, Commit, PullRequest, PullRequestStatus, Milestone
+from main.models import Developer, Invitation, Project, Role, WorksOn, Branch
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
@@ -43,7 +44,7 @@ def create_developer():
 
 @pytest.fixture
 def create_invitation(create_developer, create_repository):
-    return Invitation.objects.create(developer=create_developer, project=create_repository)
+    return Invitation.objects.create(developer=create_developer, project=create_repository, role=Role.MAINTAINER)
 
 
 @pytest.fixture
@@ -98,10 +99,10 @@ def create_repository(create_developers):
     main = Branch.objects.create(name='main', project=repo, created_by=owner)
     repo.default_branch = main
     repo.save()
-    WorksOn.objects.create(role='Owner', project=repo, developer=owner)
-    WorksOn.objects.create(role='Maintainer', project=repo, developer=maintainer)
-    WorksOn.objects.create(role='Developer', project=repo, developer=developer)
-    WorksOn.objects.create(role='Readonly', project=repo, developer=readonly)
+    WorksOn.objects.create(role=Role.OWNER, project=repo, developer=owner)
+    WorksOn.objects.create(role=Role.MAINTAINER, project=repo, developer=maintainer)
+    WorksOn.objects.create(role=Role.DEVELOPER, project=repo, developer=developer)
+    WorksOn.objects.create(role=Role.READONLY, project=repo, developer=readonly)
     return repo
 
 
@@ -130,6 +131,22 @@ def disable_gitea_delete_collaborator(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def disable_gitea_change_collaborator_role(monkeypatch):
+    def mock_change_collaborator_role(*args, **kwargs):
+        return
+    monkeypatch.setattr(gitea_service, 'change_collaborator_role', mock_change_collaborator_role)
+    yield
+
+
+@pytest.fixture(autouse=True)
+def disable_gitea_transfer_ownership(monkeypatch):
+    def mock_transfer_ownership(*args, **kwargs):
+        return
+    monkeypatch.setattr(gitea_service, 'transfer_ownership', mock_transfer_ownership)
+    yield
+
+
+@pytest.fixture(autouse=True)
 def disable_send_email(monkeypatch):
     def mock_send_email(*args, **kwargs):
         return
@@ -140,39 +157,47 @@ def disable_send_email(monkeypatch):
 def test_invite_collaborator_success(get_token_as_owner, create_developer):
     dev = create_developer
     url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    payload = {'role': 'Maintainer'}
     headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
-    response = client.post(url, headers=headers)
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data['username'] == username_non_member
     assert response.data['role'] == 'Pending'
     assert Invitation.objects.count() == 1
+    assert Invitation.objects.filter().first().role == Role.MAINTAINER
 
 
 @pytest.mark.django_db
 def test_invite_collaborator_already_added(get_token_as_owner):
     url = f'/repository/invite/{repo_name}/{username_maintainer}/'
+    payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
-    response = client.post(url, headers=headers)
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert Invitation.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_invite_collaborator_as_maintainer(get_token_as_maintainer, create_developer):
+def test_invite_collaborator_as_maintainer_success(get_token_as_maintainer, create_developer):
     dev = create_developer
     url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_maintainer}' }
-    response = client.post(url, headers=headers)
-    assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert Invitation.objects.count() == 0
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_201_CREATED
+    assert response.data['username'] == username_non_member
+    assert response.data['role'] == 'Pending'
+    assert Invitation.objects.count() == 1
+    assert Invitation.objects.filter().first().role == Role.DEVELOPER
 
 
 @pytest.mark.django_db
 def test_invite_collaborator_as_developer(get_token_as_developer, create_developer):
     dev = create_developer
     url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_developer}' }
-    response = client.post(url, headers=headers)
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert Invitation.objects.count() == 0
 
@@ -181,8 +206,9 @@ def test_invite_collaborator_as_developer(get_token_as_developer, create_develop
 def test_invite_collaborator_as_readonly(get_token_as_readonly, create_developer):
     dev = create_developer
     url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_readonly}' }
-    response = client.post(url, headers=headers)
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert Invitation.objects.count() == 0
 
@@ -198,6 +224,7 @@ def test_accept_invitation_success(get_token_as_non_member, create_invitation):
     assert response.status_code == status.HTTP_200_OK
     assert Invitation.objects.count() == 0
     assert WorksOn.objects.filter(project=invitation.project, developer=invitation.developer).count() == 1
+    assert WorksOn.objects.filter(project=invitation.project, developer=invitation.developer).first().role == Role.MAINTAINER
 
 
 @pytest.mark.django_db
@@ -238,7 +265,7 @@ def test_accept_invitation_not_invited(get_token_as_non_member, create_developer
 
 
 @pytest.mark.django_db
-def test_remove_collaborator_success_except_for_owner(get_token_as_owner, create_developers, create_repository, create_invitation):
+def test_remove_collaborator_success_except_for_owner(get_token_as_owner, get_token_as_maintainer, create_developers, create_repository, create_invitation):
     owner, maintainer, developer, readonly = create_developers
     assert WorksOn.objects.filter(project=create_repository, developer=maintainer).count() == 1
     assert WorksOn.objects.filter(project=create_repository, developer=developer).count() == 1
@@ -274,6 +301,22 @@ def test_remove_collaborator_success_except_for_owner(get_token_as_owner, create
 
 
 @pytest.mark.django_db
+def test_remove_collaborator_cannot_for_self(get_token_as_maintainer, create_developers, create_repository, create_invitation):
+    owner, maintainer, developer, readonly = create_developers
+    assert WorksOn.objects.filter(project=create_repository, developer=maintainer).count() == 1
+    assert WorksOn.objects.filter(project=create_repository, developer=developer).count() == 1
+    assert WorksOn.objects.filter(project=create_repository, developer=readonly).count() == 1
+    assert WorksOn.objects.filter(project=create_repository, developer=owner).count() == 1
+    assert Invitation.objects.filter(id=create_invitation.id).count() == 1
+
+    headers = { 'Authorization': f'Bearer {get_token_as_maintainer}' }
+    url = f'/repository/removeCollaborator/{username_owner}/{repo_name}/{username_maintainer}'
+    response = client.delete(url, headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert WorksOn.objects.filter(project=create_repository, developer=maintainer).count() == 1
+
+
+@pytest.mark.django_db
 def test_remove_does_not_exist(get_token_as_owner):
     assert WorksOn.objects.filter(developer__user__username=username_non_member).count() == 0
 
@@ -281,3 +324,91 @@ def test_remove_does_not_exist(get_token_as_owner):
     url = f'/repository/removeCollaborator/{username_owner}/{repo_name}/{username_non_member}'
     response = client.delete(url, headers=headers)
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.django_db
+def test_change_role_success(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.DEVELOPER}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    assert not WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.DEVELOPER).exists()
+
+
+@pytest.mark.django_db
+def test_change_role_invalid_role_owner(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.OWNER}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == 'Invalid role'
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+@pytest.mark.django_db
+def test_change_role_invalid_role_owner(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.ADMIN}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == 'Invalid role'
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+@pytest.mark.django_db
+def test_change_role_invalid_role_owner(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = {'role': Role.IS_BANNED}
+    url = f'/repository/editRole/{username_owner}/{repo_name}/{username_maintainer}/'
+    response = client.put(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == 'Invalid role'
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+
+@pytest.mark.django_db
+def test_transfer_ownership_success(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = { 'new_owner': username_maintainer }
+    url = f'/repository/transfer/{username_owner}/{repo_name}/'
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.MAINTAINER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.MAINTAINER).exists()
+    assert WorksOn.objects.filter(developer__user__username=username_maintainer, project=repo, role=Role.OWNER).exists()
+
+
+@pytest.mark.django_db
+def test_transfer_ownership_collaborator_does_not_exist(get_token_as_owner, create_repository):
+    repo = create_repository
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_non_member, project=repo).exists()
+
+    headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
+    payload = { 'new_owner': username_non_member }
+    url = f'/repository/transfer/{username_owner}/{repo_name}/'
+    response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    assert WorksOn.objects.filter(developer__user__username=username_owner, project=repo, role=Role.OWNER).exists()
+    assert not WorksOn.objects.filter(developer__user__username=username_non_member, project=repo, role=Role.OWNER).exists()

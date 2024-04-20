@@ -6,8 +6,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
 
-def invite_collaborator(developer, inviter_username, project):
-    Invitation.objects.create(developer=developer, project=project)
+def invite_collaborator(developer, inviter_username, project, role):
+    Invitation.objects.create(developer=developer, project=project, role=role)
     owner_username = WorksOn.objects.filter(role=Role.OWNER, project=project).first().developer.user.username
     threading.Thread(target=send_email, args=([developer, inviter_username, owner_username, project.name]), kwargs={}).start()    
 

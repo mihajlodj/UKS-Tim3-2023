@@ -74,11 +74,11 @@
                         <h5 class="bright">Add a comment</h5>
                         <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
                         <div class="w-100 d-flex justify-content-end mt-2">
-                            <button v-if="pull.status === 'Open'" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
+                            <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
                                 <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
                                 Close pull request
                             </button>
-                            <button v-if="pull.status === 'Closed'" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
+                            <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
                                 Reopen pull request
                             </button>
                             <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
@@ -178,6 +178,11 @@ export default {
 
         updateAssignee(data) {
             this.pull.assignee = data;
+        },
+
+        canUpdatePull() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
         },
 
         getMergeMsg() {

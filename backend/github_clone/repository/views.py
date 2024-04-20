@@ -174,10 +174,10 @@ def get_repo_data_for_display(request, owner_username, repository_name):
                 'timestamp': latest_commit_obj.timestamp,
 
             }
-        branch_commits_overview[branch.name] = {
-            'latest_commit': latest_commit,
-            'num_commits': len(branch_commits)
-        }
+            branch_commits_overview[branch.name] = {
+                'latest_commit': latest_commit,
+                'num_commits': len(branch_commits)
+            }
     result['commits_overview'] = branch_commits_overview
     return Response(result, status=status.HTTP_200_OK)
 
@@ -420,7 +420,7 @@ def upload_files(request, owner_username, repository_name):
 def invite_collaborator(request, repository_name, invited_username):
     developer = Developer.objects.filter(user__username=invited_username)
     project = Project.objects.filter(name=repository_name)
-    if developer.exists() and project.exists:
+    if developer.exists() and project.exists():
         developer = developer.first()
         project = project.first()
         if WorksOn.objects.filter(developer=developer, project=project):
@@ -428,7 +428,8 @@ def invite_collaborator(request, repository_name, invited_username):
         if Invitation.objects.filter(developer=developer, project=project):
             return Response("User already invited to repository", status=status.HTTP_400_BAD_REQUEST)
 
-        service.invite_collaborator(developer, request.user.username, project)
+        json_data = json.loads(request.body.decode('utf-8'))
+        service.invite_collaborator(developer, request.user.username, project, json_data['role'])
 
         collaborator = {
             'username': developer.user.username,
@@ -445,16 +446,20 @@ def respond_to_invitation(request, owner_username, repository_name, invited_user
     developer = Developer.objects.filter(user__username=invited_username)
     project = Project.objects.filter(name=repository_name)
     invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
-    if developer.exists() and project.exists and invitation.exists():
+    if developer.exists() and project.exists() and invitation.exists():
         developer = developer.first()
         project = project.first()
         invitation = invitation.first()
 
-        Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name).delete()
-
         if (choice == 'accept'):
-            WorksOn.objects.create(developer=developer, project=project, role=Role.DEVELOPER)
-            threading.Thread(target=gitea_service.add_collaborator, args=([owner_username, repository_name, invited_username]), kwargs={}).start()
+            WorksOn.objects.create(developer=developer, project=project, role=invitation.role)
+            gitea_permissions = 'write'
+            if (invitation.role == 'READONLY'):
+                gitea_permissions = 'read'
+            threading.Thread(target=gitea_service.add_collaborator, args=([owner_username, repository_name, invited_username, gitea_permissions]), kwargs={}).start()
+        
+        Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name).delete()
+        
         return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -487,7 +492,8 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
     result = [{
         'username': elem.developer.user.username,
         'avatar': developer_service.get_dev_avatar(elem.developer.user.username),
-        'role': elem.role
+        'role': elem.role,
+        'email': elem.developer.user.email
     } for elem in works_on_list if elem.developer.user.username != owner_username]
 
     pending_invitations = Invitation.objects.filter(project__name=repository_name)
@@ -495,7 +501,8 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
         result.append({
             'username': invitation.developer.user.username,
             'avatar': developer_service.get_dev_avatar(invitation.developer.user.username),
-            'role': 'Pending'
+            'role': 'Pending',
+            'email': invitation.developer.user.email
         })
     return Response(result, status=status.HTTP_200_OK)
 
@@ -505,7 +512,7 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
 def remove_collaborator(request, owner_username, repository_name, collaborator_username):
     if WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():
         worksOn = WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
-        if worksOn.role != Role.OWNER:
+        if worksOn.role != Role.OWNER and collaborator_username != request.user.username:
             worksOn.delete()
             threading.Thread(target=gitea_service.delete_collaborator, args=([owner_username, repository_name, collaborator_username]), kwargs={}).start()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -515,6 +522,52 @@ def remove_collaborator(request, owner_username, repository_name, collaborator_u
         invitation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
+def change_role(request, owner_username, repository_name, collaborator_username):
+    developer = Developer.objects.filter(user__username=collaborator_username)
+    project = Project.objects.filter(name=repository_name)
+    if developer.exists() and project.exists():
+        developer = developer.first()
+        project = project.first()
+        if not WorksOn.objects.filter(developer=developer, project=project):
+            return Response("User not a collaborator", status=status.HTTP_400_BAD_REQUEST)
+        works_on = WorksOn.objects.filter(developer=developer, project=project).first()
+
+        new_role = json.loads(request.body.decode('utf-8'))['role']
+        if new_role != Role.READONLY and new_role != Role.DEVELOPER and new_role != Role.MAINTAINER:
+            return Response("Invalid role", status=status.HTTP_400_BAD_REQUEST)
+
+        if new_role != works_on.role:
+            works_on.role = new_role
+            works_on.save()
+
+            gitea_permissions = 'write'
+            if (new_role == Role.READONLY):
+                gitea_permissions = 'read'
+            threading.Thread(target=gitea_service.change_collaborator_role, args=([owner_username, repository_name, collaborator_username, gitea_permissions]), kwargs={}).start()
+        return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanTransferOwnership])
+def transfer_ownership(request, owner_username, repository_name):
+    new_owner_username = json.loads(request.body.decode('utf-8'))['new_owner']
+    works_on_old_owner = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    works_on_new_owner = WorksOn.objects.filter(developer__user__username=new_owner_username, project__name=repository_name)
+    if (not works_on_old_owner.exists() or not works_on_new_owner.exists()):
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    old_owner = works_on_old_owner.first()
+    new_owner = works_on_new_owner.first()
+    old_owner.role = Role.MAINTAINER
+    new_owner.role = Role.OWNER
+    old_owner.save()
+    new_owner.save()
+    threading.Thread(target=gitea_service.transfer_ownership, args=([owner_username, repository_name, new_owner_username]), kwargs={}).start()
+    return Response(status=status.HTTP_200_OK)
 
 
 def save_commit(request, repository_name, json_data, timestamp, commit_sha):

@@ -26,7 +26,7 @@
             </div>
         </div>
 
-        <button class="merge my-2 py-2 px-3" :disabled="!pull.mergeable" @click="merge">
+        <button v-if="canMergePull" class="merge my-2 py-2 px-3" :disabled="!pull.mergeable" @click="merge">
             Merge pull request
         </button>
     </div>
@@ -39,6 +39,11 @@ export default {
     methods: {
         merge() {
             this.$emit('merge');
+        },
+
+        canMergePull() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
         }
     }
 }

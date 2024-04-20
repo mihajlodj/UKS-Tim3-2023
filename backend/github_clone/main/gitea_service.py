@@ -293,3 +293,11 @@ def add_collaborator(owner_username, repository_name, collaborator_username, per
 def delete_collaborator(owner_username, repository_name, collaborator_username):
     api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/collaborators/{collaborator_username}'
     requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def change_collaborator_role(owner_username, repository_name, collaborator_username, permission='write'):
+    delete_collaborator(owner_username, repository_name, collaborator_username)
+    add_collaborator(owner_username, repository_name, collaborator_username, permission)
+
+def transfer_ownership(owner_username, repository_name, new_owner_username):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/transfer'
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json={'new_owner': new_owner_username})

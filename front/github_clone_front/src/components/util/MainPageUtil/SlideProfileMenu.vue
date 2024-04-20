@@ -69,9 +69,7 @@ export default {
       })
     },
     deleteTokens() {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("username");
+      localStorage.clear()
     },
     redirectToLogin() {
       this.$router.push("/");

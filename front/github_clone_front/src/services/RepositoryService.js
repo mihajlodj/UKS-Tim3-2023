@@ -57,8 +57,8 @@ const createFile = (username, repoName, path, data) => {
 }
 
 
-const inviteCollaborator = (repoName, invitedUsername) => {
-    return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
+const inviteCollaborator = (repoName, invitedUsername, role) => {
+    return api.post(`repository/invite/${repoName}/${invitedUsername}/`, {'role': role});
 }
 
 const respondToInvitation = (ownerUsername, repoName, invitedUsername, choice) => {
@@ -77,5 +77,13 @@ const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
     return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}`);
 }
 
+const changeRole = (ownerUsername, repoName, collaboratorUsername, role) => {
+    return api.put(`repository/editRole/${ownerUsername}/${repoName}/${collaboratorUsername}/`, {'role': role});
+}
+
+const transfer = (ownerUsername, repoName, newOwnerUsername) => {
+    return api.post(`repository/transfer/${ownerUsername}/${repoName}/`, {'new_owner': newOwnerUsername});
+}
+
 export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer };

@@ -58,6 +58,10 @@ const getDevelopers = (repoName) => {
     return api.get(`developer/all/${repoName}`);
 }
 
+const getRoles = (username) => {
+    return api.get(`developer/roles/${username}`);
+}
+
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress
-    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers};
+    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers, getRoles};
