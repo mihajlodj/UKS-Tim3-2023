@@ -24,6 +24,7 @@ import HistoryView from '@/components/repository/HistoryView.vue'
 import CommitDisplay from './components/commit/CommitDisplay.vue'
 import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
 import TransferOwnership from './components/repository/settings/TransferOwnership.vue'
+import ForkRepo from './components/repository/ForkRepo.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -185,6 +186,10 @@ const routes = [
     {
         path: "/view/:username/:repoName/transfer",
         component: TransferOwnership
+    },
+    {
+        path: "/view/:username/:repoName/fork",
+        component: ForkRepo
     }
 ]
 
