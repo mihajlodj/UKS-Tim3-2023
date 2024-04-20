@@ -19,9 +19,8 @@ class CanCreateBranch(BasePermission):
         works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repository_name)]
         if logged_user not in works_on_list:
             return False
-        if WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role == Role.READONLY:
-            return False
-        return True
+        role = WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role
+        return role != Role.READONLY and role != Role.IS_BANNED
     
 class CanViewRepository(BasePermission):
     def has_permission(self, request, view):
@@ -54,9 +53,9 @@ class CanEditRepositoryContent(BasePermission):
         works_on_list = [obj.developer.user.username for obj in WorksOn.objects.filter(project__name=repository_name)]
         if logged_user not in works_on_list:
             return False
-        if WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role == Role.READONLY:
-            return False
-        return True
+        role = WorksOn.objects.get(project__name=repository_name, developer__user__username=logged_user).role
+        return role != Role.READONLY and role != Role.IS_BANNED
+
 
 class CanUpdateMilestone(BasePermission):
     def has_object_permission(self, request, view, obj):
