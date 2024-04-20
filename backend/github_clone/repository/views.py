@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Developer, Branch, Invitation, Commit,Watches
+from main.models import Developer, Branch, Fork, Invitation, Commit,Watches
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
@@ -182,6 +182,14 @@ def get_repo_data_for_display(request, owner_username, repository_name):
                 'num_commits': len(branch_commits)
             }
     result['commits_overview'] = branch_commits_overview
+
+    if Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).exists():
+        source_repo = Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).first().source
+        source_repo_owner = WorksOn.objects.get(project=source_repo, role=Role.OWNER).developer.user.username
+        result['forked_from'] = {
+            'repository_name': source_repo.name,
+            'owner_username': source_repo_owner
+        }
     return Response(result, status=status.HTTP_200_OK)
 
 
@@ -204,10 +212,14 @@ def get_root_files(request, owner_username, repository_name, ref):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     result = gitea_service.get_root_content(owner_username, repository_name, ref)
+
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    repository = works_on.project
+
     for item in result:
         last_commit_sha = item['last_commit_sha']
-        if Commit.objects.filter(branch__project__name=repository_name, hash=last_commit_sha).exists():
-            last_commit = Commit.objects.get(branch__project__name=repository_name, hash=last_commit_sha)
+        if Commit.objects.filter(branch__project=repository, hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(branch__project=repository, hash=last_commit_sha)
             item['last_commit_message'] = last_commit.message
             item['last_commit_timestamp'] = last_commit.timestamp
         else:
@@ -228,12 +240,15 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
 
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
+    
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    repository = works_on.project
 
     result = gitea_service.get_folder_content(owner_username, repository_name, branch, path)
     for item in result:
         last_commit_sha = item['last_commit_sha']
-        if Commit.objects.filter(branch__project__name=repository_name, hash=last_commit_sha).exists():
-            last_commit = Commit.objects.get(branch__project__name=repository_name, hash=last_commit_sha)
+        if Commit.objects.filter(branch__project=repository, hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(branch__project=repository, hash=last_commit_sha)
             item['last_commit_message'] = last_commit.message
             item['last_commit_timestamp'] = last_commit.timestamp
         else:

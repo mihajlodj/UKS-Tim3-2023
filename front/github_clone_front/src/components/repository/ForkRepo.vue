@@ -80,36 +80,20 @@ export default {
                     this.$router.push(`/view/${localStorage.username}/${this.name}`);
                 }).catch(err => {
                     console.log(err);
+                    if (err.response.data.name[0] === "Repository with this name already exists for this owner.") {
+                        toast("Repository name already exists!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT
+                        });
+                    } else {
+                        toast("Something went wrong!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT
+                        });
+                    }
                 });
-
-                // RepositoryService.create({
-                //     name: this.name,
-                //     description: this.description,
-                //     default_branch_name: this.defaultBranchName,
-                //     access_modifier: mod
-                // }).then(_res => {
-                //     this.resetFields();
-                //     toast("Repository created!", {
-                //         autoClose: 1000,
-                //         type: 'success',
-                //         position: toast.POSITION.BOTTOM_RIGHT
-                //     });
-                // }).catch(err => {
-                //     console.log(err.response.data.name[0]);
-                //     if (err.response.data.name[0] === "This field must be unique.") {
-                //         toast("Repository name already exists!", {
-                //             autoClose: 1000,
-                //             type: 'error',
-                //             position: toast.POSITION.BOTTOM_RIGHT
-                //         });
-                //     } else {
-                //         toast("Something went wrong!", {
-                //             autoClose: 1000,
-                //             type: 'error',
-                //             position: toast.POSITION.BOTTOM_RIGHT
-                //         });
-                //     }
-                // })
             }
         },
 

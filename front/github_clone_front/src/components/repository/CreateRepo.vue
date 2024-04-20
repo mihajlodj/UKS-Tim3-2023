@@ -123,7 +123,7 @@ export default {
                     });
                 }).catch(err => {
                     console.log(err.response.data.name[0]);
-                    if (err.response.data.name[0] === "This field must be unique.") {
+                    if (err.response.data.name[0] === "Repository with this name already exists for this owner.") {
                         toast("Repository name already exists!", {
                             autoClose: 1000,
                             type: 'error',

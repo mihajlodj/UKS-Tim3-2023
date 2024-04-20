@@ -147,7 +147,8 @@ class Watches(models.Model):
 
 class Fork(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    source = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='source', null=True)
+    destination = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='destination', null=True)
 
 
 class Stars(models.Model):

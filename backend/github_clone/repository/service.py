@@ -1,5 +1,5 @@
 import threading
-from main.models import Branch, Commit, Developer, Invitation, Project, WorksOn, Role
+from main.models import Branch, Commit, Developer, Fork, Invitation, Project, WorksOn, Role
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -28,6 +28,7 @@ def fork(original_repository: Project, new_repository_info, original_owner_usern
             Commit.objects.create(hash=commit.hash, branch=new_branch, message=commit.message, author=commit.author, committer=commit.committer,
                                   timestamp=commit.timestamp, additional_description=commit.additional_description)
     new_repository.save()
+    Fork.objects.create(developer=new_owner, source=original_repository, destination=new_repository)
     gitea_service.fork(original_owner_username, original_repository.name, new_owner.user.username, new_repository.name)        
 
 
