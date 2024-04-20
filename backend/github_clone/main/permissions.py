@@ -77,4 +77,7 @@ class CanInviteCollaborator(BasePermission):
         repository_name = view.kwargs.get('repository_name')
         if not Project.objects.filter(name=repository_name).exists():
             return False
-        return WorksOn.objects.filter(developer__user__username=request.user.username, project__name=repository_name, role=Role.OWNER).exists()
+        works_on = WorksOn.objects.filter(developer__user__username=request.user.username, project__name=repository_name)
+        if not works_on.exists():
+            return False
+        return works_on.first().role == Role.OWNER or works_on.first().role == Role.MAINTAINER

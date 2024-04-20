@@ -22,4 +22,5 @@ urlpatterns = [
     path('invitation/<str:repository_name>/<str:invited_username>/', get_invitation, name='get_invitation'),
     path('collaborators/<str:owner_username>/<str:repository_name>', get_collaborators_and_pending_invitations, name='get_collaborators'),
     path('removeCollaborator/<str:owner_username>/<str:repository_name>/<str:collaborator_username>', remove_collaborator, name='remove_collaborator'),
+    path('editRole/<str:owner_username>/<str:repository_name>/<str:collaborator_username>/', change_role, name='change_role'),
 ]

@@ -49,7 +49,8 @@
 
             <div>
                 <div v-for="collaborator in filteredExistingCollaborators" :key="collaborator.username">
-                    <CollaboratorDisplay :collaborator="collaborator" @remove="deleteExistingCollaborator" />
+                    <CollaboratorDisplay :collaborator="collaborator" 
+                        @remove="deleteExistingCollaborator" @changeRole="changeCollaboratorRole" />
                 </div>
             </div>
         </div>
@@ -240,6 +241,15 @@ export default {
                 if (this.existingCollaborators.length == 0) {
                     this.collaboratorsExist = false;
                 }
+            }).catch(err => {
+                console.log(err);
+            });
+        },
+
+        changeCollaboratorRole(data) {
+            RepositoryService.changeRole(this.$route.params.username, this.$route.params.repoName, data.username, data.role)
+            .then(res => {
+                console.log(res);
             }).catch(err => {
                 console.log(err);
             });

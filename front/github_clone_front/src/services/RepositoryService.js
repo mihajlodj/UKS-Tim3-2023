@@ -77,5 +77,9 @@ const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
     return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}`);
 }
 
+const changeRole = (ownerUsername, repoName, collaboratorUsername, role) => {
+    return api.put(`repository/editRole/${ownerUsername}/${repoName}/${collaboratorUsername}/`, {'role': role});
+}
+
 export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole };

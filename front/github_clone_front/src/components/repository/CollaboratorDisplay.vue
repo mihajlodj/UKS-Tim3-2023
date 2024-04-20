@@ -2,12 +2,44 @@
     <div class="bg d-flex justify-content-between py-1">
         <div class="d-flex justify-content-start align-items-center ms-2">
             <button type="button" class="btn-avatar">
-                <img :src="collaborator.avatar"/>
+                <img :src="collaborator.avatar" />
             </button>
 
             <div class="ms-1 mt-1">
                 <button type="button" class="btn-username">{{ collaborator.username }}</button>
-                <h6 class="role ms-1">{{ role }}</h6>
+                <div v-if="!changingRole" class="d-flex justify-content-start">
+                    <h6 class="role ms-1">{{ role }}</h6>
+                    <button v-if="role !== 'Pending'" type="button" class="btn-change" @click="startChangingRole">
+                        <font-awesome-icon icon="fa-solid fa-pen"></font-awesome-icon>
+                    </button>
+                </div>
+
+                <div v-else class="d-flex justify-content-start ms-1 mb-1">
+                    <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="roleChoice" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="me-1 mb-1">{{ role }}</span>
+                    </button>
+                    <ul class="dropdown-menu" id="branches-list" aria-labelledby="roleChoice" style="background-color: #2c333b">
+                        <li>
+                            <button class="btn dropdown-item" @click="changeRole('Readonly')"
+                                style="color: #a5b2bf;">
+                                Readonly
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn dropdown-item" @click="changeRole('Developer')"
+                                style="color: #a5b2bf;">
+                                Developer
+                            </button>
+                        </li>
+                        <li>
+                            <button class="btn dropdown-item" @click="changeRole('Maintainer')"
+                                style="color: #a5b2bf;">
+                                Maintainer
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -22,15 +54,26 @@ export default {
     name: "CollaboratorDisplay",
     props: ["collaborator"],
 
-    methods: {
-        remove() {
-            this.$emit('remove', this.collaborator.username);
+    data() {
+        return {
+            changingRole: false,
+            role: this.collaborator.role[0] + this.collaborator.role.slice(1).toLowerCase()
         }
     },
 
-    computed: {
-        role() {
-            return this.collaborator.role.charAt(0).toUpperCase() + this.collaborator.role.slice(1).toLowerCase();
+    methods: {
+        remove() {
+            this.$emit('remove', this.collaborator.username);
+        },
+
+        changeRole(newRole) {
+            this.changingRole = false;
+            this.$emit('changeRole', {role: newRole.toUpperCase(), username: this.collaborator.username});
+            this.role = newRole;
+        },
+
+        startChangingRole() {
+            this.changingRole = true;
         }
     }
 }
@@ -77,6 +120,22 @@ img {
 }
 
 .role {
+    color: #72808d;
+}
+
+.btn-change {
+    background: none;
+    border: none;
+    color: #72808d;
+}
+
+.fa-pen {
+    height: 15px;
+    margin-bottom: 4px;
+    margin-left: 5px;
+}
+
+#roleChoice {
     color: #72808d;
 }
 </style>

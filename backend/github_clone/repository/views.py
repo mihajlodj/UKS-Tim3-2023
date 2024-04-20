@@ -420,7 +420,7 @@ def upload_files(request, owner_username, repository_name):
 def invite_collaborator(request, repository_name, invited_username):
     developer = Developer.objects.filter(user__username=invited_username)
     project = Project.objects.filter(name=repository_name)
-    if developer.exists() and project.exists:
+    if developer.exists() and project.exists():
         developer = developer.first()
         project = project.first()
         if WorksOn.objects.filter(developer=developer, project=project):
@@ -446,7 +446,7 @@ def respond_to_invitation(request, owner_username, repository_name, invited_user
     developer = Developer.objects.filter(user__username=invited_username)
     project = Project.objects.filter(name=repository_name)
     invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
-    if developer.exists() and project.exists and invitation.exists():
+    if developer.exists() and project.exists() and invitation.exists():
         developer = developer.first()
         project = project.first()
         invitation = invitation.first()
@@ -519,6 +519,31 @@ def remove_collaborator(request, owner_username, repository_name, collaborator_u
         invitation = Invitation.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
         invitation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
+def change_role(request, owner_username, repository_name, collaborator_username):
+    developer = Developer.objects.filter(user__username=collaborator_username)
+    project = Project.objects.filter(name=repository_name)
+    if developer.exists() and project.exists():
+        developer = developer.first()
+        project = project.first()
+        if not WorksOn.objects.filter(developer=developer, project=project):
+            return Response("User not a collaborator", status=status.HTTP_400_BAD_REQUEST)
+        works_on = WorksOn.objects.filter(developer=developer, project=project).first()
+
+        new_role = json.loads(request.body.decode('utf-8'))['role']
+        if new_role != works_on.role:
+            works_on.role = new_role
+            works_on.save()
+
+            gitea_permissions = 'write'
+            if (new_role == 'READONLY'):
+                gitea_permissions = 'read'
+            threading.Thread(target=gitea_service.change_collaborator_role, args=([owner_username, repository_name, collaborator_username, gitea_permissions]), kwargs={}).start()
+        return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
