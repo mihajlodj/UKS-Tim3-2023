@@ -29,7 +29,7 @@
             <h3 class="mt-4">Default branch</h3>
             <hr>
             <div class="d-flex justify-content-start">
-                <select class="form-select" v-model="selectedBranch">
+                <select class="form-select" v-model="selectedBranch" style="background-color: #2c333b;">
                     <option v-for="b in repoBranches" :key="b.name">{{ b.name }}</option>
                 </select>
             </div>
