@@ -40,6 +40,7 @@ class RepositorySerializer(serializers.Serializer):
         return project
     
     def update(self, instance, validated_data):
+        owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
         old_name = instance.name
         instance.name = validated_data.get('name', instance.name)
         instance.description = validated_data.get('description', instance.description)
@@ -54,7 +55,6 @@ class RepositorySerializer(serializers.Serializer):
                 raise Http404()
         instance.access_modifier = validated_data.get('access_modifier', instance.access_modifier)
         instance.save()
-        owner_username = WorksOn.objects.get(project__name=instance.name, role='Owner').developer.user.username
         self.gitea_update(owner_username, instance, old_name)
         return instance
 

@@ -17,18 +17,18 @@ from datetime import datetime
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
 def create(request, owner_username, repository_name):
     json_data = json.loads(request.body.decode('utf-8'))
-    if PullRequest.objects.filter(project__name=repository_name, source__name=json_data['compare'],
-                                  target__name=json_data['base']):
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+    if PullRequest.objects.filter(project=project, source__name=json_data['compare'], target__name=json_data['base']):
         return Response("Pull request already exists", status=status.HTTP_400_BAD_REQUEST)
-    if not Branch.objects.filter(name=json_data['base'], project__name=repository_name).exists():
+    if not Branch.objects.filter(name=json_data['base'], project=project).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    if not Branch.objects.filter(name=json_data['compare'], project__name=repository_name).exists():
+    if not Branch.objects.filter(name=json_data['compare'], project=project).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     response = gitea_service.create_pull_request(owner_username, repository_name,
                                                  {'base': json_data['base'], 'head': json_data['compare'],
                                                   'title': service.get_pull_title(json_data)})
     if response.status_code == 201:
-        id = service.save_pull_request(request.user.username, repository_name, json_data, response)
+        id = service.save_pull_request(owner_username, request.user.username, repository_name, json_data, response)
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -142,7 +142,6 @@ def get_one(request, owner_username, repository_name, pull_id):
         result['assignee'] = {'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username)}
 
     # Commits data
-    owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
     response = gitea_service.get_pull_request_commits(owner_username, repository_name, pull_id)
     commits_list_json = response.json()
     for commit_data in commits_list_json:
@@ -186,7 +185,7 @@ def update(request, owner_username, repository_name, pull_id):
     req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     json_data = json.loads(request.body.decode('utf-8'))
     service.update_milestone(json_data, req)
-    service.update_assignee(json_data, req, repository_name)
+    service.update_assignee(json_data, req, owner_username, repository_name)
     return Response(status=status.HTTP_200_OK)
 
 
@@ -279,6 +278,5 @@ def merge(request, owner_username, repository_name, pull_id):
     merged_by = Developer.objects.get(user__username=request.user.username)
     req.merged_by = merged_by
     req.save()
-    owner_username = WorksOn.objects.get(role=Role.OWNER, project__name=repository_name).developer.user.username
     gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
     return Response(status=status.HTTP_200_OK)

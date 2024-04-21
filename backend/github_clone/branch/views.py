@@ -25,7 +25,7 @@ def get_all_branches(request, owner_username, repository_name):
     if not works_on.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     repository = works_on.first().project
-    branches = Branch.objects.filter(project=repository)
+    branches = Branch.objects.filter(project__id=repository.id)
     for branch in branches:
         obj = {
             'name': branch.name,
@@ -69,9 +69,10 @@ def delete_branch(request, owner_username, repository_name, branch_name):
 
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
-def get_commits(request, repository_name, branch_name):
+def get_commits(request, owner_username, repository_name, branch_name):
     try:
-        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+        branch = Branch.objects.get(name=branch_name, project=project)
         commits = Commit.objects.filter(branch=branch)
         return Response(serialize_commits(commits), status=status.HTTP_200_OK)
     except ObjectDoesNotExist:
@@ -80,9 +81,10 @@ def get_commits(request, repository_name, branch_name):
 
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
-def get_committers(request, repository_name, branch_name):
+def get_committers(request, owner_username, repository_name, branch_name):
     try:
-        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+        branch = Branch.objects.get(name=branch_name, project=project)
         commits = Commit.objects.filter(branch=branch)
         committers = [{
             'username': dev.user.username,

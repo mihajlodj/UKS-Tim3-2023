@@ -32,8 +32,8 @@ const getFolderContent = (username, repoName, branch, path) => {
     return api.get(`repository/folder/${username}/${repoName}/${branch}/${path}/`);
 }
 
-const update = (repoData, name) => {
-    return api.patch(`repository/update/${name}/`, repoData);
+const update = (username, repoData, name) => {
+    return api.patch(`repository/update/${username}/${name}/`, repoData);
 }
 
 const deleteReposiory = (username, repoName) => {

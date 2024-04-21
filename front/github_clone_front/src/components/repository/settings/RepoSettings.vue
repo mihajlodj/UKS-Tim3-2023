@@ -44,7 +44,6 @@ export default {
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
             }
-            console.log(this.repo.branches);
             this.allowed = true;
             this.forceRerender();
         }).catch(err => {

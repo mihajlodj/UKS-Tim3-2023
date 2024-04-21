@@ -152,7 +152,7 @@ export default {
 
         /* eslint-disable */
         createBranch() {
-            BranchService.createBranch(this.$route.params.username, this.$route.params.repoName, {
+            BranchService.createBranch(this.$route.params.username, localStorage.getItem("username"), this.$route.params.repoName, {
                 "name": this.newBranchName,
                 "parent": this.chosenSource
             }).then(_res => {

@@ -68,7 +68,7 @@ def disable_gitea_create_branch(monkeypatch):
 
 @pytest.mark.django_db
 def test_create_branch_success(get_token):
-    url = f'/branch/create/{username1}/{repo_name}/'
+    url = f'/branch/create/{username1}/{username1}/{repo_name}/'
     data = {
         'name': 'new-branch',
         'parent': 'main'
@@ -83,7 +83,7 @@ def test_create_branch_success(get_token):
     
 @pytest.mark.django_db
 def test_create_branch_invalid_name(get_token):
-    url = f'/branch/create/{username1}/{repo_name}/'
+    url = f'/branch/create/{username1}/{username1}/{repo_name}/'
     data = {
         'name': 'new-branch 123%',
         'parent': 'main'

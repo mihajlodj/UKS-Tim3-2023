@@ -187,6 +187,8 @@ def create_milestone(owner, repository_name, milestone):
         'due_on': formated_due_on,
         'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
     }
+    print(data)
+    print(api_endpoint)
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
     print(response.json())
     milestone_id = response.json()['id']

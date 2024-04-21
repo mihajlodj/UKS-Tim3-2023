@@ -92,5 +92,4 @@ class CanTransferOwnership(BasePermission):
         owner_username = view.kwargs.get('owner_username')
         if not WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).exists():
             return False
-        return WorksOn.objects.filter(developer__user__username=request.user.username, 
-                                      project__name=repository_name, role=Role.OWNER).exists()
+        return WorksOn.objects.filter(developer__user__username=request.user.username, project__name=repository_name, role=Role.OWNER).exists()

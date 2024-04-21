@@ -203,7 +203,7 @@ def test_update_repo_success(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name',
         'description': fake.text,
@@ -225,7 +225,7 @@ def test_update_repo_invalid_name(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name bad',
         'description': fake.text,
@@ -248,7 +248,7 @@ def test_update_repo_branch_does_not_exist(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name',
         'description': fake.text,

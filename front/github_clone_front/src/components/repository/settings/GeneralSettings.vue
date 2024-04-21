@@ -89,7 +89,7 @@ export default {
         saveBranchData() {
             let changedName = this.selectedBranch;
 
-            RepositoryService.update({ "default_branch_name": changedName }, this.oldName).then(res => {
+            RepositoryService.update(this.$route.params.username, { "default_branch_name": changedName }, this.oldName).then(res => {
                 console.log(res.data);
                 this.oldBranchName = changedName;
                 toast("Changes saved!", {
@@ -108,7 +108,7 @@ export default {
         },
 
         saveGeneralData() {
-            RepositoryService.update({
+            RepositoryService.update(this.$route.params.username, {
                 "description": this.newDescription,
                 "name": this.newName
             }, this.oldName).then(res => {
@@ -150,7 +150,7 @@ export default {
     height: 15px;
 }
 
-input {
+input, select {
     border-radius: 5px;
     border: 1px solid #787c80;
     color: #c5d1df;

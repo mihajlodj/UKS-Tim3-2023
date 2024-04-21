@@ -70,7 +70,7 @@ def test_save_pull_request_with_milestone_and_assignee_success(save_milestone):
     content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
-    id = service.save_pull_request(username1, repo_name, data, response)
+    id = service.save_pull_request(username1, username1, repo_name, data, response)
     assert id == 1
     assert PullRequest.objects.filter(gitea_id=1, project__name=repo_name).exists()
     assert PullRequest.objects.get(gitea_id=1, project__name=repo_name).status == PullRequestStatus.OPEN
@@ -91,7 +91,7 @@ def test_save_pull_request_with_milestone(save_milestone):
     content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
-    id = service.save_pull_request(username1, repo_name, data, response)
+    id = service.save_pull_request(username1, username1, repo_name, data, response)
     assert id == 1
     assert PullRequest.objects.filter(gitea_id=1, project__name=repo_name).exists()
     assert PullRequest.objects.get(gitea_id=1, project__name=repo_name).status == PullRequestStatus.OPEN
@@ -111,7 +111,7 @@ def test_save_pull_request_assignee_success():
     content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
-    id = service.save_pull_request(username1, repo_name, data, response)
+    id = service.save_pull_request(username1, username1, repo_name, data, response)
     assert id == 1
     assert PullRequest.objects.filter(gitea_id=1, project__name=repo_name).exists()
     assert PullRequest.objects.get(gitea_id=1, project__name=repo_name).status == PullRequestStatus.OPEN
@@ -130,7 +130,7 @@ def test_save_pull_request_no_milestone_or_assignee_success():
     content = {'number': 1, 'mergeable': True}
     response.json = lambda: content
     response.status_code = 201
-    id = service.save_pull_request(username1, repo_name, data, response)
+    id = service.save_pull_request(username1, username1, repo_name, data, response)
     assert id == 1
     assert PullRequest.objects.filter(gitea_id=1, project__name=repo_name).exists()
     assert PullRequest.objects.get(gitea_id=1, project__name=repo_name).status == PullRequestStatus.OPEN
@@ -168,7 +168,7 @@ def test_save_update_assignee_success():
     data = { 'assignee_username': username2 }
     req = PullRequest.objects.get(gitea_id=11)
     assert req.assignee is None
-    service.update_assignee(data, req, repo_name)
+    service.update_assignee(data, req, username1, repo_name)
     assert req.assignee is not None
     assert req.assignee.user.username == username2
 
@@ -176,7 +176,7 @@ def test_save_update_assignee_success():
 def test_save_update_assignee_none_success():
     req = PullRequest.objects.get(gitea_id=12)
     assert req.assignee is not None
-    service.update_assignee({}, req, repo_name)
+    service.update_assignee({}, req, username1, repo_name)
     assert req.assignee is None
 
 @pytest.mark.django_db
@@ -186,7 +186,7 @@ def test_save_update_assignee_throws_404():
     assert req.assignee is not None
     assert req.assignee.user.username == username1
     with pytest.raises(Http404):
-        service.update_assignee(data, req, repo_name)
+        service.update_assignee(data, req, username1, repo_name)
     assert req.assignee is not None
     assert req.assignee.user.username == username1
 

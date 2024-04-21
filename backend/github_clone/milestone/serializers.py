@@ -39,7 +39,7 @@ class MilestoneSerializer(serializers.Serializer):
                                                  project=project)
 
             #threading.Thread(target=self.gitea_create_milestone, args=([owner, project_name, milestone]), kwargs={}).start()
-            gitea_milestone_id = self.gitea_create_milestone(owner, project_name, milestone)
+            gitea_milestone_id = self.gitea_create_milestone(owner_username, project_name, milestone)
             milestone.id_from_gitea = gitea_milestone_id
             milestone.save()
             return milestone

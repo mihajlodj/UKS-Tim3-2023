@@ -54,8 +54,8 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
-const getDevelopers = (repoName) => {
-    return api.get(`developer/all/${repoName}`);
+const getDevelopers = (username, repoName) => {
+    return api.get(`developer/all/${username}/${repoName}`);
 }
 
 const getRoles = (username) => {

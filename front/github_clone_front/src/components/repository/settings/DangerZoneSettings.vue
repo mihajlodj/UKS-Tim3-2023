@@ -87,7 +87,7 @@ export default {
             if (this.accessModifier === 'Public') {
                 newModifier = 'Private';
             }
-            RepositoryService.update({ 'access_modifier': newModifier }, this.$route.params.repoName).then(_ => {
+            RepositoryService.update(this.$route.params.username, { 'access_modifier': newModifier }, this.$route.params.repoName).then(_ => {
                 location.reload();
             }).catch(err => {
                 console.log(err);

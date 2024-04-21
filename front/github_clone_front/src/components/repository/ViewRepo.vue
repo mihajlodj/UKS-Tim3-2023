@@ -17,7 +17,7 @@
                         <font-awesome-icon icon="fa-regular fa-eye" class="me-1" />
                         Watch
                     </button>
-                    <button type="button" class="btn btn-right me-2" @click="fork">
+                    <button v-if="!isUsersRepo()" type="button" class="btn btn-right me-2" @click="fork">
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
                     </button>
@@ -235,6 +235,10 @@ export default {
 
         forceRerender() {
             this.contentKey += 1;
+        },
+
+        isUsersRepo() {
+            return localStorage.getItem("username") === this.$route.params.username;
         },
 
         selectedBranchChanged(branchName) {
