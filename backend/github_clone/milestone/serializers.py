@@ -6,7 +6,7 @@ from django.http import Http404
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
-from main.models import Project, WorksOn, Milestone, MilestoneState
+from main.models import WorksOn, Milestone, MilestoneState
 
 from main.gitea_service import create_milestone, update_milestone
 

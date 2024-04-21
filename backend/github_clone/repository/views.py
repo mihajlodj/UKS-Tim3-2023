@@ -598,13 +598,15 @@ def transfer_ownership(request, owner_username, repository_name):
 def fork(request, owner_username, repository_name):
     if owner_username == request.user.username:
         return Response("Cannot fork own repository", status=status.HTTP_400_BAD_REQUEST)
-    new_repo_info = json.loads(request.body.decode('utf-8'))
-    owner = Developer.objects.filter(user__username=owner_username)
-    new_owner = Developer.objects.filter(user__username=request.user.username)
-    repository = Project.objects.filter(name=repository_name)
-    if not owner.exists() or not new_owner.exists() or not repository.exists():
+    if not WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    service.fork(repository.first(), new_repo_info, owner_username, new_owner.first())
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    new_repo_info = json.loads(request.body.decode('utf-8'))
+
+    new_owner = Developer.objects.get(user__username=request.user.username)
+    repository = works_on.project
+        
+    service.fork(repository, new_repo_info, owner_username, new_owner)
     return Response(status=status.HTTP_200_OK)
 
 

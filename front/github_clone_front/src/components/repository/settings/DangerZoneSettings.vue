@@ -8,7 +8,7 @@
                 <span>The repository is currently {{ accessModifier.toLowerCase() }}.</span>
             </div>
 
-            <div>
+            <div v-if="canChangeAccessModifier()">
                 <button class="btn btn-outline-danger mt-1" data-bs-toggle="modal" data-bs-target="#changeVisibilityModal">
                     Change
                 </button>
@@ -79,7 +79,7 @@ export default {
     /* eslint-disable */
     name: 'DangerZoneSettings',
 
-    props: ['accessModifier'],
+    props: ['accessModifier', 'forked'],
 
     methods: {
         changeModifier() {
@@ -92,6 +92,10 @@ export default {
             }).catch(err => {
                 console.log(err);
             });
+        },
+
+        canChangeAccessModifier() {
+            return !this.forked || this.accessModifier.toLowerCase() !== "private";
         },
 
         deleteRepository() {

@@ -4,7 +4,7 @@ from rest_framework import serializers
 from django.core.validators import RegexValidator
 
 from main import gitea_service
-from main.models import Project, AccessModifiers, Branch, Role, WorksOn, Developer
+from main.models import Project, AccessModifiers, Branch, Role, WorksOn, Developer, Fork
 from django.contrib.auth.models import User
 
 
