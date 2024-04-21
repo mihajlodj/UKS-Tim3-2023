@@ -103,8 +103,9 @@ def get_all_pull_reqs(request, query):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
-def get_all(request, repository_name):
-    requests = PullRequest.objects.filter(project__name=repository_name)
+def get_all(request, owner_username, repository_name):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    requests = PullRequest.objects.filter(project=works_on.project)
     result = []
     for req in requests:
         obj = {
@@ -122,11 +123,12 @@ def get_all(request, repository_name):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
-def get_one(request, repository_name, pull_id):
+def get_one(request, owner_username, repository_name, pull_id):
     # Basic data
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     result = {
         'title': req.title, 'status': req.status, 'timestamp': req.timestamp,
         'author': {'username': req.author.user.username}, 'id': pull_id,
@@ -165,9 +167,10 @@ def get_one(request, repository_name, pull_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
-def get_possible_assignees(request, repository_name):
+def get_possible_assignees(request, owner_username, repository_name):
     result = []
-    works_on_list = WorksOn.objects.filter(project__name=repository_name)
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    works_on_list = WorksOn.objects.filter(project=works_on.project)
     for obj in works_on_list:
         if obj.role != Role.IS_BANNED:
             result.append({'username': obj.developer.user.username, 'avatar': developer_service.get_dev_avatar(obj.developer.user.username)})
@@ -176,10 +179,11 @@ def get_possible_assignees(request, repository_name):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def update(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+def update(request, owner_username, repository_name, pull_id):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     json_data = json.loads(request.body.decode('utf-8'))
     service.update_milestone(json_data, req)
     service.update_assignee(json_data, req, repository_name)
@@ -188,10 +192,11 @@ def update(request, repository_name, pull_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def update_title(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+def update_title(request, owner_username, repository_name, pull_id):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     title = json.loads(request.body.decode('utf-8'))['title']
     if title.strip() != '':
         req.title = title
@@ -202,10 +207,11 @@ def update_title(request, repository_name, pull_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def close(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+def close(request, owner_username, repository_name, pull_id):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     if req.status != PullRequestStatus.OPEN:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.CLOSED
@@ -216,10 +222,11 @@ def close(request, repository_name, pull_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def reopen(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+def reopen(request, owner_username, repository_name, pull_id):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     if req.status != PullRequestStatus.CLOSED:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.OPEN
@@ -230,11 +237,12 @@ def reopen(request, repository_name, pull_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def mark_as_open(request, repository_name):
+def mark_as_open(request, owner_username, repository_name):
     pull_ids = json.loads(request.body.decode('utf-8'))['ids']
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
     for id in pull_ids:
-        if PullRequest.objects.filter(project__name=repository_name, gitea_id=id).exists():
-            pull = PullRequest.objects.get(project__name=repository_name, gitea_id=id)
+        if PullRequest.objects.filter(project=works_on.project, gitea_id=id).exists():
+            pull = PullRequest.objects.get(project=works_on.project, gitea_id=id)
             if pull.status == PullRequestStatus.CLOSED:
                 pull.status = PullRequestStatus.OPEN
                 pull.timestamp = timezone.localtime(timezone.now())
@@ -244,11 +252,12 @@ def mark_as_open(request, repository_name):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def mark_as_closed(request, repository_name):
+def mark_as_closed(request, owner_username, repository_name):
     pull_ids = json.loads(request.body.decode('utf-8'))['ids']
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
     for id in pull_ids:
-        if PullRequest.objects.filter(project__name=repository_name, gitea_id=id).exists():
-            pull = PullRequest.objects.get(project__name=repository_name, gitea_id=id)
+        if PullRequest.objects.filter(project=works_on.project, gitea_id=id).exists():
+            pull = PullRequest.objects.get(project=works_on.project, gitea_id=id)
             if pull.status == PullRequestStatus.OPEN:
                 pull.status = PullRequestStatus.CLOSED
                 pull.timestamp = timezone.localtime(timezone.now())
@@ -258,10 +267,11 @@ def mark_as_closed(request, repository_name):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def merge(request, repository_name, pull_id):
-    if not PullRequest.objects.filter(project__name=repository_name, gitea_id=pull_id).exists():
+def merge(request, owner_username, repository_name, pull_id):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).first()
+    if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    req = PullRequest.objects.get(project__name=repository_name, gitea_id=pull_id)
+    req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
     if req.status != PullRequestStatus.OPEN or not req.mergeable:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     req.status = PullRequestStatus.MERGED

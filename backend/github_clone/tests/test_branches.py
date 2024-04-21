@@ -50,7 +50,7 @@ def save_repository(create_developers):
 
 @pytest.mark.django_db
 def test_get_all_branches(get_token):
-    url = f'/branch/all/{repo_name}/'
+    url = f'/branch/all/{username1}/{repo_name}/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
@@ -120,7 +120,7 @@ def disable_gitea_delete_branch(monkeypatch):
 @pytest.mark.django_db
 def test_delete_branch_success(get_token):
     branch_name = 'branch1'
-    url = f'/branch/delete/{repo_name}/{branch_name}/'
+    url = f'/branch/delete/{username1}/{repo_name}/{branch_name}/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
@@ -131,7 +131,7 @@ def test_delete_branch_success(get_token):
 @pytest.mark.django_db
 def test_delete_branch_does_not_exist(get_token):
     branch_name = 'branch123'
-    url = f'/branch/delete/{repo_name}/{branch_name}/'
+    url = f'/branch/delete/{username1}/{repo_name}/{branch_name}/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }

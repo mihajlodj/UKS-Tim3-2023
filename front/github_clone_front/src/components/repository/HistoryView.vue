@@ -130,7 +130,7 @@ export default {
     mounted() {
         this.selectedBranch = this.$route.params.branchName;
 
-        BranchService.getAllBranches(this.$route.params.repoName).then(res => {
+        BranchService.getAllBranches(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.branches = res.data;
             this.filteredBranches = res.data;
         }).catch(err => {

@@ -435,12 +435,12 @@ def upload_files(request, owner_username, repository_name):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
-def invite_collaborator(request, repository_name, invited_username):
+def invite_collaborator(request, owner_username, repository_name, invited_username):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
     developer = Developer.objects.filter(user__username=invited_username)
-    project = Project.objects.filter(name=repository_name)
-    if developer.exists() and project.exists():
+    if developer.exists() and works_on.exists():
         developer = developer.first()
-        project = project.first()
+        project = works_on.first().project
         if WorksOn.objects.filter(developer=developer, project=project):
             return Response("User already works on repository", status=status.HTTP_400_BAD_REQUEST)
         if Invitation.objects.filter(developer=developer, project=project):
@@ -484,16 +484,18 @@ def respond_to_invitation(request, owner_username, repository_name, invited_user
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_invitation(request, repository_name, invited_username):
+def get_invitation(request, owner_username, repository_name, invited_username):
     if request.user.username != invited_username:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-    project = Project.objects.filter(name=repository_name)
-    invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    project = works_on.first().project
+    invitation = Invitation.objects.filter(developer__user__username=invited_username, project=project)
     invited_user = Developer.objects.filter(user__username=invited_username)
-    if invitation.exists() and project.exists and invited_user.exists():
+    if invitation.exists() and invited_user.exists():
         invitation = invitation.first()
-        project = project.first()
-        owner = WorksOn.objects.filter(project=project, role=Role.OWNER).first().developer
+        owner = works_on.first().developer
         result = {
             'owner_username': owner.user.username,
             'owner_avatar': developer_service.get_dev_avatar(owner.user.username),

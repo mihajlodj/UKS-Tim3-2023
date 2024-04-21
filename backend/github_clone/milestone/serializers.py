@@ -21,11 +21,13 @@ class MilestoneSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         project_name = self.context.get('request').parser_context.get('kwargs').get('repository_name', None)
-        if project_name is None:
+        owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
+        if project_name is None or owner_username is None:
             raise Http404()
         try:
-            project = Project.objects.get(name=project_name)
-            owner = WorksOn.objects.get(role='Owner', project=project).developer.user.username
+            works_on = WorksOn.objects.get(role='Owner', project__name=project_name, developer__user__username=owner_username)
+            project = works_on.project
+            owner = works_on.developer
 
             if Milestone.objects.filter(title=validated_data['title'], project=project).exists():
                 raise ParseError("duplicate title for milestone")
@@ -46,12 +48,14 @@ class MilestoneSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         project_name = validated_data.get('repo_name')
+        owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
         print(project_name)
-        if project_name is None:
+        if project_name is None or owner_username is None:
             raise Http404()
         try:
-            project = Project.objects.get(name=project_name)
-            owner = WorksOn.objects.get(role='Owner', project=project).developer.user.username
+            works_on = WorksOn.objects.get(role='Owner', project__name=project_name, developer__user__username=owner_username)
+            project = works_on.project
+            owner = works_on.developer
 
             new_title = validated_data.get('title', instance.title)
             if not Milestone.objects.filter(title=new_title, project=project).exists():

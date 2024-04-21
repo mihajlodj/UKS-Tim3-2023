@@ -57,16 +57,16 @@ const createFile = (username, repoName, path, data) => {
 }
 
 
-const inviteCollaborator = (repoName, invitedUsername, role) => {
-    return api.post(`repository/invite/${repoName}/${invitedUsername}/`, {'role': role});
+const inviteCollaborator = (ownerUsername, repoName, invitedUsername, role) => {
+    return api.post(`repository/invite/${ownerUsername}/${repoName}/${invitedUsername}/`, {'role': role});
 }
 
 const respondToInvitation = (ownerUsername, repoName, invitedUsername, choice) => {
     return api.post(`repository/inviteResponse/${ownerUsername}/${repoName}/${invitedUsername}/${choice}/`);
 }
 
-const getInvitation = (repoName, invitedUsername) => {
-    return api.get(`repository/invitation/${repoName}/${invitedUsername}`);
+const getInvitation = (ownerUsername, repoName, invitedUsername) => {
+    return api.get(`repository/invitation/${ownerUsername}/${repoName}/${invitedUsername}`);
 }
 
 const getCollaborators = (ownerUsername, repoName) => {

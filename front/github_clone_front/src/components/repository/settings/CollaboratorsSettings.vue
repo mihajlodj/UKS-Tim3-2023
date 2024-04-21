@@ -209,7 +209,7 @@ export default {
 
         inviteCollaborator() {
             if (this.selectedCollaborator !== null) {
-                RepositoryService.inviteCollaborator(this.$route.params.repoName, this.selectedCollaborator.username, this.chosenRole)
+                RepositoryService.inviteCollaborator(this.$route.params.username, this.$route.params.repoName, this.selectedCollaborator.username, this.chosenRole)
                 .then(res => {
                     this.existingCollaborators.push(res.data);
                     this.filteredExistingCollaborators = this.existingCollaborators;

@@ -3,7 +3,7 @@ from rest_framework import status, generics
 from rest_framework.response import Response
 from branch.serializers import BranchSerializer
 from main.gitea_service import get_gitea_user_info_gitea_service
-from main.models import Branch, Commit, PullRequest
+from main.models import Branch, Commit, PullRequest, Role, WorksOn
 from rest_framework.decorators import api_view, permission_classes
 from django.core.exceptions import ObjectDoesNotExist
 from main import gitea_service, permissions
@@ -19,9 +19,13 @@ class CreateBranchView(generics.CreateAPIView):
 
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
-def get_all_branches(request, repository_name):
+def get_all_branches(request, owner_username, repository_name):
     result = []
-    branches = Branch.objects.filter(project__name=repository_name)
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    repository = works_on.first().project
+    branches = Branch.objects.filter(project=repository)
     for branch in branches:
         obj = {
             'name': branch.name,
@@ -51,9 +55,11 @@ def get_all_branches(request, repository_name):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepositoryContent])
-def delete_branch(request, repository_name, branch_name):
+def delete_branch(request, owner_username, repository_name, branch_name):
     try:
-        branch = Branch.objects.get(name=branch_name, project__name=repository_name)
+        works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+        repository = works_on.project
+        branch = Branch.objects.get(name=branch_name, project=repository)
         threading.Thread(target=gitea_service.delete_branch, args=([request.user.username, repository_name, branch_name]), kwargs={}).start()
         branch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

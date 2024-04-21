@@ -43,8 +43,9 @@ def delete_milestone(request, owner_username, repository_name, title):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository,])
-def get_milestones_for_repo(request, repository_name):
-    milestones = Milestone.objects.filter(project__name=repository_name)
+def get_milestones_for_repo(request, owner_username, repository_name):
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
+    milestones = Milestone.objects.filter(project=works_on.project)
     serialized_milestones = serialize_milestones(milestones)
     return Response(serialized_milestones, status=status.HTTP_200_OK)
 

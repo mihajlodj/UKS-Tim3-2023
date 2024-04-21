@@ -85,7 +85,7 @@ export default {
     },
 
     mounted() {
-        BranchService.getAllBranches(this.$route.params.repoName).then(res => {
+        BranchService.getAllBranches(this.$route.params.username, this.$route.params.repoName).then(res => {
             for (let item of res.data) {
                 this.branchData.push({
                     "name": item.name,

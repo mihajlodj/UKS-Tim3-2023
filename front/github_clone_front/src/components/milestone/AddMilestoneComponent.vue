@@ -51,7 +51,7 @@ export default {
     },
     methods: {
         submit() {
-            MilestoneService.createMilestone(this.repo, {
+            MilestoneService.createMilestone(this.$route.params.username, this.repo, {
                 "title": this.title,
                 "description": this.description,
                 "deadline": this.due_date,

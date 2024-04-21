@@ -116,7 +116,7 @@ export default {
 
     mounted() {
         /* eslint-disable */
-        PullRequestService.getAll(this.$route.params.repoName).then(res => {
+        PullRequestService.getAll(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.openPulls = res.data.filter(x => x.status === "Open");
             this.closedPulls = res.data.filter(x => x.status !== "Open");
             this.pulls = this.openPulls;
@@ -179,7 +179,7 @@ export default {
                 this.selected.forEach((value, index) => {
                     if (value) ids.push(this.pulls[index].id);
                 });
-                PullRequestService.markClosed(this.$route.params.repoName, {ids}).then(res => {
+                PullRequestService.markClosed(this.$route.params.username, this.$route.params.repoName, {ids}).then(res => {
                     console.log(res);
                     let remainingObjects = this.openPulls.filter(obj => {
                         if (ids.includes(obj.id)) {
@@ -205,7 +205,7 @@ export default {
                 this.selected.forEach((value, index) => {
                     if (value) ids.push(this.pulls[index].id);
                 });
-                PullRequestService.markOpen(this.$route.params.repoName, {ids}).then(res => {
+                PullRequestService.markOpen(this.$route.params.username, this.$route.params.repoName, {ids}).then(res => {
                     console.log(res);
                     let remainingObjects = this.closedPulls.filter(obj => {
                         if (ids.includes(obj.id)) {
