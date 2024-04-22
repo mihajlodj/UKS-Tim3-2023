@@ -80,6 +80,7 @@ def get_all_devs(request, query):
             isExcluded = False
             developer_serializer = DeveloperSerializer(result)
             developer = developer_serializer.data
+            print(developer)
 
             if repositories is not None:
                 allUserRepos = len(Watches.objects.filter(developer__user__username__contains=developer['user']['username'],developer__workson__role__exact="Owner"))

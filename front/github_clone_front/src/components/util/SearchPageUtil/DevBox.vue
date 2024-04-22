@@ -7,6 +7,13 @@
         <button type="button" class="btn btn-secondary" id="btn-confirm">
                       Follow
         </button>
+        <p>{{developer}}</p>
+        <button type="button" class="btn btn-danger" id="btn-ban" v-if="developer.banned">
+                      Ban
+        </button>
+        <button type="button" class="btn btn-warning" id="btn-unban">
+                      Unban
+        </button>
       </div>
     </div>
   </div>
