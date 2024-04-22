@@ -3,15 +3,12 @@
     <div class="dev-header">
       <img :src="developer.avatar" alt="User Avatar" class="dev-avatar">
       <div class="dev-info">
-        <a href="#" class="dev-name">{{developer.user.username}}</a>
-        <button type="button" class="btn btn-secondary" id="btn-confirm" @click="follow">
-                      Follow
+        <a href="#" class="dev-name">{{ developer.user.username }}</a>
+        <button v-if="showBanButton" :class="[banButtonClass]" @click="toggleBanUnban" id="btn-confirm">
+          {{ banButtonText }}
         </button>
-        <button type="button" class="btn btn-danger" id="btn-ban" v-if="!developer.banned" @click="ban_unban">
-                      Ban
-        </button>
-        <button type="button" class="btn btn-warning" id="btn-unban" v-if="developer.banned" @click="ban_unban">
-                      Unban
+        <button type="button" class="btn btn-secondary" @click="follow" id="btn-confirm">
+          Follow
         </button>
       </div>
     </div>
@@ -24,26 +21,37 @@ import DeveloperService from '@/services/DeveloperService';
 export default {
   name: 'DevBox',
   props: ['developer'],
+  computed: {
+    showBanButton() {
+      return localStorage.getItem('username') === 'administrator';
+    },
+    banButtonClass() {
+      return this.developer.banned ? 'btn btn-warning' : 'btn btn-danger';
+    },
+    banButtonText() {
+      return this.developer.banned ? 'Unban' : 'Ban';
+    }
+  },
   methods: {
     follow() {
       console.log("followed");
     },
-    ban_unban() {
+    toggleBanUnban() {
       DeveloperService.update_user_ban_status(this.developer.user.username)
-          .then(res => {
-                  console.log(res);
-                  this.$emit('toggle-ban-status', this.developer.user.username);
-              })
-              .catch(err => {
-                  console.log(err);
-              });
+        .then(res => {
+          console.log(res);
+          this.$emit('toggle-ban-status', this.developer.user.username);
+        })
+        .catch(err => {
+          console.log(err);
+        });
     },
   }
 };
 </script>
 
 <style scoped>
-#btn-confirm{
+#btn-confirm {
   margin-left: auto;
 }
 
@@ -84,4 +92,3 @@ export default {
   color: rgb(16, 109, 249);
 }
 </style>
-
