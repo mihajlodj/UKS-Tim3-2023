@@ -65,7 +65,7 @@ class Task(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
     timestamp = models.DateTimeField(default=timezone.now)
@@ -147,7 +147,8 @@ class Watches(models.Model):
 
 class Fork(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    source = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='source', null=True)
+    destination = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='destination', null=True)
 
 
 class Stars(models.Model):

@@ -8,11 +8,11 @@ def get_pull_title(json_data):
         return json_data['compare']
     return json_data['title']
 
-def save_pull_request(author_username, repository_name, json_data, response):
+def save_pull_request(owner_username, author_username, repository_name, json_data, response):
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
     author = Developer.objects.get(user__username=author_username)
-    src = Branch.objects.get(name=json_data['compare'], project__name=repository_name)
-    dest = Branch.objects.get(name=json_data['base'], project__name=repository_name)
-    project = Project.objects.get(name=repository_name)   
+    src = Branch.objects.get(name=json_data['compare'], project=project)
+    dest = Branch.objects.get(name=json_data['base'], project=project)
     pull = PullRequest.objects.create(source=src, target=dest, project=project, author=author, title=get_pull_title(json_data), description=json_data['description'])
     if 'milestone_id' in json_data and Milestone.objects.filter(id=json_data['milestone_id']).exists():
         milestone = Milestone.objects.get(id=json_data['milestone_id'])
@@ -36,12 +36,13 @@ def update_milestone(json_data, req):
         req.milestone = None
     req.save()
 
-def update_assignee(json_data, req, repository_name):
+def update_assignee(json_data, req, owner_username, repository_name):
     if 'assignee_username' in json_data:
+        project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
         assignee_username = json_data['assignee_username']
-        if not WorksOn.objects.filter(project__name=repository_name, developer__user__username=assignee_username).exists():
+        if not WorksOn.objects.filter(project=project, developer__user__username=assignee_username).exists():
             raise Http404()
-        works_on = WorksOn.objects.get(project__name=repository_name, developer__user__username=assignee_username)
+        works_on = WorksOn.objects.get(project=project, developer__user__username=assignee_username)
         if works_on.role == Role.IS_BANNED:
             raise Http404()
         developer = Developer.objects.get(user__username=assignee_username)

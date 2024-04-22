@@ -130,14 +130,14 @@ export default {
     mounted() {
         this.selectedBranch = this.$route.params.branchName;
 
-        BranchService.getAllBranches(this.$route.params.repoName).then(res => {
+        BranchService.getAllBranches(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.branches = res.data;
             this.filteredBranches = res.data;
         }).catch(err => {
             console.log(err);
         });
 
-        BranchService.getCommitters(this.$route.params.repoName, this.selectedBranch).then(res => {
+        BranchService.getCommitters(this.$route.params.username, this.$route.params.repoName, this.selectedBranch).then(res => {
             this.committers = res.data;
             this.filteredCommitters = res.data;
         }).catch(err => {
@@ -168,7 +168,7 @@ export default {
 
     methods: {
         loadCommits() {
-            BranchService.getCommits(this.$route.params.repoName, this.selectedBranch).then(res => {
+            BranchService.getCommits(this.$route.params.username, this.$route.params.repoName, this.selectedBranch).then(res => {
                 this.commits = res.data;
                 this.filteredCommits = res.data;
             }).catch(err => {

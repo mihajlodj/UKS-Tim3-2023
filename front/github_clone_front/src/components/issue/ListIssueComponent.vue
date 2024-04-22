@@ -100,11 +100,11 @@ export default {
     RepoNavbar
   },
   mounted() {
-    IssueService.getIssues(this.$route.params.repoName).then(res => {
+    IssueService.getIssues(this.$route.params.username, this.$route.params.repoName).then(res => {
       this.issues = res.data;
       console.log(this.issues);
     }).catch(err => { console.log(err); });
-    MilestoneService.getAllMilestones(this.$route.params.repoName).then(res => {
+    MilestoneService.getAllMilestones(this.$route.params.username, this.$route.params.repoName).then(res => {
       console.log(res);
       this.milestones = res.data;
     }).catch(err => console.log(err));

@@ -17,7 +17,7 @@
                         <font-awesome-icon icon="fa-regular fa-eye" class="me-1" />
                         Watch
                     </button>
-                    <button type="button" class="btn btn-right me-2">
+                    <button v-if="!isUsersRepo()" type="button" class="btn btn-right me-2" @click="fork">
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
                     </button>
@@ -26,6 +26,13 @@
                         Star
                     </button>
                 </div>
+            </div>
+
+            <div v-if="repo.forkedFrom" class="d-flex justify-content-start mx-4">
+                <span class="ms-3">Forked from</span>
+                <button type="button" class="btn-forked-from" @click="viewOriginalRepo">
+                    {{ repo.forkedFrom.ownerUsername }}/{{ repo.forkedFrom.repositoryName }}
+                </button>
             </div>
 
             <hr class="mx-4">
@@ -142,6 +149,15 @@ export default {
             this.repo.defaultBranch = res.data.default_branch;
             this.repo.commitsOverview = res.data.commits_overview;
 
+            if (res.data.forked_from !== null && res.data.forked_from !== undefined) {
+                this.repo.forkedFrom = {
+                    ownerUsername: res.data.forked_from.owner_username,
+                    repositoryName: res.data.forked_from.repository_name
+                };
+            } else {
+                this.repo.forkedFrom = null;
+            }
+
             this.repo.chosenBranch = res.data.default_branch;
             if (this.$route.query.chosen) {
                 this.repo.chosenBranch = this.$route.query.chosen;
@@ -221,6 +237,10 @@ export default {
             this.contentKey += 1;
         },
 
+        isUsersRepo() {
+            return localStorage.getItem("username") === this.$route.params.username;
+        },
+
         selectedBranchChanged(branchName) {
             this.repo.chosenBranch = branchName;
             this.forceRerender();
@@ -231,6 +251,10 @@ export default {
             this.repo.displayRoot = "false";
             console.log(this.repo.foldersPath);
             this.forceRerender();
+        },
+
+        fork() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/fork`)
         },
 
         returnToParent() {
@@ -259,6 +283,11 @@ export default {
         canAddFiles() {
             const role = localStorage.getItem(this.$route.params.repoName);
             return role === "Owner" || role === "Developer" || role === "Maintainer";
+        },
+
+        viewOriginalRepo() {
+            let route = this.$router.resolve({path: `/view/${this.repo.forkedFrom.ownerUsername}/${this.repo.forkedFrom.repositoryName}`});
+            window.open(route.href, '_blank')
         }
     },
 
@@ -340,5 +369,12 @@ input {
 
 .search {
     height: 35px;
+}
+
+.btn-forked-from {
+    background: none;
+    border: none;
+    color: #488ae7;
+    text-decoration: underline;
 }
 </style>

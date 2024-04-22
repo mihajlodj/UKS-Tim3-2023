@@ -128,7 +128,7 @@ export default {
     },
 
     mounted() {
-        PullRequestService.getOne(this.$route.params.repoName, this.$route.params.id).then(res => {
+        PullRequestService.getOne(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
             console.log(res.data);
             this.pull = res.data;
             this.mergeDataKey += 1;
@@ -198,7 +198,7 @@ export default {
             let data = {};
             if (this.pull.milestone) data['milestone_id'] = this.pull.milestone.id;
             if (this.pull.assignee) data['assignee_username'] = this.pull.assignee.username;
-            PullRequestService.update(this.$route.params.repoName, this.$route.params.id, data).then(res => {
+            PullRequestService.update(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                 console.log(res);
                 toast("Changes saved!", {
                     autoClose: 500,
@@ -215,7 +215,7 @@ export default {
             if (this.newTitle.trim() !== "") {
                 this.editingTitle = false;
                 let data = {"title": this.newTitle};
-                PullRequestService.updateTitle(this.$route.params.repoName, this.$route.params.id, data).then(res => {
+                PullRequestService.updateTitle(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                     this.pull.title = res.data;
                 }).catch(err => {
                     console.log(err);
@@ -230,7 +230,7 @@ export default {
         },
 
         close() {
-            PullRequestService.close(this.$route.params.repoName, this.$route.params.id).then(res => {
+            PullRequestService.close(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 this.pull.status = res.data;
             }).catch(err => {
                 console.log(err);
@@ -238,7 +238,7 @@ export default {
         },
 
         reopen() {
-            PullRequestService.reopen(this.$route.params.repoName, this.$route.params.id).then(res => {
+            PullRequestService.reopen(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 this.pull.status = res.data;
             }).catch(err => {
                 console.log(err);
@@ -246,7 +246,7 @@ export default {
         },
 
         merge() {
-            PullRequestService.merge(this.$route.params.repoName, this.$route.params.id).then(res => {
+            PullRequestService.merge(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 console.log(res);
                 this.pull.status = "Merged";
                 toast("Pull request merged!", {

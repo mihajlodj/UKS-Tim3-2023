@@ -112,7 +112,7 @@ def test_create_issue(get_token):
 
 @pytest.mark.django_db
 def test_get_issues(get_token):
-    url = '/issue/issues/MyNewTestRepo/'
+    url = f'/issue/issues/{username1}/MyNewTestRepo/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
@@ -128,7 +128,7 @@ def test_get_issues(get_token):
 
 @pytest.mark.django_db
 def test_get_issues(get_token):
-    url = '/issue/issues/MyNewTestRepo/'
+    url = f'/issue/issues/{username1}/MyNewTestRepo/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
@@ -150,7 +150,7 @@ def test_close_issue(get_token):
     }
     response = client.patch(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    response = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response.json()[0]['open'] is False
 
 @pytest.mark.django_db
@@ -162,7 +162,7 @@ def test_delete_issues(get_token):
     }
     response = client.delete(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    response = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert len(response.json()) == 0
 
 @pytest.mark.django_db
@@ -179,14 +179,14 @@ def test_update_issue(get_token):
         'milestone': '',
         'repoName': repo_name
     }
-    response_get_old = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response_get_old = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response_get_old.status_code == status.HTTP_200_OK
     assert response_get_old.json()[0]['title'] == 'issue1'
     assert response_get_old.json()[0]['description'] == 'description1'
     response_post = client.patch(url, content_type='application/json', data=json.dumps(body), headers=headers)
     assert response_post.status_code == status.HTTP_200_OK
 
-    response_get_new = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response_get_new = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response_get_new.status_code == status.HTTP_200_OK
     assert response_get_new.json()[0]['title'] == 'new_issue_title'
     assert response_get_new.json()[0]['description'] == 'new_description'
@@ -203,7 +203,7 @@ def test_delete_issues_2(get_token):
 
 @pytest.mark.django_db
 def test_get_issues_2(get_token):
-    url = '/issue/issues/MyNewTestRepo2/'
+    url = f'/issue/issues/{username1}/MyNewTestRepo2/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }

@@ -156,7 +156,7 @@ def disable_send_email(monkeypatch):
 @pytest.mark.django_db
 def test_invite_collaborator_success(get_token_as_owner, create_developer):
     dev = create_developer
-    url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    url = f'/repository/invite/{username_owner}/{repo_name}/{dev.user.username}/'
     payload = {'role': 'Maintainer'}
     headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
     response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
@@ -169,7 +169,7 @@ def test_invite_collaborator_success(get_token_as_owner, create_developer):
 
 @pytest.mark.django_db
 def test_invite_collaborator_already_added(get_token_as_owner):
-    url = f'/repository/invite/{repo_name}/{username_maintainer}/'
+    url = f'/repository/invite/{username_owner}/{repo_name}/{username_maintainer}/'
     payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_owner}' }
     response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
@@ -180,7 +180,7 @@ def test_invite_collaborator_already_added(get_token_as_owner):
 @pytest.mark.django_db
 def test_invite_collaborator_as_maintainer_success(get_token_as_maintainer, create_developer):
     dev = create_developer
-    url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    url = f'/repository/invite/{username_owner}/{repo_name}/{dev.user.username}/'
     payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_maintainer}' }
     response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
@@ -194,7 +194,7 @@ def test_invite_collaborator_as_maintainer_success(get_token_as_maintainer, crea
 @pytest.mark.django_db
 def test_invite_collaborator_as_developer(get_token_as_developer, create_developer):
     dev = create_developer
-    url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    url = f'/repository/invite/{username_owner}/{repo_name}/{dev.user.username}/'
     payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_developer}' }
     response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)
@@ -205,7 +205,7 @@ def test_invite_collaborator_as_developer(get_token_as_developer, create_develop
 @pytest.mark.django_db
 def test_invite_collaborator_as_readonly(get_token_as_readonly, create_developer):
     dev = create_developer
-    url = f'/repository/invite/{repo_name}/{dev.user.username}/'
+    url = f'/repository/invite/{username_owner}/{repo_name}/{dev.user.username}/'
     payload = {'role': 'Developer'}
     headers = { 'Authorization': f'Bearer {get_token_as_readonly}' }
     response = client.post(url, content_type='application/json', data=json.dumps(payload), headers=headers)

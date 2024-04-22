@@ -5,7 +5,8 @@
             <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
                 :branchName="repo.defaultBranch" />
             <CollaboratorsSettings />
-            <DangerZoneSettings v-if="canViewDangerZone()" :accessModifier="repo.accessModifier" />
+            <DangerZoneSettings v-if="canViewDangerZone()" :accessModifier="repo.accessModifier" 
+                :forked="repo.forkedFrom !== null && repo.forkedFrom !== undefined" />
         </div>
 
         <div v-if="allowed == false">
@@ -21,8 +22,6 @@ import CollaboratorsSettings from './CollaboratorsSettings.vue';
 import DangerZoneSettings from './DangerZoneSettings.vue';
 import RepositoryService from '@/services/RepositoryService';
 import NotFoundPage from '../../util/NotFoundPage.vue';
-
-// transfer ownership
 
 
 export default {
@@ -44,7 +43,6 @@ export default {
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
             }
-            console.log(this.repo.branches);
             this.allowed = true;
             this.forceRerender();
         }).catch(err => {

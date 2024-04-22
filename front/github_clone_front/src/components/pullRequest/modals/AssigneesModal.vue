@@ -25,7 +25,7 @@ export default {
         if (this.assignee) {
             this.chosenAssignee = this.assignee;
         }
-        PullRequestService.getPossibleAssignees(this.$route.params.repoName).then(res => {
+        PullRequestService.getPossibleAssignees(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.available = res.data;
             this.filtered = this.available;
         }).catch(err => {

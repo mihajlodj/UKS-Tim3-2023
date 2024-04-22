@@ -97,7 +97,7 @@ export default {
   },
   methods: {
     getAllMilestonesForRepo() {
-      MilestoneService.getAllMilestones(this.repo)
+      MilestoneService.getAllMilestones(this.$route.params.username, this.repo)
         .then(res => {
           this.milestones = res.data;
         }).catch(err => {
