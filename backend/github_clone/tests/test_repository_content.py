@@ -100,7 +100,7 @@ def test_create_file_success(get_token):
 
 @pytest.mark.django_db
 def test_upload_files_success(get_token):
-    url = f'/repository/upload/{username2}/{repo_name}/'
+    url = f'/repository/upload/{username1}/{repo_name}/'
     data = {
         'branch': 'main',
         'message': 'this is a commit message',

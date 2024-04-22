@@ -74,11 +74,11 @@
                         <h5 class="bright">Add a comment</h5>
                         <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
                         <div class="w-100 d-flex justify-content-end mt-2">
-                            <button v-if="pull.status === 'Open'" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
+                            <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
                                 <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
                                 Close pull request
                             </button>
-                            <button v-if="pull.status === 'Closed'" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
+                            <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
                                 Reopen pull request
                             </button>
                             <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
@@ -128,7 +128,7 @@ export default {
     },
 
     mounted() {
-        PullRequestService.getOne(this.$route.params.repoName, this.$route.params.id).then(res => {
+        PullRequestService.getOne(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
             console.log(res.data);
             this.pull = res.data;
             this.mergeDataKey += 1;
@@ -180,6 +180,11 @@ export default {
             this.pull.assignee = data;
         },
 
+        canUpdatePull() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
+        },
+
         getMergeMsg() {
             if (this.pull.status === "Merged") return "merged";
             return "wants to merge"
@@ -193,7 +198,7 @@ export default {
             let data = {};
             if (this.pull.milestone) data['milestone_id'] = this.pull.milestone.id;
             if (this.pull.assignee) data['assignee_username'] = this.pull.assignee.username;
-            PullRequestService.update(this.$route.params.repoName, this.$route.params.id, data).then(res => {
+            PullRequestService.update(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                 console.log(res);
                 toast("Changes saved!", {
                     autoClose: 500,
@@ -210,7 +215,7 @@ export default {
             if (this.newTitle.trim() !== "") {
                 this.editingTitle = false;
                 let data = {"title": this.newTitle};
-                PullRequestService.updateTitle(this.$route.params.repoName, this.$route.params.id, data).then(res => {
+                PullRequestService.updateTitle(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                     this.pull.title = res.data;
                 }).catch(err => {
                     console.log(err);
@@ -225,7 +230,7 @@ export default {
         },
 
         close() {
-            PullRequestService.close(this.$route.params.repoName, this.$route.params.id).then(res => {
+            PullRequestService.close(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 this.pull.status = res.data;
             }).catch(err => {
                 console.log(err);
@@ -233,7 +238,7 @@ export default {
         },
 
         reopen() {
-            PullRequestService.reopen(this.$route.params.repoName, this.$route.params.id).then(res => {
+            PullRequestService.reopen(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 this.pull.status = res.data;
             }).catch(err => {
                 console.log(err);
@@ -241,7 +246,7 @@ export default {
         },
 
         merge() {
-            PullRequestService.merge(this.$route.params.repoName, this.$route.params.id).then(res => {
+            PullRequestService.merge(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 console.log(res);
                 this.pull.status = "Merged";
                 toast("Pull request merged!", {

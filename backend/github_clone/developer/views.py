@@ -15,7 +15,7 @@ from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
 from branch.serializers import BranchSerializer
 from main import gitea_service
-from main.models import Invitation, WorksOn
+from main.models import Invitation, Role, WorksOn
 from main.models import Developer, SecondaryEmail, Commit, Watches
 from main.gitea_service import get_gitea_user_info_gitea_service
 from main import permissions
@@ -281,13 +281,25 @@ def get_developers_emails(request, username):
 
 
 @api_view(['GET'])
-def get_developers(request, repository_name):
+def get_developers(request, owner_username, repository_name):
     developers = Developer.objects.filter()
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
     result = [{
         'username': d.user.username,
         'avatar': service.get_dev_avatar(d.user.username),
         'email': d.user.email
         } for d in developers
-        if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists()
-            and not Invitation.objects.filter(developer=d, project__name=repository_name).exists()]
+        if not WorksOn.objects.filter(developer=d, project=project).exists()
+            and not Invitation.objects.filter(developer=d, project=project).exists()]
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_developer_roles(request, username):
+    works_on_list = WorksOn.objects.filter(developer__user__username=username)
+    result = [{
+        'repository': obj.project.name,
+        'role': obj.role
+    } for obj in works_on_list]
     return Response(result, status=status.HTTP_200_OK)

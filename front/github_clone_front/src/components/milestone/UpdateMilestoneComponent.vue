@@ -78,7 +78,7 @@ export default {
             else {
                 convertedState = false;
             }
-            MilestoneService.editMilestone(this.oldTitle, {
+            MilestoneService.editMilestone(this.$route.params.username, this.oldTitle, {
                 "title": this.title,
                 "description": this.description,
                 "deadline": this.due_date,

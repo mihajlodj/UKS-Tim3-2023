@@ -8,7 +8,7 @@
                 <span>The repository is currently {{ accessModifier.toLowerCase() }}.</span>
             </div>
 
-            <div>
+            <div v-if="canChangeAccessModifier()">
                 <button class="btn btn-outline-danger mt-1" data-bs-toggle="modal" data-bs-target="#changeVisibilityModal">
                     Change
                 </button>
@@ -21,7 +21,7 @@
             </div>
 
             <div>
-                <button class="btn btn-outline-danger mt-1">Transfer ownership</button>
+                <button class="btn btn-outline-danger mt-1" @click="transferOwnership">Transfer ownership</button>
             </div>
         </div>
         <div class="cell last d-flex justify-content-between">
@@ -79,7 +79,7 @@ export default {
     /* eslint-disable */
     name: 'DangerZoneSettings',
 
-    props: ['accessModifier'],
+    props: ['accessModifier', 'forked'],
 
     methods: {
         changeModifier() {
@@ -87,11 +87,15 @@ export default {
             if (this.accessModifier === 'Public') {
                 newModifier = 'Private';
             }
-            RepositoryService.update({ 'access_modifier': newModifier }, this.$route.params.repoName).then(_ => {
+            RepositoryService.update(this.$route.params.username, { 'access_modifier': newModifier }, this.$route.params.repoName).then(_ => {
                 location.reload();
             }).catch(err => {
                 console.log(err);
             });
+        },
+
+        canChangeAccessModifier() {
+            return !this.forked || this.accessModifier.toLowerCase() !== "private";
         },
 
         deleteRepository() {
@@ -101,6 +105,10 @@ export default {
                 console.log(err);
             });
             this.$router.push('/main')
+        },
+
+        transferOwnership() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/transfer`)
         }
     }
 }

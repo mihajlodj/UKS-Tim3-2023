@@ -33,7 +33,7 @@ export default {
     props: ["chosen", "x", "y", "w"],
 
     mounted() {
-        MilestoneService.getAllMilestones(this.$route.params.repoName).then(res => {
+        MilestoneService.getAllMilestones(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.openMilestones = res.data.filter(item => item.state === "Open");
             this.closedMilestones = res.data.filter(item => item.state === "Closed");
             this.milestones = this.openMilestones;

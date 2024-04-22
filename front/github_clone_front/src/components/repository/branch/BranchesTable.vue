@@ -62,7 +62,7 @@ export default {
         },
 
         deleteBranch(name) {
-            BranchService.deleteBranch(this.$route.params.repoName, name).then(res => {
+            BranchService.deleteBranch(this.$route.params.username, this.$route.params.repoName, name).then(res => {
                 console.log(res)
                 this.update(name);
                 toast(`Branch ${name} has been deleted`, {

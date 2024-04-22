@@ -32,8 +32,8 @@ const getFolderContent = (username, repoName, branch, path) => {
     return api.get(`repository/folder/${username}/${repoName}/${branch}/${path}/`);
 }
 
-const update = (repoData, name) => {
-    return api.patch(`repository/update/${name}/`, repoData);
+const update = (username, repoData, name) => {
+    return api.patch(`repository/update/${username}/${name}/`, repoData);
 }
 
 const deleteReposiory = (username, repoName) => {
@@ -57,16 +57,16 @@ const createFile = (username, repoName, path, data) => {
 }
 
 
-const inviteCollaborator = (repoName, invitedUsername) => {
-    return api.post(`repository/invite/${repoName}/${invitedUsername}/`);
+const inviteCollaborator = (ownerUsername, repoName, invitedUsername, role) => {
+    return api.post(`repository/invite/${ownerUsername}/${repoName}/${invitedUsername}/`, {'role': role});
 }
 
 const respondToInvitation = (ownerUsername, repoName, invitedUsername, choice) => {
     return api.post(`repository/inviteResponse/${ownerUsername}/${repoName}/${invitedUsername}/${choice}/`);
 }
 
-const getInvitation = (repoName, invitedUsername) => {
-    return api.get(`repository/invitation/${repoName}/${invitedUsername}`);
+const getInvitation = (ownerUsername, repoName, invitedUsername) => {
+    return api.get(`repository/invitation/${ownerUsername}/${repoName}/${invitedUsername}`);
 }
 
 const getCollaborators = (ownerUsername, repoName) => {
@@ -77,5 +77,17 @@ const removeCollaborator = (ownerUsername, repoName, collaboratorUsername) => {
     return api.delete(`repository/removeCollaborator/${ownerUsername}/${repoName}/${collaboratorUsername}`);
 }
 
+const changeRole = (ownerUsername, repoName, collaboratorUsername, role) => {
+    return api.put(`repository/editRole/${ownerUsername}/${repoName}/${collaboratorUsername}/`, {'role': role});
+}
+
+const transfer = (ownerUsername, repoName, newOwnerUsername) => {
+    return api.post(`repository/transfer/${ownerUsername}/${repoName}/`, {'new_owner': newOwnerUsername});
+}
+
+const fork = (ownerUsername, repoName, data) => {
+    return api.post(`repository/fork/${ownerUsername}/${repoName}/`, data);
+}
+
 export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork };

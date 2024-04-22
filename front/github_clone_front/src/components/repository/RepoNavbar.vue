@@ -36,7 +36,7 @@
                                 </div>
                             </button>
                         </li>
-                        <li class="nav-item mx-2" v-if="yourRepo">
+                        <li v-if="canViewSettings()" class="nav-item mx-2">
                             <button :class="(activeLink=='settings') ? 'nav-link active' : 'nav-link'" @click="setActiveLink('settings')">
                                 <div class="d-flex justify-content-start">
                                     <font-awesome-icon icon="fa-solid fa-gear" class="me-2 mt-1" />
@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import RepositoryService from '@/services/RepositoryService';
 
 export default {
     name: 'RepoNavbar',
@@ -61,15 +60,6 @@ export default {
 
 
     mounted() {
-        RepositoryService.getIsUsersRepo(this.$route.params.username,this.$route.params.repoName)
-            .then(res => {
-              console.log(res);
-              this.yourRepo = res.data && (localStorage.getItem("username")===this.$route.params.username || localStorage.getItem("username")==="administrator")
-          })
-          .catch(err => {
-              console.log(err);
-          });
-
         if (this.starting) {
             this.activeLink = this.starting;
         }
@@ -77,8 +67,7 @@ export default {
 
     data() {
         return {
-            activeLink: 'code',
-            yourRepo:''
+            activeLink: 'code'
         }
     },
 
@@ -99,6 +88,11 @@ export default {
             } else if (name == 'pullRequests') {
                 this.$router.push(`/view/${username}/${repoName}/pulls`);
             }
+        },
+
+        canViewSettings() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Maintainer";
         }
     }
 }

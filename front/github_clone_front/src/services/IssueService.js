@@ -12,8 +12,8 @@ const getAllQueryIssues = (query) => {
     return api.get(`issue/query_issues/${query}`);
 }
 
-const getIssues = (repoName) => {
-    return api.get(`issue/issues/${repoName}/`);
+const getIssues = (username, repoName) => {
+    return api.get(`issue/issues/${username}/${repoName}/`);
 }
 
 const updateIssue = (issueData) => {

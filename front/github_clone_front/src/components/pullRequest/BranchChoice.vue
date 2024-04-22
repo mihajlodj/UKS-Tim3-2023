@@ -30,7 +30,7 @@ export default {
     props: ['type'],
 
     mounted() {
-        BranchService.getAllBranches(this.$route.params.repoName).then(res => {
+        BranchService.getAllBranches(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.branches = res.data;
             this.chosenBranch = res.data[0].name;
             this.selectedBranchChanged(this.chosenBranch);
