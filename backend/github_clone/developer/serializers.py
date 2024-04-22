@@ -29,7 +29,7 @@ class DeveloperSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Developer
-        fields = ('user', 'gitea_token', 'avatar')
+        fields = ('user','gitea_token', 'avatar','banned')
 
     def update(self, instance, validated_data):
         instance.avatar = validated_data.get('avatar', instance.avatar)

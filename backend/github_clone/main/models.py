@@ -51,6 +51,7 @@ class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gitea_token = models.CharField(max_length=255, null=True, blank=True)
     avatar = models.CharField(max_length=1000, null=True, blank=True)
+    banned = models.BooleanField(default=False)
 
 
 class Assignment(Event):

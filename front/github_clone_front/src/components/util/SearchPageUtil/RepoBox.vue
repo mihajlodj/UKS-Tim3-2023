@@ -3,7 +3,7 @@
     <div class="repo-header">
       <img :src="avatar" alt="User Avatar" class="repo-avatar">
       <div class="repo-info">
-        <a href="#" class="repo-name">{{username}}/{{ name }}</a>
+        <a :href="repoLink" class="repo-name" :class="{ 'no-access': access_modifier === 'Private' && !isAdmin }">{{ username }}/{{ name }}</a>
         <p class="repo-description">{{ description }}</p>
         <p class="repo-access">{{ access_modifier }}</p>
       </div>
@@ -14,7 +14,20 @@
 <script>
 export default {
   name: 'RepoBox',
-  props: ['username', 'avatar', 'name', 'description', 'access_modifier']
+  props: ['username', 'avatar', 'name', 'description', 'access_modifier'],
+  computed: {
+    isAdmin() {
+      return localStorage.getItem('username') === 'administrator';
+    },
+    repoLink() {
+      if (this.access_modifier === 'Public' || this.isAdmin) {
+        // ToDo dodaj link do repo view-a
+        return '#';
+      } else {
+        return null;
+      }
+    }
+  }
 };
 </script>
 
@@ -54,6 +67,17 @@ export default {
   max-width: 20rem;
   min-width: 15rem;
   color: rgb(16, 109, 249);
+}
+
+.no-access {
+  font-size: 1.2rem;
+  align-content: center;
+  padding: 0.5rem;
+  max-width: 20rem;
+  min-width: 15rem;
+  cursor: default;
+  text-decoration: none;
+  color: white;
 }
 
 .repo-description {

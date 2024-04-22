@@ -72,7 +72,7 @@ export default {
 
     mounted() {
         RepositoryService.getCollaborators(this.$route.params.username, this.$route.params.repoName).then(res => {
-            this.collaborators = res.data;
+            this.collaborators = res.data.filter(x=>!x.isBanned);
             console.log(res.data);
             this.filteredCollaborators = [];
         }).catch(err => {
