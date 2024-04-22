@@ -4,13 +4,13 @@
       <img :src="developer.avatar" alt="User Avatar" class="dev-avatar">
       <div class="dev-info">
         <a href="#" class="dev-name">{{developer.user.username}}</a>
-        <button type="button" class="btn btn-secondary" id="btn-confirm">
+        <button type="button" class="btn btn-secondary" id="btn-confirm" @click="follow">
                       Follow
         </button>
-        <button type="button" class="btn btn-danger" id="btn-ban" v-if="!developer.banned">
+        <button type="button" class="btn btn-danger" id="btn-ban" v-if="!developer.banned" @click="ban_unban">
                       Ban
         </button>
-        <button type="button" class="btn btn-warning" id="btn-unban" v-if="developer.banned">
+        <button type="button" class="btn btn-warning" id="btn-unban" v-if="developer.banned" @click="ban_unban">
                       Unban
         </button>
       </div>
@@ -19,9 +19,26 @@
 </template>
 
 <script>
+import DeveloperService from '@/services/DeveloperService';
+
 export default {
   name: 'DevBox',
-  props: ['developer']
+  props: ['developer'],
+  methods: {
+    follow() {
+      console.log("followed");
+    },
+    ban_unban() {
+      DeveloperService.update_user_ban_status(this.developer.user.username)
+          .then(res => {
+                  console.log(res);
+                  this.$emit('toggle-ban-status', this.developer.user.username);
+              })
+              .catch(err => {
+                  console.log(err);
+              });
+    },
+  }
 };
 </script>
 

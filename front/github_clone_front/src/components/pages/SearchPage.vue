@@ -79,7 +79,7 @@
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Users'">
-          <dev-box
+          <dev-box @toggle-ban-status="toggleBanStatus"
           v-for="(result, index) in devs"
             :key="index"
             :developer="result"
@@ -198,6 +198,12 @@ export default {
     };
   },
   methods: {
+    toggleBanStatus(username) {
+      const developerIndex = this.devs.findIndex(dev => dev.user.username === username);
+      if (developerIndex !== -1) {
+        this.devs[developerIndex].banned = !this.devs[developerIndex].banned
+      }
+    },
     generateSearchLink(query) {
       const currentQuery = this.$route.query.q || '';
       const combinedQuery = currentQuery + '&' + query;

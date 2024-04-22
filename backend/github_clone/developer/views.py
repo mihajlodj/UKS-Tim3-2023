@@ -9,7 +9,7 @@ from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
@@ -51,6 +51,17 @@ def add_new_email(request, username):
     return Response(status=status.HTTP_201_CREATED)
 
 
+@api_view(['PATCH'])
+@permission_classes([IsAdminUser])
+def update_user_ban_status(request, user_to_ban_unban):
+    developer = Developer.objects.get(user__username=user_to_ban_unban)
+    if developer is None:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    developer.banned = not developer.banned
+    developer.save()
+    return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 def get_all_devs(request, query):
     repositories = None
@@ -71,7 +82,8 @@ def get_all_devs(request, query):
     all_results = Developer.objects.all()
     results = []
     for result in all_results:
-        if result.user.username.lower().__contains__(query.lower()) and result.user.username != os.environ.get("GITEA_ADMIN_USERNAME"):
+        if result.user.username.lower().__contains__(query.lower()) and result.user.username != os.environ.get(
+                "GITEA_ADMIN_USERNAME"):
             results.append(result)
 
     if len(results) > 0:
