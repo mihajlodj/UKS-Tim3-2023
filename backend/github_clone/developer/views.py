@@ -293,7 +293,7 @@ def get_developers_emails(request, username):
 
 @api_view(['GET'])
 def get_developers(request, owner_username, repository_name):
-    developers = Developer.objects.filter()
+    developers = Developer.objects.filter(banned=False)
     project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
                                   role=Role.OWNER).project
     result = [{

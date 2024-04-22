@@ -514,7 +514,8 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
         'username': elem.developer.user.username,
         'avatar': developer_service.get_dev_avatar(elem.developer.user.username),
         'role': elem.role,
-        'email': elem.developer.user.email
+        'email': elem.developer.user.email,
+        'isBanned': elem.developer.banned
     } for elem in works_on_list if elem.developer.user.username != owner_username]
 
     pending_invitations = Invitation.objects.filter(project=project)
@@ -523,7 +524,8 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
             'username': invitation.developer.user.username,
             'avatar': developer_service.get_dev_avatar(invitation.developer.user.username),
             'role': 'Pending',
-            'email': invitation.developer.user.email
+            'email': invitation.developer.user.email,
+            'isBanned': invitation.developer.banned
         })
     return Response(result, status=status.HTTP_200_OK)
 
