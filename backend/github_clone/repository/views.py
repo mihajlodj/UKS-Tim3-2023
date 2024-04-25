@@ -18,6 +18,7 @@ from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
 from datetime import datetime
 from . import service
+import re
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -36,11 +37,38 @@ class ReadOwnerView(generics.RetrieveAPIView):
         return Developer.objects.get(user__username=owner_username)
 
 
-class UpdateRepositoryView(generics.UpdateAPIView):
-    queryset = Project.objects.all()
-    permission_classes = (IsAuthenticated, permissions.CanEditRepository)
-    serializer_class = RepositorySerializer
-    lookup_field = 'name'
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def update_repo(request, owner_username, repository_name):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).filter()
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    project = works_on.first().project
+    json_data = json.loads(request.body.decode('utf-8'))
+    new_name = json_data.get('name', project.name)
+    if new_name != repository_name:
+        if WorksOn.objects.filter(developer__user__username=owner_username, project__name=new_name).exists():
+            return Response("Repository with that name already exists", status=status.HTTP_400_BAD_REQUEST)
+    new_description = json_data.get('description', project.description)
+    new_access_modifier = json_data.get('access_modifier', project.access_modifier)
+    new_default_branch_name = json_data.get('default_branch_name', project.default_branch.name)
+    pattern = re.compile( r'^[a-zA-Z][\w-]*$')
+    if not pattern.match(new_name) or not pattern.match(new_default_branch_name) or (new_access_modifier != AccessModifiers.PRIVATE and new_access_modifier != AccessModifiers.PUBLIC):
+        return Response("Invalid data", status=status.HTTP_400_BAD_REQUEST)
+    project.name = new_name
+    project.description = new_description
+    project.access_modifier = new_access_modifier
+
+    if new_default_branch_name != project.default_branch.name:
+        if Branch.objects.filter(name=new_default_branch_name, project=project).exists():
+            branch = Branch.objects.get(name=new_default_branch_name, project=project)
+            project.default_branch = branch
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    project.save()
+    threading.Thread(target=gitea_service.update_repository, args=([owner_username, project, repository_name]), kwargs={}).start()
+    return Response({'name': project.name, 'description': project.description, 'access_modifier': project.access_modifier}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
