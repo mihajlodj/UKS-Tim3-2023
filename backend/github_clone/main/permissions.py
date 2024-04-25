@@ -1,22 +1,32 @@
 import os
 
+from django.http import Http404
+
 from main.models import WorksOn, AccessModifiers, Role, Developer
 from rest_framework.permissions import BasePermission
 
 GITEA_ADMIN_USERNAME = os.environ.get("GITEA_ADMIN_USERNAME")
 
 class CanEditRepository(BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_permission(self, request, view):
         logged_user = request.user.username
         developer = Developer.objects.get(user__username=logged_user)
+        repository_name = view.kwargs.get('repository_name')
+        owner_username = view.kwargs.get('owner_username')
         if developer.banned:
             return False
 
         if logged_user == GITEA_ADMIN_USERNAME:
             return True
-        if not WorksOn.objects.filter(project=obj, developer__user__username=logged_user).exists():
+        
+        works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+        if not works_on.exists():
+            raise Http404()
+        project = works_on.first().project
+
+        if not WorksOn.objects.filter(project=project, developer__user__username=logged_user).exists():
             return False
-        role = WorksOn.objects.get(project=obj, developer__user__username=logged_user).role
+        role = WorksOn.objects.get(project=project, developer__user__username=logged_user).role
         if role != Role.OWNER and role != Role.MAINTAINER:
             return False
         return True

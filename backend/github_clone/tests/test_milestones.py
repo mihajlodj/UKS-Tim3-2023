@@ -174,7 +174,7 @@ def test_create_milestone_missing_repo(get_token):
         'Authorization': f'Bearer {get_token}'
     }
     response = client.post(url, data, headers=headers)
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_404_NOT_FOUND
     assert Milestone.objects.count() == 0
 
 

@@ -1,5 +1,4 @@
 import threading
-from django.http import Http404
 from rest_framework import serializers
 from django.core.validators import RegexValidator
 
@@ -39,24 +38,6 @@ class RepositorySerializer(serializers.Serializer):
         threading.Thread(target=self.gitea_create, args=([project, branch_name, username]), kwargs={}).start()
         return project
     
-    def update(self, instance, validated_data):
-        owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
-        old_name = instance.name
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-
-        branch_name = validated_data.get('default_branch_name', instance.default_branch.name)
-        if branch_name != instance.default_branch.name:
-            if Branch.objects.filter(name=branch_name, project=instance).exists():
-                branch = Branch.objects.get(name=branch_name, project=instance)
-                if branch:
-                    instance.default_branch = branch
-            else:
-                raise Http404()
-        instance.access_modifier = validated_data.get('access_modifier', instance.access_modifier)
-        instance.save()
-        self.gitea_update(owner_username, instance, old_name)
-        return instance
 
     def gitea_create(self, project, branch_name, username):
         description = ''
@@ -71,9 +52,6 @@ class RepositorySerializer(serializers.Serializer):
             'name': project.name,
             'private': private
         }, username)
-
-    def gitea_update(self, owner, repository, old_name):
-        gitea_service.update_repository(owner, repository, old_name)
     
     
 class UserSerializer(serializers.ModelSerializer):
