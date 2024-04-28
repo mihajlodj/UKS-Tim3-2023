@@ -4,6 +4,10 @@
       <img :src="avatar" alt="User Avatar" class="repo-avatar">
       <div class="repo-info">
         <a :href="repoLink" class="repo-name" :class="{ 'no-access': access_modifier === 'Private' && !isAdmin }">{{ username }}/{{ name }}</a>
+        <button @click="toggleStar" class="star-button">
+          <font-awesome-icon v-if="!isStarred" icon="fa-regular fa-star" style="color: #b1aaaa;" />
+          <i v-if="isStarred" class="bi bi-star-fill" style="color:yellow"/>
+        </button>
         <p class="repo-description">{{ description }}</p>
         <p class="repo-access">{{ access_modifier }}</p>
       </div>
@@ -15,6 +19,11 @@
 export default {
   name: 'RepoBox',
   props: ['username', 'avatar', 'name', 'description', 'access_modifier'],
+  data() {
+    return {
+      isStarred: false, 
+    };
+  },
   computed: {
     isAdmin() {
       return localStorage.getItem('username') === 'administrator';
@@ -27,11 +36,21 @@ export default {
         return null;
       }
     }
+  },
+  methods: {
+    toggleStar() {
+      this.isStarred = !this.isStarred;
+    }
   }
 };
 </script>
 
 <style scoped>
+.star-button{
+  background: none;
+  border:none
+}
+
 .repo-box {
   border: 1px solid #ccc;
   border-radius: 5px;

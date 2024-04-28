@@ -89,6 +89,7 @@ library.add(faClockRotateLeft);
 library.add(faUsers);
 library.add(faUserLock);
 library.add(faXmark);
+library.add(faStar);
 
 const routes = [
     {
