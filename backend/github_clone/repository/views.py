@@ -82,6 +82,7 @@ def unstarr_it(request, username, repository_name):
     try:
         star = Stars.objects.get(project__name=repository_name, developer__user__username__exact=username)
         star.delete()
+        cache.clear()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -95,6 +96,7 @@ def starr_it(request, username, repository_name):
         developer = Developer.objects.get(user__username__exact=username)
         star = Stars.objects.create(project=project, developer=developer)
         star.save()
+        cache.clear()
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -227,7 +229,14 @@ def get_starred_user_repos(request, username):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_repo_data_for_display(request, owner_username, repository_name):
+def get_repo_data_for_display(request, owner_username, repository_name, logged_user):
+    star = True
+    try:
+        starred_instance = Stars.objects.get(developer__user__username__exact=logged_user,
+                                             project__name__exact=repository_name)
+    except:
+        star = False
+
     works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
                                       role=Role.OWNER)
     if not works_on.exists():
@@ -236,7 +245,7 @@ def get_repo_data_for_display(request, owner_username, repository_name):
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'],
-              'ssh': gitea_repo_data['ssh_url'], 'branches': []}
+              'ssh': gitea_repo_data['ssh_url'], 'branches': [], 'star': star}
     branches = Branch.objects.filter(project=repo)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names

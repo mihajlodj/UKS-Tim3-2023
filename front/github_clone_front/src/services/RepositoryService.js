@@ -12,8 +12,8 @@ const unstarr_it = (username, repoName) => {
     return api.delete(`repository/unstarr_it/${username}/${repoName}/`);
 }
 
-const get = (username, repoName) => {
-    return api.get(`repository/data/${username}/${repoName}`);
+const get = (username, repoName,logged_user) => {
+    return api.get(`repository/data/${username}/${repoName}/${logged_user}`);
 }
 
 const getAllQueryRepos = (query,username) => {
