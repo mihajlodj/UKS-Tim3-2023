@@ -21,8 +21,9 @@
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
                     </button>
-                    <button type="button" class="btn btn-right">
-                        <font-awesome-icon icon="fa-regular fa-star" class="me-1" />
+                    <button @click="toggleStar" type="button" class="btn btn-right" style="background:gray;color:white">
+                        <font-awesome-icon v-if="!isStarred" icon="fa-regular fa-star" style="color: #b1aaaa;" />
+                        <i v-if="isStarred" class="bi bi-star-fill" style="color:yellow"/>
                         Star
                     </button>
                 </div>
@@ -140,7 +141,7 @@ export default {
     },
 
     mounted() {
-        RepositoryService.get(this.$route.params.username, this.$route.params.repoName).then(res => {
+        RepositoryService.get(this.$route.params.username, this.$route.params.repoName,localStorage.getItem("username")).then(res => {
             this.repo.name = res.data.name;
             this.repo.description = res.data.description;
             this.repo.accessModifier = res.data.access_modifier;
@@ -148,6 +149,9 @@ export default {
             this.repo.ssh = res.data.ssh;
             this.repo.defaultBranch = res.data.default_branch;
             this.repo.commitsOverview = res.data.commits_overview;
+            this.isStarred = res.data.star
+            console.log(res.data.star);
+            
 
             if (res.data.forked_from !== null && res.data.forked_from !== undefined) {
                 this.repo.forkedFrom = {
@@ -221,6 +225,7 @@ export default {
             httpChosen: true,
             contentKey: 1,
             allowed: 'not_set',
+            isStarred: false,
         }
     },
 
@@ -288,7 +293,26 @@ export default {
         viewOriginalRepo() {
             let route = this.$router.resolve({path: `/view/${this.repo.forkedFrom.ownerUsername}/${this.repo.forkedFrom.repositoryName}`});
             window.open(route.href, '_blank')
-        }
+        },
+        toggleStar() {
+            this.isStarred = !this.isStarred;
+            if(this.isStarred)
+                RepositoryService.starr_it(localStorage.getItem('username'),this.repo.name)
+                    .then(res => {
+                            console.log(res.data)
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+            else
+                RepositoryService.unstarr_it(localStorage.getItem('username'),this.repo.name)
+                    .then(res => {
+                            console.log(res.data)
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+            }
     },
 
     computed: {
