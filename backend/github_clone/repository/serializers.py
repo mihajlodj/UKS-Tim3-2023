@@ -1,24 +1,29 @@
 import threading
-from django.http import Http404
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
 from django.core.validators import RegexValidator
 
 from main import gitea_service
-from main.gitea_service import create_repository, update_repository
-from main.models import Project, AccessModifiers, Branch, WorksOn, Developer
+from main.models import Project, AccessModifiers, Branch, Role, WorksOn, Developer, Fork
 from django.contrib.auth.models import User
 
 
 class RepositorySerializer(serializers.Serializer):
     name = serializers.CharField(required=True, allow_blank=False, max_length=255, 
-                                 validators=[UniqueValidator(queryset=Project.objects.all()), 
-                                             RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid repository name", code="invalid_repo_name")])
+                                 validators=[RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid repository name", code="invalid_repo_name")])
     description = serializers.CharField(required=False, allow_blank=True)
     access_modifier = serializers.ChoiceField(choices=AccessModifiers, default='Public')
     default_branch_name = serializers.CharField(required=False, allow_blank=True, max_length=255,
                                                 validators=[RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid branch name", code="invalid_branch_name")])
 
+    def validate_name(self, value):
+        username = self.context['request'].auth.get('username', None)
+        repos = Project.objects.filter(name=value)
+        for repo in repos:
+            if WorksOn.objects.filter(developer__user__username=username, project=repo, role=Role.OWNER).exists():
+                raise serializers.ValidationError("Repository with this name already exists for this owner.")
+        return value
+
+    
     def create(self, validated_data):
         branch_name = 'main'
         if 'default_branch_name' in validated_data and validated_data['default_branch_name'] != '':
@@ -33,24 +38,6 @@ class RepositorySerializer(serializers.Serializer):
         threading.Thread(target=self.gitea_create, args=([project, branch_name, username]), kwargs={}).start()
         return project
     
-    def update(self, instance, validated_data):
-        old_name = instance.name
-        instance.name = validated_data.get('name', instance.name)
-        instance.description = validated_data.get('description', instance.description)
-
-        branch_name = validated_data.get('default_branch_name', instance.default_branch.name)
-        if branch_name != instance.default_branch.name:
-            if Branch.objects.filter(name=branch_name, project=instance).exists():
-                branch = Branch.objects.get(name=branch_name, project=instance)
-                if branch:
-                    instance.default_branch = branch
-            else:
-                raise Http404()
-        instance.access_modifier = validated_data.get('access_modifier', instance.access_modifier)
-        instance.save()
-        owner_username = WorksOn.objects.get(project__name=instance.name, role='Owner').developer.user.username
-        self.gitea_update(owner_username, instance, old_name)
-        return instance
 
     def gitea_create(self, project, branch_name, username):
         description = ''
@@ -65,9 +52,6 @@ class RepositorySerializer(serializers.Serializer):
             'name': project.name,
             'private': private
         }, username)
-
-    def gitea_update(self, owner, repository, old_name):
-        update_repository(owner, repository, old_name)
     
     
 class UserSerializer(serializers.ModelSerializer):

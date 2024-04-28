@@ -9,13 +9,13 @@ from rest_framework import generics, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from developer import service
 from developer.serializers import DeveloperSerializer, UserSerializer
 from branch.serializers import BranchSerializer
 from main import gitea_service
-from main.models import Invitation, WorksOn
+from main.models import Invitation, Role, WorksOn
 from main.models import Developer, SecondaryEmail, Commit, Watches
 from main.gitea_service import get_gitea_user_info_gitea_service
 from main import permissions
@@ -51,6 +51,17 @@ def add_new_email(request, username):
     return Response(status=status.HTTP_201_CREATED)
 
 
+@api_view(['PATCH'])
+@permission_classes([IsAdminUser])
+def update_user_ban_status(request, user_to_ban_unban):
+    developer = Developer.objects.get(user__username=user_to_ban_unban)
+    if developer is None:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    developer.banned = not developer.banned
+    developer.save()
+    return Response(status=status.HTTP_200_OK)
+
+
 @api_view(['GET'])
 def get_all_devs(request, query):
     repositories = None
@@ -71,7 +82,8 @@ def get_all_devs(request, query):
     all_results = Developer.objects.all()
     results = []
     for result in all_results:
-        if result.user.username.lower().__contains__(query.lower()):
+        if result.user.username.lower().__contains__(query.lower()) and result.user.username != os.environ.get(
+                "GITEA_ADMIN_USERNAME"):
             results.append(result)
 
     if len(results) > 0:
@@ -80,9 +92,10 @@ def get_all_devs(request, query):
             isExcluded = False
             developer_serializer = DeveloperSerializer(result)
             developer = developer_serializer.data
-
             if repositories is not None:
-                allUserRepos = len(Watches.objects.filter(developer__user__username__contains=developer['user']['username'],developer__workson__role__exact="Owner"))
+                allUserRepos = len(
+                    Watches.objects.filter(developer__user__username__contains=developer['user']['username'],
+                                           developer__workson__role__exact="Owner"))
                 if allUserRepos < repositories:
                     isExcluded = True
             if not isExcluded:
@@ -111,8 +124,6 @@ def get_all_commits(request, query):
             created_date = datetime.strptime(part.split('created:', 1)[1].strip(), '%d-%m-%Y').date()
         else:
             query = part.strip()
-
-
 
     cache_key = f"commit_query:{query}{owner}{committer}{created_date}"
     cached_data = cache.get(cache_key)
@@ -281,13 +292,26 @@ def get_developers_emails(request, username):
 
 
 @api_view(['GET'])
-def get_developers(request, repository_name):
-    developers = Developer.objects.filter()
+def get_developers(request, owner_username, repository_name):
+    developers = Developer.objects.filter(banned=False)
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).project
     result = [{
         'username': d.user.username,
         'avatar': service.get_dev_avatar(d.user.username),
         'email': d.user.email
-        } for d in developers
-        if not WorksOn.objects.filter(developer=d, project__name=repository_name).exists()
-            and not Invitation.objects.filter(developer=d, project__name=repository_name).exists()]
+    } for d in developers
+        if not WorksOn.objects.filter(developer=d, project=project).exists()
+           and not Invitation.objects.filter(developer=d, project=project).exists()]
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_developer_roles(request, username):
+    works_on_list = WorksOn.objects.filter(developer__user__username=username)
+    result = [{
+        'repository': obj.project.name,
+        'role': obj.role
+    } for obj in works_on_list]
     return Response(result, status=status.HTTP_200_OK)

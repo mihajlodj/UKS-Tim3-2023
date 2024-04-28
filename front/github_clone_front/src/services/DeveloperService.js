@@ -54,10 +54,18 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
-const getDevelopers = (repoName) => {
-    return api.get(`developer/all/${repoName}`);
+const getDevelopers = (username, repoName) => {
+    return api.get(`developer/all/${username}/${repoName}`);
+}
+
+const getRoles = (username) => {
+    return api.get(`developer/roles/${username}`);
+}
+
+const update_user_ban_status = (username) => {
+    return api.patch(`developer/update_user_ban_status/${username}`);
 }
 
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress
-    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers};
+    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers, getRoles,update_user_ban_status};

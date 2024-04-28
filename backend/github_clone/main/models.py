@@ -51,6 +51,7 @@ class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gitea_token = models.CharField(max_length=255, null=True, blank=True)
     avatar = models.CharField(max_length=1000, null=True, blank=True)
+    banned = models.BooleanField(default=False)
 
 
 class Assignment(Event):
@@ -65,7 +66,7 @@ class Task(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
     timestamp = models.DateTimeField(default=timezone.now)
@@ -147,7 +148,8 @@ class Watches(models.Model):
 
 class Fork(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    source = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='source', null=True)
+    destination = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='destination', null=True)
 
 
 class Stars(models.Model):
@@ -181,4 +183,5 @@ class RegistrationCandidate(models.Model):
 class Invitation(models.Model):
     developer = models.ForeignKey(Developer, null=False, blank=False, related_name='invited_developer', on_delete=models.DO_NOTHING)
     project = models.ForeignKey(Project, null=False, blank=False, related_name='invited_to', on_delete=models.DO_NOTHING)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
     timestamp = models.DateTimeField(default=timezone.now)

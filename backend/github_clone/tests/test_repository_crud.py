@@ -1,3 +1,4 @@
+import json
 import pytest
 from django.contrib.auth.models import User
 
@@ -151,7 +152,7 @@ def test_create_repo_duplicate_name(get_token):
     }
     response = client.post(url, repo_data, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data['name'][0] == 'This field must be unique.'
+    assert response.data['name'][0] == 'Repository with this name already exists for this owner.'
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
     assert Branch.objects.count() == 2
@@ -195,22 +196,22 @@ def test_delete_repo_does_not_exist(get_token):
 def disable_gitea_update(monkeypatch):
     def mock_gitea_update(*args, **kwargs):
         return
-
-    monkeypatch.setattr(RepositorySerializer, 'gitea_update', mock_gitea_update)
+    monkeypatch.setattr(gitea_service, 'update_repository', mock_gitea_update)
     yield
+
 @pytest.mark.django_db
 def test_update_repo_success(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name',
-        'description': fake.text,
+        'description': "Fake text",
         'access_modifier': 'Public',
         'default_branch_name': 'develop',
     }
-    response = client.patch(url, repo_data, headers=headers)
+    response = client.patch(url, content_type='application/json', data=json.dumps(repo_data), headers=headers)
     assert response.status_code == status.HTTP_200_OK
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
@@ -225,14 +226,14 @@ def test_update_repo_invalid_name(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name bad',
-        'description': fake.text,
+        'description': "Fake text",
         'access_modifier': 'Public',
         'default_branch_name': 'develop',
     }
-    response = client.patch(url, repo_data, headers=headers)
+    response = client.patch(url, content_type='application/json', data=json.dumps(repo_data), headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
@@ -248,14 +249,14 @@ def test_update_repo_branch_does_not_exist(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name',
-        'description': fake.text,
+        'description': "Fake text",
         'access_modifier': 'Public',
         'default_branch_name': 'master',
     }
-    response = client.patch(url, repo_data, headers=headers)
+    response = client.patch(url, content_type='application/json', data=json.dumps(repo_data), headers=headers)
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1

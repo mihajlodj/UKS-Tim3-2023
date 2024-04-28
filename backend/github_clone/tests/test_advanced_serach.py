@@ -83,7 +83,7 @@ def test_get_all_devs(setup_data):
 def test_get_all_repos(setup_data):
     factory = APIRequestFactory()
     request = factory.get('/api/repository/')
-    response = get_all_repos(request, query="pro")
+    response = get_all_repos(request, query="pro",username="john_doe")
     assert response.status_code == status.HTTP_200_OK
     assert response.data
     assert len(response.data) == 2

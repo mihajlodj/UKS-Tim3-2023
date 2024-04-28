@@ -12,12 +12,13 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Developer, Branch, Invitation, Commit,Watches
+from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
 from datetime import datetime
 from . import service
+import re
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -36,15 +37,76 @@ class ReadOwnerView(generics.RetrieveAPIView):
         return Developer.objects.get(user__username=owner_username)
 
 
-class UpdateRepositoryView(generics.UpdateAPIView):
-    queryset = Project.objects.all()
-    permission_classes = (IsAuthenticated, permissions.CanEditRepository,)
-    serializer_class = RepositorySerializer
-    lookup_field = 'name'
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def update_repo(request, owner_username, repository_name):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                      role=Role.OWNER).filter()
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    project = works_on.first().project
+    json_data = json.loads(request.body.decode('utf-8'))
+    new_name = json_data.get('name', project.name)
+    if new_name != repository_name:
+        if WorksOn.objects.filter(developer__user__username=owner_username, project__name=new_name).exists():
+            return Response("Repository with that name already exists", status=status.HTTP_400_BAD_REQUEST)
+    new_description = json_data.get('description', project.description)
+    new_access_modifier = json_data.get('access_modifier', project.access_modifier)
+    new_default_branch_name = json_data.get('default_branch_name', project.default_branch.name)
+    pattern = re.compile(r'^[a-zA-Z][\w-]*$')
+    if not pattern.match(new_name) or not pattern.match(new_default_branch_name) or (
+            new_access_modifier != AccessModifiers.PRIVATE and new_access_modifier != AccessModifiers.PUBLIC):
+        return Response("Invalid data", status=status.HTTP_400_BAD_REQUEST)
+    project.name = new_name
+    project.description = new_description
+    project.access_modifier = new_access_modifier
+
+    if new_default_branch_name != project.default_branch.name:
+        if Branch.objects.filter(name=new_default_branch_name, project=project).exists():
+            branch = Branch.objects.get(name=new_default_branch_name, project=project)
+            project.default_branch = branch
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    project.save()
+    threading.Thread(target=gitea_service.update_repository, args=([owner_username, project, repository_name]),
+                     kwargs={}).start()
+    return Response(
+        {'name': project.name, 'description': project.description, 'access_modifier': project.access_modifier},
+        status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def unstarr_it(request, username, repository_name):
+    try:
+        star = Stars.objects.get(project__name=repository_name, developer__user__username__exact=username)
+        star.delete()
+        # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
+        cache.clear()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def starr_it(request, username, repository_name):
+    try:
+        project = Project.objects.get(name=repository_name)
+        developer = Developer.objects.get(user__username__exact=username)
+        star = Stars.objects.create(project=project, developer=developer)
+        star.save()
+        # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
+        cache.clear()
+        return Response(status=status.HTTP_200_OK)
+    except Exception as ex:
+        print(ex)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
-def get_all_repos(request, query):
+def get_all_repos(request, query, username):
     owner = ''
     is_public = None
     followers = None
@@ -115,8 +177,15 @@ def get_all_repos(request, query):
                     results = results.exclude(project__name__exact=project['name'])
                     isExcluded = True
 
+            starred = True
+            try:
+                starred_instance = Stars.objects.get(developer__user__username__exact=username,
+                                                     project__name__exact=project['name'])
+            except:
+                starred = False
+
             if not isExcluded:
-                serialized_data.append({'developer': developer, 'project': project})
+                serialized_data.append({'developer': developer, 'project': project, 'starred': starred})
 
         cache.set(cache_key, serialized_data, timeout=30)
 
@@ -148,14 +217,38 @@ def get_all_users_repo(request, owner_username):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_starred_user_repos(request, username):
+    starred_repos = []
+    for temp_repo in Stars.objects.filter(developer__user__username__exact=username):
+        repo = Project.objects.get(id=temp_repo.project_id)
+        is_private = repo.access_modifier == AccessModifiers.PRIVATE
+        result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
+                  'default_branch': repo.default_branch.name}
+        starred_repos.append(result)
+    return Response(starred_repos, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
 @permission_classes([AllowAny])
-def get_repo_data_for_display(request, owner_username, repository_name):
-    repo = Project.objects.get(name=repository_name)
+def get_repo_data_for_display(request, owner_username, repository_name, logged_user):
+    star = True
+    try:
+        starred_instance = Stars.objects.get(developer__user__username__exact=logged_user,
+                                             project__name__exact=repository_name)
+    except:
+        star = False
+
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                      role=Role.OWNER)
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    repo = works_on.first().project
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'],
-              'ssh': gitea_repo_data['ssh_url'], 'branches': []}
-    branches = Branch.objects.filter(project__name=repository_name)
+              'ssh': gitea_repo_data['ssh_url'], 'branches': [], 'star': star}
+    branches = Branch.objects.filter(project=repo)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names
 
@@ -174,18 +267,28 @@ def get_repo_data_for_display(request, owner_username, repository_name):
                 'timestamp': latest_commit_obj.timestamp,
 
             }
-        branch_commits_overview[branch.name] = {
-            'latest_commit': latest_commit,
-            'num_commits': len(branch_commits)
-        }
+            branch_commits_overview[branch.name] = {
+                'latest_commit': latest_commit,
+                'num_commits': len(branch_commits)
+            }
     result['commits_overview'] = branch_commits_overview
+
+    if Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).exists():
+        source_repo = Fork.objects.filter(developer__user__username=owner_username,
+                                          destination__name=repository_name).first().source
+        source_repo_owner = WorksOn.objects.get(project=source_repo, role=Role.OWNER).developer.user.username
+        result['forked_from'] = {
+            'repository_name': source_repo.name,
+            'owner_username': source_repo_owner
+        }
     return Response(result, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def is_users_repo(request, owner_username, repository_name):
-    worksOn = WorksOn.objects.get(developer__user__username__exact=owner_username, role__exact=Role.OWNER, project__name=repository_name)
+    worksOn = WorksOn.objects.get(developer__user__username__exact=owner_username, role__exact=Role.OWNER,
+                                  project__name=repository_name)
     result = False
     if worksOn:
         result = True
@@ -201,10 +304,15 @@ def get_root_files(request, owner_username, repository_name, ref):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     result = gitea_service.get_root_content(owner_username, repository_name, ref)
+
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                   role=Role.OWNER)
+    repository = works_on.project
+
     for item in result:
         last_commit_sha = item['last_commit_sha']
-        if Commit.objects.filter(hash=last_commit_sha).exists():
-            last_commit = Commit.objects.get(hash=last_commit_sha)
+        if Commit.objects.filter(branch__project=repository, hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(branch__project=repository, hash=last_commit_sha)
             item['last_commit_message'] = last_commit.message
             item['last_commit_timestamp'] = last_commit.timestamp
         else:
@@ -226,11 +334,15 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
     if cached_data is not None:
         return Response(cached_data, status=status.HTTP_200_OK)
 
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                   role=Role.OWNER)
+    repository = works_on.project
+
     result = gitea_service.get_folder_content(owner_username, repository_name, branch, path)
     for item in result:
         last_commit_sha = item['last_commit_sha']
-        if Commit.objects.filter(hash=last_commit_sha).exists():
-            last_commit = Commit.objects.get(hash=last_commit_sha)
+        if Commit.objects.filter(branch__project=repository, hash=last_commit_sha).exists():
+            last_commit = Commit.objects.get(branch__project=repository, hash=last_commit_sha)
             item['last_commit_message'] = last_commit.message
             item['last_commit_timestamp'] = last_commit.timestamp
         else:
@@ -248,14 +360,13 @@ def get_folder_files(request, owner_username, repository_name, branch, path):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, permissions.CanDeleteRepository])
 def delete_repo(request, owner_username, repository_name):
-    if not Project.objects.filter(name=repository_name).exists():
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    repository = Project.objects.get(name=repository_name)
-    works_on_list = WorksOn.objects.filter(project__name=repository_name)
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).project
+    works_on_list = WorksOn.objects.filter(project=project)
     for item in works_on_list:
         item.delete()
     gitea_service.delete_repository(owner_username, repository_name)
-    repository.delete()
+    project.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -308,7 +419,7 @@ def delete_file(request, owner_username, repository_name, path):
             'sha': old_file['sha']
         }
         commit_sha = gitea_service.delete_file(owner_username, repository_name, path, commit_data)
-        save_commit(request, repository_name, json_data, timestamp, commit_sha)
+        save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -333,7 +444,7 @@ def create_file(request, owner_username, repository_name, path):
             'message': json_data['message'],
         }
         commit_sha = gitea_service.create_file(owner_username, repository_name, path, commit_data)
-        save_commit(request, repository_name, json_data, timestamp, commit_sha)
+        save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -362,7 +473,7 @@ def edit_file(request, owner_username, repository_name, path):
             'sha': old_file['sha']
         }
         commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
-        save_commit(request, repository_name, json_data, timestamp, commit_sha)
+        save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -386,7 +497,7 @@ def upload_files(request, owner_username, repository_name):
             'message': json_data['message'],
         }
         commit_sha = gitea_service.upload_files(owner_username, repository_name, commit_data)
-        save_commit(request, repository_name, json_data, timestamp, commit_sha)
+        save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -417,18 +528,20 @@ def upload_files(request, owner_username, repository_name):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
-def invite_collaborator(request, repository_name, invited_username):
+def invite_collaborator(request, owner_username, repository_name, invited_username):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                      role=Role.OWNER)
     developer = Developer.objects.filter(user__username=invited_username)
-    project = Project.objects.filter(name=repository_name)
-    if developer.exists() and project.exists:
+    if developer.exists() and works_on.exists():
         developer = developer.first()
-        project = project.first()
+        project = works_on.first().project
         if WorksOn.objects.filter(developer=developer, project=project):
             return Response("User already works on repository", status=status.HTTP_400_BAD_REQUEST)
         if Invitation.objects.filter(developer=developer, project=project):
             return Response("User already invited to repository", status=status.HTTP_400_BAD_REQUEST)
 
-        service.invite_collaborator(developer, request.user.username, project)
+        json_data = json.loads(request.body.decode('utf-8'))
+        service.invite_collaborator(developer, request.user.username, project, json_data['role'])
 
         collaborator = {
             'username': developer.user.username,
@@ -443,34 +556,46 @@ def invite_collaborator(request, repository_name, invited_username):
 @permission_classes([IsAuthenticated])
 def respond_to_invitation(request, owner_username, repository_name, invited_username, choice):
     developer = Developer.objects.filter(user__username=invited_username)
-    project = Project.objects.filter(name=repository_name)
-    invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
-    if developer.exists() and project.exists and invitation.exists():
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                      role=Role.OWNER)
+    if developer.exists() and works_on.exists():
         developer = developer.first()
-        project = project.first()
+        project = works_on.first().project
+        invitation = Invitation.objects.filter(developer__user__username=invited_username, project=project)
+        if not invitation.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
         invitation = invitation.first()
 
-        Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name).delete()
-
         if (choice == 'accept'):
-            WorksOn.objects.create(developer=developer, project=project, role=Role.DEVELOPER)
-            threading.Thread(target=gitea_service.add_collaborator, args=([owner_username, repository_name, invited_username]), kwargs={}).start()
+            WorksOn.objects.create(developer=developer, project=project, role=invitation.role)
+            gitea_permissions = 'write'
+            if (invitation.role == 'READONLY'):
+                gitea_permissions = 'read'
+            threading.Thread(target=gitea_service.add_collaborator,
+                             args=([owner_username, repository_name, invited_username, gitea_permissions]),
+                             kwargs={}).start()
+
+        Invitation.objects.filter(developer__user__username=invited_username, project=project).delete()
+
         return Response(status=status.HTTP_200_OK)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_invitation(request, repository_name, invited_username):
+def get_invitation(request, owner_username, repository_name, invited_username):
     if request.user.username != invited_username:
         return Response(status=status.HTTP_401_UNAUTHORIZED)
-    project = Project.objects.filter(name=repository_name)
-    invitation = Invitation.objects.filter(developer__user__username=invited_username, project__name=repository_name)
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                      role=Role.OWNER)
+    if not works_on.exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    project = works_on.first().project
+    invitation = Invitation.objects.filter(developer__user__username=invited_username, project=project)
     invited_user = Developer.objects.filter(user__username=invited_username)
-    if invitation.exists() and project.exists and invited_user.exists():
+    if invitation.exists() and invited_user.exists():
         invitation = invitation.first()
-        project = project.first()
-        owner = WorksOn.objects.filter(project=project, role=Role.OWNER).first().developer
+        owner = works_on.first().developer
         result = {
             'owner_username': owner.user.username,
             'owner_avatar': developer_service.get_dev_avatar(owner.user.username),
@@ -483,19 +608,25 @@ def get_invitation(request, repository_name, invited_username):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanViewRepository])
 def get_collaborators_and_pending_invitations(request, owner_username, repository_name):
-    works_on_list = WorksOn.objects.filter(project__name=repository_name)
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).project
+    works_on_list = WorksOn.objects.filter(project=project)
     result = [{
         'username': elem.developer.user.username,
         'avatar': developer_service.get_dev_avatar(elem.developer.user.username),
-        'role': elem.role
+        'role': elem.role,
+        'email': elem.developer.user.email,
+        'isBanned': elem.developer.banned
     } for elem in works_on_list if elem.developer.user.username != owner_username]
 
-    pending_invitations = Invitation.objects.filter(project__name=repository_name)
+    pending_invitations = Invitation.objects.filter(project=project)
     for invitation in pending_invitations:
         result.append({
             'username': invitation.developer.user.username,
             'avatar': developer_service.get_dev_avatar(invitation.developer.user.username),
-            'role': 'Pending'
+            'role': 'Pending',
+            'email': invitation.developer.user.email,
+            'isBanned': invitation.developer.banned
         })
     return Response(result, status=status.HTTP_200_OK)
 
@@ -503,23 +634,99 @@ def get_collaborators_and_pending_invitations(request, owner_username, repositor
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
 def remove_collaborator(request, owner_username, repository_name, collaborator_username):
-    if WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():
-        worksOn = WorksOn.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
-        if worksOn.role != Role.OWNER:
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).project
+    if WorksOn.objects.filter(project=project, developer__user__username=collaborator_username).exists():
+        worksOn = WorksOn.objects.filter(project=project, developer__user__username=collaborator_username).first()
+        if worksOn.role != Role.OWNER and collaborator_username != request.user.username:
             worksOn.delete()
-            threading.Thread(target=gitea_service.delete_collaborator, args=([owner_username, repository_name, collaborator_username]), kwargs={}).start()
+            threading.Thread(target=gitea_service.delete_collaborator,
+                             args=([owner_username, repository_name, collaborator_username]), kwargs={}).start()
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
-    if Invitation.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).exists():
-        invitation = Invitation.objects.filter(project__name=repository_name, developer__user__username=collaborator_username).first()
+    if Invitation.objects.filter(project=project, developer__user__username=collaborator_username).exists():
+        invitation = Invitation.objects.filter(project=project, developer__user__username=collaborator_username).first()
         invitation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-def save_commit(request, repository_name, json_data, timestamp, commit_sha):
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanInviteCollaborator])
+def change_role(request, owner_username, repository_name, collaborator_username):
+    developer = Developer.objects.filter(user__username=collaborator_username)
+    project = Project.objects.filter(name=repository_name)
+    if developer.exists() and project.exists():
+        developer = developer.first()
+        project = project.first()
+        if not WorksOn.objects.filter(developer=developer, project=project):
+            return Response("User not a collaborator", status=status.HTTP_400_BAD_REQUEST)
+        works_on = WorksOn.objects.filter(developer=developer, project=project).first()
+
+        new_role = json.loads(request.body.decode('utf-8'))['role']
+        if new_role != Role.READONLY and new_role != Role.DEVELOPER and new_role != Role.MAINTAINER:
+            return Response("Invalid role", status=status.HTTP_400_BAD_REQUEST)
+
+        if new_role != works_on.role:
+            works_on.role = new_role
+            works_on.save()
+
+            gitea_permissions = 'write'
+            if (new_role == Role.READONLY):
+                gitea_permissions = 'read'
+            threading.Thread(target=gitea_service.change_collaborator_role,
+                             args=([owner_username, repository_name, collaborator_username, gitea_permissions]),
+                             kwargs={}).start()
+        return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanTransferOwnership])
+def transfer_ownership(request, owner_username, repository_name):
+    new_owner_username = json.loads(request.body.decode('utf-8'))['new_owner']
+    works_on_old_owner = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                                role=Role.OWNER)
+    works_on_new_owner = WorksOn.objects.filter(developer__user__username=new_owner_username,
+                                                project__name=repository_name)
+    if (not works_on_old_owner.exists() or not works_on_new_owner.exists()):
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).project
+    old_owner = WorksOn.objects.get(developer__user__username=owner_username, project=project, role=Role.OWNER)
+    new_owner = WorksOn.objects.get(developer__user__username=new_owner_username, project=project)
+    old_owner.role = Role.MAINTAINER
+    new_owner.role = Role.OWNER
+    old_owner.save()
+    new_owner.save()
+    threading.Thread(target=gitea_service.transfer_ownership,
+                     args=([owner_username, repository_name, new_owner_username]), kwargs={}).start()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def fork(request, owner_username, repository_name):
+    if owner_username == request.user.username:
+        return Response("Cannot fork own repository", status=status.HTTP_400_BAD_REQUEST)
+    if not WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).exists():
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                   role=Role.OWNER)
+    new_repo_info = json.loads(request.body.decode('utf-8'))
+
+    new_owner = Developer.objects.get(user__username=request.user.username)
+    repository = works_on.project
+
+    service.fork(repository, new_repo_info, owner_username, new_owner)
+    return Response(status=status.HTTP_200_OK)
+
+
+def save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha):
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
+                                  role=Role.OWNER).project
     author = Developer.objects.get(user__username=request.user.username)
-    branch = Branch.objects.get(project__name=repository_name, name=json_data['branch'])
+    branch = Branch.objects.get(project=project, name=json_data['branch'])
     Commit.objects.create(hash=commit_sha, author=author, committer=author, branch=branch, timestamp=timestamp,
                           message=json_data['message'], additional_description=json_data['additional_text'])
-

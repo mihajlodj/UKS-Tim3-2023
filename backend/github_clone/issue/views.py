@@ -15,7 +15,7 @@ from issue.serializers import IssueSerializer, serialize_issue
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from milestone.serializers import MilestoneSerializer
 from main import permissions
-from main.models import Developer, Issue, Project, Milestone, WorksOn
+from main.models import Developer, Issue, Project, Milestone, Role, WorksOn
 from django.core.cache import cache
 
 gitea_base_url = settings.GITEA_BASE_URL
@@ -158,10 +158,12 @@ def close_issue(request, repo_name, pk):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_issues(request, repo_name):
-    projectName = repo_name
+def get_issues(request, owner_username, repo_name):
+    works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repo_name, role=Role.OWNER)
+    if not works_on.exists():
+        return JsonResponse([], safe=False, status=200)
     data = []
-    for issue in Issue.objects.filter(project__name=projectName).values():
+    for issue in Issue.objects.filter(project=works_on.first().project).values():
         data.append({
             'id': issue['id'],
             'title': issue['title'],

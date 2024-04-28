@@ -17,15 +17,23 @@
                         <font-awesome-icon icon="fa-regular fa-eye" class="me-1" />
                         Watch
                     </button>
-                    <button type="button" class="btn btn-right me-2">
+                    <button v-if="!isUsersRepo()" type="button" class="btn btn-right me-2" @click="fork">
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
                     </button>
-                    <button type="button" class="btn btn-right">
-                        <font-awesome-icon icon="fa-regular fa-star" class="me-1" />
+                    <button @click="toggleStar" type="button" class="btn btn-right" style="background:gray;color:white">
+                        <font-awesome-icon v-if="!isStarred" icon="fa-regular fa-star" style="color: #b1aaaa;" />
+                        <i v-if="isStarred" class="bi bi-star-fill" style="color:yellow"/>
                         Star
                     </button>
                 </div>
+            </div>
+
+            <div v-if="repo.forkedFrom" class="d-flex justify-content-start mx-4">
+                <span class="ms-3">Forked from</span>
+                <button type="button" class="btn-forked-from" @click="viewOriginalRepo">
+                    {{ repo.forkedFrom.ownerUsername }}/{{ repo.forkedFrom.repositoryName }}
+                </button>
             </div>
 
             <hr class="mx-4">
@@ -55,22 +63,24 @@
 
                         <div class="d-flex justify-content-end">
 
-                            <button class="btn nav-link dropdown-toggle btn-gray me-2" type="button" role="button"
-                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Add file
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <button class="btn dropdown-item" @click="createNewFile">
-                                        <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="btn dropdown-item" @click="uploadFiles">
-                                        <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
-                                    </button>
-                                </li>
-                            </ul>
+                            <div v-if="canAddFiles()">
+                                <button class="btn nav-link dropdown-toggle btn-gray me-2" type="button" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    Add file
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li>
+                                        <button class="btn dropdown-item" @click="createNewFile">
+                                            <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button class="btn dropdown-item" @click="uploadFiles">
+                                            <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
+                                        </button>
+                                    </li>
+                                </ul>
+                            </div>
 
 
                             <button type="button" :class="(httpChosen) ? 'btn btn-chosen' : 'btn'"
@@ -82,7 +92,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div v-if="repo.commitsOverview[repo.chosenBranch] !== undefined">
                         <CommitsOverview class="mt-3"
                             :latestCommit="repo.commitsOverview[repo.chosenBranch].latest_commit"
                             :numCommits="repo.commitsOverview[repo.chosenBranch].num_commits"
@@ -131,7 +141,7 @@ export default {
     },
 
     mounted() {
-        RepositoryService.get(this.$route.params.username, this.$route.params.repoName).then(res => {
+        RepositoryService.get(this.$route.params.username, this.$route.params.repoName,localStorage.getItem("username")).then(res => {
             this.repo.name = res.data.name;
             this.repo.description = res.data.description;
             this.repo.accessModifier = res.data.access_modifier;
@@ -139,6 +149,18 @@ export default {
             this.repo.ssh = res.data.ssh;
             this.repo.defaultBranch = res.data.default_branch;
             this.repo.commitsOverview = res.data.commits_overview;
+            this.isStarred = res.data.star
+            console.log(res.data.star);
+            
+
+            if (res.data.forked_from !== null && res.data.forked_from !== undefined) {
+                this.repo.forkedFrom = {
+                    ownerUsername: res.data.forked_from.owner_username,
+                    repositoryName: res.data.forked_from.repository_name
+                };
+            } else {
+                this.repo.forkedFrom = null;
+            }
 
             this.repo.chosenBranch = res.data.default_branch;
             if (this.$route.query.chosen) {
@@ -203,6 +225,7 @@ export default {
             httpChosen: true,
             contentKey: 1,
             allowed: 'not_set',
+            isStarred: false,
         }
     },
 
@@ -219,6 +242,10 @@ export default {
             this.contentKey += 1;
         },
 
+        isUsersRepo() {
+            return localStorage.getItem("username") === this.$route.params.username;
+        },
+
         selectedBranchChanged(branchName) {
             this.repo.chosenBranch = branchName;
             this.forceRerender();
@@ -229,6 +256,10 @@ export default {
             this.repo.displayRoot = "false";
             console.log(this.repo.foldersPath);
             this.forceRerender();
+        },
+
+        fork() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/fork`)
         },
 
         returnToParent() {
@@ -252,7 +283,36 @@ export default {
 
         uploadFiles() {
             this.$router.push(`/${this.$route.params.username}/${this.$route.params.repoName}/upload/${this.repo.chosenBranch}`);
-        }
+        },
+
+        canAddFiles() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
+        },
+
+        viewOriginalRepo() {
+            let route = this.$router.resolve({path: `/view/${this.repo.forkedFrom.ownerUsername}/${this.repo.forkedFrom.repositoryName}`});
+            window.open(route.href, '_blank')
+        },
+        toggleStar() {
+            this.isStarred = !this.isStarred;
+            if(this.isStarred)
+                RepositoryService.starr_it(localStorage.getItem('username'),this.repo.name)
+                    .then(res => {
+                            console.log(res.data)
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+            else
+                RepositoryService.unstarr_it(localStorage.getItem('username'),this.repo.name)
+                    .then(res => {
+                            console.log(res.data)
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+            }
     },
 
     computed: {
@@ -333,5 +393,12 @@ input {
 
 .search {
     height: 35px;
+}
+
+.btn-forked-from {
+    background: none;
+    border: none;
+    color: #488ae7;
+    text-decoration: underline;
 }
 </style>

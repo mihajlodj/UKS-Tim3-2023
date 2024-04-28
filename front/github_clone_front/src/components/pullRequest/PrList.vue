@@ -5,7 +5,7 @@
             <div class="contain">
                 <div class="d-flex justify-content-between mt-5">
                     <FilterBar />
-                    <div class="d-flex justify-content-end">
+                    <div v-if="canCreatePull()" class="d-flex justify-content-end">
                         <button type="button" class="btn-create py-2 px-3" @click="$router.push('compare')">
                             New pull request
                         </button>
@@ -26,7 +26,7 @@
                             </button>
                         </div>
 
-                        <div class="col" v-if="!selected.every(value => value === false)">
+                        <div v-if="canCreatePull() && !selected.every(value => value === false)" class="col">
                             <button class="nav-link dropdown-toggle bright me-2" type="button" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 Mark as
@@ -116,7 +116,7 @@ export default {
 
     mounted() {
         /* eslint-disable */
-        PullRequestService.getAll(this.$route.params.repoName).then(res => {
+        PullRequestService.getAll(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.openPulls = res.data.filter(x => x.status === "Open");
             this.closedPulls = res.data.filter(x => x.status !== "Open");
             this.pulls = this.openPulls;
@@ -150,6 +150,11 @@ export default {
             this.unselect();
         },
 
+        canCreatePull() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner" || role === "Developer" || role === "Maintainer";
+        },
+
         setChecked(i) {
             this.selected[i] = !this.selected[i];
             if (this.selected.every(value => value === true)) {
@@ -174,7 +179,7 @@ export default {
                 this.selected.forEach((value, index) => {
                     if (value) ids.push(this.pulls[index].id);
                 });
-                PullRequestService.markClosed(this.$route.params.repoName, {ids}).then(res => {
+                PullRequestService.markClosed(this.$route.params.username, this.$route.params.repoName, {ids}).then(res => {
                     console.log(res);
                     let remainingObjects = this.openPulls.filter(obj => {
                         if (ids.includes(obj.id)) {
@@ -200,7 +205,7 @@ export default {
                 this.selected.forEach((value, index) => {
                     if (value) ids.push(this.pulls[index].id);
                 });
-                PullRequestService.markOpen(this.$route.params.repoName, {ids}).then(res => {
+                PullRequestService.markOpen(this.$route.params.username, this.$route.params.repoName, {ids}).then(res => {
                     console.log(res);
                     let remainingObjects = this.closedPulls.filter(obj => {
                         if (ids.includes(obj.id)) {

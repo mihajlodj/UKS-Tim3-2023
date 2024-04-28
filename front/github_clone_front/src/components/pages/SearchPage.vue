@@ -51,6 +51,7 @@
             :name="result.project.name"
             :description="result.project.description"
             :access_modifier="result.project.access_modifier"
+            :starred = "result.starred"
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Issues'">
@@ -79,7 +80,7 @@
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Users'">
-          <dev-box
+          <dev-box @toggle-ban-status="toggleBanStatus"
           v-for="(result, index) in devs"
             :key="index"
             :developer="result"
@@ -198,6 +199,12 @@ export default {
     };
   },
   methods: {
+    toggleBanStatus(username) {
+      const developerIndex = this.devs.findIndex(dev => dev.user.username === username);
+      if (developerIndex !== -1) {
+        this.devs[developerIndex].banned = !this.devs[developerIndex].banned
+      }
+    },
     generateSearchLink(query) {
       const currentQuery = this.$route.query.q || '';
       const combinedQuery = currentQuery + '&' + query;
@@ -208,7 +215,7 @@ export default {
       this.$router.replace({ query: { q: '' } });
     },
     fetchRepositories() {
-      RepositoryService.getAllQueryRepos(this.$route.query.q)
+      RepositoryService.getAllQueryRepos(this.$route.query.q,this.user)
           .then(res => {
                   this.repositories = res.data
                   console.log(res.data)

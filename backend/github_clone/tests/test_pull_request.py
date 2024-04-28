@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth.models import User
 from requests import Response
-from main.models import Developer, Project, WorksOn, Branch, Commit, PullRequest, PullRequestStatus, Milestone
+from main.models import Developer, Project, WorksOn, Branch, PullRequest, PullRequestStatus, Milestone
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
@@ -137,7 +137,7 @@ def test_create_pull_duplicate(get_token):
 
 @pytest.mark.django_db
 def test_merge_pull_success(get_token):
-    url = f'/pr/merge/{repo_name}/10/'
+    url = f'/pr/merge/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
@@ -147,7 +147,7 @@ def test_merge_pull_success(get_token):
 
 @pytest.mark.django_db
 def test_merge_pull_not_mergeable(get_token):
-    url = f'/pr/merge/{repo_name}/13/'
+    url = f'/pr/merge/{username1}/{repo_name}/13/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -157,7 +157,7 @@ def test_merge_pull_not_mergeable(get_token):
 
 @pytest.mark.django_db
 def test_close_pull_success(get_token):
-    url = f'/pr/close/{repo_name}/10/'
+    url = f'/pr/close/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
@@ -167,7 +167,7 @@ def test_close_pull_success(get_token):
 
 @pytest.mark.django_db
 def test_try_close_merged_pull(get_token):
-    url = f'/pr/close/{repo_name}/12/'
+    url = f'/pr/close/{username1}/{repo_name}/12/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -177,7 +177,7 @@ def test_try_close_merged_pull(get_token):
 
 @pytest.mark.django_db
 def test_reopen_pull_success(get_token):
-    url = f'/pr/reopen/{repo_name}/11/'
+    url = f'/pr/reopen/{username1}/{repo_name}/11/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
@@ -187,7 +187,7 @@ def test_reopen_pull_success(get_token):
 
 @pytest.mark.django_db
 def test_try_open_merged_pull(get_token):
-    url = f'/pr/reopen/{repo_name}/12/'
+    url = f'/pr/reopen/{username1}/{repo_name}/12/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -197,7 +197,7 @@ def test_try_open_merged_pull(get_token):
 
 @pytest.mark.django_db
 def test_try_merge_closed_pull(get_token):
-    url = f'/pr/merge/{repo_name}/11/'
+    url = f'/pr/merge/{username1}/{repo_name}/11/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     response = client.put(url, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -208,7 +208,7 @@ def test_try_merge_closed_pull(get_token):
 @pytest.mark.django_db
 def test_assign_milestone_success(get_token):
     milestone = Milestone.objects.create(title='Milestone', deadline=timezone.localtime(timezone.now()), project=Project.objects.get(name=repo_name))
-    url = f'/pr/update/{repo_name}/10/'
+    url = f'/pr/update/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = { 'milestone_id': milestone.id }
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -219,7 +219,7 @@ def test_assign_milestone_success(get_token):
 
 @pytest.mark.django_db
 def test_remove_milestone_success(get_token):
-    url = f'/pr/update/{repo_name}/13/'
+    url = f'/pr/update/{username1}/{repo_name}/13/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = {}
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -230,7 +230,7 @@ def test_remove_milestone_success(get_token):
 
 @pytest.mark.django_db
 def test_assign_milestone_does_not_exist(get_token):
-    url = f'/pr/update/{repo_name}/10/'
+    url = f'/pr/update/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = { 'milestone_id': 1500 }
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -241,7 +241,7 @@ def test_assign_milestone_does_not_exist(get_token):
 
 @pytest.mark.django_db
 def test_assign_developer_success(get_token):
-    url = f'/pr/update/{repo_name}/10/'
+    url = f'/pr/update/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = { 'assignee_username': username1 }
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -252,7 +252,7 @@ def test_assign_developer_success(get_token):
 
 @pytest.mark.django_db
 def test_remove_developer_success(get_token):
-    url = f'/pr/update/{repo_name}/10/'
+    url = f'/pr/update/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = {}
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -263,7 +263,7 @@ def test_remove_developer_success(get_token):
 
 @pytest.mark.django_db
 def test_assign_developer_does_not_exist(get_token):
-    url = f'/pr/update/{repo_name}/10/'
+    url = f'/pr/update/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = { 'assignee_username': 'non-existing' }
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -275,7 +275,7 @@ def test_assign_developer_does_not_exist(get_token):
 @pytest.mark.django_db
 def test_update_title_success(get_token):
     new_title = 'This is the new title'
-    url = f'/pr/title/{repo_name}/10/'
+    url = f'/pr/title/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = { 'title': new_title }
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)
@@ -287,7 +287,7 @@ def test_update_title_success(get_token):
 @pytest.mark.django_db
 def test_update_title_empty(get_token):
     new_title = '  '
-    url = f'/pr/title/{repo_name}/10/'
+    url = f'/pr/title/{username1}/{repo_name}/10/'
     headers = { 'Authorization': f'Bearer {get_token}' }
     data = { 'title': new_title }
     response = client.put(url, content_type='application/json', data=json.dumps(data), headers=headers)

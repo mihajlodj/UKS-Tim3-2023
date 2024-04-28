@@ -43,7 +43,7 @@ export default {
     },
 
     mounted() {
-        RepositoryService.getInvitation(this.$route.params.repoName, this.$route.params.invitedUsername).then(res => {
+        RepositoryService.getInvitation(this.$route.params.username, this.$route.params.repoName, this.$route.params.invitedUsername).then(res => {
             this.invitationInfo = res.data;
             this.allowed = true;
         }).catch(err => {

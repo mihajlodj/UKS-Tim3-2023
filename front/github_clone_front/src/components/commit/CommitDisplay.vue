@@ -27,7 +27,7 @@ export default {
     },
 
     mounted() {
-        CommitService.get_diff(this.$route.params.repoName, this.$route.params.sha).then(res => {
+        CommitService.get_diff(this.$route.params.username, this.$route.params.repoName, this.$route.params.sha).then(res => {
             this.diff = res.data.diff;
             this.overall_additions = res.data.overall_additions;
             this.overall_deletions = res.data.overall_deletions;
@@ -35,7 +35,7 @@ export default {
             console.log(err);
         });
 
-        CommitService.get_info(this.$route.params.repoName, this.$route.params.sha).then(res => {
+        CommitService.get_info(this.$route.params.username, this.$route.params.repoName, this.$route.params.sha).then(res => {
             this.commit = res.data;
             this.commitLoaded = true;
         }).catch(err => {
