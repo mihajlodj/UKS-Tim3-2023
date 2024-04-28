@@ -82,6 +82,7 @@ def unstarr_it(request, username, repository_name):
     try:
         star = Stars.objects.get(project__name=repository_name, developer__user__username__exact=username)
         star.delete()
+        # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
         return Response(status=status.HTTP_204_NO_CONTENT)
     except:
@@ -96,6 +97,7 @@ def starr_it(request, username, repository_name):
         developer = Developer.objects.get(user__username__exact=username)
         star = Stars.objects.create(project=project, developer=developer)
         star.save()
+        # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
