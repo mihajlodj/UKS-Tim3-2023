@@ -2,6 +2,10 @@
   <div>
     <RepoNavbar starting="issues" />
   </div>
+  <div class="input-group mb-3">
+    <span class="input-group-text" id="basic-addon1">Search:</span>
+    <input @keydown="this.doFilter" :value="this.issueFilter" type="text" class="form-control" placeholder="Issue name" aria-label="Issue name" aria-describedby="basic-addon1">
+  </div>
   <!-- Modal add -->
   <div class="modal fade" id="exampleModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -46,6 +50,8 @@
     </div>
   </div>
   <div>
+    <span font-size="28px" font-weight="bold">Open issues</span>
+    <hr>
     <table class="tg mt-5 bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
       <thead>
         <tr>
@@ -84,6 +90,30 @@
       </tbody>
     </table>
   </div>
+  <div>
+    <span font-size="28px" font-weight="bold">Closed issues</span>
+    <hr>
+    <table class="tg mt-5 bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
+      <thead>
+        <tr>
+          <th class="tg-lboi">Title</th>
+          <th class="tg-lboi">Description</th>
+          <th class="tg-lboi">Created</th>
+          <th class="tg-lboi">Managing developer</th>
+          <th class="tg-lboi">Milestone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(item, index) in this.filterClosedIssues()" :key="index">
+          <td class="tg-c7q8">{{ item.title }}</td>
+          <td class="tg-c7q8">{{ item.description }}</td>
+          <td class="tg-c7q8">{{ item.created.slice(0, 10) }}</td>
+          <td class="tg-c7q8">{{ item.manager }}</td>
+          <td class="tg-c7q8">{{ item.milestone == undefined ? 'None' : item.milestone }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
@@ -102,6 +132,7 @@ export default {
   mounted() {
     IssueService.getIssues(this.$route.params.repoName).then(res => {
       this.issues = res.data;
+      this.allIssues = res.data;
       console.log(this.issues);
     }).catch(err => { console.log(err); });
     MilestoneService.getAllMilestones(this.$route.params.repoName).then(res => {
@@ -111,12 +142,14 @@ export default {
   },
   data() {
     return {
+      issueFilter: '',
       propIndex: 0,
       propTitle: '',
       propDescription: '',
       propMilestone: '',
       propId: 0,
       issues: [],
+      allIssues: [],
       milestones: [],
       toastSuccess: {
         autoClose: 1000,
@@ -131,6 +164,14 @@ export default {
     }
   },
   methods: {
+    doFilter() {
+      if (this.issueFilter == '')
+      {
+        this.issues = this.allIssues;
+        return;
+      }
+      this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
+    },
     edit() {
       let updatedIssue = {
         id: this.propId,
@@ -171,6 +212,9 @@ export default {
     },
     filterOpenIssues() {
       return this.issues.filter((issue) => issue.open)
+    },
+    filterClosedIssues() {
+      return this.issues.filter((issue) => !issue.open)
     },
     setProps(index) {
       this.propIndex = index;

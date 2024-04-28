@@ -54,7 +54,8 @@ export default {
                 title: this.title,
                 description: this.description,
                 // created: Date.now(), // add date string
-                manager: localStorage.getItem("username"),
+                creator: localStorage.getItem("username"),
+                managers: [],
                 open: true,
                 milestone: this.milestone === 'Select milestone' ? '' : this.milestone,
                 project: this.$route.params.repoName
