@@ -16,6 +16,8 @@
 </template>
 
 <script>
+import RepositoryService from '@/services/RepositoryService';
+
 export default {
   name: 'RepoBox',
   props: ['username', 'avatar', 'name', 'description', 'access_modifier','starred'],
@@ -40,6 +42,22 @@ export default {
   methods: {
     toggleStar() {
       this.isStarred = !this.isStarred;
+      if(this.isStarred)
+          RepositoryService.starr_it(localStorage.getItem('username'),this.name)
+              .then(res => {
+                      console.log(res.data)
+                  })
+                  .catch(err => {
+                      console.log(err);
+                  });
+      else
+          RepositoryService.unstarr_it(localStorage.getItem('username'),this.name)
+              .then(res => {
+                      console.log(res.data)
+                  })
+                  .catch(err => {
+                      console.log(err);
+                  });
     }
   }
 };

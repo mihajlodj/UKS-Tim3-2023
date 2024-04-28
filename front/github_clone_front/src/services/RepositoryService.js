@@ -4,6 +4,14 @@ const create = (repoData) => {
     return api.post("repository/", repoData);
 }
 
+const starr_it = (username, repoName) => {
+    return api.post(`repository/starr_it/${username}/${repoName}/`);
+}
+
+const unstarr_it = (username, repoName) => {
+    return api.delete(`repository/unstarr_it/${username}/${repoName}/`);
+}
+
 const get = (username, repoName) => {
     return api.get(`repository/data/${username}/${repoName}`);
 }
@@ -92,5 +100,5 @@ const fork = (ownerUsername, repoName, data) => {
     return api.post(`repository/fork/${ownerUsername}/${repoName}/`, data);
 }
 
-export default { getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
+export default { unstarr_it,starr_it,getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
     editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork };
