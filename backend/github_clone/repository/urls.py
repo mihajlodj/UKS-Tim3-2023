@@ -5,6 +5,7 @@ urlpatterns = [
     path('', CreateRepositoryView.as_view(), name='create_repo'),
     path('query_repos/<str:query>/', get_all_repos, name='get_all_repos'),
     path('all_repos/<str:owner_username>/', get_all_users_repo, name='get_all_user_repos'),
+    path('starred_repos/<str:username>/', get_starred_user_repos, name='get_starred_user_repos'),
     path('owner/<str:username>/', ReadOwnerView.as_view(), name='read_owner'),
     path('is_users_repo/<str:owner_username>/<str:repository_name>/', is_users_repo, name='is_users_repo'),
     path('update/<str:owner_username>/<str:repository_name>/', update_repo, name='update_repository'),

@@ -15,6 +15,9 @@ const getAllQueryRepos = (query) => {
 const getAllUserRepos = (owner_username) => {
     return api.get(`repository/all_repos/${owner_username}`);
 }
+const getAllStaredUserRepos = (username) => {
+    return api.get(`repository/starred_repos/${username}`);
+}
 
 const getOwner = (username) => {
     return api.get(`repository/owner/${username}`);
@@ -89,5 +92,5 @@ const fork = (ownerUsername, repoName, data) => {
     return api.post(`repository/fork/${ownerUsername}/${repoName}/`, data);
 }
 
-export default { getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
+export default { getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
     editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork };
