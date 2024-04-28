@@ -51,6 +51,7 @@
             :name="result.project.name"
             :description="result.project.description"
             :access_modifier="result.project.access_modifier"
+            :starred = "result.starred"
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Issues'">
@@ -214,7 +215,7 @@ export default {
       this.$router.replace({ query: { q: '' } });
     },
     fetchRepositories() {
-      RepositoryService.getAllQueryRepos(this.$route.query.q)
+      RepositoryService.getAllQueryRepos(this.$route.query.q,this.user)
           .then(res => {
                   this.repositories = res.data
                   console.log(res.data)

@@ -8,8 +8,8 @@ const get = (username, repoName) => {
     return api.get(`repository/data/${username}/${repoName}`);
 }
 
-const getAllQueryRepos = (query) => {
-    return api.get(`repository/query_repos/${query}`);
+const getAllQueryRepos = (query,username) => {
+    return api.get(`repository/query_repos/${query}/${username}/`);
 }
 
 const getAllUserRepos = (owner_username) => {

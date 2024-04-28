@@ -77,7 +77,7 @@ def update_repo(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
-def get_all_repos(request, query):
+def get_all_repos(request, query, username):
     owner = ''
     is_public = None
     followers = None
@@ -148,8 +148,15 @@ def get_all_repos(request, query):
                     results = results.exclude(project__name__exact=project['name'])
                     isExcluded = True
 
+            starred = True
+            try:
+                starred_instance = Stars.objects.get(developer__user__username__exact=username,
+                                                     project__name__exact=project['name'])
+            except:
+                starred = False
+
             if not isExcluded:
-                serialized_data.append({'developer': developer, 'project': project})
+                serialized_data.append({'developer': developer, 'project': project, 'starred': starred})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

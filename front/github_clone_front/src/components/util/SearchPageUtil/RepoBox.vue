@@ -18,10 +18,10 @@
 <script>
 export default {
   name: 'RepoBox',
-  props: ['username', 'avatar', 'name', 'description', 'access_modifier'],
+  props: ['username', 'avatar', 'name', 'description', 'access_modifier','starred'],
   data() {
     return {
-      isStarred: false, 
+      isStarred: this.starred, 
     };
   },
   computed: {
