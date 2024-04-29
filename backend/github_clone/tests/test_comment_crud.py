@@ -57,6 +57,7 @@ def save_milestone(create_developer):
                                          deadline=current_datetime_formatted,
                                          project=repo)
     milestone.save()
+    WorksOn.objects.create(role='Owner', project=repo, developer=create_developer)
 
 # CREATE
 
@@ -65,7 +66,7 @@ def save_milestone(create_developer):
 def test_create_comment_success(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "parent": "",
@@ -85,7 +86,7 @@ def test_create_comment_success(get_token):
 def test_create_comment_missing_content(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "parent": "",
         "type_for": "milestone",
@@ -103,7 +104,7 @@ def test_create_comment_missing_content(get_token):
 def test_create_comment_missing_parent(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "type_for": "milestone",
@@ -121,7 +122,7 @@ def test_create_comment_missing_parent(get_token):
 def test_create_comment_content_blank(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": '',
         "parent": "",
@@ -140,7 +141,7 @@ def test_create_comment_content_blank(get_token):
 def test_create_comment_type_for_blank(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "parent": "",
@@ -159,7 +160,7 @@ def test_create_comment_type_for_blank(get_token):
 def test_create_comment_type_id_blank(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "parent": "",
@@ -178,7 +179,7 @@ def test_create_comment_type_id_blank(get_token):
 def test_create_comment_unauthorized(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "parent": "",
@@ -194,7 +195,7 @@ def test_create_comment_unauthorized(get_token):
 def test_create_comment_type_for_invalid(get_token):
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "parent": "",
@@ -216,7 +217,7 @@ def test_delete_comment_success(get_token):
     # Create Comment
     milestone = Milestone.objects.get(title=milestone_title)
 
-    url = '/comment/create/'
+    url = f'/comment/create/{username}/{repo_name}/'
     data = {
         "content": comment_content,
         "parent": "",
@@ -233,7 +234,7 @@ def test_delete_comment_success(get_token):
 
     comment = Comment.objects.get(content=comment_content)
 
-    url_delete = f'/comment/delete/{comment.id}/'
+    url_delete = f'/comment/delete/{username}/{repo_name}/{comment.id}/'
     response2 = client.delete(url_delete, headers=headers)
     assert response2.status_code == status.HTTP_204_NO_CONTENT
     assert Comment.objects.count() == 0
@@ -244,7 +245,7 @@ def test_delete_comment_comment_id_empty(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url_delete = f'/comment/delete/'
+    url_delete = f'/comment/delete/{username}/{repo_name}/'
     response2 = client.delete(url_delete, headers=headers)
     assert response2.status_code == status.HTTP_404_NOT_FOUND
     assert Comment.objects.count() == 0
@@ -255,7 +256,7 @@ def test_delete_comment_comment_id_not_digit(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url_delete = f'/comment/delete/aaa/'
+    url_delete = f'/comment/delete/{username}/{repo_name}/aaa/'
     response2 = client.delete(url_delete, headers=headers)
     assert response2.status_code == status.HTTP_404_NOT_FOUND
     assert Comment.objects.count() == 0
@@ -266,7 +267,7 @@ def test_delete_comment_comment_doesnt_exist(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url_delete = f'/comment/delete/1/'
+    url_delete = f'/comment/delete/{username}/{repo_name}/1/'
     assert Comment.objects.count() == 0
     response2 = client.delete(url_delete, headers=headers)
     assert response2.status_code == status.HTTP_400_BAD_REQUEST
