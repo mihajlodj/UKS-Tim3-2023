@@ -51,7 +51,7 @@ def save_repository(create_developer):
 
 @pytest.mark.django_db
 def test_create_label_success(get_token):
-    url = f'/label/create/{repo_name}/'
+    url = f'/label/create/{username}/{repo_name}/'
     data = {
         "name": label_name,
         "description": empty_description
@@ -68,7 +68,7 @@ def test_create_label_success(get_token):
 
 @pytest.mark.django_db
 def test_create_label_missing_name(get_token):
-    url = f'/label/create/{repo_name}/'
+    url = f'/label/create/{username}/{repo_name}/'
     data = {
         "description": empty_description
     }
@@ -82,7 +82,7 @@ def test_create_label_missing_name(get_token):
 
 @pytest.mark.django_db
 def test_create_label_missing_description(get_token):
-    url = f'/label/create/{repo_name}/'
+    url = f'/label/create/{username}/{repo_name}/'
     data = {
         "name": label_name,
     }
@@ -96,7 +96,7 @@ def test_create_label_missing_description(get_token):
 
 @pytest.mark.django_db
 def test_create_label_name_blank(get_token):
-    url = f'/label/create/{repo_name}/'
+    url = f'/label/create/{username}/{repo_name}/'
     data = {
         "name": '',
         "description": empty_description
@@ -111,7 +111,7 @@ def test_create_label_name_blank(get_token):
 
 @pytest.mark.django_db
 def test_create_label_project_name_not_valid(get_token):
-    url = f'/label/create//'
+    url = f'/label/create/{username}//'
     data = {
         "name": label_name,
         "description": empty_description
@@ -143,7 +143,7 @@ def test_create_label_project_doesnt_exist(get_token):
 @pytest.mark.django_db
 def test_create_label_name_is_duplicate(get_token):
     # Create first Label
-    url = f'/label/create/{repo_name}/'
+    url = f'/label/create/{username}/{repo_name}/'
     data = {
         "name": label_name,
         "description": empty_description
@@ -164,7 +164,7 @@ def test_create_label_name_is_duplicate(get_token):
 
 @pytest.mark.django_db
 def test_create_label_no_token_sent(get_token):
-    url = f'/label/create/{repo_name}/'
+    url = f'/label/create/{username}/{repo_name}/'
     data = {
         "name": label_name,
         "description": empty_description
@@ -182,7 +182,7 @@ def test_create_label_no_token_sent(get_token):
 @pytest.mark.django_db
 def test_update_label_success(get_token):
     # Create label
-    url1 = f'/label/create/{repo_name}/'
+    url1 = f'/label/create/{username}/{repo_name}/'
     data1 = {
         "name": label_name,
         "description": empty_description
@@ -201,7 +201,7 @@ def test_update_label_success(get_token):
     label_id = label.id
     new_name = 'new label name'
 
-    url2 = f'/label/update/{label_id}/'
+    url2 = f'/label/update/{username}/{repo_name}/{label_id}/'
     data2 = {
         "name": new_name,
         "description": empty_description
@@ -219,7 +219,7 @@ def test_update_label_label_id_is_none(get_token):
     label_id = ''
     new_name = 'new label name'
 
-    url2 = f'/label/update/{label_id}/'
+    url2 = f'/label/update/{username}/{repo_name}/{label_id}/'
     data2 = {
         "name": new_name,
         "description": empty_description
@@ -238,7 +238,7 @@ def test_update_label_label_id_is_not_digit(get_token):
     label_id = 'asdf'
     new_name = 'new label name'
 
-    url2 = f'/label/update/{label_id}/'
+    url2 = f'/label/update/{username}/{repo_name}/{label_id}/'
     data2 = {
         "name": new_name,
         "description": empty_description
@@ -254,7 +254,7 @@ def test_update_label_label_id_is_not_digit(get_token):
 @pytest.mark.django_db
 def test_update_label_new_name_is_duplicate(get_token):
     # Create label
-    url1 = f'/label/create/{repo_name}/'
+    url1 = f'/label/create/{username}/{repo_name}/'
     data1 = {
         "name": label_name,
         "description": empty_description
@@ -272,7 +272,7 @@ def test_update_label_new_name_is_duplicate(get_token):
     label = Label.objects.get(name=label_name)
     label_id = label.id
 
-    url2 = f'/label/update/{label_id}/'
+    url2 = f'/label/update/{username}/{repo_name}/{label_id}/'
     data2 = {
         "name": label_name,
         "description": empty_description
@@ -290,7 +290,7 @@ def test_update_label_new_name_is_duplicate(get_token):
 @pytest.mark.django_db
 def test_delete_label_success(get_token):
     # Create label
-    url1 = f'/label/create/{repo_name}/'
+    url1 = f'/label/create/{username}/{repo_name}/'
     data1 = {
         "name": label_name,
         "description": empty_description
@@ -308,7 +308,7 @@ def test_delete_label_success(get_token):
     label = Label.objects.get(name=label_name)
     label_id = label.id
 
-    url2 = f'/label/delete/{label_id}/'
+    url2 = f'/label/delete/{username}/{repo_name}/{label_id}/'
     response = client.delete(url2, headers=headers)
     assert response.status_code == status.HTTP_204_NO_CONTENT
     assert Label.objects.count() == 0
@@ -318,7 +318,7 @@ def test_delete_label_success(get_token):
 def test_delete_label_label_id_is_not_digit(get_token):
     label_id = 'asdf'
 
-    url2 = f'/label/delete/{label_id}/'
+    url2 = f'/label/delete/{username}/{repo_name}/{label_id}/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
@@ -330,7 +330,7 @@ def test_delete_label_label_id_is_not_digit(get_token):
 def test_delete_label_label_doesnt_exist(get_token):
     label_id = 10
 
-    url2 = f'/label/delete/{label_id}/'
+    url2 = f'/label/delete/{username}/{repo_name}/{label_id}/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
