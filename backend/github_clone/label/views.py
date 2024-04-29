@@ -28,7 +28,7 @@ class UpdateLabelView(generics.UpdateAPIView):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
-def get_labels(request, repository_name):
+def get_labels(request, owner_username, repository_name):
     if not Project.objects.filter(name=repository_name).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     project = Project.objects.get(name=repository_name)
@@ -39,7 +39,7 @@ def get_labels(request, repository_name):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
-def delete_label(request, label_id):
+def delete_label(request, owner_username, repository_name, label_id):
     if not label_id.isdigit():
         raise Http404()
     if not Label.objects.filter(id=label_id).exists():
@@ -51,7 +51,7 @@ def delete_label(request, label_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
-def link_label_to_milestone(request, label_id, milestone_id):
+def link_label_to_milestone(request, owner_username, repository_name, label_id, milestone_id):
     if not label_id.isdigit():
         raise Http404()
     if not Label.objects.filter(id=label_id).exists():
@@ -71,7 +71,7 @@ def link_label_to_milestone(request, label_id, milestone_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
-def link_label_to_issue(request, label_id, issue_id):
+def link_label_to_issue(request, owner_username, repository_name, label_id, issue_id):
     if not label_id.isdigit():
         raise Http404()
     if not Label.objects.filter(id=label_id).exists():
@@ -91,7 +91,7 @@ def link_label_to_issue(request, label_id, issue_id):
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
-def link_label_to_pull_request(request, label_id, pull_request_id):
+def link_label_to_pull_request(request, owner_username, repository_name, label_id, pull_request_id):
     if not label_id.isdigit():
         raise Http404()
     if not Label.objects.filter(id=label_id).exists():

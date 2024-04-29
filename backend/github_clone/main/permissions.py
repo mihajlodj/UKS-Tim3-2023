@@ -2,7 +2,7 @@ import os
 
 from django.http import Http404
 
-from main.models import WorksOn, AccessModifiers, Role, Developer
+from main.models import WorksOn, AccessModifiers, Role, Developer, Project
 from rest_framework.permissions import BasePermission
 
 GITEA_ADMIN_USERNAME = os.environ.get("GITEA_ADMIN_USERNAME")
