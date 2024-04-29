@@ -13,17 +13,14 @@
                 </div>
 
                 <div class="d-flex justify-content-end me-4">
-                    <button type="button" class="btn btn-right me-2">
-                        <font-awesome-icon icon="fa-regular fa-eye" class="me-1" />
-                        Watch
-                    </button>
+                    <WatchChoice />
                     <button v-if="!isUsersRepo()" type="button" class="btn btn-right me-2" @click="fork">
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
                     </button>
                     <button @click="toggleStar" type="button" class="btn btn-right" style="background:gray;color:white">
                         <font-awesome-icon v-if="!isStarred" icon="fa-regular fa-star" style="color: #b1aaaa;" />
-                        <i v-if="isStarred" class="bi bi-star-fill" style="color:yellow"/>
+                        <i v-if="isStarred" class="bi bi-star-fill" style="color:yellow" />
                         Star
                     </button>
                 </div>
@@ -44,7 +41,8 @@
                         <div class="d-flex justify-content-start">
                             <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch }}
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{
+            repo.chosenBranch }}
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li class="mx-2">
@@ -57,7 +55,8 @@
                                 </li>
                             </ul>
                             <button type="button" class="btn btn-gray ms-2" @click="viewBranches">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }} {{ branchesText }}
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }}
+                                {{ branchesText }}
                             </button>
                         </div>
 
@@ -71,12 +70,14 @@
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li>
                                         <button class="btn dropdown-item" @click="createNewFile">
-                                            <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new file
+                                            <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new
+                                            file
                                         </button>
                                     </li>
                                     <li>
                                         <button class="btn dropdown-item" @click="uploadFiles">
-                                            <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload files
+                                            <font-awesome-icon icon="fa-solid fa-upload" class="me-2 mt-1" /> Upload
+                                            files
                                         </button>
                                     </li>
                                 </ul>
@@ -96,11 +97,10 @@
                         <CommitsOverview class="mt-3"
                             :latestCommit="repo.commitsOverview[repo.chosenBranch].latest_commit"
                             :numCommits="repo.commitsOverview[repo.chosenBranch].num_commits"
-                            :branchName="repo.chosenBranch"
-                        />
+                            :branchName="repo.chosenBranch" />
                         <RepoContent :refName="repo.chosenBranch" :key="contentKey" :displayRoot="repo.displayRoot"
-                            @folderClicked="folderClicked" :foldersPath="repo.foldersPath" @returnToParent="returnToParent"
-                            :branch="repo.chosenBranch" />
+                            @folderClicked="folderClicked" :foldersPath="repo.foldersPath"
+                            @returnToParent="returnToParent" :branch="repo.chosenBranch" />
                     </div>
                 </div>
 
@@ -129,6 +129,7 @@ import RepoNavbar from './RepoNavbar.vue';
 import NotFoundPage from '../util/NotFoundPage.vue';
 import DeveloperService from '@/services/DeveloperService';
 import CommitsOverview from './CommitsOverview.vue';
+import WatchChoice from './WatchChoice.vue';
 
 export default {
     name: 'ViewRepo',
@@ -137,11 +138,12 @@ export default {
         RepoContent,
         RepoNavbar,
         NotFoundPage,
-        CommitsOverview
+        CommitsOverview,
+        WatchChoice
     },
 
     mounted() {
-        RepositoryService.get(this.$route.params.username, this.$route.params.repoName,localStorage.getItem("username")).then(res => {
+        RepositoryService.get(this.$route.params.username, this.$route.params.repoName, localStorage.getItem("username")).then(res => {
             this.repo.name = res.data.name;
             this.repo.description = res.data.description;
             this.repo.accessModifier = res.data.access_modifier;
@@ -151,7 +153,7 @@ export default {
             this.repo.commitsOverview = res.data.commits_overview;
             this.isStarred = res.data.star
             console.log(res.data.star);
-            
+
 
             if (res.data.forked_from !== null && res.data.forked_from !== undefined) {
                 this.repo.forkedFrom = {
@@ -170,7 +172,7 @@ export default {
                 this.repo.foldersPath = this.$route.query.path + "/";
                 this.repo.displayRoot = "false";
             }
-            this.$router.replace({'query': null});
+            this.$router.replace({ 'query': null });
 
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
@@ -225,7 +227,7 @@ export default {
             httpChosen: true,
             contentKey: 1,
             allowed: 'not_set',
-            isStarred: false,
+            isStarred: false
         }
     },
 
@@ -291,28 +293,28 @@ export default {
         },
 
         viewOriginalRepo() {
-            let route = this.$router.resolve({path: `/view/${this.repo.forkedFrom.ownerUsername}/${this.repo.forkedFrom.repositoryName}`});
+            let route = this.$router.resolve({ path: `/view/${this.repo.forkedFrom.ownerUsername}/${this.repo.forkedFrom.repositoryName}` });
             window.open(route.href, '_blank')
         },
         toggleStar() {
             this.isStarred = !this.isStarred;
-            if(this.isStarred)
-                RepositoryService.starr_it(localStorage.getItem('username'),this.repo.name)
+            if (this.isStarred)
+                RepositoryService.starr_it(localStorage.getItem('username'), this.repo.name)
                     .then(res => {
-                            console.log(res.data)
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
+                        console.log(res.data)
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
             else
-                RepositoryService.unstarr_it(localStorage.getItem('username'),this.repo.name)
+                RepositoryService.unstarr_it(localStorage.getItem('username'), this.repo.name)
                     .then(res => {
-                            console.log(res.data)
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
-            }
+                        console.log(res.data)
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+        }
     },
 
     computed: {
