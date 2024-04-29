@@ -20,7 +20,7 @@ class CreateCommentView(generics.CreateAPIView):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated,permissions.CanEditRepository,])
-def get_comments_for_type(request, type_for, type_id):
+def get_comments_for_type(request, owner_username, repository_name, type_for, type_id):
     is_valid_type_for = valid_type_for(type_for)
     if not is_valid_type_for:
         raise Http404()
@@ -36,7 +36,7 @@ def get_comments_for_type(request, type_for, type_id):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated,permissions.CanEditRepository,])
-def delete_comment(request, comment_id):
+def delete_comment(request, owner_username, repository_name, comment_id):
     if not comment_id.isdigit():
         raise Http404()
     if not Comment.objects.filter(id=comment_id).exists():
