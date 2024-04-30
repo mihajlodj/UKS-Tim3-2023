@@ -169,7 +169,7 @@ const routes = [
         component: PrDisplay
     },
     {
-        path: '/view/:username/:repoName/issues',
+        path: '/view/:ownerUsername/:repoName/issues',
         component: ListIssueComponent
     },
     {

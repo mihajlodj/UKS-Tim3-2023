@@ -15,7 +15,7 @@
             aria-haspopup="true" 
             aria-expanded="false">{{this.milestone}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="modifyMilestone(item)">{{item.name}}</a>
+                <a class="dropdown-item" v-for="(item, index) in this.allMilestones" :key="index" @click="modifyMilestone(item)">{{item.title}}</a>
             </div>
         </div>
         <div class="flex-container">
@@ -27,17 +27,13 @@
 <script>
 import InputField from '@/components/util/InputField.vue';
 export default {
-    props: ['title', 'description', 'id', 'milestone'],
+    props: ['title', 'description', 'id', 'milestone', 'allMilestones'],
     components: {
         InputField
-    },  
-    mounted() {
-        
     },
     data() {
         return {
             receivedMilestone: this.milestone,
-            milestones: []
         }
     },
     methods: {
@@ -45,7 +41,7 @@ export default {
             this.$emit('updateIssue');
         },
         modifyMilestone(item) {
-            this.receivedMilestone = item.name;
+            this.receivedMilestone = item.title;
             this.$emit('propModified', this.receivedMilestone);
         },
         typeTitle(obj) {

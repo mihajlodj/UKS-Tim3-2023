@@ -242,12 +242,13 @@ def create_issue(owner, repo, issue):
     body = {
         'id': issue.id,
         'title': issue.title,
-        'description': issue.description,
-        'milestone': issue.milestone,
+        'body': issue.description,
         'closed': False,
         'created_at': issue.created.strftime('%Y-%m-%d') + 'T00:01:00Z',
         # 'state': 'open'
     }
+    if issue.milestone is not None:
+        body['milestone'] = issue.milestone.id
     api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues'
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
@@ -259,8 +260,10 @@ def update_issue(owner, repo, issue, index):
         'id': issue.id,
         'title': issue.title,
         'body': issue.description,
-        'milestone': issue.milestone
     }
+    if issue.milestone is not None:
+        body['milestone'] = issue.milestone.id
+
     response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
 

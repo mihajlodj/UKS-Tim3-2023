@@ -15,7 +15,7 @@
                 aria-haspopup="true" 
                 aria-expanded="false">{{milestone}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="this.milestone = item.name">{{item.name}}</a>
+                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="this.milestone = item.title">{{item.title}}</a>
             </div> 
         </div>
        

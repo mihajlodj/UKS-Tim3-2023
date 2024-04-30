@@ -38,6 +38,7 @@ class IssueSerializer(serializers.Serializer):
             issue.milestone = milestone
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         self.create_issue_in_gitea(owner, issue)
+        issue.save()
         return serialize_issue(issue)
         # return issue
 
