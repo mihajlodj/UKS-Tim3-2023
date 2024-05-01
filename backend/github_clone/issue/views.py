@@ -47,7 +47,6 @@ def update_issue(request):
     # update in gitea
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
-    issues = gitea_service.get_issues(owner=owner, repo=reponame)
     return Response(serialize_issue(issue), status=status.HTTP_200_OK)
 
 
