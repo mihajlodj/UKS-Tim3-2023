@@ -73,7 +73,7 @@
                         <!-- Individual comment -->
                         <div class="comment">
                             <div class="comment-header">
-                                <h3 class="comment-author">John Doe</h3>
+                                <h3 class="comment-author">{{ this.formatNameAndSurname(comment.developer) }}</h3>
                                 <span class="comment-timestamp">{{ this.formatDate(comment.time) }}</span>
                             </div>
                             <p class="comment-body">{{ comment.content }}</p>
@@ -131,6 +131,7 @@ import CommitsTable from '../commit/CommitsTable.vue'
 import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
 import CommentService from '@/services/CommentService'
+import DeveloperService from '@/services/DeveloperService';
 import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
 import dayjs from 'dayjs';
@@ -288,14 +289,28 @@ export default {
         },
 
         loadComments() {
-            CommentService.getAllCommentsForMilestone(this.$route.params.username, this.$route.params.repoName, this.$route.params.id)
+            CommentService.getAllCommentsForPullRequest(this.$route.params.username, this.$route.params.repoName, this.$route.params.id)
             .then(res => {
                 console.log(res.data);
                 this.comments = res.data;
+                for (let comment of this.comments) {
+                    DeveloperService.getUserBasicInfoFromId(comment.developer_id)
+                    .then(res => {
+                        comment['developer'] = res.data;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+                }
+                console.log(this.comments);
             })
             .catch(err => {
                 console.log(err);
             });
+        },
+
+        formatNameAndSurname(developer) {
+            return developer?.first_name + " " + developer?.last_name;
         },
 
         formatDate(date) {
