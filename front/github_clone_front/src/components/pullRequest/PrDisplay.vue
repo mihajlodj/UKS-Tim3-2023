@@ -88,7 +88,7 @@
 
                     <div class="mt-3">
                         <h5 class="bright">Add a comment</h5>
-                        <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
+                        <textarea v-model="newCommentContent" class="w-100 p-2 bright"></textarea>
                         <div class="w-100 d-flex justify-content-end mt-2">
                             <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
                                 <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
@@ -97,7 +97,7 @@
                             <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
                                 Reopen pull request
                             </button>
-                            <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
+                            <button type="button" class="btn-comment p-2" :disabled="newCommentContent == ''" @click="sendComment()">Comment</button>
                         </div>
                     </div>
                 </div>
@@ -182,7 +182,7 @@ export default {
             },
             mergeDataKey: 1,
             chosenTab: "conversation",
-            newComment: "",
+            newCommentContent: "",
             additionalInfoKey: 1,
             newTitle: "",
             editingTitle: false,
@@ -320,6 +320,45 @@ export default {
 
             // Format the parsed date into the desired format
             return parsedDate.format('DD.MM.YYYY. HH:mm');
+        },
+
+        sendComment() {
+            if (this.newCommentContent === "") {
+                return;
+            }
+
+            let data = {
+                "content": this.newCommentContent,
+                "parent": null,
+                "type_for": "pull_request",
+                "type_id": this.$route.params.id,
+            };
+
+            CommentService.createNewComment(this.$route.params.username, this.$route.params.repoName, data)
+                .then(res => {
+                    console.log(res);
+                    toast("Comment added.", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.emptyCommentsForm();
+                    this.loadComments();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Error occured while adding comment.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+        },
+
+        emptyCommentsForm() {
+            this.newCommentContent = '';
         },
 
     }

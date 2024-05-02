@@ -13,6 +13,9 @@ const getAllCommentsForIssue = (owner_username, repository_name, type_id) => {
     return api.get(`comment/all/${owner_username}/${repository_name}/issue/${type_id}`);
 }
 
+const createNewComment = (owner_username, repository_name, data) => {
+    return api.post(`comment/create/${owner_username}/${repository_name}/`, data);
+}
 
-
-export default { getAllCommentsForMilestone, getAllCommentsForPullRequest, getAllCommentsForIssue };
+export default { getAllCommentsForMilestone, getAllCommentsForPullRequest, 
+    getAllCommentsForIssue, createNewComment };
