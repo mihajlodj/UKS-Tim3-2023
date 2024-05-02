@@ -17,5 +17,9 @@ const createNewComment = (owner_username, repository_name, data) => {
     return api.post(`comment/create/${owner_username}/${repository_name}/`, data);
 }
 
+const deleteComment = (owner_username, repository_name, commentId) => {
+    return api.delete(`comment/delete/${owner_username}/${repository_name}/${commentId}`);
+}
+
 export default { getAllCommentsForMilestone, getAllCommentsForPullRequest, 
-    getAllCommentsForIssue, createNewComment };
+    getAllCommentsForIssue, createNewComment, deleteComment };

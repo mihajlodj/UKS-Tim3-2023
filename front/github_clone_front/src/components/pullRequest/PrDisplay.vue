@@ -80,7 +80,7 @@
                             <!-- Actions -->
                             <div class="comment-actions">
                                 <button class="reply-button">Reply</button>
-                                <button class="delete-button">Delete</button>
+                                <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
                             </div>
                         </div>
                     </section>
@@ -360,6 +360,29 @@ export default {
         emptyCommentsForm() {
             this.newCommentContent = '';
         },
+
+        deleteComment(commentId) {
+            CommentService.deleteComment(this.$route.params.username, this.$route.params.repoName, commentId)
+            .then(res => {
+                console.log(res);
+                toast("Comment deleted.", {
+                    autoClose: 500,
+                    type: 'success',
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                    theme: toast.THEME.DARK
+                });
+                this.loadComments();
+            })
+            .catch(err => {
+                console.log(err);
+                toast("Error occured while deleting comment!", {
+                    autoClose: 1000,
+                    type: 'error',
+                    position: toast.POSITION.BOTTOM_RIGHT,
+                    theme: toast.THEME.DARK
+                });
+            });
+        }
 
     }
 }
