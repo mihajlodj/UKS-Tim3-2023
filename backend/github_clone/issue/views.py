@@ -36,8 +36,10 @@ def update_issue(request):
     issue = Issue.objects.get(id=pk)
     issue.title = request.data['title']
     try:
-        issue.milestone = Milestone.objects.get(project__name=reponame, title=request.data['milestone'])
+        issue.milestone = Milestone.objects.get(project__name=reponame, title=request.data['milestone']['title'])
     except main.models.Milestone.DoesNotExist:
+        pass
+    except TypeError:
         pass
     issue.description = request.data['description']
     issue.save()
@@ -45,7 +47,6 @@ def update_issue(request):
     # update in gitea
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
-
     return Response(serialize_issue(issue), status=status.HTTP_200_OK)
 
 

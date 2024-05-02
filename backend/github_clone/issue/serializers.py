@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from rest_framework import serializers
 
-from main.models import Issue, Developer, Project, WorksOn
+from main.models import Issue, Developer, Project, WorksOn, Milestone
 from main.gitea_service import create_issue, get_issues, update_issue, delete_issue
 
 
@@ -19,10 +19,11 @@ class IssueSerializer(serializers.Serializer):
     project = serializers.CharField(allow_blank=False)
     milestone = serializers.CharField(allow_blank=True)
     def create(self, validated_data):
+        project = Project.objects.get(name=validated_data['project'])
         issue = Issue.objects.create(
             title=validated_data['title'],
             description=validated_data['description'],
-            project=Project.objects.get(name=validated_data['project']),
+            project=project,
             creator=Developer.objects.get(user__username=validated_data['creator']),
             # manager=set()
         )
@@ -32,9 +33,12 @@ class IssueSerializer(serializers.Serializer):
         # issue.project = Project.objects.get(name=validated_data['project'])
         # issue.manager = Developer.objects.get(user__username=validated_data['manager'])
 
-        # issue.save()  # nisam siguran dal treba ovo
+        if validated_data['milestone'] != '' and validated_data['milestone'] is not None:
+            milestone = Milestone.objects.get(title=validated_data['milestone'], project=project)
+            issue.milestone = milestone
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         self.create_issue_in_gitea(owner, issue)
+        issue.save()
         return serialize_issue(issue)
         # return issue
 

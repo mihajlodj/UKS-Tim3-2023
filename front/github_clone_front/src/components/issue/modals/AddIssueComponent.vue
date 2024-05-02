@@ -15,7 +15,7 @@
                 aria-haspopup="true" 
                 aria-expanded="false">{{milestone}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="this.milestone = item.name">{{item.name}}</a>
+                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="this.milestone = item.title">{{item.title}}</a>
             </div> 
         </div>
        
@@ -54,7 +54,8 @@ export default {
                 title: this.title,
                 description: this.description,
                 // created: Date.now(), // add date string
-                manager: localStorage.getItem("username"),
+                creator: localStorage.getItem("username"),
+                managers: [],
                 open: true,
                 milestone: this.milestone === 'Select milestone' ? '' : this.milestone,
                 project: this.$route.params.repoName

@@ -2,6 +2,11 @@
   <div>
     <RepoNavbar starting="issues" />
   </div>
+  <div class="input-group mb-3" width="200px">
+    <span class="input-group-text" id="basic-addon1">Search:</span>
+    <input v-on:keyup.enter="this.doFilter()" v-model="this.issueFilter" type="text" class="form-control" placeholder="Issue name"
+      aria-label="Issue name" aria-describedby="basic-addon1">
+  </div>
   <!-- Modal add -->
   <div class="modal fade" id="exampleModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -34,8 +39,9 @@
           <!-- </button> -->
         </div>
         <div class="modal-body">
-          <UpdateIssueComponent :title="this.propTitle" :description="this.propDescription" :id="this.propId"
+          <UpdateIssueComponent :title="this.propTitle" :description="this.propDescription" :id="this.propId" :milestone="this.propMilestone"
             @updateIssue="edit" @propModified="updateMilestone" @updateTitle="((val) => this.propTitle = val)"
+            :allMilestones="this.milestones"
             @updateDescription="((val) => this.propDescription = val)" />
         </div>
         <div class="modal-footer">
@@ -46,43 +52,83 @@
     </div>
   </div>
   <div>
-    <table class="tg mt-5 bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
-      <thead>
-        <tr>
-          <th class="tg-lboi">Title</th>
-          <th class="tg-lboi">Description</th>
-          <th class="tg-lboi">Created</th>
-          <th class="tg-lboi">Managing developer</th>
-          <th class="tg-lboi">Milestone</th>
-          <th colspan="3" class="tg-lboi"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in this.filterOpenIssues()" :key="index">
-          <td class="tg-c7q8">{{ item.title }}</td>
-          <td class="tg-c7q8">{{ item.description }}</td>
-          <td class="tg-c7q8">{{ item.created.slice(0, 10) }}</td>
-          <td class="tg-c7q8">{{ item.manager }}</td>
-          <td class="tg-c7q8">{{ item.milestone == undefined ? 'None' : item.milestone }}</td>
-          <td class="tg-c7q8">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
-              @click="setProps(index)">Edit</button>
-          </td>
-          <td class="tg-c7q8">
-            <button type="button" class="btn btn-warning" @click="close(item.id)">Close</button>
-          </td>
-          <td class="tg-c7q8">
-            <button type="button" class="btn btn-danger" @click="this.delete(item.id)">Delete</button>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="7">
-            <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd"
-              class="flex-item btn btn-info text-center">Open new issue</button>
-          </td>
-        </tr>
-      </tbody>
+    <table style="margin-left:auto; margin-right:auto;">
+      <tr colspan="8">
+        <span font-size="28px" font-weight="bold">Open issues</span>
+        <hr>
+      </tr>
+      <tr colspan="8">
+        <table class="tg bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
+          <thead>
+            <tr>
+              <th class="tg-lboi">Title</th>
+              <th class="tg-lboi">Description</th>
+              <th class="tg-lboi">Created</th>
+              <th class="tg-lboi">Managing developer</th>
+              <th class="tg-lboi">Milestone</th>
+              <th colspan="3" class="tg-lboi"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in this.filteredOpenIssues" :key="index">
+              <td class="tg-c7q8">{{ item.title }}</td>
+              <td class="tg-c7q8">{{ item.description }}</td>
+              <td class="tg-c7q8">{{ item.created.slice(0, 10) }}</td>
+              <td class="tg-c7q8">{{ item.manager }}</td>
+              <td class="tg-c7q8">{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
+              <td class="tg-c7q8">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                  data-bs-target="#exampleModalUpdate" @click="this.setProps(index, this.filteredOpenIssues)">Edit</button>
+              </td>
+              <td class="tg-c7q8">
+                <button type="button" class="btn btn-warning" @click="this.close(item.id)">Close</button>
+              </td>
+              <td class="tg-c7q8">
+                <button type="button" class="btn btn-danger" @click="this.delete(item.id)">Delete</button>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="7">
+                <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd"
+                  class="flex-item btn btn-info text-center">Open new issue</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </tr>
     </table>
+
+  </div>
+  <div>
+    <table style="margin-left:auto; margin-right:auto;">
+      <tr>
+        <span font-size="28px" font-weight="bold">Closed issues</span>
+        <hr>
+      </tr>
+      <tr>
+        <table class="tg bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
+          <thead>
+            <tr>
+              <th class="tg-lboi">Title</th>
+              <th class="tg-lboi">Description</th>
+              <th class="tg-lboi">Created</th>
+              <th class="tg-lboi">Managing developer</th>
+              <th class="tg-lboi">Milestone</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in this.filteredClosedIssues" :key="index">
+              <td class="tg-c7q8">{{ item.title }}</td>
+              <td class="tg-c7q8">{{ item.description }}</td>
+              <td class="tg-c7q8">{{ item.created.slice(0, 10) }}</td>
+              <td class="tg-c7q8">{{ item.manager }}</td>
+              <td class="tg-c7q8">{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </tr>
+    </table>
+
   </div>
 </template>
 <script>
@@ -100,23 +146,30 @@ export default {
     RepoNavbar
   },
   mounted() {
-    IssueService.getIssues(this.$route.params.username, this.$route.params.repoName).then(res => {
+    IssueService.getIssues(this.$route.params.ownerUsername, this.$route.params.repoName).then(res => {
       this.issues = res.data;
+      this.allIssues = res.data;
+      this.filteredOpenIssues = this.filterOpenIssues();
+      this.filteredClosedIssues = this.filterClosedIssues();
       console.log(this.issues);
     }).catch(err => { console.log(err); });
-    MilestoneService.getAllMilestones(this.$route.params.username, this.$route.params.repoName).then(res => {
+    MilestoneService.getAllMilestones(this.$route.params.ownerUsername, this.$route.params.repoName).then(res => {
       console.log(res);
       this.milestones = res.data;
     }).catch(err => console.log(err));
   },
   data() {
     return {
+      issueFilter: '',
       propIndex: 0,
       propTitle: '',
       propDescription: '',
       propMilestone: '',
       propId: 0,
       issues: [],
+      allIssues: [],
+      filteredOpenIssues: [],
+      filteredClosedIssues: [],
       milestones: [],
       toastSuccess: {
         autoClose: 1000,
@@ -131,6 +184,15 @@ export default {
     }
   },
   methods: {
+    doFilter() {
+      if (this.issueFilter == '') {
+        this.issues = this.allIssues;
+        return;
+      }
+      this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
+      this.filteredOpenIssues = this.filterOpenIssues();
+      this.filteredClosedIssues = this.filterClosedIssues();
+    },
     edit() {
       let updatedIssue = {
         id: this.propId,
@@ -170,18 +232,22 @@ export default {
       });
     },
     filterOpenIssues() {
-      return this.issues.filter((issue) => issue.open)
+      return this.issues.filter((issue) => issue.open);
     },
-    setProps(index) {
+    filterClosedIssues() {
+      return this.issues.filter((issue) => !issue.open)
+    },
+    setProps(index, issuesList) {
       this.propIndex = index;
-      this.propId = this.issues[index].id;
-      this.propTitle = this.issues[index].title;
-      this.propDescription = this.issues[index].description;
-      this.propMilestone = this.issues[index].milestone;
+      this.propId = issuesList[index].id;
+      this.propTitle = issuesList[index].title;
+      this.propDescription = issuesList[index].description;
+      this.propMilestone = issuesList[index].milestone;
+      console.log(this.propMilestone)
     },
     updateMilestone(modifiedValue) {
       this.propMilestone = modifiedValue;
-      this.issues[this.propIndex].milestone = modifiedValue;
+      this.filteredOpenIssues[this.propIndex].milestone = modifiedValue;
     }
   }
 }
@@ -235,6 +301,9 @@ export default {
   vertical-align: middle
 }
 
+button:hover {
+  color: white;
+}
 button {
   color: white;
 }
