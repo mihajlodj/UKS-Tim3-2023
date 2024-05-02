@@ -62,13 +62,29 @@
                         Events - labels, milestones, assigning, reviewing, closing, opening
                     </div>
 
-                    <div>Comments</div>
-
                     <hr class="bright" />
 
                     <div v-if="pull.status === 'Open'" class="mt-4 merge">
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
+
+                    <div class="mt-4 comments">Comments</div>
+                    <section id="comments" v-for="(comment, index) in comments" :key="index">
+                        <!-- Individual comment -->
+                        <div class="comment">
+                            <div class="comment-header">
+                                <h3 class="comment-author">John Doe</h3>
+                                <span class="comment-timestamp">{{ this.formatDate(comment.time) }}</span>
+                            </div>
+                            <p class="comment-body">{{ comment.content }}</p>
+                            <!-- Actions -->
+                            <div class="comment-actions">
+                                <button class="reply-button">Reply</button>
+                                <button class="delete-button">Delete</button>
+                            </div>
+                        </div>
+                    </section>
+
 
                     <div class="mt-3">
                         <h5 class="bright">Add a comment</h5>
@@ -114,8 +130,11 @@ import MergeInfo from './MergeInfo.vue'
 import CommitsTable from '../commit/CommitsTable.vue'
 import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
+import CommentService from '@/services/CommentService'
 import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 export default {
     name: "PrDisplay",
@@ -138,6 +157,7 @@ export default {
         }).catch(err => {
             console.log(err);
         });
+        this.loadComments();
     },
 
     data() {
@@ -164,7 +184,8 @@ export default {
             newComment: "",
             additionalInfoKey: 1,
             newTitle: "",
-            editingTitle: false
+            editingTitle: false,
+            comments: [],
         }
     },
 
@@ -264,7 +285,28 @@ export default {
             }).catch(err => {
                 console.log(err);
             });
-        }
+        },
+
+        loadComments() {
+            CommentService.getAllCommentsForMilestone(this.$route.params.username, this.$route.params.repoName, this.$route.params.id)
+            .then(res => {
+                console.log(res.data);
+                this.comments = res.data;
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        },
+
+        formatDate(date) {
+            dayjs.extend(utc);
+            // Parse the given date string using Day.js, considering it as UTC time
+            const parsedDate = dayjs.utc(date);
+
+            // Format the parsed date into the desired format
+            return parsedDate.format('DD.MM.YYYY. HH:mm');
+        },
+
     }
 }
 </script>
@@ -386,4 +428,71 @@ textarea {
     border: 1px solid #768491;
     border-radius: 5px;
 }
+
+/* Dark theme styles for comments */
+#comments {
+    background-color: #22272d;
+    margin-top: 20px;
+}
+
+.comment {
+    background-color: #444;
+    border-radius: 5px;
+    border: 2px solid #adbbc8;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.comments {
+    color: #adbbc8;
+    font-weight: bold;
+    margin: 0;
+    font-size: 35px;
+}
+
+.comment-author {
+    color: #adbbc8;
+    font-weight: bold;
+    margin: 0;
+}
+
+.comment-timestamp {
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+.comment-body {
+    color: #adbbc8;
+    margin-bottom: 10px;
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.reply-button,
+.delete-button {
+    background-color: #333;
+    color: #adbbc8;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.reply-button:hover,
+.delete-button:hover {
+    background-color: #555;
+}
+
+
 </style>../commit/ChangedFiles.vue
