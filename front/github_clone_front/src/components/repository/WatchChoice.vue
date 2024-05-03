@@ -6,8 +6,8 @@
                 Watch
             </button>
             <ul class="dropdown-menu" id="watch-choices" aria-labelledby="btn-watch" style="background-color: #2c333b; padding: 0px;">
-                <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectedWatchOption = 'Participating'">
+                <li v-if="!showCustomOptions">
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectRegularOption('Participating')">
                         <div style="width: 27px">
                             <font-awesome-icon v-if="selectedWatchOption === 'Participating'" icon="fa-solid fa-check" />
                         </div>
@@ -17,8 +17,8 @@
                         </div>
                     </button>
                 </li>
-                <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectedWatchOption = 'All'">
+                <li v-if="!showCustomOptions">
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectRegularOption('All')">
                         <div style="width: 20px">
                             <font-awesome-icon v-if="selectedWatchOption === 'All'" icon="fa-solid fa-check" />
                         </div>
@@ -28,8 +28,8 @@
                         </div>
                     </button>
                 </li>
-                <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectedWatchOption = 'Ignore'">
+                <li v-if="!showCustomOptions">
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectRegularOption('Ignore')">
                         <div style="width: 20px">
                             <font-awesome-icon v-if="selectedWatchOption === 'Ignore'" icon="fa-solid fa-check" />
                         </div>
@@ -39,7 +39,7 @@
                         </div>
                     </button>
                 </li>
-                <li v-if="selectedWatchOption !== 'Custom'">
+                <li v-if="!showCustomOptions">
                     <button type="button" class="btn-drop-item d-flex justify-content-start" @click="startCustomChoice">
                         <div style="width: 27px">
                             <font-awesome-icon v-if="selectedWatchOption === 'Custom'" icon="fa-solid fa-check" />
@@ -51,7 +51,7 @@
                     </button>
                 </li>
 
-                <li v-if="selectedWatchOption === 'Custom'">
+                <li v-if="showCustomOptions">
                     <div class="d-flex justify-content-start">
                         <button type="button" class="btn-drop-item d-flex justify-content-start" @click="cancelCustomChoice">
                             <div style="width: 27px">
@@ -64,21 +64,21 @@
                         </button>
                     </div>
                 </li>
-                <li v-if="selectedWatchOption === 'Custom'">
+                <li v-if="showCustomOptions">
                     <div class="btn-drop-item d-flex justify-content-start">
-                        <input type="checkbox" class="me-2 mt-1" />
+                        <input type="checkbox" v-model="issuesSelected" @change="inputChanged" class="me-2" />
                         <span class="bright">Issues</span>
                     </div>
                 </li>
-                <li v-if="selectedWatchOption === 'Custom'">
+                <li v-if="showCustomOptions">
                     <div class="btn-drop-item d-flex justify-content-start">
-                        <input type="checkbox" class="me-2 mt-1" />
+                        <input type="checkbox" v-model="pullsSelected" @change="inputChanged" class="me-2" />
                         <span class="bright">Pull requests</span>
                     </div>
                 </li>
-                <li v-if="selectedWatchOption === 'Custom'">
+                <li v-if="showCustomOptions">
                     <div class="btn-drop-item d-flex justify-content-start">
-                        <input type="checkbox" class="me-2 mt-1" />
+                        <input type="checkbox" v-model="releasesSelected" @change="inputChanged" class="me-2" />
                         <span class="bright">Releases</span>
                     </div>
                 </li>
@@ -95,7 +95,11 @@ export default {
     data() {
         return {
             selectedWatchOption: "Participating",  // TODO: fetch from backend
-            selectedCustomWatchOptions: []
+            selectedCustomWatchOptions: [],
+            issuesSelected: false,
+            pullsSelected: false,
+            releasesSelected: false,
+            showCustomOptions: false
         }
     },
 
@@ -103,11 +107,35 @@ export default {
         startCustomChoice(event) {
             event.stopPropagation();
             this.selectedWatchOption = "Custom";
+            this.showCustomOptions = true;
         },
 
         cancelCustomChoice(event) {
             event.stopPropagation();
-            this.selectedWatchOption = "";
+            this.showCustomOptions = false;
+            if (!this.issuesSelected && !this.pullsSelected && !this.releasesSelected) {
+                this.selectedWatchOption = "Participating";
+            }
+        },
+
+        inputChanged() {
+            this.selectedCustomWatchOptions = [];
+            if (this.issuesSelected) {
+                this.selectedCustomWatchOptions.push('Issues');
+            }
+            if (this.pullsSelected) {
+                this.selectedCustomWatchOptions.push('Pulls');
+            }
+            if (this.releasesSelected) {
+                this.selectedCustomWatchOptions.push('Releases');
+            }
+        },
+
+        selectRegularOption(option) {
+            this.selectedWatchOption = option;
+            this.issuesSelected = false;
+            this.pullsSelected = false;
+            this.releasesSelected = false;
         }
     }
 }
