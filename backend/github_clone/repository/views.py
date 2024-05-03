@@ -723,6 +723,32 @@ def fork(request, owner_username, repository_name):
     return Response(status=status.HTTP_200_OK)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def save_watch_preferences(request, owner_username, repository_name):
+    developer = Developer.objects.get(user__username=request.user.username)
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    repository = works_on.project
+    payload = json.loads(request.body.decode('utf-8'))
+    if not Watches.objects.filter(developer=developer, project=repository).exists():
+        Watches.objects.create(
+            developer=developer, 
+            project=repository, 
+            option=payload['option'], 
+            issue_events=payload['issue_events'],
+            pull_events=payload['pull_events'],
+            release_events=payload['release_events']
+        )
+    else:
+        watch_preferences = Watches.objects.get(developer=developer, project=repository)
+        watch_preferences.option = payload['option']
+        watch_preferences.issue_events = payload['issue_events']
+        watch_preferences.pull_events = payload['pull_events']
+        watch_preferences.release_events = payload['release_events']
+        watch_preferences.save()
+    return Response(status=status.HTTP_201_CREATED)
+
+
 def save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha):
     project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name,
                                   role=Role.OWNER).project

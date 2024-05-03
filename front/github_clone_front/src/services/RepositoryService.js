@@ -100,5 +100,11 @@ const fork = (ownerUsername, repoName, data) => {
     return api.post(`repository/fork/${ownerUsername}/${repoName}/`, data);
 }
 
+const saveWatchPreferences = (ownerUsername, repoName, data) => {
+    return api.post(`repository/watch/${ownerUsername}/${repoName}/`, data);
+}
+
 export default { unstarr_it,starr_it,getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
-    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork };
+    editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork,
+    saveWatchPreferences
+};

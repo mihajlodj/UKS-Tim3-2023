@@ -3,7 +3,7 @@
         <div>
             <button type="button" class="btn me-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btn-watch">
                 <font-awesome-icon icon="fa-regular fa-eye" class="me-1" />
-                Watch
+                {{ buttonText }}
             </button>
             <ul class="dropdown-menu" id="watch-choices" aria-labelledby="btn-watch" style="background-color: #2c333b; padding: 0px;">
                 <li v-if="!showCustomOptions">
@@ -82,12 +82,24 @@
                         <span class="bright">Releases</span>
                     </div>
                 </li>
+                <li v-if="showCustomOptions">
+                    <div class="d-flex justify-content-end p-2">
+                        <button type="button" class="btn-cancel me-2" @click="cancelCustomSelection">
+                            Cancel
+                        </button>
+                        <button type="button" class="btn-apply" @click="applyCustomSelection" :disabled="!issuesSelected && !pullsSelected && !releasesSelected">
+                            Apply
+                        </button>
+                    </div>
+                </li>
             </ul>
         </div>
     </div>
 </template>
 
 <script>
+import RepositoryService from "@/services/RepositoryService"
+
 export default {
     name: "WatchChoice",
     props: [],
@@ -99,7 +111,9 @@ export default {
             issuesSelected: false,
             pullsSelected: false,
             releasesSelected: false,
-            showCustomOptions: false
+            showCustomOptions: false,
+            payload: {},
+            buttonText: "Watch"
         }
     },
 
@@ -116,6 +130,7 @@ export default {
             if (!this.issuesSelected && !this.pullsSelected && !this.releasesSelected) {
                 this.selectedWatchOption = "Participating";
             }
+            this.updatePayload();
         },
 
         inputChanged() {
@@ -129,6 +144,7 @@ export default {
             if (this.releasesSelected) {
                 this.selectedCustomWatchOptions.push('Releases');
             }
+            this.updatePayload();
         },
 
         selectRegularOption(option) {
@@ -136,6 +152,47 @@ export default {
             this.issuesSelected = false;
             this.pullsSelected = false;
             this.releasesSelected = false;
+            this.updatePayload();
+            this.updateWatchPreferences();
+        },
+
+        updatePayload() {
+            let option = this.selectedWatchOption;
+            if (this.selectedWatchOption === "Custom") {
+                option = "Participating";
+            }
+            this.payload = {
+                "option": option,
+                "issue_events": this.issuesSelected,
+                "pull_events": this.pullsSelected,
+                "release_events": this.releasesSelected
+            };
+        },
+
+        applyCustomSelection() {
+            this.updatePayload();
+            this.updateWatchPreferences();
+        },
+
+        cancelCustomSelection() {
+            this.issuesSelected = false;
+            this.pullsSelected = false;
+            this.releasesSelected = false;
+            this.updatePayload();
+        },
+
+        updateWatchPreferences() {
+            RepositoryService.saveWatchPreferences(this.$route.params.username, this.$route.params.repoName, this.payload)
+            .then(res => {
+                console.log(res);
+                if (this.selectedWatchOption === "Participating") {
+                    this.buttonText = "Watch";
+                } else {
+                    this.buttonText = "Unwatch";
+                }
+            }).catch(err => {
+                console.log(err);
+            });
         }
     }
 }
@@ -147,7 +204,7 @@ export default {
     background-color: #373e48;
     color: #a7b5c2;
     height: 32px;
-    width: 100px;
+    min-width: 100px;
     margin-top: 25px;
     font-size: small;
 }
@@ -179,5 +236,28 @@ export default {
     color: #c5d1df;
     height: 15px;
     margin-top: 5px;
+}
+
+.btn-cancel {
+    background-color: #363e47;
+    color: #acbac7;
+    border: 1px solid #8f9ba5;
+    border-radius: 7px;
+    padding: 5px 15px;
+    font-size: small;
+}
+
+.btn-apply {
+    background-color: #347c39;
+    color: white;
+    border: 1px solid #8f9ba5;
+    border-radius: 7px;
+    padding: 5px 15px;
+    font-size: small;
+}
+
+.btn-apply:disabled {
+    background-color: #2f7033;
+    color: #8f9ba5;
 }
 </style>

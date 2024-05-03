@@ -30,6 +30,12 @@ class MilestoneState(models.TextChoices):
     CLOSED = 'Closed', 'Closed'
 
 
+class WatchOption(models.TextChoices):
+    PARTICIPATING = 'Participating', 'Participating'
+    ALL = 'All', 'All'
+    IGNORE = 'Ignore', 'Ignore'
+
+
 class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
     caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
@@ -144,6 +150,10 @@ class WorksOn(models.Model):
 class Watches(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    option = models.CharField(max_length=15, choices=WatchOption.choices, default=WatchOption.PARTICIPATING)
+    issue_events = models.BooleanField(default=False)
+    pull_events = models.BooleanField(default=False)
+    release_events = models.BooleanField(default=False)
 
 
 class Fork(models.Model):
