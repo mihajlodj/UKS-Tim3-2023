@@ -1,8 +1,7 @@
 <template>
     <div>
         <div>
-            <button type="button" class="btn me-2 dropdown-toggle" data-bs-toggle="dropdown"
-                aria-expanded="false" id="btn-watch">
+            <button type="button" class="btn me-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" id="btn-watch">
                 <font-awesome-icon icon="fa-regular fa-eye" class="me-1" />
                 Watch
             </button>
@@ -54,8 +53,14 @@
 
                 <li v-if="selectedWatchOption === 'Custom'">
                     <div class="d-flex justify-content-start">
-                        <button type="button" class="btn-drop-item" @click="cancelCustomChoice">
-                            Back
+                        <button type="button" class="btn-drop-item d-flex justify-content-start" @click="cancelCustomChoice">
+                            <div style="width: 27px">
+                            <font-awesome-icon icon="fa-solid fa-arrow-left-long" class="me-2" />
+                        </div>
+                            <div class="d-flex flex-column">
+                                <span class="bright">Custom</span>
+                                <span class="muted">Select events you want to be notified of in addition to participating</span>
+                            </div>
                         </button>
                     </div>
                 </li>
@@ -142,7 +147,7 @@ export default {
     font-size: small;
 }
 
-.fa-check {
+.fa-check, .fa-arrow-left-long {
     color: #c5d1df;
     height: 15px;
     margin-top: 5px;
