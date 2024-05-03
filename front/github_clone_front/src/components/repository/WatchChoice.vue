@@ -8,23 +8,47 @@
             </button>
             <ul class="dropdown-menu" id="watch-choices" aria-labelledby="btn-watch" style="background-color: #2c333b; padding: 0px;">
                 <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item" @click="selectedWatchOption = 'Participating'">
-                        <span class="bright">Participating</span>
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectedWatchOption = 'Participating'">
+                        <div style="width: 27px">
+                            <font-awesome-icon v-if="selectedWatchOption === 'Participating'" icon="fa-solid fa-check" />
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="bright">Participating</span>
+                            <span class="muted">Only receive notifications from this repository when participating.</span>
+                        </div>
                     </button>
                 </li>
                 <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item" @click="selectedWatchOption = 'All'">
-                        <span class="bright">All Activity</span>
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectedWatchOption = 'All'">
+                        <div style="width: 20px">
+                            <font-awesome-icon v-if="selectedWatchOption === 'All'" icon="fa-solid fa-check" />
+                        </div>
+                        <div class="d-flex flex-column">        
+                            <span class="bright">All Activity</span>
+                            <span class="muted">Notified of all notifications on this repository.</span>
+                        </div>
                     </button>
                 </li>
                 <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item" @click="selectedWatchOption = 'Ignore'">
-                        <span class="bright">Ignore</span>
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="selectedWatchOption = 'Ignore'">
+                        <div style="width: 20px">
+                            <font-awesome-icon v-if="selectedWatchOption === 'Ignore'" icon="fa-solid fa-check" />
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="bright">Ignore</span>
+                            <span class="muted">Never be notified.</span>
+                        </div>
                     </button>
                 </li>
                 <li v-if="selectedWatchOption !== 'Custom'">
-                    <button type="button" class="btn-drop-item" @click="startCustomChoice">
-                        <span class="bright">Custom</span>
+                    <button type="button" class="btn-drop-item d-flex justify-content-start" @click="startCustomChoice">
+                        <div style="width: 27px">
+                            <font-awesome-icon v-if="selectedWatchOption === 'Custom'" icon="fa-solid fa-check" />
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="bright">Custom</span>
+                            <span class="muted">Select events you want to be notified of in addition to participating.</span>
+                        </div>
                     </button>
                 </li>
 
@@ -36,19 +60,22 @@
                     </div>
                 </li>
                 <li v-if="selectedWatchOption === 'Custom'">
-                    <button type="button" class="btn-drop-item">
+                    <div class="btn-drop-item d-flex justify-content-start">
+                        <input type="checkbox" class="me-2 mt-1" />
                         <span class="bright">Issues</span>
-                    </button>
+                    </div>
                 </li>
                 <li v-if="selectedWatchOption === 'Custom'">
-                    <button type="button" class="btn-drop-item">
+                    <div class="btn-drop-item d-flex justify-content-start">
+                        <input type="checkbox" class="me-2 mt-1" />
                         <span class="bright">Pull requests</span>
-                    </button>
+                    </div>
                 </li>
                 <li v-if="selectedWatchOption === 'Custom'">
-                    <button type="button" class="btn-drop-item">
+                    <div class="btn-drop-item d-flex justify-content-start">
+                        <input type="checkbox" class="me-2 mt-1" />
                         <span class="bright">Releases</span>
-                    </button>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -62,7 +89,7 @@ export default {
 
     data() {
         return {
-            selectedWatchOption: "",
+            selectedWatchOption: "Participating",  // TODO: fetch from backend
             selectedCustomWatchOptions: []
         }
     },
@@ -96,15 +123,28 @@ export default {
     background-color: #2c333b;
     width: 100%;
     text-align: left;
-    padding: 15px 10px;
+    padding: 10px 10px;
     border: 1px solid #a7b5c2;
+    max-width: 300px;
+}
+
+.btn-drop-item:hover {
+    background-color: #3d4450;
 }
 
 .bright {
-    color: #becad8;
+    color: #c5d1df;
+    font-weight: 600;
 }
 
 .muted {
     color: #8d959e;
+    font-size: small;
+}
+
+.fa-check {
+    color: #c5d1df;
+    height: 15px;
+    margin-top: 5px;
 }
 </style>
