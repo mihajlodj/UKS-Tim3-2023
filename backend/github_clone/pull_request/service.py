@@ -50,6 +50,7 @@ def update_assignee(json_data, req, owner_username, repository_name):
     else:
         req.assignee = None
     req.save()
+    return req
 
 def get_pull_request_from_merge_commit(msg, repo_name):
     pattern = r'\(#(\d+)\)'

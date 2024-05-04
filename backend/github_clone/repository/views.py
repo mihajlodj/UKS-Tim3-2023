@@ -19,6 +19,7 @@ from developer import service as developer_service
 from datetime import datetime
 from . import service
 import re
+from websocket import notification_service
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -99,6 +100,7 @@ def starr_it(request, username, repository_name):
         star.save()
         # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
+        # TODO: call notification sending
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -420,6 +422,7 @@ def delete_file(request, owner_username, repository_name, path):
         }
         commit_sha = gitea_service.delete_file(owner_username, repository_name, path, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -445,6 +448,7 @@ def create_file(request, owner_username, repository_name, path):
         }
         commit_sha = gitea_service.create_file(owner_username, repository_name, path, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -474,6 +478,7 @@ def edit_file(request, owner_username, repository_name, path):
         }
         commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -498,10 +503,18 @@ def upload_files(request, owner_username, repository_name):
         }
         commit_sha = gitea_service.upload_files(owner_username, repository_name, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+def send_notification_default_branch_push(owner_username, repository_name, json_data, request):
+    repository = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+    if repository.default_branch.name == json_data['branch']:
+        threading.Thread(target=notification_service.send_notification_default_branch_push, \
+                            args=([owner_username, repository, {'author': request.user.username, 'message': json_data['message']}]), kwargs={}).start()
 
 
 # @api_view(['GET'])
