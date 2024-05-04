@@ -18,7 +18,11 @@
       </div>
     </div>
 
-    <div id="id-search-bar">
+    <div id="id-search-bar" v-if="!isSearchPage">
+      <search-bar></search-bar>
+    </div>
+
+    <div id="id-search-bar-2" v-if="isSearchPage">
       <search-bar></search-bar>
     </div>
 
@@ -72,13 +76,19 @@ export default {
     SearchBar,
     SlideProfileMenu
   },
-  props: {
-    user: Object,
+  // Nisam siguran da li ce trebati
+  // props: {
+  //   user: Object,
+  // },
+  computed:{
+    isSearchPage() {
+      return this.$route.path === '/search';
+    }
   },
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
+              // console.log(res);
               this.currentAvatar = res.data
           })
           .catch(err => {
@@ -129,7 +139,14 @@ export default {
   float:left;
 }
 #id-search-bar{
-  float: left;
+  width: 15rem;
+  float: right;
+  z-index: 99;
+}
+
+#id-search-bar-2{
+  width: 60%;
+  float: right;
   z-index: 99;
 }
 #id-user-profile{

@@ -51,6 +51,7 @@ class Developer(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gitea_token = models.CharField(max_length=255, null=True, blank=True)
     avatar = models.CharField(max_length=1000, null=True, blank=True)
+    banned = models.BooleanField(default=False)
 
 
 class Assignment(Event):
@@ -65,9 +66,10 @@ class Task(models.Model):
 
 
 class Project(models.Model):
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     access_modifier = models.CharField(max_length=10, choices=AccessModifiers.choices, default=AccessModifiers.PUBLIC)
+    timestamp = models.DateTimeField(default=timezone.now)
     default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True,
                                           blank=True)
 
@@ -80,7 +82,8 @@ class Issue(models.Model):
     created = models.DateTimeField(default=timezone.now())
     title = models.CharField(max_length=255)
     description = models.TextField()
-    manager = models.ForeignKey(Developer, related_name='managed_issues', on_delete=models.DO_NOTHING, null=True, blank=True)
+    creator = models.ForeignKey(Developer, related_name='created_issue', on_delete=models.DO_NOTHING, null=True, blank=True)
+    manager = models.ManyToManyField(Developer, related_name='managed_issues', blank=True, null=True)
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
     open = models.BooleanField(default=True)
@@ -146,7 +149,8 @@ class Watches(models.Model):
 
 class Fork(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    source = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='source', null=True)
+    destination = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='destination', null=True)
 
 
 class Stars(models.Model):
@@ -158,13 +162,27 @@ class PullRequest(models.Model):
     source = models.ForeignKey(Branch, related_name='pull_requests_source', on_delete=models.CASCADE)
     target = models.ForeignKey(Branch, related_name='pull_requests_target', on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    author = models.OneToOneField(Developer, related_name='pull_requests_author', on_delete=models.DO_NOTHING)
-    reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers')
+    author = models.ForeignKey(Developer, related_name='pull_requests_author', on_delete=models.DO_NOTHING)
+    assignee = models.ForeignKey(Developer, null=True, blank=True, related_name='pull_requests_assignee', on_delete=models.DO_NOTHING)
+    milestone = models.ForeignKey(Milestone, related_name='pull_request_milestone', null=True, on_delete=models.DO_NOTHING)
+    reviewers = models.ManyToManyField(Developer, related_name='pull_requests_reviewers', blank=True)
     status = models.CharField(max_length=10, choices=PullRequestStatus.choices, default=PullRequestStatus.OPEN)
     timestamp = models.DateTimeField(default=timezone.now)
+    title = models.CharField(max_length=255, blank=True)
+    description = models.TextField(blank=True, null=True)
+    gitea_id = models.IntegerField(null=True)
+    mergeable = models.BooleanField(null=True)
+    merged_by = models.ForeignKey(Developer, null=True, blank=True, related_name='pull_requests_merged_by', on_delete=models.DO_NOTHING)
 
 
 class RegistrationCandidate(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(default=timezone.now, blank=True)
+
+
+class Invitation(models.Model):
+    developer = models.ForeignKey(Developer, null=False, blank=False, related_name='invited_developer', on_delete=models.DO_NOTHING)
+    project = models.ForeignKey(Project, null=False, blank=False, related_name='invited_to', on_delete=models.DO_NOTHING)
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
+    timestamp = models.DateTimeField(default=timezone.now)

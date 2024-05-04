@@ -8,8 +8,12 @@ const getIssue = (id) => {
     return api.get("issue/" + id + "/");
 }
 
-const getIssues = (repoName) => {
-    return api.get(`issue/issues/${repoName}/`);
+const getAllQueryIssues = (query) => {
+    return api.get(`issue/query_issues/${query}`);
+}
+
+const getIssues = (username, repoName) => {
+    return api.get(`issue/issues/${username}/${repoName}/`);
 }
 
 const updateIssue = (issueData) => {
@@ -24,4 +28,4 @@ const deleteIssue = (repoName, id) => {
     return api.delete("issue/" + repoName + "/" + id + "/");
 }
 
-export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue};
+export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue, getAllQueryIssues};

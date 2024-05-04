@@ -29,7 +29,7 @@
             <h3 class="mt-4">Default branch</h3>
             <hr>
             <div class="d-flex justify-content-start">
-                <select class="form-select" v-model="selectedBranch">
+                <select class="form-select" v-model="selectedBranch" style="background-color: #2c333b;">
                     <option v-for="b in repoBranches" :key="b.name">{{ b.name }}</option>
                 </select>
             </div>
@@ -89,7 +89,7 @@ export default {
         saveBranchData() {
             let changedName = this.selectedBranch;
 
-            RepositoryService.update({ "default_branch_name": changedName }, this.oldName).then(res => {
+            RepositoryService.update(this.$route.params.username, { "default_branch_name": changedName }, this.oldName).then(res => {
                 console.log(res.data);
                 this.oldBranchName = changedName;
                 toast("Changes saved!", {
@@ -108,7 +108,7 @@ export default {
         },
 
         saveGeneralData() {
-            RepositoryService.update({
+            RepositoryService.update(this.$route.params.username, {
                 "description": this.newDescription,
                 "name": this.newName
             }, this.oldName).then(res => {
@@ -150,15 +150,16 @@ export default {
     height: 15px;
 }
 
-input {
+input, select {
     border-radius: 5px;
-    border: 1px solid #d0d7df;
-    background-color: #f7f8fa;
-    height: 32px;
+    border: 1px solid #787c80;
+    color: #c5d1df;
+    background-color: #2c333b;
+    height: 40px;
 }
 
 .sub {
-    color: #656e77;
+    color: #88929d;
 }
 
 .bold {
@@ -216,5 +217,13 @@ select {
     width: 50%;
     min-width: 700px;
     max-width: 850px;
+}
+
+h3, label {
+    color: #c5d1df
+}
+
+hr {
+    color: #b9c3cf;
 }
 </style>

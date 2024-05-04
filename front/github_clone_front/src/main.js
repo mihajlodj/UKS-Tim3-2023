@@ -6,15 +6,25 @@ import CodeVerification from './components/auth/CodeVerification.vue'
 import LoginPage from './components/auth/LoginPage.vue'
 import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
-import RepoSettings from './components/repository/RepoSettings.vue';
+import RepoSettings from './components/repository/settings/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
+import SearchPage from './components/pages/SearchPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
+import ProfilePageView from './components/profile/non_registered/ProfilePageView.vue'
 import SettingsProfile from './components/settingsProfile/SettingsProfile.vue'
 import BranchesView from './components/repository/branch/BranchesView.vue';
 import FileDisplay from './components/repository/content/FileDisplay.vue';
 import CreateFile from './components/repository/content/CreateFile.vue';
 import UploadFile from './components/repository/content/upload/UploadFile.vue';
 import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponent.vue'
+import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
+import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
+import PrList from '@/components/pullRequest/PrList.vue'
+import HistoryView from '@/components/repository/HistoryView.vue'
+import CommitDisplay from './components/commit/CommitDisplay.vue'
+import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
+import TransferOwnership from './components/repository/settings/TransferOwnership.vue'
+import ForkRepo from './components/repository/ForkRepo.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -26,14 +36,17 @@ import { faBookBookmark } from '@fortawesome/free-solid-svg-icons'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
-import { faCodePullRequest, faCodeBranch } from '@fortawesome/free-solid-svg-icons'
-import { faCircleDot } from '@fortawesome/free-regular-svg-icons'
-import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { faEye, faStar, faFile, faFolder, faTrashCan } from '@fortawesome/free-regular-svg-icons'
-import { faFlask, faDownload } from '@fortawesome/free-solid-svg-icons'
+import { faCodePullRequest, faCodeBranch, faUserLock, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { faCircleDot, faComments } from '@fortawesome/free-regular-svg-icons'
+import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
+import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark, faCopy } from '@fortawesome/free-regular-svg-icons'
+import { faFlask, faDownload, faTag, faCheck, faCodeCommit, faAngleDown, faCirclePlus, faCircleMinus, faCircleStop, faUsers } from '@fortawesome/free-solid-svg-icons'
 import 'vue-pdf-embed/dist/style/index.css'
 import 'vue-pdf-embed/dist/style/annotationLayer.css'
 import 'vue-pdf-embed/dist/style/textLayer.css'
+
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 // test
 // import IssueComponent from './components/issue/IssueComponent'
@@ -61,11 +74,31 @@ library.add(faArrowRightArrowLeft);
 library.add(faFlask);
 library.add(faTrashCan);
 library.add(faDownload);
+library.add(faArrowLeftLong);
+library.add(faCircleXmark);
+library.add(faTag);
+library.add(faCheck);
+library.add(faCopy);
+library.add(faComments);
+library.add(faCodeCommit);
+library.add(faAngleDown);
+library.add(faCirclePlus);
+library.add(faCircleMinus);
+library.add(faCircleStop);
+library.add(faClockRotateLeft);
+library.add(faUsers);
+library.add(faUserLock);
+library.add(faXmark);
+library.add(faStar);
 
 const routes = [
     {
         path: "/main",
         component: MainPage
+    },
+    {
+        path: "/search",
+        component: SearchPage
     },
     {
         path: "/register",
@@ -96,6 +129,10 @@ const routes = [
         component: ProfilePage
     },
     {
+        path: "/profile/:username",
+        component: ProfilePageView
+    },
+    {
         path: "/profile/settings",
         component: SettingsProfile
     },
@@ -120,8 +157,40 @@ const routes = [
         component:ListMilestoneComponent
     },
     {
+        path: "/view/:username/:repoName/compare",
+        component: CreatePrPage
+    },
+    {
+        path: "/view/:username/:repoName/pulls",
+        component: PrList
+    },
+    {
+        path: "/view/:username/:repoName/pulls/:id",
+        component: PrDisplay
+    },
+    {
         path: '/view/:username/:repoName/issues',
         component: ListIssueComponent
+    },
+    {
+        path: "/view/:username:/:repoName/commits/:branchName",
+        component: HistoryView
+    },
+    {
+        path: "/view/:username/:repoName/commit/:sha",
+        component: CommitDisplay
+    },
+    {
+        path: "/view/:username/:repoName/invitations/:invitedUsername",
+        component: CollaborationInvitation
+    },
+    {
+        path: "/view/:username/:repoName/transfer",
+        component: TransferOwnership
+    },
+    {
+        path: "/view/:username/:repoName/fork",
+        component: ForkRepo
     }
 ]
 
@@ -131,4 +200,5 @@ const router = createRouter({
 });
 
 const app = createApp(App).use(router).component('font-awesome-icon', FontAwesomeIcon);
+app.component('VueDatePicker', VueDatePicker);
 app.mount("#app");

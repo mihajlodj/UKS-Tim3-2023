@@ -1,10 +1,12 @@
 <template>
-    <div>
+    <div class="bg min-vh-100 is-fullheight pb-3">
         <div v-if="allowed == true">
             <RepoNavbar starting="settings" />
             <GeneralSettings :key="generalKey" :name="repo.name" :description="repo.description" :branches="repo.branches"
                 :branchName="repo.defaultBranch" />
-            <DangerZoneSettings :accessModifier="repo.accessModifier" />
+            <CollaboratorsSettings />
+            <DangerZoneSettings v-if="canViewDangerZone()" :accessModifier="repo.accessModifier" 
+                :forked="repo.forkedFrom !== null && repo.forkedFrom !== undefined" />
         </div>
 
         <div v-if="allowed == false">
@@ -14,13 +16,12 @@
 </template>
 
 <script>
-import RepoNavbar from './RepoNavbar.vue';
+import RepoNavbar from '../RepoNavbar.vue';
 import GeneralSettings from './GeneralSettings.vue'
+import CollaboratorsSettings from './CollaboratorsSettings.vue';
 import DangerZoneSettings from './DangerZoneSettings.vue';
 import RepositoryService from '@/services/RepositoryService';
-import NotFoundPage from '../util/NotFoundPage.vue';
-
-// transfer ownership
+import NotFoundPage from '../../util/NotFoundPage.vue';
 
 
 export default {
@@ -28,6 +29,7 @@ export default {
     components: {
         RepoNavbar,
         GeneralSettings,
+        CollaboratorsSettings,
         DangerZoneSettings,
         NotFoundPage
     },
@@ -41,7 +43,6 @@ export default {
             for (let b of res.data.branches) {
                 this.repo.branches.push({ 'name': b });
             }
-            console.log(this.repo.branches);
             this.allowed = true;
             this.forceRerender();
         }).catch(err => {
@@ -69,9 +70,19 @@ export default {
         forceRerender() {
             this.generalKey += 1;
         },
+
+        canViewDangerZone() {
+            const role = localStorage.getItem(this.$route.params.repoName);
+            return role === "Owner";
+        }
     }
 }
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.bg {
+    background-color: #22272d;
+}
+
+</style>

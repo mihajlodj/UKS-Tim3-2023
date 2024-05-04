@@ -5,6 +5,14 @@ const update = (developerData, username) => {
     return api.patch(`developer/update/${username}/`, developerData);
 }
 
+const getAllQueryDevelopers = (query) => {
+    return api.get(`developer/query_devs/${query}`);
+}
+
+const getAllQueryCommitts = (query) => {
+    return api.get(`developer/query_commits/${query}`);
+}
+
 const deleteUser = (usersPassword, username) => {
     return api.delete(`developer/delete/self/${username}/${usersPassword}`);
 }
@@ -38,6 +46,7 @@ const getUserGiteaBasicInfo = (username) => {
 }
 
 const getUserAvatar = (username) => {
+    console.log(username)
     return api.get(`developer/avatar/${username}`);
 }
 
@@ -45,6 +54,18 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
+const getDevelopers = (username, repoName) => {
+    return api.get(`developer/all/${username}/${repoName}`);
+}
+
+const getRoles = (username) => {
+    return api.get(`developer/roles/${username}`);
+}
+
+const update_user_ban_status = (username) => {
+    return api.patch(`developer/update_user_ban_status/${username}`);
+}
+
 export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
-     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress, deleteUsersAvatar};
+     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress
+    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers, getRoles,update_user_ban_status};

@@ -38,7 +38,7 @@ export default {
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
+              // console.log(res);
               this.currentAvatar = res.data
           })
           .catch(err => {
@@ -69,9 +69,7 @@ export default {
       })
     },
     deleteTokens() {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("username");
+      localStorage.clear()
     },
     redirectToLogin() {
       this.$router.push("/");
