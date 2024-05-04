@@ -1,4 +1,9 @@
-from main.models import Watches, WatchOption, Notification
+import threading
+from main.models import Developer, Watches, WatchOption, Notification
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.conf import settings
 
 
 def send_notification_pull_request_created(owner_username, repository, pr_info):
@@ -116,3 +121,14 @@ def find_receivers_for_default_branch_push(repository, author):
 def send_notification(username, message):
     print(f'Sending notification to {username}')
     Notification.objects.create(sent_to=username, message=message)
+    recipient = Developer.object.get(user__username=username).user.email
+    threading.Thread(target=send_email, args=([message, recipient]), kwargs={}).start()
+
+
+def send_email(message, recipient):
+        subject = '[Github Clone] You have a new notification'
+        html_message = render_to_string('notification_email.html', {'message': message})
+        plain_message = strip_tags(html_message)
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [recipient,]
+        send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
