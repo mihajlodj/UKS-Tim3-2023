@@ -12,6 +12,7 @@ class IssueSerializer(serializers.Serializer):
     )
     description = serializers.CharField(
         max_length=255,
+        allow_blank=True,
     )
     # created = serializers.DateTimeField()
     # manager = DeveloperSerializer()
