@@ -204,3 +204,8 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.message
+
+
+class PullRequestReviewer(models.Model):
+    pull_request = models.ForeignKey(PullRequest, null=False, blank=False, related_name='pull_request', on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(Developer, null=False, blank=False, related_name='reviewer', on_delete=models.CASCADE)

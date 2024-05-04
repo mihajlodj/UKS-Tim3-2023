@@ -153,6 +153,7 @@ def get_one(request, owner_username, repository_name, pull_id):
         result['milestone'] = {'id': req.milestone.id, 'title': req.milestone.title}
     if req.assignee is not None:
         result['assignee'] = {'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username)}
+    result['reviewers'] = service.get_reviwers(req)
 
     # Commits data
     response = gitea_service.get_pull_request_commits(owner_username, repository_name, pull_id)
@@ -203,7 +204,10 @@ def update(request, owner_username, repository_name, pull_id):
     new_assignee = req.assignee
     if (old_assignee is None and new_assignee is not None) or (old_assignee is not None and new_assignee is not None and \
         old_assignee.user.username != new_assignee.user.username):
-        pass
+        pr_info = get_pr_info(req, request)
+        threading.Thread(target=notification_service.send_notification_pull_request_changed_assignee, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
+        
+    service.update_reviewers(json_data, req, owner_username, repository_name, request)
     return Response(status=status.HTTP_200_OK)
 
 

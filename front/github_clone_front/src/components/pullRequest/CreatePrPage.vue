@@ -33,7 +33,7 @@
             </div>
 
             <div class="w-25 me-5 mt-4">
-                <AdditionalPrInfo @updateMilestone="updateMilestone" @updateAssignee="updateAssignee" />
+                <AdditionalPrInfo @updateMilestone="updateMilestone" @updateAssignee="updateAssignee" @updateReviewers="updateReviewers" />
             </div>
         </div>
     </div>
@@ -65,7 +65,8 @@ export default {
             title: "",
             description: "",
             milestone: null,
-            assignee: null
+            assignee: null,
+            reviewers: []
         }
     },
 
@@ -76,6 +77,7 @@ export default {
             }
             if (this.assignee !== null) data["assignee"] = this.assignee.username;
             if (this.milestone != null) data["milestone_id"] = this.milestone.id;
+            data["reviewers"] = this.reviewers.map(x => x.username);
             PullRequestService.create(this.$route.params.username, this.$route.params.repoName, data).then(res => {
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/pulls/${res.data.id}`);
             }).catch(err => {
@@ -111,6 +113,10 @@ export default {
 
         updateAssignee(data) {
             this.assignee = data;
+        },
+
+        updateReviewers(data) {
+            this.reviewers = data;
         }
     }
 }

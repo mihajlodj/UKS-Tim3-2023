@@ -6,8 +6,19 @@
                 <label class="muted">Reviewers</label>
                 <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
             </button>
-            <label v-if="reviews.length == 0" class="bright small">No reviews</label>
-            <ReviewersModal v-if="showModal['reviewers']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('reviewers')" />
+            <label v-if="rev.length === 0" class="bright small">No reviewers</label>
+            <div v-else>
+                <div v-for="r in rev" :key="r.username" class="mt-1 d-flex justify-content-between">
+                    <button type="button" class="btn-assignee w-100 d-flex justify-content-start">
+                        <img class="avatar mt-1 me-1" :src="r.avatar"/>
+                        <label class="bright hoverable">{{ r.username }}</label>
+                    </button>
+                    <button type="button" class="btn-remove">
+                        <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeReviewer(r)" />
+                    </button>
+                </div>
+            </div>
+            <ReviewersModal v-if="showModal['reviewers']" :reviewers="rev" :x="modalX" :y="modalY" :w="modalW" @addReviewer="addReviewer" @closeModal="toggleModal('reviewers')" />
         </div>
         <hr class="muted" />
 
@@ -67,7 +78,7 @@ import MilestoneModal from "@/components/pullRequest/modals/MilestoneModal.vue"
 
 export default {
     name: "AdditionalPrInfo",
-    props: ["chosenMilestone", "chosenAssignee"],
+    props: ["chosenMilestone", "chosenAssignee", "chosenReviewers"],
     components: {
         ReviewersModal,
         AssigneesModal,
@@ -77,6 +88,9 @@ export default {
     mounted() {
         this.milestone = this.chosenMilestone;
         this.assignee = this.chosenAssignee;
+        if (this.chosenReviewers !== undefined) {
+            this.rev = this.chosenReviewers;
+        }
     },
     data() {
         return {
@@ -89,12 +103,12 @@ export default {
             modalX: 0,
             modalY: 0,
             modalW: 0,
-            reviews: [],
             assignees: [],
             labels: [],
             milestone: null,
             milestoneKey: 1,
-            assignee: null
+            assignee: null,
+            rev: []
         }
     },
 
@@ -135,6 +149,17 @@ export default {
         removeAssignee() {
             this.assignee = null;
             this.$emit('updateAssignee', this.assignee);
+        },
+
+        removeReviewer(r) {
+            this.rev = this.rev.filter(x => x.username !== r.username);
+            this.$emit('updateReviewers', this.rev);
+        },
+
+        addReviewer(data) {
+            this.rev.push(data);
+            this.toggleModal("reviewers");
+            this.$emit("updateReviewers", this.rev);
         }
     }
 }

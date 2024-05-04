@@ -96,7 +96,8 @@
             </div>
 
             <div v-if="chosenTab === 'conversation'" class="w-25">
-                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" 
+                    @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" @updateReviewers="updateReviewers" />
                 <hr class="bright"/>
                 <div class="w-100 d-flex justify-content-end mt-3">
                     <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -178,6 +179,10 @@ export default {
 
         updateAssignee(data) {
             this.pull.assignee = data;
+        },
+
+        updateReviewers(data) {
+            this.pull.reviewers = data;
         },
 
         canUpdatePull() {

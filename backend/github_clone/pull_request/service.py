@@ -1,7 +1,9 @@
+import threading
 from django.http import Http404
-from main.models import PullRequest, Branch, Project, Developer, Milestone, WorksOn, Role
+from main.models import PullRequest, Branch, PullRequestReviewer, Developer, Milestone, WorksOn, Role
 import re
 from developer import service as developer_service
+from websocket import notification_service
 
 def get_pull_title(json_data):
     if 'title' not in json_data:
@@ -22,7 +24,18 @@ def save_pull_request(owner_username, author_username, repository_name, json_dat
     pull.mergeable = response.json()['mergeable']
     if 'assignee' in json_data and Developer.objects.filter(user__username=json_data['assignee']).exists():
         pull.assignee = Developer.objects.get(user__username=json_data['assignee'])
-    pull.save() # TODO: reviewers
+
+    pull.save()
+
+    if 'reviewers' in json_data:
+        print('Reviewers are in json data')
+        for reviewer_username in json_data['reviewers']:
+            if Developer.objects.filter(user__username=reviewer_username).exists():
+                reviewer = Developer.objects.get(user__username=reviewer_username)
+                PullRequestReviewer.objects.create(pull_request=pull, reviewer=reviewer)
+    else:
+        print(json_data)
+
     return pull.gitea_id
 
 def update_milestone(json_data, req):
@@ -51,6 +64,36 @@ def update_assignee(json_data, req, owner_username, repository_name):
         req.assignee = None
     req.save()
     return req
+
+def update_reviewers(json_data, pull_request, owner_username, repository_name, request):
+    if 'reviewers' not in json_data:
+        return
+    existing_reviewers = PullRequestReviewer.objects.filter(pull_request=pull_request)
+    existing_reviewers_usernames = []
+    for existing_reviewer in existing_reviewers:
+        existing_reviewers_usernames.append(existing_reviewer.user.username)
+        existing_reviewer.delete()
+    project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+    for reviewer_username in json_data['reviewers']:
+        if not WorksOn.objects.filter(project=project, developer__user__username=reviewer_username).exists():
+            raise Http404()
+        works_on = WorksOn.objects.get(project=project, developer__user__username=reviewer_username)
+        if works_on.role == Role.IS_BANNED:
+            raise Http404()
+        developer = Developer.objects.get(user__username=reviewer_username)
+        PullRequestReviewer.objects.create(pull_request=pull_request, reviewer=developer)
+        if reviewer_username not in existing_reviewers_usernames:
+            pr_info = {'id': pull_request.gitea_id, 'title': pull_request.title, 'src': pull_request.source.name, \
+                       'dest': pull_request.target.name, 'initiated_by': request.user.username}
+            threading.Thread(target=notification_service.send_notification_pull_request_reviewer_added, args=([owner_username, project, pr_info]), kwargs={}).start()
+
+def get_reviwers(pull_request):
+    result = []
+    for object in PullRequestReviewer.objects.filter(pull_request=pull_request):
+        reviewer_username = object.reviewer.user.username
+        result.append({'username': reviewer_username, 'avatar': developer_service.get_dev_avatar(reviewer_username)})
+    return result
+
 
 def get_pull_request_from_merge_commit(msg, repo_name):
     pattern = r'\(#(\d+)\)'
