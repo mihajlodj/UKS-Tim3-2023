@@ -22,7 +22,7 @@ def save_pull_request(owner_username, author_username, repository_name, json_dat
     pull.mergeable = response.json()['mergeable']
     if 'assignee' in json_data and Developer.objects.filter(user__username=json_data['assignee']).exists():
         pull.assignee = Developer.objects.get(user__username=json_data['assignee'])
-    pull.save()
+    pull.save() # TODO: reviewers
     return pull.gitea_id
 
 def update_milestone(json_data, req):

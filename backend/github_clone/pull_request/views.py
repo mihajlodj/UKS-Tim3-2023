@@ -11,6 +11,8 @@ from developer import service as developer_service
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from django.core.cache import cache
 from datetime import datetime
+from websocket import notification_service
+import threading
 
 
 @api_view(['POST'])
@@ -24,11 +26,22 @@ def create(request, owner_username, repository_name):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if not Branch.objects.filter(name=json_data['compare'], project=project).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
+    title = service.get_pull_title(json_data)
     response = gitea_service.create_pull_request(owner_username, repository_name,
                                                  {'base': json_data['base'], 'head': json_data['compare'],
-                                                  'title': service.get_pull_title(json_data)})
+                                                  'title': title})
     if response.status_code == 201:
         id = service.save_pull_request(owner_username, request.user.username, repository_name, json_data, response)
+        pr_info = {
+            'initiated_by': request.user.username,
+            'src': json_data['compare'],
+            'dest': json_data['base'],
+            'assignee': '',
+            'reviewers': [],
+            'id': id,
+            'title': title
+        }
+        threading.Thread(target=notification_service.send_notification_pull_request_created, args=([owner_username, project, pr_info]), kwargs={}).start()
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -216,6 +229,16 @@ def close(request, owner_username, repository_name, pull_id):
     req.status = PullRequestStatus.CLOSED
     req.timestamp = timezone.localtime(timezone.now())
     req.save()
+    pr_info = {
+        'initiated_by': request.user.username,
+        'src': req.source.name,
+        'dest': req.target.name,
+        'assignee': '',
+        'reviewers': [],
+        'id': req.gitea_id,
+        'title': req.title
+    }
+    threading.Thread(target=notification_service.send_notification_pull_request_closed, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(req.status, status=status.HTTP_200_OK)
 
 
@@ -231,6 +254,16 @@ def reopen(request, owner_username, repository_name, pull_id):
     req.status = PullRequestStatus.OPEN
     req.timestamp = timezone.localtime(timezone.now())
     req.save()
+    pr_info = {
+        'initiated_by': request.user.username,
+        'src': req.source.name,
+        'dest': req.target.name,
+        'assignee': '',
+        'reviewers': [],
+        'id': req.gitea_id,
+        'title': req.title
+    }
+    threading.Thread(target=notification_service.send_notification_pull_request_reopened, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(req.status, status=status.HTTP_200_OK)
 
 
@@ -246,6 +279,16 @@ def mark_as_open(request, owner_username, repository_name):
                 pull.status = PullRequestStatus.OPEN
                 pull.timestamp = timezone.localtime(timezone.now())
                 pull.save()
+                pr_info = {
+                    'initiated_by': request.user.username,
+                    'src': pull.source.name,
+                    'dest': pull.target.name,
+                    'assignee': '',
+                    'reviewers': [],
+                    'id': pull.gitea_id,
+                    'title': pull.title
+                }
+                threading.Thread(target=notification_service.send_notification_pull_request_reopened, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)
 
 
@@ -260,6 +303,16 @@ def mark_as_closed(request, owner_username, repository_name):
             if pull.status == PullRequestStatus.OPEN:
                 pull.status = PullRequestStatus.CLOSED
                 pull.timestamp = timezone.localtime(timezone.now())
+                pr_info = {
+                    'initiated_by': request.user.username,
+                    'src': pull.source.name,
+                    'dest': pull.target.name,
+                    'assignee': '',
+                    'reviewers': [],
+                    'id': pull.gitea_id,
+                    'title': pull.title
+                }
+                threading.Thread(target=notification_service.send_notification_pull_request_closed, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
                 pull.save()
     return Response(status=status.HTTP_200_OK)
 
@@ -279,4 +332,14 @@ def merge(request, owner_username, repository_name, pull_id):
     req.merged_by = merged_by
     req.save()
     gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
+    pr_info = {
+        'initiated_by': request.user.username,
+        'src': req.source.name,
+        'dest': req.target.name,
+        'assignee': '',
+        'reviewers': [],
+        'id': req.gitea_id,
+        'title': req.title
+    }
+    threading.Thread(target=notification_service.send_notification_pull_request_merged, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)

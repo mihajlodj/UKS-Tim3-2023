@@ -195,3 +195,12 @@ class Invitation(models.Model):
     project = models.ForeignKey(Project, null=False, blank=False, related_name='invited_to', on_delete=models.DO_NOTHING)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
     timestamp = models.DateTimeField(default=timezone.now)
+
+
+class Notification(models.Model):
+    sent_to = models.CharField(max_length=1000, default='')
+    message = models.CharField(max_length=1000)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.message

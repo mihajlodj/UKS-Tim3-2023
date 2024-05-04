@@ -52,8 +52,30 @@ export default {
         { id: 1, name: "SimicAleksa/NvtKts" },
         { id: 2, name: "SimicAleksa/pythonProject" },
       ],
+      connection: null
     };
   },
+
+  created: function() {
+    this.connection = new WebSocket(
+        'ws://'
+        + 'localhost:8000'
+        + '/ws/notify/' + localStorage.getItem("username") + "/"
+    );
+    console.log(this.connection);
+
+    this.connection.onmessage = function(event) {
+        console.log(event);
+        const data = JSON.parse(event.data);
+        const message = data.message;
+        console.log(message);
+    }
+
+    this.connection.onopen = function(event) {
+        console.log(event);
+        console.log("Opened");
+    }
+  }
 };
 </script>
 
