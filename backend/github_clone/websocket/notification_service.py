@@ -46,17 +46,20 @@ def send_notification_pull_request_reopened(owner_username, repository, pr_info)
 
 
 def send_notification_pull_request_changed_assignee(owner_username, repository, pr_info):
+    print('HEREE')
     repository_name = f'@{owner_username}/{repository.name}'
     new_assignee = pr_info['assignee']
     if new_assignee == pr_info['initiated_by'] or (Watches.objects.filter(developer__user__username=new_assignee, project=repository).exists() and \
         Watches.objects.get(developer__user__username=new_assignee, project=repository).option == WatchOption.IGNORE):
+        print('returning')
         return
     notification_msg_for_assignee = f"@{pr_info['initiated_by']} assigned you to pull request: {pr_info['title']} #{pr_info['id']} ({pr_info['src']} -> {pr_info['dest']}) for repository {repository_name}"
     send_notification(new_assignee, notification_msg_for_assignee)
     other_receivers = find_receivers_for_pr_assignee_changed(repository, pr_info)
     notification_msg_for_others = f"@{pr_info['initiated_by']} assigned {new_assignee} to pull request: {pr_info['title']} #{pr_info['id']} ({pr_info['src']} -> {pr_info['dest']}) for repository {repository_name}"
     for receiver in other_receivers:
-        send_notification(receiver, notification_msg_for_others)
+        if receiver != new_assignee:
+            send_notification(receiver, notification_msg_for_others)
 
 
 def send_notification_pull_request_reviewer_added(owner_username, repository, pr_info, reviewer_username):
@@ -121,7 +124,7 @@ def find_receivers_for_default_branch_push(repository, author):
 def send_notification(username, message):
     print(f'Sending notification to {username}')
     Notification.objects.create(sent_to=username, message=message)
-    recipient = Developer.object.get(user__username=username).user.email
+    recipient = Developer.objects.get(user__username=username).user.email
     threading.Thread(target=send_email, args=([message, recipient]), kwargs={}).start()
 
 

@@ -127,8 +127,6 @@ export default {
     const connectionStr = `ws://localhost:8000/ws/notify/${localStorage.getItem("username")}/`;
     this.connection = new WebSocket(connectionStr);
 
-    console.log(this.connection);
-
     this.connection.onmessage = function(event) {
         const data = JSON.parse(event.data);
         const message = data.message;
