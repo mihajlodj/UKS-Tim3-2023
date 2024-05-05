@@ -4,8 +4,8 @@ from repository.views import *
 urlpatterns = [
     path('', CreateRepositoryView.as_view(), name='create_repo'),
     path('query_repos/<str:query>/<str:username>/', get_all_repos, name='get_all_repos'),
-    path('starr_it/<str:username>/<str:repository_name>/', starr_it, name='starr_it'),
-    path('unstarr_it/<str:username>/<str:repository_name>/', unstarr_it, name='unstarr_it'),
+    path('starr_it/<str:username>/<str:repository_name>/<str:owner_username>/', starr_it, name='starr_it'),
+    path('unstarr_it/<str:username>/<str:repository_name>/<str:owner_username>/', unstarr_it, name='unstarr_it'),
     path('all_repos/<str:owner_username>/', get_all_users_repo, name='get_all_user_repos'),
     path('starred_repos/<str:username>/', get_starred_user_repos, name='get_starred_user_repos'),
     path('owner/<str:username>/', ReadOwnerView.as_view(), name='read_owner'),
