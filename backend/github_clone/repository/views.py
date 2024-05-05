@@ -12,7 +12,7 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars
+from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars, WatchOption
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
@@ -581,12 +581,12 @@ def respond_to_invitation(request, owner_username, repository_name, invited_user
 
         if (choice == 'accept'):
             WorksOn.objects.create(developer=developer, project=project, role=invitation.role)
+            Watches.objects.create(developer=developer, project=project, option=WatchOption.PARTICIPATING)
             gitea_permissions = 'write'
             if (invitation.role == 'READONLY'):
                 gitea_permissions = 'read'
             threading.Thread(target=gitea_service.add_collaborator,
-                             args=([owner_username, repository_name, invited_username, gitea_permissions]),
-                             kwargs={}).start()
+                             args=([owner_username, repository_name, invited_username, gitea_permissions]), kwargs={}).start()
 
         Invitation.objects.filter(developer__user__username=invited_username, project=project).delete()
 

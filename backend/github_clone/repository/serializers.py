@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.core.validators import RegexValidator
 
 from main import gitea_service
-from main.models import Project, AccessModifiers, Branch, Role, WorksOn, Developer, Fork
+from main.models import Project, AccessModifiers, Branch, Role, WorksOn, Developer, Watches, WatchOption
 from django.contrib.auth.models import User
 
 
@@ -35,6 +35,7 @@ class RepositorySerializer(serializers.Serializer):
         project.default_branch = default_branch
         project.save()
         WorksOn.objects.create(role="Owner", project=project, developer=developer)
+        Watches.objects.create(developer=developer, project=project, option=WatchOption.ALL)
         threading.Thread(target=self.gitea_create, args=([project, branch_name, username]), kwargs={}).start()
         return project
     
