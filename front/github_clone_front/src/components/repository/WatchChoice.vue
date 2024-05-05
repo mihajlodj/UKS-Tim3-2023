@@ -102,7 +102,26 @@ import RepositoryService from "@/services/RepositoryService"
 
 export default {
     name: "WatchChoice",
-    props: [],
+    props: ["watchInfo"],
+
+    mounted() {
+        if (this.watchInfo) {
+            this.selectedWatchOption = this.watchInfo.option;
+            this.issuesSelected = this.watchInfo.issue_events;
+            this.pullsSelected = this.watchInfo.pull_events;
+            this.releasesSelected = this.watchInfo.release_events;
+            if (this.selectedWatchOption === "Participating" && (this.issuesSelected || this.pullsSelected || this.releasesSelected)) {
+                this.selectedWatchOption = "Custom";
+            }
+            if (this.issuesSelected) this.selectedCustomWatchOptions.push("Issues");
+            if (this.pullsSelected) this.selectedCustomWatchOptions.push("Pulls");
+            if (this.releasesSelected) this.selectedCustomWatchOptions.push("Releases");
+
+            if (this.selectedWatchOption === "All") {
+                this.buttonText = "Unwatch";
+            }
+        }
+    },
 
     data() {
         return {

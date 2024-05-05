@@ -13,7 +13,7 @@
                 </div>
 
                 <div class="d-flex justify-content-end me-4">
-                    <WatchChoice />
+                    <WatchChoice :key="watchKey" :watchInfo="repo.watch" />
                     <button v-if="!isUsersRepo()" type="button" class="btn btn-right me-2" @click="fork">
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
@@ -150,9 +150,8 @@ export default {
             this.repo.ssh = res.data.ssh;
             this.repo.defaultBranch = res.data.default_branch;
             this.repo.commitsOverview = res.data.commits_overview;
-            this.isStarred = res.data.star
-            console.log(res.data.star);
-
+            this.isStarred = res.data.star;
+            this.repo.watch = res.data.watch;
 
             if (res.data.forked_from !== null && res.data.forked_from !== undefined) {
                 this.repo.forkedFrom = {
@@ -213,7 +212,8 @@ export default {
                 branches: [],
                 chosenBranch: '',
                 displayRoot: 'true',
-                foldersPath: ''
+                foldersPath: '',
+                watch: {}
             },
 
             owner: {
@@ -226,7 +226,8 @@ export default {
             httpChosen: true,
             contentKey: 1,
             allowed: 'not_set',
-            isStarred: false
+            isStarred: false,
+            watchKey: 1
         }
     },
 
@@ -241,6 +242,7 @@ export default {
 
         forceRerender() {
             this.contentKey += 1;
+            this.watchKey += 1;
         },
 
         isUsersRepo() {

@@ -248,10 +248,11 @@ def get_repo_data_for_display(request, owner_username, repository_name, logged_u
     if not works_on.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     repo = works_on.first().project
+
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'],
-              'ssh': gitea_repo_data['ssh_url'], 'branches': [], 'star': star}
+              'ssh': gitea_repo_data['ssh_url'], 'branches': [], 'star': star, 'watch': get_watch_info(request, repo)}
     branches = Branch.objects.filter(project=repo)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names
@@ -292,6 +293,17 @@ def get_branch_commits_overview(branches):
         if branch.name not in branch_commits_overview and branch.parent is not None and branch.parent.name in branch_commits_overview:
             branch_commits_overview[branch.name] = branch_commits_overview[branch.parent.name]
     return branch_commits_overview
+
+def get_watch_info(request, repo):
+    watch_option = WatchOption.PARTICIPATING
+    issue_events = pull_events = release_events = False
+    if Watches.objects.filter(developer__user__username=request.user.username, project=repo).exists():
+        obj = Watches.objects.get(developer__user__username=request.user.username, project=repo)
+        watch_option = obj.option
+        issue_events = obj.issue_events
+        pull_events = obj.pull_events
+        release_events = obj.release_events
+    return {'option': watch_option, 'issue_events': issue_events, 'pull_events': pull_events, 'release_events': release_events}
 
 
 @api_view(['GET'])
