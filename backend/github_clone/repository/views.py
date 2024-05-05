@@ -102,7 +102,7 @@ def starr_it(request, username, repository_name,owner_username):
         star.save()
         # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
-        # TODO: call notification sending
+        threading.Thread(target=notification_service.send_notification_repository_starred, args=([owner_username, project, request.user.username]), kwargs={}).start()
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
