@@ -299,7 +299,7 @@ export default {
         toggleStar() {
             this.isStarred = !this.isStarred;
             if (this.isStarred)
-                RepositoryService.starr_it(localStorage.getItem('username'), this.repo.name)
+                RepositoryService.starr_it(localStorage.getItem('username'), this.repo.name, this.$route.params.username)
                     .then(res => {
                         console.log(res.data)
                     })
@@ -307,7 +307,7 @@ export default {
                         console.log(err);
                     });
             else
-                RepositoryService.unstarr_it(localStorage.getItem('username'), this.repo.name)
+                RepositoryService.unstarr_it(localStorage.getItem('username'), this.repo.name, this.$route.params.username)
                     .then(res => {
                         console.log(res.data)
                     })

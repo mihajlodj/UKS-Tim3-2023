@@ -79,9 +79,10 @@ def update_repo(request, owner_username, repository_name):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def unstarr_it(request, username, repository_name):
+def unstarr_it(request, username, repository_name,owner_username):
     try:
-        star = Stars.objects.get(project__name=repository_name, developer__user__username__exact=username)
+        worksOn = WorksOn.objects.get(project__name=repository_name, role__exact=Role.OWNER,developer__user__username__exact=owner_username)
+        star = Stars.objects.get(project=worksOn.project, developer__user__username__exact=username)
         star.delete()
         # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
@@ -92,9 +93,10 @@ def unstarr_it(request, username, repository_name):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def starr_it(request, username, repository_name):
+def starr_it(request, username, repository_name,owner_username):
     try:
-        project = Project.objects.get(name=repository_name)
+        worksOn = WorksOn.objects.get(project__name=repository_name,role__exact=Role.OWNER,developer__user__username__exact=owner_username)
+        project = worksOn.project
         developer = Developer.objects.get(user__username__exact=username)
         star = Stars.objects.create(project=project, developer=developer)
         star.save()

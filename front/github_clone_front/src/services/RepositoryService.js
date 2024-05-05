@@ -4,12 +4,12 @@ const create = (repoData) => {
     return api.post("repository/", repoData);
 }
 
-const starr_it = (username, repoName) => {
-    return api.post(`repository/starr_it/${username}/${repoName}/`);
+const starr_it = (username, repoName, owner_username) => {
+    return api.post(`repository/starr_it/${username}/${repoName}/${owner_username}/`);
 }
 
-const unstarr_it = (username, repoName) => {
-    return api.delete(`repository/unstarr_it/${username}/${repoName}/`);
+const unstarr_it = (username, repoName, owner_username) => {
+    return api.delete(`repository/unstarr_it/${username}/${repoName}/${owner_username}/`);
 }
 
 const get = (username, repoName,logged_user) => {
