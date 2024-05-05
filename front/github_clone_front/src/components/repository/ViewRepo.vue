@@ -41,8 +41,7 @@
                         <div class="d-flex justify-content-start">
                             <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{
-            repo.chosenBranch }}
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch }}
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li class="mx-2">

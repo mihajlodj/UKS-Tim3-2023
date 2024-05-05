@@ -124,7 +124,7 @@ export default {
   },
 
   created: function() {
-    const connectionStr = `ws://${process.env.VUE_APP_BACKEND_BASE_URL}ws/notify/${localStorage.getItem("username")}/`;
+    const connectionStr = `ws://localhost:8000/ws/notify/${localStorage.getItem("username")}/`;
     this.connection = new WebSocket(connectionStr);
 
     console.log(this.connection);

@@ -1,5 +1,6 @@
 <template>
     <div>
+        <NavBar />
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
                 <div class="collapse navbar-collapse">
@@ -52,11 +53,16 @@
 </template>
 
 <script>
+import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 
 export default {
     name: 'RepoNavbar',
 
     props: ['starting'],
+
+    components: {
+        NavBar
+    },
 
 
     mounted() {

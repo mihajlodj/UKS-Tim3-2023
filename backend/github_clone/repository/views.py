@@ -253,7 +253,20 @@ def get_repo_data_for_display(request, owner_username, repository_name, logged_u
     branches = Branch.objects.filter(project=repo)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names
+    result['commits_overview'] = get_branch_commits_overview(branches)
 
+    if Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).exists():
+        source_repo = Fork.objects.filter(developer__user__username=owner_username,
+                                          destination__name=repository_name).first().source
+        source_repo_owner = WorksOn.objects.get(project=source_repo, role=Role.OWNER).developer.user.username
+        result['forked_from'] = {
+            'repository_name': source_repo.name,
+            'owner_username': source_repo_owner
+        }
+    return Response(result, status=status.HTTP_200_OK)
+
+
+def get_branch_commits_overview(branches):
     branch_commits_overview = {}
     for branch in branches:
         branch_commits = Commit.objects.filter(branch=branch)
@@ -273,17 +286,10 @@ def get_repo_data_for_display(request, owner_username, repository_name, logged_u
                 'latest_commit': latest_commit,
                 'num_commits': len(branch_commits)
             }
-    result['commits_overview'] = branch_commits_overview
-
-    if Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).exists():
-        source_repo = Fork.objects.filter(developer__user__username=owner_username,
-                                          destination__name=repository_name).first().source
-        source_repo_owner = WorksOn.objects.get(project=source_repo, role=Role.OWNER).developer.user.username
-        result['forked_from'] = {
-            'repository_name': source_repo.name,
-            'owner_username': source_repo_owner
-        }
-    return Response(result, status=status.HTTP_200_OK)
+    for branch in branches:
+        if branch.name not in branch_commits_overview and branch.parent is not None and branch.parent.name in branch_commits_overview:
+            branch_commits_overview[branch.name] = branch_commits_overview[branch.parent.name]
+    return branch_commits_overview
 
 
 @api_view(['GET'])
