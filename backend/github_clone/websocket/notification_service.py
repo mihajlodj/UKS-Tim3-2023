@@ -126,9 +126,9 @@ def send_notification(username, message):
 
 
 def send_email(message, recipient):
-        subject = '[Github Clone] You have a new notification'
-        html_message = render_to_string('notification_email.html', {'message': message})
-        plain_message = strip_tags(html_message)
-        email_from = settings.EMAIL_HOST_USER
-        recipient_list = [recipient,]
-        send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
+    subject = '[Github Clone] You have a new notification'
+    html_message = render_to_string('notification_email.html', {'message': message})
+    plain_message = strip_tags(html_message)
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [recipient,]
+    send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)

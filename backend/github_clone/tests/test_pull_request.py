@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
+from websocket import notification_service
 import json
 from django.utils import timezone
 
@@ -80,6 +81,18 @@ def disable_gitea_create_pull_request(monkeypatch):
         response.status_code = 201
         return response
     monkeypatch.setattr(gitea_service, 'create_pull_request', mock_create_pull_request)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_pull_request_merged', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_pull_request_closed', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_pull_request_reopened', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_pull_request_created', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_pull_request_changed_assignee', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_pull_request_reviewer_added', mock_send_notification)
     yield
 
 
