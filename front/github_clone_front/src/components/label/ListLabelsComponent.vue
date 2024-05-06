@@ -53,7 +53,7 @@
                         </td>
                         <td class="tg-c7q8">
                             <button v-if="canModifyLabels()" type="button" class="btn btn-danger"
-                                @click="deleteMilestone(item.title)">Delete
+                                @click="deleteLabel(item.id)">Delete
                             </button>
                         </td>
                     </tr>
@@ -107,6 +107,29 @@ export default {
 
         setSelectedLabel(label) {
             this.selectedLabel = label;
+        },
+
+        deleteLabel(labelId) {
+            LabelService.deleteLabel(this.username, this.repo, labelId)
+                .then(res => {
+                    console.log(res);
+                    toast("Label deleted!", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.getAllLabelsForRepo();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Error occured while deleting Label!", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
         },
 
         labelAdded() {
