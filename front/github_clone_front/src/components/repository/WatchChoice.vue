@@ -117,7 +117,7 @@ export default {
             if (this.pullsSelected) this.selectedCustomWatchOptions.push("Pulls");
             if (this.releasesSelected) this.selectedCustomWatchOptions.push("Releases");
 
-            if (this.selectedWatchOption === "All") {
+            if (this.selectedWatchOption !== "Participating") {
                 this.buttonText = "Unwatch";
             }
         }

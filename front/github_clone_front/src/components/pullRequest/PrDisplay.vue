@@ -203,6 +203,7 @@ export default {
             let data = {};
             if (this.pull.milestone) data['milestone_id'] = this.pull.milestone.id;
             if (this.pull.assignee) data['assignee_username'] = this.pull.assignee.username;
+            if (this.pull.reviewers.length > 0) data['reviewers'] = this.pull.reviewers;
             PullRequestService.update(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                 console.log(res);
                 toast("Changes saved!", {

@@ -323,7 +323,7 @@ def get_pr_info(pull, request):
         'src': pull.source.name,
         'dest': pull.target.name,
         'assignee': assignee,
-        'reviewers': [],  # TODO
+        'reviewers': [obj['username'] for obj in service.get_reviwers(pull)],  # TODO
         'id': pull.gitea_id,
         'title': pull.title
     }
