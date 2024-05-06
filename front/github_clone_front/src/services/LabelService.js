@@ -4,7 +4,7 @@ const getAllLabels = (username, repoName) => {
     return api.get(`label/all/${username}/${repoName}/`);
 }
 
-const createLabels = (username, repoName, data) => {
+const createLabel = (username, repoName, data) => {
     return api.post(`label/create/${username}/${repoName}/`, data);
 }
 
@@ -28,5 +28,5 @@ const linkLabelAndPullRequest = (username, repoName, labelId, pullRequestId) => 
     return api.put(`label/link/pull_request/${username}/${repoName}/${labelId}/${pullRequestId}/`);    
 }
 
-export default { getAllLabels, createLabels, updateLabel, deleteLabel, 
+export default { getAllLabels, createLabel, updateLabel, deleteLabel, 
     linkLabelAndMilestone, linkLabelAndIssue, linkLabelAndPullRequest }

@@ -3,6 +3,23 @@
         <RepoNavbar starting="milestones" />
     </div>
 
+    <!-- Modal add -->
+    <div class="modal fade" id="exampleModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document" style="background-color: #24292e; border: 2px solid;">
+            <div class="modal-content" style="background-color: #24292e;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel" style="color: beige">Create new label</h5>
+                    <button type="button" id="addModalCloseId" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <AddLabelComponent @labelAdded="labelAdded" />
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div style="background-color: #24292e; height: 100vh;">
         <div class="container w-75 pt-4" style="background-color: #24292e;">
             <div class="d-flex justify-content-between">
@@ -31,7 +48,7 @@
                         <td class="tg-c7q8">
                             <button v-if="canModifyLabels()" type="button" class="btn btn-primary"
                                 data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
-                                @click="setSelectedMilestone(item)">Edit
+                                @click="setSelectedLabel(item)">Edit
                             </button>
                         </td>
                         <td class="tg-c7q8">
@@ -49,12 +66,14 @@
 <script>
 import { toast } from 'vue3-toastify';
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
+import AddLabelComponent from '@/components/label/AddLabelComponent.vue';
 import LabelService from '@/services/LabelService';
 
 export default {
     name: 'ListLabelsComponent',
     components: {
-        RepoNavbar
+        RepoNavbar,
+        AddLabelComponent
     },
     mounted() {
         this.getAllLabelsForRepo();
@@ -84,6 +103,19 @@ export default {
                         theme: toast.THEME.DARK
                     });
                 })
+        },
+
+        setSelectedLabel(label) {
+            this.selectedLabel = label;
+        },
+
+        labelAdded() {
+            this.closeAddModal();
+            this.getAllLabelsForRepo();
+        },
+
+        closeAddModal() {
+            document.getElementById('addModalCloseId').click();
         },
 
         canModifyLabels() {
