@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
+from websocket import notification_service
 import json
 
 client = APIClient()
@@ -77,6 +78,13 @@ def disable_gitea_get_file(monkeypatch):
             'sha': '1234'
         }
     monkeypatch.setattr(gitea_service, 'get_file', mock_get_file)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_default_branch_push', mock_send_notification)
     yield
 
 

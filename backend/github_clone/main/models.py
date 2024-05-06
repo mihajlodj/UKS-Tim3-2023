@@ -30,6 +30,12 @@ class MilestoneState(models.TextChoices):
     CLOSED = 'Closed', 'Closed'
 
 
+class WatchOption(models.TextChoices):
+    PARTICIPATING = 'Participating', 'Participating'
+    ALL = 'All', 'All'
+    IGNORE = 'Ignore', 'Ignore'
+
+
 class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
     caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
@@ -144,6 +150,10 @@ class WorksOn(models.Model):
 class Watches(models.Model):
     developer = models.ForeignKey(Developer, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    option = models.CharField(max_length=15, choices=WatchOption.choices, default=WatchOption.PARTICIPATING)
+    issue_events = models.BooleanField(default=False)
+    pull_events = models.BooleanField(default=False)
+    release_events = models.BooleanField(default=False)
 
 
 class Fork(models.Model):
@@ -185,3 +195,17 @@ class Invitation(models.Model):
     project = models.ForeignKey(Project, null=False, blank=False, related_name='invited_to', on_delete=models.DO_NOTHING)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.DEVELOPER)
     timestamp = models.DateTimeField(default=timezone.now)
+
+
+class Notification(models.Model):
+    sent_to = models.CharField(max_length=1000, default='')
+    message = models.CharField(max_length=1000)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.message
+
+
+class PullRequestReviewer(models.Model):
+    pull_request = models.ForeignKey(PullRequest, null=False, blank=False, related_name='pull_request', on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(Developer, null=False, blank=False, related_name='reviewer', on_delete=models.CASCADE)

@@ -12,13 +12,14 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars
+from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars, WatchOption
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
 from datetime import datetime
 from . import service
 import re
+from websocket import notification_service
 
 
 class CreateRepositoryView(generics.CreateAPIView):
@@ -78,9 +79,10 @@ def update_repo(request, owner_username, repository_name):
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
-def unstarr_it(request, username, repository_name):
+def unstarr_it(request, username, repository_name,owner_username):
     try:
-        star = Stars.objects.get(project__name=repository_name, developer__user__username__exact=username)
+        worksOn = WorksOn.objects.get(project__name=repository_name, role__exact=Role.OWNER,developer__user__username__exact=owner_username)
+        star = Stars.objects.get(project=worksOn.project, developer__user__username__exact=username)
         star.delete()
         # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
@@ -91,14 +93,16 @@ def unstarr_it(request, username, repository_name):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def starr_it(request, username, repository_name):
+def starr_it(request, username, repository_name,owner_username):
     try:
-        project = Project.objects.get(name=repository_name)
+        worksOn = WorksOn.objects.get(project__name=repository_name,role__exact=Role.OWNER,developer__user__username__exact=owner_username)
+        project = worksOn.project
         developer = Developer.objects.get(user__username__exact=username)
         star = Stars.objects.create(project=project, developer=developer)
         star.save()
         # TODO verovatno moze bolje nego samo da se ocisti cela kes memorija
         cache.clear()
+        threading.Thread(target=notification_service.send_notification_repository_starred, args=([owner_username, project, request.user.username]), kwargs={}).start()
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -244,14 +248,28 @@ def get_repo_data_for_display(request, owner_username, repository_name, logged_u
     if not works_on.exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     repo = works_on.first().project
+
     gitea_repo_data = gitea_service.get_repository(owner_username, repository_name)
     result = {'name': repo.name, 'description': repo.description, 'access_modifier': repo.access_modifier,
               'default_branch': repo.default_branch.name, 'http': gitea_repo_data['clone_url'],
-              'ssh': gitea_repo_data['ssh_url'], 'branches': [], 'star': star}
+              'ssh': gitea_repo_data['ssh_url'], 'branches': [], 'star': star, 'watch': get_watch_info(request, repo)}
     branches = Branch.objects.filter(project=repo)
     branches_names = [b.name for b in branches]
     result['branches'] = branches_names
+    result['commits_overview'] = get_branch_commits_overview(branches)
 
+    if Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).exists():
+        source_repo = Fork.objects.filter(developer__user__username=owner_username,
+                                          destination__name=repository_name).first().source
+        source_repo_owner = WorksOn.objects.get(project=source_repo, role=Role.OWNER).developer.user.username
+        result['forked_from'] = {
+            'repository_name': source_repo.name,
+            'owner_username': source_repo_owner
+        }
+    return Response(result, status=status.HTTP_200_OK)
+
+
+def get_branch_commits_overview(branches):
     branch_commits_overview = {}
     for branch in branches:
         branch_commits = Commit.objects.filter(branch=branch)
@@ -271,17 +289,21 @@ def get_repo_data_for_display(request, owner_username, repository_name, logged_u
                 'latest_commit': latest_commit,
                 'num_commits': len(branch_commits)
             }
-    result['commits_overview'] = branch_commits_overview
+    for branch in branches:
+        if branch.name not in branch_commits_overview and branch.parent is not None and branch.parent.name in branch_commits_overview:
+            branch_commits_overview[branch.name] = branch_commits_overview[branch.parent.name]
+    return branch_commits_overview
 
-    if Fork.objects.filter(developer__user__username=owner_username, destination__name=repository_name).exists():
-        source_repo = Fork.objects.filter(developer__user__username=owner_username,
-                                          destination__name=repository_name).first().source
-        source_repo_owner = WorksOn.objects.get(project=source_repo, role=Role.OWNER).developer.user.username
-        result['forked_from'] = {
-            'repository_name': source_repo.name,
-            'owner_username': source_repo_owner
-        }
-    return Response(result, status=status.HTTP_200_OK)
+def get_watch_info(request, repo):
+    watch_option = WatchOption.PARTICIPATING
+    issue_events = pull_events = release_events = False
+    if Watches.objects.filter(developer__user__username=request.user.username, project=repo).exists():
+        obj = Watches.objects.get(developer__user__username=request.user.username, project=repo)
+        watch_option = obj.option
+        issue_events = obj.issue_events
+        pull_events = obj.pull_events
+        release_events = obj.release_events
+    return {'option': watch_option, 'issue_events': issue_events, 'pull_events': pull_events, 'release_events': release_events}
 
 
 @api_view(['GET'])
@@ -420,6 +442,7 @@ def delete_file(request, owner_username, repository_name, path):
         }
         commit_sha = gitea_service.delete_file(owner_username, repository_name, path, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -445,6 +468,7 @@ def create_file(request, owner_username, repository_name, path):
         }
         commit_sha = gitea_service.create_file(owner_username, repository_name, path, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -474,6 +498,7 @@ def edit_file(request, owner_username, repository_name, path):
         }
         commit_sha = gitea_service.edit_file(owner_username, repository_name, path, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
@@ -498,10 +523,18 @@ def upload_files(request, owner_username, repository_name):
         }
         commit_sha = gitea_service.upload_files(owner_username, repository_name, commit_data)
         save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha)
+        send_notification_default_branch_push(owner_username, repository_name, json_data, request)
         return Response(status=status.HTTP_200_OK)
     except Exception as ex:
         print(ex)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+
+def send_notification_default_branch_push(owner_username, repository_name, json_data, request):
+    repository = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+    if repository.default_branch.name == json_data['branch']:
+        threading.Thread(target=notification_service.send_notification_default_branch_push, \
+                            args=([owner_username, repository, {'author': request.user.username, 'message': json_data['message']}]), kwargs={}).start()
 
 
 # @api_view(['GET'])
@@ -568,12 +601,12 @@ def respond_to_invitation(request, owner_username, repository_name, invited_user
 
         if (choice == 'accept'):
             WorksOn.objects.create(developer=developer, project=project, role=invitation.role)
+            Watches.objects.create(developer=developer, project=project, option=WatchOption.PARTICIPATING)
             gitea_permissions = 'write'
             if (invitation.role == 'READONLY'):
                 gitea_permissions = 'read'
             threading.Thread(target=gitea_service.add_collaborator,
-                             args=([owner_username, repository_name, invited_username, gitea_permissions]),
-                             kwargs={}).start()
+                             args=([owner_username, repository_name, invited_username, gitea_permissions]), kwargs={}).start()
 
         Invitation.objects.filter(developer__user__username=invited_username, project=project).delete()
 
@@ -721,6 +754,32 @@ def fork(request, owner_username, repository_name):
 
     service.fork(repository, new_repo_info, owner_username, new_owner)
     return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, permissions.CanViewRepository])
+def save_watch_preferences(request, owner_username, repository_name):
+    developer = Developer.objects.get(user__username=request.user.username)
+    works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER)
+    repository = works_on.project
+    payload = json.loads(request.body.decode('utf-8'))
+    if not Watches.objects.filter(developer=developer, project=repository).exists():
+        Watches.objects.create(
+            developer=developer, 
+            project=repository, 
+            option=payload['option'], 
+            issue_events=payload['issue_events'],
+            pull_events=payload['pull_events'],
+            release_events=payload['release_events']
+        )
+    else:
+        watch_preferences = Watches.objects.get(developer=developer, project=repository)
+        watch_preferences.option = payload['option']
+        watch_preferences.issue_events = payload['issue_events']
+        watch_preferences.pull_events = payload['pull_events']
+        watch_preferences.release_events = payload['release_events']
+        watch_preferences.save()
+    return Response(status=status.HTTP_201_CREATED)
 
 
 def save_commit(request, owner_username, repository_name, json_data, timestamp, commit_sha):

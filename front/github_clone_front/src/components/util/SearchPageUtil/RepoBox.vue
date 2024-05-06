@@ -43,7 +43,7 @@ export default {
     toggleStar() {
       this.isStarred = !this.isStarred;
       if(this.isStarred)
-          RepositoryService.starr_it(localStorage.getItem('username'),this.name)
+          RepositoryService.starr_it(localStorage.getItem('username'),this.name,this.username)
               .then(res => {
                       console.log(res.data)
                   })
@@ -51,7 +51,7 @@ export default {
                       console.log(err);
                   });
       else
-          RepositoryService.unstarr_it(localStorage.getItem('username'),this.name)
+          RepositoryService.unstarr_it(localStorage.getItem('username'),this.name,this.username)
               .then(res => {
                       console.log(res.data)
                   })

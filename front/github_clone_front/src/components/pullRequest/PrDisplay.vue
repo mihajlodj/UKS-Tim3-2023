@@ -96,7 +96,8 @@
             </div>
 
             <div v-if="chosenTab === 'conversation'" class="w-25">
-                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" />
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" 
+                    @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" @updateReviewers="updateReviewers" />
                 <hr class="bright"/>
                 <div class="w-100 d-flex justify-content-end mt-3">
                     <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -180,6 +181,10 @@ export default {
             this.pull.assignee = data;
         },
 
+        updateReviewers(data) {
+            this.pull.reviewers = data;
+        },
+
         canUpdatePull() {
             const role = localStorage.getItem(this.$route.params.repoName);
             return role === "Owner" || role === "Developer" || role === "Maintainer";
@@ -198,6 +203,7 @@ export default {
             let data = {};
             if (this.pull.milestone) data['milestone_id'] = this.pull.milestone.id;
             if (this.pull.assignee) data['assignee_username'] = this.pull.assignee.username;
+            if (this.pull.reviewers.length > 0) data['reviewers'] = this.pull.reviewers;
             PullRequestService.update(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                 console.log(res);
                 toast("Changes saved!", {

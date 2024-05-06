@@ -51,7 +51,7 @@ export default {
       repositories: [
         { id: 1, name: "SimicAleksa/NvtKts" },
         { id: 2, name: "SimicAleksa/pythonProject" },
-      ],
+      ]
     };
   },
 };

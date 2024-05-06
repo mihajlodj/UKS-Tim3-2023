@@ -101,6 +101,7 @@ export default {
       isMenuOpen: false,
       isProfileMenuOpen: false,
       isDropdownOpen: false,
+      connection: null
     };
   },
   methods: {
@@ -121,6 +122,22 @@ export default {
       this.isDropdownOpen = !this.isDropdownOpen;
     },
   },
+
+  created: function() {
+    const connectionStr = `ws://localhost:8000/ws/notify/${localStorage.getItem("username")}/`;
+    this.connection = new WebSocket(connectionStr);
+
+    this.connection.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        const message = data.message;
+        console.log(message);
+    }
+
+    this.connection.onopen = function(event) {
+        console.log(event);
+        console.log("Opened");
+    }
+  }
 };
 </script>
 

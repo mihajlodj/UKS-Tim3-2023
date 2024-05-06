@@ -42,6 +42,8 @@ GITEA_ADMIN_PASS = os.environ.get("GITEA_ADMIN_PASS")
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'main.apps.MainConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -94,7 +96,15 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'github_clone.wsgi.application'
+# WSGI_APPLICATION = 'github_clone.wsgi.application'
+
+ASGI_APPLICATION = 'github_clone.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database

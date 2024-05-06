@@ -4,18 +4,46 @@
         <hr class="muted" />
         <input type="text" v-model="search" class="w-100 p-2 muted" placeholder="Type or choose a user"/>
         <hr class="muted" />
-        <label class="mb-1 muted">Nothing to show</label>
+        <label v-if="available.length === 0" class="mb-1 muted">Nothing to show</label>
+        <div v-else class="hoverable">
+            <button v-for="r in filtered" :key="r.username" class="btn-assignee w-100 d-flex justify-content-start p-2" @click="addReviewer(r)">
+                <img class="avatar mt-1 me-1" :src="r.avatar"/>
+                <label class="bright hoverable">{{ r.username }}</label>
+            </button>
+        </div>
     </div>
 </template>
 
 <script>
+import PullRequestService from "@/services/PullRequestService"
+
 export default {
     name: "ReviewersModal",
-    props: ["x", "y", "w"],
+    props: ["x", "y", "w", "reviewers"],
+
+    mounted() {
+        if (this.reviewers) {
+            this.chosenReviewers = this.reviewers;
+        }
+
+        PullRequestService.getPossibleAssignees(this.$route.params.username, this.$route.params.repoName).then(res => {
+            let existingUsernames = [];
+            if (this.reviewers !== undefined) {
+                existingUsernames = this.reviewers.map(x => x.username);
+            }
+            this.available = res.data.filter(x => !existingUsernames.includes(x.username));
+            this.filtered = this.available;
+        }).catch(err => {
+            console.log(err);
+        });
+    },
 
     data() {
         return {
-            search: ''
+            search: '',
+            chosenReviewers: [],
+            available: [],
+            filtered: []
         }
     },
 
@@ -28,6 +56,15 @@ export default {
                     name: 'reviews'
                 });
             }
+        },
+
+        filterUsers() {
+            if (this.search === "") this.filtered = this.available;
+            else this.filtered = this.available.filter(x => x.username.toLowerCase().includes(this.search.toLowerCase()));
+        },
+
+        addReviewer(reviewer) {
+            this.$emit('addReviewer', reviewer);
         }
     }
 }
@@ -63,5 +100,23 @@ input {
 
 .small {
     font-size: small;
+}
+
+.small {
+    font-size: small;
+}
+
+.avatar {
+    height: 20px;
+    border-radius: 50%;
+}
+
+.btn-assignee {
+    border: none;
+    background: none;
+}
+
+.hoverable:hover {
+    cursor: pointer;
 }
 </style>

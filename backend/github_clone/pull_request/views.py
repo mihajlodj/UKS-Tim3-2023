@@ -11,6 +11,8 @@ from developer import service as developer_service
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from django.core.cache import cache
 from datetime import datetime
+from websocket import notification_service
+import threading
 
 
 @api_view(['POST'])
@@ -24,11 +26,22 @@ def create(request, owner_username, repository_name):
         return Response(status=status.HTTP_404_NOT_FOUND)
     if not Branch.objects.filter(name=json_data['compare'], project=project).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
+    title = service.get_pull_title(json_data)
     response = gitea_service.create_pull_request(owner_username, repository_name,
                                                  {'base': json_data['base'], 'head': json_data['compare'],
-                                                  'title': service.get_pull_title(json_data)})
+                                                  'title': title})
     if response.status_code == 201:
         id = service.save_pull_request(owner_username, request.user.username, repository_name, json_data, response)
+        pr_info = {
+            'initiated_by': request.user.username,
+            'src': json_data['compare'],
+            'dest': json_data['base'],
+            'assignee': '',
+            'reviewers': [],
+            'id': id,
+            'title': title
+        }
+        threading.Thread(target=notification_service.send_notification_pull_request_created, args=([owner_username, project, pr_info]), kwargs={}).start()
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -140,6 +153,7 @@ def get_one(request, owner_username, repository_name, pull_id):
         result['milestone'] = {'id': req.milestone.id, 'title': req.milestone.title}
     if req.assignee is not None:
         result['assignee'] = {'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username)}
+    result['reviewers'] = service.get_reviwers(req)
 
     # Commits data
     response = gitea_service.get_pull_request_commits(owner_username, repository_name, pull_id)
@@ -183,9 +197,17 @@ def update(request, owner_username, repository_name, pull_id):
     if not PullRequest.objects.filter(project=works_on.project, gitea_id=pull_id).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
     req = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
+    old_assignee = req.assignee
     json_data = json.loads(request.body.decode('utf-8'))
     service.update_milestone(json_data, req)
-    service.update_assignee(json_data, req, owner_username, repository_name)
+    req = service.update_assignee(json_data, req, owner_username, repository_name)
+    new_assignee = req.assignee
+    if (old_assignee is None and new_assignee is not None) or (old_assignee is not None and new_assignee is not None and \
+        old_assignee.user.username != new_assignee.user.username):
+        pr_info = get_pr_info(req, request)
+        threading.Thread(target=notification_service.send_notification_pull_request_changed_assignee, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
+        
+    service.update_reviewers(json_data, req, owner_username, repository_name, request)
     return Response(status=status.HTTP_200_OK)
 
 
@@ -216,6 +238,8 @@ def close(request, owner_username, repository_name, pull_id):
     req.status = PullRequestStatus.CLOSED
     req.timestamp = timezone.localtime(timezone.now())
     req.save()
+    pr_info = get_pr_info(req, request)
+    threading.Thread(target=notification_service.send_notification_pull_request_closed, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(req.status, status=status.HTTP_200_OK)
 
 
@@ -231,6 +255,8 @@ def reopen(request, owner_username, repository_name, pull_id):
     req.status = PullRequestStatus.OPEN
     req.timestamp = timezone.localtime(timezone.now())
     req.save()
+    pr_info = get_pr_info(req, request)
+    threading.Thread(target=notification_service.send_notification_pull_request_reopened, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(req.status, status=status.HTTP_200_OK)
 
 
@@ -246,6 +272,8 @@ def mark_as_open(request, owner_username, repository_name):
                 pull.status = PullRequestStatus.OPEN
                 pull.timestamp = timezone.localtime(timezone.now())
                 pull.save()
+                pr_info = get_pr_info(pull, request)
+                threading.Thread(target=notification_service.send_notification_pull_request_reopened, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)
 
 
@@ -260,6 +288,8 @@ def mark_as_closed(request, owner_username, repository_name):
             if pull.status == PullRequestStatus.OPEN:
                 pull.status = PullRequestStatus.CLOSED
                 pull.timestamp = timezone.localtime(timezone.now())
+                pr_info = get_pr_info(pull, request)
+                threading.Thread(target=notification_service.send_notification_pull_request_closed, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
                 pull.save()
     return Response(status=status.HTTP_200_OK)
 
@@ -279,4 +309,21 @@ def merge(request, owner_username, repository_name, pull_id):
     req.merged_by = merged_by
     req.save()
     gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
+    pr_info = get_pr_info(req, request)
+    threading.Thread(target=notification_service.send_notification_pull_request_merged, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)
+
+
+def get_pr_info(pull, request):
+    assignee = ''
+    if pull.assignee != None:
+        assignee = pull.assignee.user.username
+    return {
+        'initiated_by': request.user.username,
+        'src': pull.source.name,
+        'dest': pull.target.name,
+        'assignee': assignee,
+        'reviewers': [obj['username'] for obj in service.get_reviwers(pull)],  # TODO
+        'id': pull.gitea_id,
+        'title': pull.title
+    }

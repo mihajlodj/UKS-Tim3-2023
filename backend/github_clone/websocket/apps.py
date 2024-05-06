@@ -1,11 +1,9 @@
 from django.apps import AppConfig
 
 
-class MainConfig(AppConfig):
+class WebsocketConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'main'
+    name = 'websocket'
+
     def ready(self):
-        from scheduler import scheduler
-        print('READY')
         import websocket.signals
-        # scheduler.start()
