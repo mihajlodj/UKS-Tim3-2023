@@ -68,38 +68,24 @@
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
-                    <div class="mt-4 comments">Comments</div>
-                    <section id="comments" v-for="(comment, index) in comments" :key="index">
-                        <!-- Individual comment -->
-                        <div class="comment">
-                            <div class="comment-header">
-                                <h3 class="comment-author">{{ this.formatNameAndSurname(comment.developer) }}</h3>
-                                <span class="comment-timestamp">{{ this.formatDate(comment.time) }}</span>
-                            </div>
-                            <p class="comment-body">{{ comment.content }}</p>
-                            <!-- Actions -->
-                            <div class="comment-actions">
-                                <button class="reply-button">Reply</button>
-                                <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
-                            </div>
-                        </div>
-                    </section>
+                    <CommentDisplay 
+                        :username="this.$route.params.username" 
+                        :repoName="this.$route.params.repoName"
+                        :entityType="pull_request"
+                        :entityId="this.$route.params.id"
+                        >
+                    </CommentDisplay>
 
-
-                    <div class="mt-3">
-                        <h5 class="bright">Add a comment</h5>
-                        <textarea v-model="newCommentContent" class="w-100 p-2 bright"></textarea>
-                        <div class="w-100 d-flex justify-content-end mt-2">
-                            <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
-                                <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
-                                Close pull request
-                            </button>
-                            <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
-                                Reopen pull request
-                            </button>
-                            <button type="button" class="btn-comment p-2" :disabled="newCommentContent == ''" @click="sendComment()">Comment</button>
-                        </div>
+                    <div class="w-100 d-flex justify-content-end mt-2">
+                        <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2" @click="close">
+                            <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
+                            Close pull request
+                        </button>
+                        <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2" @click="reopen">
+                            Reopen pull request
+                        </button>
                     </div>
+
                 </div>
 
                 <div v-if="chosenTab === 'commits'">
@@ -130,12 +116,9 @@ import MergeInfo from './MergeInfo.vue'
 import CommitsTable from '../commit/CommitsTable.vue'
 import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
-import CommentService from '@/services/CommentService'
-import DeveloperService from '@/services/DeveloperService';
 import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
+import CommentDisplay from '@/components/comment/CommentDisplay.vue'
 
 export default {
     name: "PrDisplay",
@@ -145,7 +128,8 @@ export default {
         MergeInfo,
         CommitsTable,
         StatusPill,
-        ChangedFiles
+        ChangedFiles,
+        CommentDisplay,
     },
 
     mounted() {
@@ -158,7 +142,6 @@ export default {
         }).catch(err => {
             console.log(err);
         });
-        this.loadComments();
     },
 
     data() {
@@ -182,11 +165,9 @@ export default {
             },
             mergeDataKey: 1,
             chosenTab: "conversation",
-            newCommentContent: "",
             additionalInfoKey: 1,
             newTitle: "",
             editingTitle: false,
-            comments: [],
         }
     },
 
@@ -287,102 +268,6 @@ export default {
                 console.log(err);
             });
         },
-
-        loadComments() {
-            CommentService.getAllCommentsForPullRequest(this.$route.params.username, this.$route.params.repoName, this.$route.params.id)
-            .then(res => {
-                console.log(res.data);
-                this.comments = res.data;
-                for (let comment of this.comments) {
-                    DeveloperService.getUserBasicInfoFromId(comment.developer_id)
-                    .then(res => {
-                        comment['developer'] = res.data;
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
-                }
-                console.log(this.comments);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-        },
-
-        formatNameAndSurname(developer) {
-            return developer?.first_name + " " + developer?.last_name;
-        },
-
-        formatDate(date) {
-            dayjs.extend(utc);
-            // Parse the given date string using Day.js, considering it as UTC time
-            const parsedDate = dayjs.utc(date);
-
-            // Format the parsed date into the desired format
-            return parsedDate.format('DD.MM.YYYY. HH:mm');
-        },
-
-        sendComment() {
-            if (this.newCommentContent === "") {
-                return;
-            }
-
-            let data = {
-                "content": this.newCommentContent,
-                "parent": null,
-                "type_for": "pull_request",
-                "type_id": this.$route.params.id,
-            };
-
-            CommentService.createNewComment(this.$route.params.username, this.$route.params.repoName, data)
-                .then(res => {
-                    console.log(res);
-                    toast("Comment added.", {
-                        autoClose: 500,
-                        type: 'success',
-                        position: toast.POSITION.BOTTOM_RIGHT,
-                        theme: toast.THEME.DARK
-                    });
-                    this.emptyCommentsForm();
-                    this.loadComments();
-                })
-                .catch(err => {
-                    console.log(err);
-                    toast("Error occured while adding comment.", {
-                        autoClose: 1000,
-                        type: 'error',
-                        position: toast.POSITION.BOTTOM_RIGHT,
-                        theme: toast.THEME.DARK
-                    });
-                });
-        },
-
-        emptyCommentsForm() {
-            this.newCommentContent = '';
-        },
-
-        deleteComment(commentId) {
-            CommentService.deleteComment(this.$route.params.username, this.$route.params.repoName, commentId)
-            .then(res => {
-                console.log(res);
-                toast("Comment deleted.", {
-                    autoClose: 500,
-                    type: 'success',
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                    theme: toast.THEME.DARK
-                });
-                this.loadComments();
-            })
-            .catch(err => {
-                console.log(err);
-                toast("Error occured while deleting comment!", {
-                    autoClose: 1000,
-                    type: 'error',
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                    theme: toast.THEME.DARK
-                });
-            });
-        }
 
     }
 }
