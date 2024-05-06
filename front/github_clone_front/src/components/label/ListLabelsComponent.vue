@@ -20,6 +20,24 @@
         </div>
     </div>
 
+    <!-- Modal edit -->
+    <div class="modal fade" id="exampleModalUpdate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document" style="background-color: #24292e; border: 2px solid;">
+            <div class="modal-content" style="background-color: #24292e;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel" style="color: beige">Update label</h5>
+                    <button type="button" id="editModalCloseId" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <UpdateLabelComponent :selectedLabel="selectedLabel" @labelUpdated="labelUpdated"
+                        v-if="selectedLabel !== null" />
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div style="background-color: #24292e; height: 100vh;">
         <div class="container w-75 pt-4" style="background-color: #24292e;">
             <div class="d-flex justify-content-between">
@@ -67,13 +85,15 @@
 import { toast } from 'vue3-toastify';
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
 import AddLabelComponent from '@/components/label/AddLabelComponent.vue';
+import UpdateLabelComponent from '@/components/label/UpdateLabelComponent.vue';
 import LabelService from '@/services/LabelService';
 
 export default {
     name: 'ListLabelsComponent',
     components: {
         RepoNavbar,
-        AddLabelComponent
+        AddLabelComponent,
+        UpdateLabelComponent
     },
     mounted() {
         this.getAllLabelsForRepo();
@@ -139,6 +159,16 @@ export default {
 
         closeAddModal() {
             document.getElementById('addModalCloseId').click();
+        },
+
+        labelUpdated() {
+            this.closeUpdateModal();
+            this.selectedLabel = null;
+            this.getAllLabelsForRepo();
+        },
+
+        closeUpdateModal() {
+            document.getElementById('editModalCloseId').click();
         },
 
         canModifyLabels() {
