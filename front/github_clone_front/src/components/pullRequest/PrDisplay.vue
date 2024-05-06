@@ -71,7 +71,7 @@
                     <CommentDisplay 
                         :username="this.$route.params.username" 
                         :repoName="this.$route.params.repoName"
-                        :entityType="pull_request"
+                        :entityType="'pull_request'"
                         :entityId="this.$route.params.id"
                         >
                     </CommentDisplay>

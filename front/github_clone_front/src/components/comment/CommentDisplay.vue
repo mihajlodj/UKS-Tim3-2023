@@ -50,7 +50,7 @@ export default {
         username: String,
         repoName: String,
         entityType: String,     // issue, milestone, pull_request
-        entityId: Int32Array,
+        entityId: String,
     },
 
     data() {
@@ -62,7 +62,7 @@ export default {
 
     methods: {
         loadComments() {
-            CommentService.getAllCommentsForPullRequest(this.username, this.repoName, this.entityId)
+            CommentService?.getAllComments(this.username, this.repoName, this.entityType, this.entityId)
             .then(res => {
                 console.log(res.data);
                 this.comments = res.data;
@@ -103,7 +103,7 @@ export default {
             let data = {
                 "content": this.newCommentContent,
                 "parent": null,
-                "type_for": "pull_request",
+                "type_for": this.entityType,
                 "type_id": this.entityId,
             };
 
