@@ -1,6 +1,6 @@
 <template>
     <div>
-        <RepoNavbar starting="milestones" />
+        <RepoNavbar starting="labels" />
     </div>
 
     <!-- Modal add -->
