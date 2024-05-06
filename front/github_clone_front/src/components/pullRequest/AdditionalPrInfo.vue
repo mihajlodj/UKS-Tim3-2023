@@ -73,7 +73,7 @@
 <script>
 import ReviewersModal from "@/components/pullRequest/modals/ReviewersModal.vue"
 import AssigneesModal from "@/components/pullRequest/modals/AssigneesModal.vue"
-import LabelsModal from "@/components/pullRequest/modals/LabelsModal.vue"
+import LabelsModal from "@/components/label/LabelsModal.vue"
 import MilestoneModal from "@/components/pullRequest/modals/MilestoneModal.vue"
 
 export default {
