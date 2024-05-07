@@ -169,6 +169,15 @@ def get_one(request, owner_username, repository_name, pull_id):
             'stats': commit_data['stats']
         })
 
+    # Labels data
+    from_req_labels = req.labels.all()
+    for label in from_req_labels:
+        result['labels'].append({
+            'id': label.id,
+            'name': label.name,
+            'description': label.description
+        })
+
     # Diff
     response = gitea_service.get_pull_request_diff(owner_username, repository_name, pull_id)
     diff, overall_additions, overall_deletions = diff_parser.parse_diff(response.text)
