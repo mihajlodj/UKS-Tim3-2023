@@ -98,7 +98,7 @@ def link_label_to_pull_request(request, owner_username, repository_name, label_i
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if not pull_request_id.isdigit():
         raise Http404()
-    if not Issue.objects.filter(id=pull_request_id).exists():
+    if not PullRequest.objects.filter(id=pull_request_id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     label = Label.objects.get(id=label_id)
     pull_request = PullRequest.objects.get(id=pull_request_id)
