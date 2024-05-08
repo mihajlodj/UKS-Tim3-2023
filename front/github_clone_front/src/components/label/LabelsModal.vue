@@ -2,21 +2,19 @@
     <div class="contain p-2" :style="{ top: y + 'px', left: x + 'px', width: w + 'px' }" @click="preventClose">
         <h6 class="mt-1 bright small">Apply labels to this pull request</h6>
         <hr class="muted" />
-        <input type="text" v-model="search" class="w-100 p-2 muted" placeholder="Filter lables" />
-        <hr class="muted" />
 
         <!-- One label container -->
-        <div class="container">
+        <div class="container" v-for="(label, index) in labels" :key="index">
             <div class="row">
                 <div class="col-md-1">
-                    <svg viewBox="0 0 16 16" class="" aria-hidden="true" width="16" height="16" v-if="true">
+                    <svg viewBox="0 0 16 16" class="" aria-hidden="true" width="16" height="16" v-if="label.isSelected">
                         <path
                             d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z">
                         </path>
                     </svg>
                 </div>
                 <div class="col-md-7">
-                    <p class="muted small mt-1">Label name</p>
+                    <p class="muted small mt-1">{{ label.name }}</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <!-- Add button -->
@@ -41,7 +39,7 @@
             <hr class="muted" />
         </div>
 
-        <div id="no-labels" v-if="true">
+        <div id="no-labels" v-if="labels.length === 0">
             <hr class="muted" />
             <label class="mb-1 muted">Nothing to show</label>
         </div>
@@ -50,17 +48,56 @@
 </template>
 
 <script>
+import { toast } from 'vue3-toastify';
+import LabelService from '@/services/LabelService';
+
 export default {
     name: "LabelsModal",
-    props: ["x", "y", "w"],
+    props: ["x", "y", "w", "selectedLabels"],
 
     data() {
         return {
-            search: ''
+            username: this.$route.params.username,
+            repo: this.$route.params.repoName,
+            labels: [],
         }
     },
 
+    mounted() {
+        this.copySelectedLabels();
+        this.getAllLabels();
+    },
+
     methods: {
+
+        getAllLabels() {
+            LabelService.getAllLabels(this.username, this.repo)
+                .then(res => {
+                    for (let label of res.data) {
+                        if (!this.labels.find(l => l.id === label.id)) {
+                            label['isSelected'] = false;
+                            this.labels.push(label);
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Error occured while getting Labels!", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+        },
+
+        copySelectedLabels() {
+            for (let label of this.selectedLabels) {
+                label['isSelected'] = true;
+                this.labels.push(label);
+            }
+        },
+
         close(e) {
             e.preventDefault();
             console.log(e.target.classList);

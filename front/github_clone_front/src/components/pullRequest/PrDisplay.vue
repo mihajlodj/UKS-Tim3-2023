@@ -96,7 +96,7 @@
             </div>
 
             <div v-if="chosenTab === 'conversation'" class="w-25">
-                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" 
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" :selectedLabels="pull.labels"
                     @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" @updateReviewers="updateReviewers" />
                 <hr class="bright"/>
                 <div class="w-100 d-flex justify-content-end mt-3">
