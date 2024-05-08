@@ -18,7 +18,7 @@
                 </div>
                 <div class="col-md-4 text-end">
                     <!-- Add button -->
-                    <button class="button-color">
+                    <button class="button-color" @click="linkLabel(label.id)">
                         <svg viewBox="0 0 16 16" class="" aria-hidden="true" width="16" height="16">
                             <path
                                 d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z">
@@ -53,7 +53,7 @@ import LabelService from '@/services/LabelService';
 
 export default {
     name: "LabelsModal",
-    props: ["x", "y", "w", "selectedLabels"],
+    props: ["x", "y", "w", "selectedLabels", "entityType", "entityId"],     // entityType: milestone, issue, pull_request; entityId is id of entytyType
 
     data() {
         return {
@@ -64,11 +64,16 @@ export default {
     },
 
     mounted() {
-        this.copySelectedLabels();
-        this.getAllLabels();
+        this.loadLabels();
     },
 
     methods: {
+
+        loadLabels() {
+            this.labels = [];
+            this.copySelectedLabels();
+            this.getAllLabels();
+        },
 
         getAllLabels() {
             LabelService.getAllLabels(this.username, this.repo)
@@ -95,6 +100,41 @@ export default {
             for (let label of this.selectedLabels) {
                 label['isSelected'] = true;
                 this.labels.push(label);
+            }
+        },
+
+        linkLabel(labelId) {
+            if (this.entityType === "milestone") {
+                console.log("TODO: milestone");
+            }
+            else if (this.entityType === "issue") {
+                console.log("TODO: issue");
+            }
+            else if (this.entityType === "pull_request") {
+                LabelService.linkLabelAndPullRequest(this.username, this.repo, labelId, this.entityId)
+                    .then(res => {
+                        console.log(res);
+                        toast("Label added!", {
+                            autoClose: 500,
+                            type: 'success',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                        const label = this.labels.find(l => l.id === labelId);
+                        label.isSelected = true;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        toast("Error occured while adding label!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                    });
+            }
+            else {
+                console.log("ERROR: entityType prop invalid!");
             }
         },
 
