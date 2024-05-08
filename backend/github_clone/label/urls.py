@@ -9,6 +9,7 @@ urlpatterns = [
     path('update/<str:owner_username>/<str:repository_name>/<str:id>/', UpdateLabelView.as_view(), name='update_label'),
     path('link/milestone/<str:owner_username>/<str:repository_name>/<str:label_id>/<str:milestone_id>/', link_label_to_milestone, name='link_label_to_milestone'),
     path('link/issue/<str:owner_username>/<str:repository_name>/<str:label_id>/<str:issue_id>/', link_label_to_issue, name='link_label_to_issue'),
+    path('unlink/issue/<str:owner_username>/<str:repository_name>/<str:label_id>/<str:issue_id>/', unlink_label_to_issue, name='unlink_label_to_issue'),
     path('link/pull_request/<str:owner_username>/<str:repository_name>/<str:label_id>/<str:pull_request_id>/', link_label_to_pull_request, name='link_label_to_pull_request'),
     path('unlink/pull_request/<str:owner_username>/<str:repository_name>/<str:label_id>/<str:pull_request_id>/', unlink_label_to_pull_request, name='unlink_label_to_pull_request'),
 ]

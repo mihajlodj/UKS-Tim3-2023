@@ -91,6 +91,26 @@ def link_label_to_issue(request, owner_username, repository_name, label_id, issu
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def unlink_label_to_issue(request, owner_username, repository_name, label_id, issue_id):
+    if not label_id.isdigit():
+        raise Http404()
+    if not Label.objects.filter(id=label_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if not issue_id.isdigit():
+        raise Http404()
+    if not Issue.objects.filter(id=issue_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    label = Label.objects.get(id=label_id)
+    issue = Issue.objects.get(id=issue_id)
+    if label.project != issue.project:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    issue.labels.remove(label)
+    issue.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
 def link_label_to_pull_request(request, owner_username, repository_name, label_id, pull_request_id):
     if not label_id.isdigit():
         raise Http404()
