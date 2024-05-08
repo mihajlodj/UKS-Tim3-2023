@@ -52,38 +52,43 @@
     </div>
   </div>
   <div>
-    <table style="margin-left:auto; margin-right:auto;">
+    <table style="margin-left:auto; margin-right:auto; width: 80%;">
       <tr colspan="8">
         <span font-size="28px" font-weight="bold">Open issues</span>
         <hr>
       </tr>
       <tr colspan="8">
-        <table class="tg bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
-          <thead>
+        <table class="table" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
+          <thead class="thead-dark">
             <tr>
-              <th class="tg-lboi">Title</th>
-              <th class="tg-lboi">Description</th>
-              <th class="tg-lboi">Created</th>
-              <th class="tg-lboi">Managing developer</th>
-              <th class="tg-lboi">Milestone</th>
-              <th colspan="3" class="tg-lboi"></th>
+              <th >Title</th>
+              <th >Description</th>
+              <th >Created</th>
+              <th >Managing developer</th>
+              <th >Milestone</th>
+              <th colspan="4" ></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in this.filteredOpenIssues" :key="index">
-              <td class="tg-c7q8">{{ item.title }}</td>
-              <td class="tg-c7q8">{{ item.description }}</td>
-              <td class="tg-c7q8">{{ item.created.slice(0, 10) }}</td>
-              <td class="tg-c7q8">{{ item.manager }}</td>
-              <td class="tg-c7q8">{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
-              <td class="tg-c7q8">
+              <td >{{ item.title }}</td>
+              <td >{{ item.description }}</td>
+              <td >{{ item.created.slice(0, 10) }}</td>
+              <td >{{ item.manager }}</td>
+              <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
+              <td >
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                   data-bs-target="#exampleModalUpdate" @click="this.setProps(index, this.filteredOpenIssues)">Edit</button>
               </td>
-              <td class="tg-c7q8">
+              <td>
+                <button type="button" class="btn btn-success" @click="goToIssueDetails(item)">
+                  Details
+                </button>
+              </td>
+              <td >
                 <button type="button" class="btn btn-warning" @click="this.close(item.id)">Close</button>
               </td>
-              <td class="tg-c7q8">
+              <td >
                 <button type="button" class="btn btn-danger" @click="this.delete(item.id)">Delete</button>
               </td>
             </tr>
@@ -100,29 +105,29 @@
 
   </div>
   <div>
-    <table style="margin-left:auto; margin-right:auto;">
+    <table style="margin-left:auto; margin-right:auto; width: 80%;">
       <tr>
         <span font-size="28px" font-weight="bold">Closed issues</span>
         <hr>
       </tr>
       <tr>
-        <table class="tg bg-light" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
-          <thead>
-            <tr>
-              <th class="tg-lboi">Title</th>
-              <th class="tg-lboi">Description</th>
-              <th class="tg-lboi">Created</th>
-              <th class="tg-lboi">Managing developer</th>
-              <th class="tg-lboi">Milestone</th>
+        <table class="table" style="margin-left:auto;margin-right:auto; border-radius: 10px;">
+          <thead class="thead-dark" >
+            <tr >
+              <th >Title</th>
+              <th >Description</th>
+              <th >Created</th>
+              <th >Managing developer</th>
+              <th >Milestone</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in this.filteredClosedIssues" :key="index">
-              <td class="tg-c7q8">{{ item.title }}</td>
-              <td class="tg-c7q8">{{ item.description }}</td>
-              <td class="tg-c7q8">{{ item.created.slice(0, 10) }}</td>
-              <td class="tg-c7q8">{{ item.manager }}</td>
-              <td class="tg-c7q8">{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
+              <td >{{ item.title }}</td>
+              <td >{{ item.description }}</td>
+              <td >{{ item.created.slice(0, 10) }}</td>
+              <td >{{ item.manager }}</td>
+              <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
             </tr>
           </tbody>
         </table>
@@ -199,7 +204,7 @@ export default {
         title: this.propTitle,
         description: this.propDescription,
         milestone: this.propMilestone,
-        repoName: this.$route.params.repoName
+        project: this.$route.params.repoName
       }
       IssueService.updateIssue(updatedIssue)
         .then((res) => {
@@ -248,59 +253,23 @@ export default {
     updateMilestone(modifiedValue) {
       this.propMilestone = modifiedValue;
       this.filteredOpenIssues[this.propIndex].milestone = modifiedValue;
+    },
+    goToIssueDetails(issue) {
+      let username = this.$route.params.ownerUsername;
+      let repoName = this.$route.params.repoName;
+      let issue_id = issue.id;
+      let route = '/view/' + username + '/' + repoName + '/issues/' + issue_id;
+
+      this.$router.push(route);
+      
     }
   }
 }
 </script>
 <style scoped>
-.tg {
-  border-collapse: collapse;
-  border-color: #bbb;
-  border-spacing: 0;
-  border-radius: 10px;
+thead th {
+  background-color: #e9ecef;
 }
-
-.tg td {
-  border-color: #bbb;
-  border-style: solid;
-  border-bottom: 0px;
-  color: #594F4F;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  overflow: hidden;
-  padding: 10px 5px;
-  word-break: normal;
-}
-
-.tg th {
-  border-color: #bbb;
-  border-style: solid;
-  border-bottom: 0px;
-  color: #493F3F;
-  font-family: Arial, sans-serif;
-  font-size: 14px;
-  font-weight: normal;
-  overflow: hidden;
-  padding: 10px 5px;
-  word-break: normal;
-}
-
-.tg .tg-cly1 {
-  text-align: center;
-  vertical-align: middle
-}
-
-.tg .tg-lboi {
-  border-color: inherit;
-  text-align: center;
-  vertical-align: middle
-}
-
-.tg .tg-c7q8 {
-  text-align: center;
-  vertical-align: middle
-}
-
 button:hover {
   color: white;
 }

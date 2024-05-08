@@ -13,9 +13,9 @@
                 id="dropdownMenuButton" 
                 data-bs-toggle="dropdown" 
                 aria-haspopup="true" 
-                aria-expanded="false">{{milestone}}</button>
+                aria-expanded="false">{{milestone ? milestone.title : 'Select milestone'}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="this.milestone = item.title">{{item.title}}</a>
+                <a class="dropdown-item" v-for="(item, index) in this.milestones" :key="index" @click="setMilestone(item)">{{item.title}}</a>
             </div> 
         </div>
        
@@ -36,12 +36,12 @@ export default {
     },
     props: ['milestones'],
     mounted() {
-        this.milestone = 'Select milestone';
     },
 
     data() {
         return {
-            milestone: '',
+            milestoneId: null,
+            milestone: null,
             title: '',
             description: '',
             created: '',
@@ -50,16 +50,19 @@ export default {
     },
     methods: {
         submit() {
-            IssueService.createIssue({
+            let newIssue = {
                 title: this.title,
                 description: this.description,
                 // created: Date.now(), // add date string
                 creator: localStorage.getItem("username"),
                 managers: [],
                 open: true,
-                milestone: this.milestone === 'Select milestone' ? '' : this.milestone,
-                project: this.$route.params.repoName
-            }).then((res) => {
+                milestone: this.milestoneId,
+                project: this.repo
+            }
+            console.log('Created issue');
+            console.log(newIssue)
+            IssueService.createIssue(newIssue).then((res) => {
                 console.log(res);
                 toast("Issue created", {
                     autoClose: 1000,
@@ -80,6 +83,10 @@ export default {
         },
         typeDescription(obj) {
             this.description = obj.val;
+        },
+        setMilestone(item) {
+            this.milestoneId = item.id;
+            this.milestone = item;
         }
     }
 }
