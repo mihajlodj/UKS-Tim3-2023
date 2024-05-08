@@ -38,7 +38,7 @@
                     <button v-if="this.issue.open === true" type="button" class="btn btn-warning bright p-2 me-2" @click="this.close()">
                         Close issue
                     </button>
-                    <button v-if="this.issue.open === false" type="button" class="btn btn-warning bright p-2 me-2" @click="this.reopen()">
+                    <button v-else type="button" class="btn btn-warning bright p-2 me-2" @click="this.reopen()">
                         Reopen issue
                     </button>
                     <button type="button" class="btn btn-success p-2 me-2" @click="postComment">
