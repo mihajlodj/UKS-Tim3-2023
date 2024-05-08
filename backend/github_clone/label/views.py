@@ -71,6 +71,26 @@ def link_label_to_milestone(request, owner_username, repository_name, label_id, 
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def unlink_label_to_milestone(request, owner_username, repository_name, label_id, milestone_id):
+    if not label_id.isdigit():
+        raise Http404()
+    if not Label.objects.filter(id=label_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    if not milestone_id.isdigit():
+        raise Http404()
+    if not Milestone.objects.filter(id=milestone_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    label = Label.objects.get(id=label_id)
+    milestone = Milestone.objects.get(id=milestone_id)
+    if label.project != milestone.project:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    milestone.labels.remove(label)
+    milestone.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
 def link_label_to_issue(request, owner_username, repository_name, label_id, issue_id):
     if not label_id.isdigit():
         raise Http404()
