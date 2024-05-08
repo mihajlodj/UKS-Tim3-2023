@@ -119,6 +119,7 @@
               <th >Created</th>
               <th >Managing developer</th>
               <th >Milestone</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -128,6 +129,11 @@
               <td >{{ item.created.slice(0, 10) }}</td>
               <td >{{ item.manager }}</td>
               <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
+              <td>
+                <button type="button" class="btn btn-success" @click="goToIssueDetails(item)">
+                  Details
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>

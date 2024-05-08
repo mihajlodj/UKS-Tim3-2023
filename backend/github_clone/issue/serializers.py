@@ -67,5 +67,5 @@ def serialize_managers(issue):
 
 def serialize_milestone(issue):
     if issue.milestone is None:
-        return ''
+        return -1
     return issue.milestone.id
