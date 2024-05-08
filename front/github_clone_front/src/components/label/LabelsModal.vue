@@ -27,7 +27,7 @@
                     </button>
 
                     <!-- Remove button -->
-                    <button class="button-color">
+                    <button class="button-color" @click="unlinkLabel(label.id)">
                         <svg viewBox="0 0 16 16" class="" aria-hidden="true" width="16" height="16">
                             <path
                                 d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z">
@@ -53,13 +53,14 @@ import LabelService from '@/services/LabelService';
 
 export default {
     name: "LabelsModal",
-    props: ["x", "y", "w", "selectedLabels", "entityType", "entityId"],     // entityType: milestone, issue, pull_request; entityId is id of entytyType
+    props: ["x", "y", "w", "selectedLabelsProp", "entityType", "entityId"],     // entityType: milestone, issue, pull_request; entityId is id of entytyType
 
     data() {
         return {
             username: this.$route.params.username,
             repo: this.$route.params.repoName,
             labels: [],
+            selectedLabels: this.selectedLabelsProp,
         }
     },
 
@@ -116,6 +117,7 @@ export default {
                         });
                         const label = this.labels.find(l => l.id === labelId);
                         label.isSelected = true;
+                        this.selectedLabels.push(label);
                     })
                     .catch(err => {
                         console.log(err);
@@ -139,6 +141,7 @@ export default {
                         });
                         const label = this.labels.find(l => l.id === labelId);
                         label.isSelected = true;
+                        this.selectedLabels.push(label);
                     })
                     .catch(err => {
                         console.log(err);
@@ -162,6 +165,7 @@ export default {
                         });
                         const label = this.labels.find(l => l.id === labelId);
                         label.isSelected = true;
+                        this.selectedLabels.push(label);
                     })
                     .catch(err => {
                         console.log(err);
@@ -175,6 +179,49 @@ export default {
             }
             else {
                 console.log("ERROR: entityType prop invalid!");
+            }
+        },
+
+        async unlinkLabel(labelId) {
+            if (this.entityType === "milestone") {
+                console.log("TODO unlink milestone");
+            }
+            else if (this.entityType === "issue") {
+                console.log("TODO unlink issue");
+            }
+            else if (this.entityType === "pull_request") {
+                LabelService.unlinkLabelAndPullRequest(this.username, this.repo, labelId, this.entityId)
+                    .then(res => {
+                        console.log(res);
+                        toast("Label removed!", {
+                            autoClose: 500,
+                            type: 'success',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                        const label = this.labels.find(l => l.id === labelId);
+                        label.isSelected = false;
+                        this.removeLabelFromSelectedLabels(labelId);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        toast("Error occured while removing label!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                    });
+            }
+            else {
+                console.log("ERROR: entityType prop invalid!");
+            }
+        },
+
+        removeLabelFromSelectedLabels(id) {
+            const index = this.selectedLabels.findIndex(item => item.id === id);
+            if (index !== -1) {
+                this.selectedLabels.splice(index, 1);
             }
         },
 

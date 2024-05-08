@@ -48,7 +48,7 @@
                 <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
             </button>
             <label v-if="labels.length == 0" class="bright small">None yet</label>
-            <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" :selectedLabels="labels" :entityType="'pull_request'" :entityId="prId" @closeModal="toggleModal('labels')" />
+            <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" :selectedLabelsProp="labels" :entityType="'pull_request'" :entityId="prId" @closeModal="toggleModal('labels')" />
         </div>
         <hr class="muted" />
 

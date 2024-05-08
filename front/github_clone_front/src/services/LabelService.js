@@ -28,5 +28,18 @@ const linkLabelAndPullRequest = (username, repoName, labelId, pullRequestId) => 
     return api.put(`label/link/pull_request/${username}/${repoName}/${labelId}/${pullRequestId}/`);    
 }
 
+const unlinkLabelAndMilestone = (username, repoName, labelId, milestoneId) => {
+    return api.put(`label/unlink/milestone/${username}/${repoName}/${labelId}/${milestoneId}/`);
+}
+
+const unlinkLabelAndIssue = (username, repoName, labelId, issueId) => {
+    return api.put(`label/unlink/issue/${username}/${repoName}/${labelId}/${issueId}/`);    
+}
+
+const unlinkLabelAndPullRequest = (username, repoName, labelId, pullRequestId) => {
+    return api.put(`label/unlink/pull_request/${username}/${repoName}/${labelId}/${pullRequestId}/`);    
+}
+
 export default { getAllLabels, createLabel, updateLabel, deleteLabel, 
-    linkLabelAndMilestone, linkLabelAndIssue, linkLabelAndPullRequest }
+    linkLabelAndMilestone, linkLabelAndIssue, linkLabelAndPullRequest, 
+    unlinkLabelAndMilestone, unlinkLabelAndIssue, unlinkLabelAndPullRequest }
