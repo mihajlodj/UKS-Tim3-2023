@@ -32,11 +32,11 @@ class IssueView(generics.CreateAPIView):
 @permission_classes([IsAuthenticated])
 def update_issue(request):
     pk = request.data.get('id')
-    reponame = request.data['repoName']
+    reponame = request.data['project']
     issue = Issue.objects.get(id=pk)
     issue.title = request.data['title']
     try:
-        issue.milestone = Milestone.objects.get(project__name=reponame, title=request.data['milestone']['title'])
+        issue.milestone = Milestone.objects.get(project__name=reponame, id=request.data['milestone'])
     except main.models.Milestone.DoesNotExist:
         pass
     except TypeError:
@@ -127,9 +127,25 @@ def get_all_issues(request, query):
 def get_issue(request, pk):
     try:
         issue = Issue.objects.get(pk=pk)
-        return JsonResponse(issue)
+        creator = Developer.objects.get(user__id=issue.creator.id)
+        serialized_issue = {
+            'id': issue.id,
+            'title': issue.title,
+            'description': issue.description,
+            'open': issue.open,
+            'created': issue.created,
+            'creator': {
+                'username': creator.user.username,
+                'avatar': creator.avatar
+            },
+            'project': Project.objects.get(id=issue.project.id).name,
+            'milestone': None if issue.milestone is None else serialize_milestone(
+                Milestone.objects.get(id=issue.milestone.id)),
+            'tags': []
+        }
+        return JsonResponse(serialized_issue, safe=False, status=200)
     except Exception:
-        return JsonResponse([], safe=False, status=200)
+        return JsonResponse([], safe=False, status=400)
 
 
 @api_view(['DELETE'])
@@ -154,6 +170,16 @@ def close_issue(request, repo_name, pk):
     issue.save()
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.close_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
+    return HttpResponse(status=200)
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def reopen_issue(request, repo_name, pk):
+    issue = Issue.objects.get(pk=pk)
+    issue.open = True
+    issue.save()
+    owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
+    gitea_service.reopen_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
     return HttpResponse(status=200)
 
 

@@ -87,7 +87,6 @@ class Issue(models.Model):
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
     open = models.BooleanField(default=True)
-    tags = models.ManyToManyField(Tag, related_name='labels', blank=True)
 
 
 class Branch(models.Model):
