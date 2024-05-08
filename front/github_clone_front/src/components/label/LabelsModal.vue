@@ -105,10 +105,50 @@ export default {
 
         linkLabel(labelId) {
             if (this.entityType === "milestone") {
-                console.log("TODO: milestone");
+                LabelService.linkLabelAndMilestone(this.username, this.repo, labelId, this.entityId)
+                    .then(res => {
+                        console.log(res);
+                        toast("Label added!", {
+                            autoClose: 500,
+                            type: 'success',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                        const label = this.labels.find(l => l.id === labelId);
+                        label.isSelected = true;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        toast("Error occured while adding label!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                    });
             }
             else if (this.entityType === "issue") {
-                console.log("TODO: issue");
+                LabelService.linkLabelAndIssue(this.username, this.repo, labelId, this.entityId)
+                    .then(res => {
+                        console.log(res);
+                        toast("Label added!", {
+                            autoClose: 500,
+                            type: 'success',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                        const label = this.labels.find(l => l.id === labelId);
+                        label.isSelected = true;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        toast("Error occured while adding label!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                    });
             }
             else if (this.entityType === "pull_request") {
                 LabelService.linkLabelAndPullRequest(this.username, this.repo, labelId, this.entityId)
