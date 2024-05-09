@@ -184,10 +184,52 @@ export default {
 
         async unlinkLabel(labelId) {
             if (this.entityType === "milestone") {
-                console.log("TODO unlink milestone");
+                LabelService.unlinkLabelAndMilestone(this.username, this.repo, labelId, this.entityId)
+                    .then(res => {
+                        console.log(res);
+                        toast("Label removed!", {
+                            autoClose: 500,
+                            type: 'success',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                        const label = this.labels.find(l => l.id === labelId);
+                        label.isSelected = false;
+                        this.removeLabelFromSelectedLabels(labelId);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        toast("Error occured while removing label!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                    });
             }
             else if (this.entityType === "issue") {
-                console.log("TODO unlink issue");
+                LabelService.unlinkLabelAndIssue(this.username, this.repo, labelId, this.entityId)
+                    .then(res => {
+                        console.log(res);
+                        toast("Label removed!", {
+                            autoClose: 500,
+                            type: 'success',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                        const label = this.labels.find(l => l.id === labelId);
+                        label.isSelected = false;
+                        this.removeLabelFromSelectedLabels(labelId);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        toast("Error occured while removing label!", {
+                            autoClose: 1000,
+                            type: 'error',
+                            position: toast.POSITION.BOTTOM_RIGHT,
+                            theme: toast.THEME.DARK
+                        });
+                    });
             }
             else if (this.entityType === "pull_request") {
                 LabelService.unlinkLabelAndPullRequest(this.username, this.repo, labelId, this.entityId)
