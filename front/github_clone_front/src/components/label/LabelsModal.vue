@@ -1,6 +1,6 @@
 <template>
     <div class="contain p-2" :style="{ top: y + 'px', left: x + 'px', width: w + 'px' }" @click="preventClose">
-        <h6 class="mt-1 bright small">Apply labels to this pull request</h6>
+        <h6 class="mt-1 bright small">{{ topMessage }}</h6>
         <hr class="muted" />
 
         <!-- One label container -->
@@ -66,6 +66,23 @@ export default {
 
     mounted() {
         this.loadLabels();
+    },
+
+    computed: {
+        topMessage() {
+            if (this.entityType === "milestone") {
+                return 'Apply labels to this milestone';
+            }
+            else if (this.entityType === "issue") {
+                return 'Apply labels to this issue';
+            }
+            else if (this.entityType === "pull_request") {
+                return 'Apply labels to this pull request'
+            }
+            else {
+                return '';
+            }
+        }
     },
 
     methods: {
@@ -182,7 +199,7 @@ export default {
             }
         },
 
-        async unlinkLabel(labelId) {
+        unlinkLabel(labelId) {
             if (this.entityType === "milestone") {
                 LabelService.unlinkLabelAndMilestone(this.username, this.repo, labelId, this.entityId)
                     .then(res => {
