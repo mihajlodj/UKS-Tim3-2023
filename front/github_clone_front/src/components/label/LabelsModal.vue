@@ -57,7 +57,7 @@ export default {
 
     data() {
         return {
-            username: this.$route.params.username,
+            username: '',
             repo: this.$route.params.repoName,
             labels: [],
             selectedLabels: this.selectedLabelsProp,
@@ -65,6 +65,12 @@ export default {
     },
 
     mounted() {
+        if (this.$route.params.username !== undefined) {
+            this.username = this.$route.params.username;
+        }
+        else if (this.$route.params.ownerUsername !== undefined) {
+            this.username = this.$route.params.ownerUsername;
+        }
         this.loadLabels();
     },
 
