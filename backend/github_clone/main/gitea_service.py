@@ -290,6 +290,16 @@ def close_issue(owner, repo, issue, index):
     response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
 
+def reopen_issue(owner, repo, issue, index):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}'
+    body = {
+        'id': issue.id,
+        'closed': False,
+        'state': 'open'
+    }
+    response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+    return response.json()
+
 def add_collaborator(owner_username, repository_name, collaborator_username, permission='write'):
     api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/collaborators/{collaborator_username}'
     body = {'permission': permission}

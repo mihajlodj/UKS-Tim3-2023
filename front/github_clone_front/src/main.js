@@ -51,6 +51,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 // test
 // import IssueComponent from './components/issue/IssueComponent'
 import ListIssueComponent from './components/issue/ListIssueComponent.vue'
+import IssueViewComponent from './components/issue/IssueViewComponent.vue'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
@@ -191,6 +192,10 @@ const routes = [
     {
         path: "/view/:username/:repoName/fork",
         component: ForkRepo
+    },
+    {
+        path: "/view/:ownerUsername/:repoName/issues/:issue_id",
+        component: IssueViewComponent
     }
 ]
 

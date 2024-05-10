@@ -118,23 +118,6 @@ def test_get_issues(get_token):
     }
     response = client.get(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.content) == 186
-    assert len(response.json()) == 1
-    assert response.json()[0]['project'] == repo_name
-    assert response.json()[0]['creator'] == username1
-    assert response.json()[0]['title'] == 'issue1'
-    assert response.json()[0]['description'] == 'description1'
-    assert response.json()[0]['id'] == 1
-
-@pytest.mark.django_db
-def test_get_issues(get_token):
-    url = f'/issue/issues/{username1}/MyNewTestRepo/'
-    headers = {
-        'Authorization': f'Bearer {get_token}'
-    }
-    response = client.get(url, headers=headers)
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.content) == 186
     assert len(response.json()) == 1
     assert response.json()[0]['project'] == repo_name
     assert response.json()[0]['creator'] == username1
@@ -176,8 +159,8 @@ def test_update_issue(get_token):
         'id': 1,
         'title': 'new_issue_title',
         'description': 'new_description',
-        'milestone': '',
-        'repoName': repo_name
+        'milestone': None,
+        'project': repo_name
     }
     response_get_old = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response_get_old.status_code == status.HTTP_200_OK

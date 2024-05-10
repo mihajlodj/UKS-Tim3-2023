@@ -24,8 +24,12 @@ const closeIssue = (repoName, id) => {
     return api.patch("issue/close/" + repoName + "/" + id + "/");
 }
 
+const reopenIssue = (repoName, id) => {
+    return api.patch("issue/reopen/" + repoName + "/" + id + "/");
+}
+
 const deleteIssue = (repoName, id) => {
     return api.delete("issue/" + repoName + "/" + id + "/");
 }
 
-export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue, getAllQueryIssues};
+export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue, getAllQueryIssues, reopenIssue};

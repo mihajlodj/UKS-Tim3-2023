@@ -13,7 +13,7 @@
             id="dropdownMenuButton" 
             data-bs-toggle="dropdown" 
             aria-haspopup="true" 
-            aria-expanded="false">{{this.milestone}}</button>
+            aria-expanded="false">{{this.milestone ? this.milestone.title : 'None selected'}}</button>
             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" v-for="(item, index) in this.allMilestones" :key="index" @click="modifyMilestone(item)">{{item.title}}</a>
             </div>
@@ -34,6 +34,7 @@ export default {
     data() {
         return {
             receivedMilestone: this.milestone,
+            milestoneId: null
         }
     },
     methods: {
@@ -41,7 +42,7 @@ export default {
             this.$emit('updateIssue');
         },
         modifyMilestone(item) {
-            this.receivedMilestone = item.title;
+            this.receivedMilestone = item.id;
             this.$emit('propModified', this.receivedMilestone);
         },
         typeTitle(obj) {
@@ -49,6 +50,9 @@ export default {
         },
         typeDescription(obj) {
             this.$emit('updateDescription', obj.val)
+        },
+        setMilestone(item) {
+            this.milestoneId = item.id;
         }
     }
 }

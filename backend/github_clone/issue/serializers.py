@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from main.models import Issue, Developer, Project, WorksOn, Milestone
 from main.gitea_service import create_issue, get_issues, update_issue, delete_issue
+from milestone.serializers import MilestoneSerializer
 
 
 class IssueSerializer(serializers.Serializer):
@@ -18,7 +19,7 @@ class IssueSerializer(serializers.Serializer):
     # manager = DeveloperSerializer()
     creator = serializers.CharField(allow_blank=False)
     project = serializers.CharField(allow_blank=False)
-    milestone = serializers.CharField(allow_blank=True)
+    milestone = serializers.IntegerField(allow_null=True)
     def create(self, validated_data):
         project = Project.objects.get(name=validated_data['project'])
         issue = Issue.objects.create(
@@ -34,8 +35,8 @@ class IssueSerializer(serializers.Serializer):
         # issue.project = Project.objects.get(name=validated_data['project'])
         # issue.manager = Developer.objects.get(user__username=validated_data['manager'])
 
-        if validated_data['milestone'] != '' and validated_data['milestone'] is not None:
-            milestone = Milestone.objects.get(title=validated_data['milestone'], project=project)
+        if validated_data['milestone'] is not None:
+            milestone = Milestone.objects.get(id=validated_data['milestone'], project=project)
             issue.milestone = milestone
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         self.create_issue_in_gitea(owner, issue)
@@ -66,5 +67,5 @@ def serialize_managers(issue):
 
 def serialize_milestone(issue):
     if issue.milestone is None:
-        return ''
-    return issue.milestone.title
+        return -1
+    return issue.milestone.id
