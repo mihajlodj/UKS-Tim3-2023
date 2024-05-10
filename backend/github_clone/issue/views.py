@@ -197,7 +197,7 @@ def get_issues(request, owner_username, repo_name):
             'description': issue['description'],
             'open': issue['open'],
             'created': issue['created'],
-            'creator': Developer.objects.get(user__id=issue['creator_id']).user.username,
+            'creator': Developer.objects.get(id=issue['creator_id']).user.username,
             'project': Project.objects.get(id=issue['project_id']).name,
             'milestone': None if issue['milestone_id'] is None else serialize_milestone(
                 Milestone.objects.get(id=issue['milestone_id'])),
