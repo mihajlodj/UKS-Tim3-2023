@@ -16,7 +16,7 @@ email = 'fake.email@gmail.com'
 username1 = 'miki4'
 password = 'kikiriki'
 repo_name = 'newrepo1'
-
+def_tag_name = 'default_tag_name'
 
 @pytest.fixture
 def create_dev_and_repo():
@@ -49,7 +49,7 @@ def save_release(create_dev_and_repo):
         target=branch,
         pre_release=False,
         draft=False,
-        tag=Tag.objects.create(name="default_tag_name", caused_by=dev1, project=repo),
+        tag=Tag.objects.create(name=def_tag_name, caused_by=dev1, project=repo),
         commit=commit,
         project=repo
     )
@@ -168,10 +168,29 @@ def test_update_release(get_token):
 
 @pytest.mark.django_db
 def test_delete_release(get_token):
-    url = f'/release/delete/miki4/newrepo1/default_tag_name/'
+    url = f'/release/delete/miki4/newrepo1/{def_tag_name}/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
     response = client.delete(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
 
+
+@pytest.mark.django_db
+def test_get_release_by_tag_name(get_token):
+    url = f'/release/get/miki4/newrepo1/{def_tag_name}/'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    response = client.get(url, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_get_release_by_id(get_token):
+    url = f'/release/miki4/newrepo1/{1}/'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    response = client.get(url, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
