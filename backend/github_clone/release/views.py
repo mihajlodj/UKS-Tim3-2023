@@ -62,7 +62,7 @@ def get_releases(request, owner_username, project_name):
     worksOn = WorksOn.objects.get(project__name=project_name, developer__user__username=owner_username)
     project = worksOn.project
     releases = Release.objects.filter(project__id=project.id)
-    return JsonResponse([serialize_release(r) for r in releases], safe=False, status=200)
+    return JsonResponse([serialize_release(r) for r in releases], safe=False, status=http_status.HTTP_200_OK)
 
 
 @api_view(['DELETE'])
@@ -75,8 +75,8 @@ def delete_release(request, owner_username, project_name, tag_name):
     gitea_service.delete_release(owner_username, project_name, release)
     gitea_service.delete_tag(owner_username, project_name, tag_name)
 
-    release.delete()  # CASCADE should delete tag object as well.
-    return Response(data=None, status=200)
+    release.delete()
+    return Response(data=None, status=http_status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -143,7 +143,7 @@ def serialize_release(release):
         'pre_release': release.pre_release,
         'draft': release.draft,
         'tag': serialize_tag(release.tag),
-        'commitish': release.commitish,
+        'commit': serialize_commit(release.commit),
         'project': release.project.name
     }
 
@@ -152,4 +152,15 @@ def serialize_tag(tag_obj):
     return {
         'id': tag_obj.id,
         'name': tag_obj.name
+    }
+
+
+def serialize_commit(commit):
+    return {
+        'hash': commit.hash,
+        'message': commit.message,
+        'author': {
+            'username': commit.author.user.username
+        },
+        'timestamp': commit.timestamp
     }

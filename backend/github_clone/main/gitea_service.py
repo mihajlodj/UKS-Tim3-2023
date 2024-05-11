@@ -361,8 +361,8 @@ def update_release(owner_username, repository_name, release):
         'draft': release.draft,
         'target_commitish': release.commit.hash
     }
-    response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
-    print(response)
+    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
 
 def delete_release(owner_username, repository_name, release):
     api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'
