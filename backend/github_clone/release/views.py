@@ -108,24 +108,24 @@ def update_release(request, owner_username, project_name):
     if updated_tag == '' or updated_tag is None:
         return JsonResponse({'message': 'Release cannot have blank tag'}, safe=False, status=http_status.HTTP_400_BAD_REQUEST)
     release = Release.objects.get(id=release_id)
-    # if updated_draft is True and release.draft is False:
-    #     return JsonResponse({'message': 'Release cannot be turned into draft'}, safe=False, status=http_status.HTTP_409_CONFLICT)
-    #
-    # try:
-    #     # check if tag already exists (the user didn't input a new tag name)
-    #     # if tag exists, do not update it.
-    #     Tag.objects.get(name=updated_tag, project__id=release.project.id)
-    # except main.models.Tag.DoesNotExist:
-    dev = Developer.objects.get(user__username=request.user)
-    new_tag = Tag.objects.create(name=updated_tag, project=release.project, caused_by=dev)
-    release.tag = new_tag
-    # release.commit.tags.add(new_tag)
-    # gitea_service.create_tag(owner_username=owner_username, repository_name=project_name, tag=new_tag, branch_name=release.target.name)
-    # new_tag.save()
-    #
-    # release.pre_release = updated_pre_release
-    # release.description = updated_description
-    # release.title = updated_title
+    if updated_draft is True and release.draft is False:
+        return JsonResponse({'message': 'Release cannot be turned into draft'}, safe=False, status=http_status.HTTP_409_CONFLICT)
+
+    try:
+        # check if tag already exists (the user didn't input a new tag name)
+        # if tag exists, do not update it.
+        Tag.objects.get(name=updated_tag, project__id=release.project.id)
+    except main.models.Tag.DoesNotExist:
+        dev = Developer.objects.get(user__username=request.user)
+        new_tag = Tag.objects.create(name=updated_tag, project=release.project, caused_by=dev)
+        release.tag = new_tag
+        release.commit.tags.add(new_tag)
+        gitea_service.create_tag(owner_username=owner_username, repository_name=project_name, tag=new_tag, branch_name=release.target.name)
+        new_tag.save()
+
+    release.pre_release = updated_pre_release
+    release.description = updated_description
+    release.title = updated_title
 
     gitea_service.update_release(owner_username, project_name, release)
     release.save()
