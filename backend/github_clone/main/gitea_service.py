@@ -346,7 +346,7 @@ def create_new_release(owner_username, repository_name, release):
         'prerelease': release.pre_release,
         'tag_name': release.tag.name,
         'draft': release.draft,
-        'commitish': release.commitish
+        'commit': release.commit.hash
     }
     requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
 
@@ -355,13 +355,14 @@ def update_release(owner_username, repository_name, release):
     api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'
     body = {
         'body': release.description,
-        'name': release.name,
+        'name': release.title,
         'prerelease': release.pre_release,
         'tag_name': release.tag.name,
-        'draft': release.draft
+        'draft': release.draft,
+        'target_commitish': release.commit.hash
     }
-    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
-
+    response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+    print(response)
 
 def delete_release(owner_username, repository_name, release):
     api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'

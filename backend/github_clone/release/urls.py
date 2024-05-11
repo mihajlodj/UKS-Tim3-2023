@@ -7,4 +7,5 @@ urlpatterns = [
     path('delete/<str:owner_username>/<str:project_name>/<str:tag_name>/', delete_release, name='delete_releases'),
     path('get/<str:owner_username>/<str:project_name>/<str:tag_name>/', get_release_by_tag_name, name='get_release_by_tag_name'),
     path('<str:owner_username>/<str:project_name>/<int:release_id>/', get_release_by_id, name='get_release_by_id'),
+    path('update/<str:owner_username>/<str:project_name>/', update_release, name='get_release_by_id'),
 ]
