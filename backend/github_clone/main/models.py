@@ -79,8 +79,10 @@ class Project(models.Model):
     default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True,
                                           blank=True)
 
+
 class Tag(Event):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=30, blank=False, null=False)
+    project = models.ForeignKey(Project, related_name="project_tag", on_delete=models.CASCADE, null=False)
     # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
@@ -101,6 +103,16 @@ class Branch(models.Model):
     parent = models.ForeignKey('self', related_name='branches', on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(Developer, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
+
+class Release(models.Model):
+    title = models.CharField(max_length=50, blank=False, null=False)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    target = models.ForeignKey(Branch, related_name="released_branch", on_delete=models.CASCADE, null=False)
+    pre_release = models.BooleanField(blank=False, null=False, default=False)
+    draft = models.BooleanField(blank=False, null=False, default=False)
+    tag = models.OneToOneField(Tag, on_delete=models.CASCADE)
+    commitish = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name="project_release", on_delete=models.CASCADE, null=False)
 
 
 class Commit(models.Model):
