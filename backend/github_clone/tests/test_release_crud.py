@@ -138,6 +138,26 @@ def test_create_release(get_token):
 
 
 @pytest.mark.django_db
+def test_create_release_httpstatus409(get_token):
+    url = '/release/miki4/newrepo1/create/'
+    data = {
+        "title": "new-release2",
+        "description": "description of the first release",
+        "branch_name": "main",
+        "pre_release": False,
+        "draft": False,
+        "tag_name": def_tag_name,
+        "caused_by_username": "miki4"
+    }
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    assert Release.objects.count() == 1
+    response = client.post(url, data, headers=headers)
+    assert response.status_code == status.HTTP_409_CONFLICT
+
+
+@pytest.mark.django_db
 def test_get_releases(get_token):
     url = f'/release/miki4/newrepo1/releases/'
     headers = {
@@ -164,6 +184,41 @@ def test_update_release(get_token):
     }
     response = client.patch(url, data=body, headers=headers)
     assert response.status_code == status.HTTP_200_OK
+
+
+@pytest.mark.django_db
+def test_update_release_httpstatus400(get_token):
+    url = f'/release/update/miki4/newrepo1/'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    body = {
+        "release_id": 1,
+        "updated_title": "updated-release1",
+        "updated_description": "updated description",
+        "updated_pre_release": True,
+        "updated_draft": False,
+        "updated_tag": ''
+    }
+    response = client.patch(url, data=body, headers=headers)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+@pytest.mark.django_db
+def test_update_release_httpstatus409(get_token):
+    url = f'/release/update/miki4/newrepo1/'
+    headers = {
+        'Authorization': f'Bearer {get_token}'
+    }
+    body = {
+        "release_id": 1,
+        "updated_title": "updated-release1",
+        "updated_description": "updated description",
+        "updated_pre_release": True,
+        "updated_draft": True,
+        "updated_tag": "edited"
+    }
+    response = client.patch(url, data=body, headers=headers)
+    assert response.status_code == status.HTTP_409_CONFLICT
 
 
 @pytest.mark.django_db

@@ -108,7 +108,7 @@ def update_release(request, owner_username, project_name):
     if updated_tag == '' or updated_tag is None:
         return JsonResponse({'message': 'Release cannot have blank tag'}, safe=False, status=http_status.HTTP_400_BAD_REQUEST)
     release = Release.objects.get(id=release_id)
-    if updated_draft is True and release.draft is False:
+    if (updated_draft is True or updated_draft == 'True') and release.draft is False:
         return JsonResponse({'message': 'Release cannot be turned into draft'}, safe=False, status=http_status.HTTP_409_CONFLICT)
 
     try:
