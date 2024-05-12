@@ -41,6 +41,14 @@ const getUserBasicInfo = (username) => {
     return api.get(`developer/${username}`);
 }
 
+const getUserBasicInfoFromId = (id) => {
+    return api.get(`developer/info/${id}`);
+}
+
+const getDeveloperBasicInfoFromId = (id) => {
+    return api.get(`developer/info/developer/${id}`);
+}
+
 const getUserGiteaBasicInfo = (username) => {
     return api.get(`developer/gitea/${username}`);
 }
@@ -66,6 +74,6 @@ const update_user_ban_status = (username) => {
     return api.patch(`developer/update_user_ban_status/${username}`);
 }
 
-export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
+export default { update, getUserBasicInfo, getUserBasicInfoFromId, getDeveloperBasicInfoFromId, getUserGiteaBasicInfo, getUserAvatar,
      getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress
     , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers, getRoles,update_user_ban_status};

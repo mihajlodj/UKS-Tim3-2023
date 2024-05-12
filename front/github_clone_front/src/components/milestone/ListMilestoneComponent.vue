@@ -33,7 +33,7 @@
     </div>
   </div>
 
-  <div style="background-color: #24292e;">
+  <div style="background-color: #24292e; height: 100vh;">
     <div class="container w-75 pt-4" style="background-color: #24292e;">
       <div class="d-flex justify-content-between">
         <h3 style="color: beige;">Milestones</h3>
