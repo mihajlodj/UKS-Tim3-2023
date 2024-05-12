@@ -29,7 +29,6 @@
                 <hr class="bright" />
             </div>
 
-            <!-- TODO: ADD COMMENT SECTION -->
             <CommentDisplay 
                 :username="this.$route.params.ownerUsername" 
                 :repoName="this.$route.params.repoName"
@@ -113,12 +112,7 @@ export default {
                 labels: [],
             },
             additionalInfoKey: 1,
-            comments: [],
             newMilestoneId: null,
-            newComment: {
-                content: '',
-                parent: undefined
-            },
             toastSuccess: {
                 autoClose: 1000,
                 type: 'success',
@@ -182,9 +176,6 @@ export default {
                 console.log(err);
                 toast("Issue reopening failed", this.toastFailed);
             });
-        },
-        postComment() {
-
         },
         updateManagers(data) {
             this.issue.manager = data;
