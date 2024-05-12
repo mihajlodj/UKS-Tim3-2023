@@ -67,7 +67,7 @@ export default {
                 console.log(res.data);
                 this.comments = res.data;
                 for (let comment of this.comments) {
-                    DeveloperService.getUserBasicInfoFromId(comment.developer_id)
+                    DeveloperService.getDeveloperBasicInfoFromId(comment.developer_id)
                     .then(res => {
                         comment['developer'] = res.data;
                     })
