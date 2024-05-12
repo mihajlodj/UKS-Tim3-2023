@@ -9,24 +9,27 @@
             <label v-if="!assignee" class="bright small">No one</label>
             <div v-else class="mt-1 d-flex justify-content-between">
                 <button type="button" class="btn-assignee w-100 d-flex justify-content-start">
-                    <img class="avatar mt-1 me-1" :src="assignee.avatar"/>
+                    <img class="avatar mt-1 me-1" :src="assignee.avatar" />
                     <label class="bright hoverable">{{ assignee.username }}</label>
                 </button>
                 <button type="button" class="btn-remove">
                     <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeAssignee" />
                 </button>
             </div>
-            <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW" @chooseAssignee="chooseAssignee" @closeModal="toggleModal('assignees')" />
+            <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW"
+                @chooseAssignee="chooseAssignee" @closeModal="toggleModal('assignees')" />
         </div>
         <hr class="muted" />
 
         <div ref="labels">
-            <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100" @click="openModal('labels')">
+            <button type="button" class="btn-gear d-flex justify-content-between align-items-center w-100"
+                @click="openModal('labels')">
                 <label class="muted hoverable">Labels</label>
                 <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
             </button>
             <label v-if="labels.length == 0" class="bright small">None yet</label>
-            <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('labels')" />
+            <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" :selectedLabelsProp="this.labels"
+                :entityType="'issue'" :entityId="issueId" @closeModal="toggleModal('labels')" />
         </div>
         <hr class="muted" />
 
@@ -43,19 +46,20 @@
                     <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeMilestone" />
                 </button>
             </div>
-            <MilestoneModal v-if="showModal['milestone']" :key="milestoneKey" :x="modalX" :y="modalY" :w="modalW" :chosen="chosenMilestone" @closeModal="toggleModal('milestone')" @milestoneChosen="milestoneChosen" />
+            <MilestoneModal v-if="showModal['milestone']" :key="milestoneKey" :x="modalX" :y="modalY" :w="modalW"
+                :chosen="chosenMilestone" @closeModal="toggleModal('milestone')" @milestoneChosen="milestoneChosen" />
         </div>
     </div>
 </template>
 
 <script>
 import AssigneesModal from "@/components/issue/modals/AssigneesModal.vue"
-import LabelsModal from "@/components/issue/modals/LabelsModal.vue"
+import LabelsModal from "@/components/label/LabelsModal.vue"
 import MilestoneModal from "@/components/issue/modals/MilestoneModal.vue"
 
 export default {
     name: "AdditionalPrInfo",
-    props: ["chosenMilestone", "chosenAssignee"],
+    props: ["chosenMilestone", "chosenAssignee", "selectedLabels", "issueId"],
     components: {
         AssigneesModal,
         LabelsModal,
@@ -64,6 +68,7 @@ export default {
     mounted() {
         this.milestone = this.chosenMilestone;
         this.assignee = this.chosenAssignee;
+        this.labels = this.selectedLabels;
     },
     data() {
         return {

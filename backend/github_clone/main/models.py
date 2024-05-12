@@ -84,6 +84,12 @@ class Tag(Event):
     # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
+class Label(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    project = models.ForeignKey(Project, related_name='labels', on_delete=models.CASCADE, null=True, blank=True)
+
+
 class Issue(models.Model):
     created = models.DateTimeField(default=timezone.now())
     title = models.CharField(max_length=255)
@@ -93,6 +99,7 @@ class Issue(models.Model):
     milestone = models.ForeignKey('Milestone', related_name='issues', on_delete=models.CASCADE, null=True)
     project = models.ForeignKey(Project, related_name='project_issues', on_delete=models.CASCADE, default=None)
     open = models.BooleanField(default=True)
+    labels = models.ManyToManyField(Label, related_name='issues', blank=True)
 
 
 class Branch(models.Model):
@@ -121,6 +128,7 @@ class Milestone(models.Model):
     description = models.TextField(null=True, blank=True)
     state = models.CharField(max_length=10, choices=MilestoneState.choices, default=MilestoneState.OPEN)
     id_from_gitea = models.IntegerField(blank=True, null=True)
+    labels = models.ManyToManyField(Label, related_name='milestones', blank=True)
 
 
 class Comment(Event):
@@ -182,6 +190,7 @@ class PullRequest(models.Model):
     gitea_id = models.IntegerField(null=True)
     mergeable = models.BooleanField(null=True)
     merged_by = models.ForeignKey(Developer, null=True, blank=True, related_name='pull_requests_merged_by', on_delete=models.DO_NOTHING)
+    labels = models.ManyToManyField(Label, related_name='pull_requests', blank=True)
 
 
 class RegistrationCandidate(models.Model):

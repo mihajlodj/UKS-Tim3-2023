@@ -127,7 +127,7 @@ def get_all_issues(request, query):
 def get_issue(request, pk):
     try:
         issue = Issue.objects.get(pk=pk)
-        creator = Developer.objects.get(user__id=issue.creator.id)
+        creator = Developer.objects.get(id=issue.creator.id)
         serialized_issue = {
             'id': issue.id,
             'title': issue.title,
@@ -138,11 +138,21 @@ def get_issue(request, pk):
                 'username': creator.user.username,
                 'avatar': creator.avatar
             },
+            'labels': [],
             'project': Project.objects.get(id=issue.project.id).name,
             'milestone': None if issue.milestone is None else serialize_milestone(
                 Milestone.objects.get(id=issue.milestone.id)),
             'tags': []
         }
+
+        from_issue_labels = issue.labels.all()
+        for label in from_issue_labels:
+            serialized_issue['labels'].append({
+                'id': label.id,
+                'name': label.name,
+                'description': label.description
+            })
+
         return JsonResponse(serialized_issue, safe=False, status=200)
     except Exception:
         return JsonResponse([], safe=False, status=400)

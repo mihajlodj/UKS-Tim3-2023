@@ -51,7 +51,9 @@
         
         
         <div class="w-25">
-            <AdditionalIssueInfo :key="additionalInfoKey" :chosenMilestone="this.issue.milestone" :chosenAssignee="this.issue.manager" @updateAssignee="updateManagers" @updateMilestone="updateMilestone" />
+            <AdditionalIssueInfo :key="additionalInfoKey" :chosenMilestone="this.issue.milestone" 
+                :chosenAssignee="this.issue.manager" :selectedLabels="issue.labels" :issueId="issue.id"
+                @updateAssignee="updateManagers" @updateMilestone="updateMilestone" />
             <hr class="bright"/>
             <div class="w-100 d-flex justify-content-end mt-3">
                 <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -81,6 +83,7 @@ export default {
         IssueService.getIssue(this.$route.params.issue_id).then((res) => {
             this.issue = res.data;
             console.log(this.issue);
+            this.additionalInfoKey += 1;
 //             DeveloperService.getUserBasicInfo(this.issue.creator).then((res2) => {
 // /* this might be subject of change. issue.creator might be just username. or whole object.
 //  * if it is object, then this backend call is unecessary 
@@ -102,7 +105,9 @@ export default {
                     username: 'korisnik1',
                     avatar: 'dasfas'
                 },
+                labels: [],
             },
+            additionalInfoKey: 1,
             comments: [],
             newMilestoneId: null,
             newComment: {
