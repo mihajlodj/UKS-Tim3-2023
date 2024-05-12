@@ -270,6 +270,16 @@ def get_users_info_from_id(request, user_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def get_developer_info_from_id(request, developer_id):
+    developer = Developer.objects.get(id=developer_id)
+    user = developer.user
+    serializer_class = UserSerializer(user)
+    print(serializer_class.data)
+    return Response(serializer_class.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_gitea_user_info(request, username):
     gitea_user_info = get_gitea_user_info_gitea_service(username)
     return Response(gitea_user_info, status=status.HTTP_200_OK)
