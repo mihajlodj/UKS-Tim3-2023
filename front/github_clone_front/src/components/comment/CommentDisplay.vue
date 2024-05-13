@@ -14,6 +14,15 @@
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
             </div>
 
+            <div class="mt-3">
+                <hr class="muted"/>
+                <h5 class="bright">Reply</h5>
+                <textarea class="w-100 p-2 bright reply-textarea"></textarea>
+                <div class="w-100 d-flex justify-content-end mt-2">
+                    <button type="button" class="btn-comment p-2">Send reply</button>
+                </div>
+            </div>
+
             <div class="sub-comments" v-if="comment.sub_comments.length !== 0">
                 <hr class="muted">
                 <div class="sub-comment" v-for="(subComment, index) in comment.sub_comments" :key="index">
@@ -427,6 +436,10 @@ textarea {
 }
 
 .sub-commentdelete-button:hover {
+    background-color: #555;
+}
+
+.reply-textarea {
     background-color: #555;
 }
 
