@@ -49,13 +49,22 @@ def delete_comment(request, owner_username, repository_name, comment_id):
 def serialize_comments(comments):
     result = []
     for comment in comments:
+        if comment.parent is not None:
+            continue
+
         serialized_comment = {
             'id': comment.id,
             'content': comment.content,
-            'parent': comment.parent,
+            'sub_comments': [],
             'time': comment.time,
             'developer_id': comment.caused_by.id
         }
+
+        # Find sub-comments and add them
+        sub_comments = find_sub_comments(comment.id)
+        serialized_sub_comments = serialize_sub_comments(sub_comments)
+        serialized_comment['sub_comments'].extend(serialized_sub_comments)
+
         if comment.issue is not None:
             serialized_comment['issue_id'] = comment.issue.id
         elif comment.milestone is not None:
@@ -64,6 +73,24 @@ def serialize_comments(comments):
             serialized_comment['pull_request'] = comment.pull_request.id
         result.append(serialized_comment)
     return result
+
+
+def serialize_sub_comments(sub_comments):
+    result = []
+    for comment in sub_comments:
+        serialized_comment = {
+            'id': comment.id,
+            'content': comment.content,
+            'time': comment.time,
+            'developer_id': comment.caused_by.id
+        }
+        result.append(serialized_comment)
+    return result
+
+
+def find_sub_comments(comment_id):
+    sub_comments = Comment.objects.filter(parent_id=comment_id)
+    return sub_comments
 
 
 def valid_type_for(type_for):
