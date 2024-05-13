@@ -24,7 +24,7 @@
                     <p class="sub-comment-body">{{ subComment.content }}</p>
                     <!-- Sub-Comment Actions -->
                     <div class="sub-comment-actions">
-                        <button class="sub-commentdelete-button">Delete</button>
+                        <button class="sub-commentdelete-button" @click="this.deleteComment(subComment.id)">Delete</button>
                     </div>
                 </div>
             </div>
