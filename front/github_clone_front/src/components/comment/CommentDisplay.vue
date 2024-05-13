@@ -10,16 +10,18 @@
             <p class="comment-body">{{ comment.content }}</p>
             <!-- Actions -->
             <div class="comment-actions">
-                <button class="reply-button">Reply</button>
+                <button class="reply-button" @click="this.showReplySection(comment.id)">Reply</button>
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
             </div>
 
-            <div class="mt-3">
+            <!-- Reply section -->
+            <div class="mt-3" v-if="comment.replySectionVisible">
                 <hr class="muted"/>
                 <h5 class="bright">Reply</h5>
-                <textarea class="w-100 p-2 bright reply-textarea"></textarea>
+                <textarea class="w-100 p-2 bright reply-textarea" v-model="newSubCommentContent"></textarea>
                 <div class="w-100 d-flex justify-content-end mt-2">
-                    <button type="button" class="btn-comment p-2">Send reply</button>
+                    <button type="button" class="btn-comment p-2" :disabled="newSubCommentContent == ''"
+                        @click="sendReplyComment(comment.id)">Send reply</button>
                 </div>
             </div>
 
@@ -80,6 +82,7 @@ export default {
     data() {
         return {
             newCommentContent: "",
+            newSubCommentContent: "",
             comments: [],
         }
     },
@@ -91,6 +94,10 @@ export default {
                 console.log(res.data);
                 this.comments = res.data;
                 for (let comment of this.comments) {
+                    // Add aditional info for comment
+                    comment['replySectionVisible'] = false;
+
+                    // Add developer for comment
                     DeveloperService.getDeveloperBasicInfoFromId(comment.developer_id)
                     .then(res => {
                         comment['developer'] = res.data;
@@ -191,6 +198,58 @@ export default {
                 });
             });
         },
+
+        showReplySection(commentId) {
+            let comment = this.comments.find(c => c.id === commentId);
+            let oldValue = comment.replySectionVisible;
+            if (oldValue === true) {
+                comment.replySectionVisible = false;
+            }
+            else {
+                comment.replySectionVisible = true;
+            }
+            
+        },
+
+        sendReplyComment(parentId) {
+            if (this.newSubCommentContent === "") {
+                return;
+            }
+
+            let data = {
+                "content": this.newSubCommentContent,
+                "parent": parentId,
+                "type_for": this.entityType,
+                "type_id": this.entityId,
+            };
+
+            CommentService.createNewComment(this.username, this.repoName, data)
+                .then(res => {
+                    console.log(res);
+                    toast("Comment added.", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.emptyReplyCommentsForm();
+                    this.loadComments();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Error occured while adding comment.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+        },
+
+        emptyReplyCommentsForm() {
+            this.newSubCommentContent = '';
+        },
+
     }
 }
     
