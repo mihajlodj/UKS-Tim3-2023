@@ -13,6 +13,21 @@
                 <button class="reply-button">Reply</button>
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
             </div>
+            
+            <div class="sub-comments">
+                <hr class="muted">
+                <div class="sub-comment">
+                    <div class="sub-comment-header">
+                        <h3 class="sub-comment-author">Autor sub komentara</h3>
+                        <span class="sub-comment-timestamp">13.05.2024. 20:00</span>
+                    </div>
+                    <p class="sub-comment-body">Sadrzaj sub komentara</p>
+                    <!-- Sub-Comment Actions -->
+                    <div class="sub-comment-actions">
+                        <button class="sub-commentdelete-button">Delete</button>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -321,6 +336,7 @@ textarea {
 .comment-body {
     color: #adbbc8;
     margin-bottom: 10px;
+    margin-top: 15px;
 }
 
 .comment-actions {
@@ -341,6 +357,65 @@ textarea {
 
 .reply-button:hover,
 .delete-button:hover {
+    background-color: #555;
+}
+
+/* Dark theme styles for sub-comments */
+
+.sub-comments {
+    color: #adbbc8;
+    margin: 0;
+}
+
+.sub-comment {
+    background-color: #444;
+    border-radius: 5px;
+    border: 2px solid #adbbc8;
+    padding: 10px;
+    margin-bottom: 15px;
+    margin-left: 5em;
+}
+
+.sub-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.sub-comment-author {
+    color: #adbbc8;
+    /* font-weight: bold; */
+    margin: 0;
+}
+
+.sub-comment-timestamp {
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+.sub-comment-body {
+    color: #adbbc8;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.sub-comment-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sub-commentdelete-button {
+    background-color: #333;
+    color: #adbbc8;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.sub-commentdelete-button:hover {
     background-color: #555;
 }
 
