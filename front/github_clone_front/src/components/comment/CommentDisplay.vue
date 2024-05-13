@@ -13,15 +13,15 @@
                 <button class="reply-button">Reply</button>
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
             </div>
-            
-            <div class="sub-comments">
+
+            <div class="sub-comments" v-if="comment.sub_comments.length !== 0">
                 <hr class="muted">
-                <div class="sub-comment">
+                <div class="sub-comment" v-for="(subComment, index) in comment.sub_comments" :key="index">
                     <div class="sub-comment-header">
-                        <h3 class="sub-comment-author">Autor sub komentara</h3>
-                        <span class="sub-comment-timestamp">13.05.2024. 20:00</span>
+                        <h3 class="sub-comment-author">{{ this.formatNameAndSurname(subComment.developer) }}</h3>
+                        <span class="sub-comment-timestamp">{{ this.formatDate(subComment.time) }}</span>
                     </div>
-                    <p class="sub-comment-body">Sadrzaj sub komentara</p>
+                    <p class="sub-comment-body">{{ subComment.content }}</p>
                     <!-- Sub-Comment Actions -->
                     <div class="sub-comment-actions">
                         <button class="sub-commentdelete-button">Delete</button>
@@ -89,6 +89,17 @@ export default {
                     .catch(err => {
                         console.log(err);
                     });
+
+                    // Add developer for sub comments
+                    for (let subComment of comment.sub_comments) {
+                        DeveloperService.getDeveloperBasicInfoFromId(subComment.developer_id)
+                        .then(res => {
+                            subComment['developer'] = res.data;
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                    }
                 }
                 console.log(this.comments);
             })
