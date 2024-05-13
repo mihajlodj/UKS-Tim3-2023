@@ -10,8 +10,34 @@
             <p class="comment-body">{{ comment.content }}</p>
             <!-- Actions -->
             <div class="comment-actions">
-                <button class="reply-button">Reply</button>
+                <button class="reply-button" @click="this.showReplySection(comment.id)">Reply</button>
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
+            </div>
+
+            <!-- Reply section -->
+            <div class="mt-3" v-if="comment.replySectionVisible">
+                <hr class="muted"/>
+                <h5 class="bright">Reply</h5>
+                <textarea class="w-100 p-2 bright reply-textarea" v-model="newSubCommentContent"></textarea>
+                <div class="w-100 d-flex justify-content-end mt-2">
+                    <button type="button" class="btn-comment p-2" :disabled="newSubCommentContent == ''"
+                        @click="sendReplyComment(comment.id)">Send reply</button>
+                </div>
+            </div>
+
+            <div class="sub-comments" v-if="comment.sub_comments.length !== 0">
+                <hr class="muted">
+                <div class="sub-comment" v-for="(subComment, index) in comment.sub_comments" :key="index">
+                    <div class="sub-comment-header">
+                        <h3 class="sub-comment-author">{{ this.formatNameAndSurname(subComment.developer) }}</h3>
+                        <span class="sub-comment-timestamp">{{ this.formatDate(subComment.time) }}</span>
+                    </div>
+                    <p class="sub-comment-body">{{ subComment.content }}</p>
+                    <!-- Sub-Comment Actions -->
+                    <div class="sub-comment-actions">
+                        <button class="sub-commentdelete-button" @click="this.deleteComment(subComment.id)">Delete</button>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -56,6 +82,7 @@ export default {
     data() {
         return {
             newCommentContent: "",
+            newSubCommentContent: "",
             comments: [],
         }
     },
@@ -67,6 +94,10 @@ export default {
                 console.log(res.data);
                 this.comments = res.data;
                 for (let comment of this.comments) {
+                    // Add aditional info for comment
+                    comment['replySectionVisible'] = false;
+
+                    // Add developer for comment
                     DeveloperService.getDeveloperBasicInfoFromId(comment.developer_id)
                     .then(res => {
                         comment['developer'] = res.data;
@@ -74,6 +105,17 @@ export default {
                     .catch(err => {
                         console.log(err);
                     });
+
+                    // Add developer for sub comments
+                    for (let subComment of comment.sub_comments) {
+                        DeveloperService.getDeveloperBasicInfoFromId(subComment.developer_id)
+                        .then(res => {
+                            subComment['developer'] = res.data;
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                    }
                 }
                 console.log(this.comments);
             })
@@ -156,6 +198,58 @@ export default {
                 });
             });
         },
+
+        showReplySection(commentId) {
+            let comment = this.comments.find(c => c.id === commentId);
+            let oldValue = comment.replySectionVisible;
+            if (oldValue === true) {
+                comment.replySectionVisible = false;
+            }
+            else {
+                comment.replySectionVisible = true;
+            }
+            
+        },
+
+        sendReplyComment(parentId) {
+            if (this.newSubCommentContent === "") {
+                return;
+            }
+
+            let data = {
+                "content": this.newSubCommentContent,
+                "parent": parentId,
+                "type_for": this.entityType,
+                "type_id": this.entityId,
+            };
+
+            CommentService.createNewComment(this.username, this.repoName, data)
+                .then(res => {
+                    console.log(res);
+                    toast("Comment added.", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.emptyReplyCommentsForm();
+                    this.loadComments();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Error occured while adding comment.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+        },
+
+        emptyReplyCommentsForm() {
+            this.newSubCommentContent = '';
+        },
+
     }
 }
     
@@ -321,6 +415,7 @@ textarea {
 .comment-body {
     color: #adbbc8;
     margin-bottom: 10px;
+    margin-top: 15px;
 }
 
 .comment-actions {
@@ -341,6 +436,69 @@ textarea {
 
 .reply-button:hover,
 .delete-button:hover {
+    background-color: #555;
+}
+
+/* Dark theme styles for sub-comments */
+
+.sub-comments {
+    color: #adbbc8;
+    margin: 0;
+}
+
+.sub-comment {
+    background-color: #444;
+    border-radius: 5px;
+    border: 2px solid #adbbc8;
+    padding: 10px;
+    margin-bottom: 15px;
+    margin-left: 5em;
+}
+
+.sub-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.sub-comment-author {
+    color: #adbbc8;
+    /* font-weight: bold; */
+    margin: 0;
+}
+
+.sub-comment-timestamp {
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+.sub-comment-body {
+    color: #adbbc8;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+.sub-comment-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.sub-commentdelete-button {
+    background-color: #333;
+    color: #adbbc8;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.sub-commentdelete-button:hover {
+    background-color: #555;
+}
+
+.reply-textarea {
     background-color: #555;
 }
 
