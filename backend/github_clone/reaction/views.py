@@ -12,7 +12,34 @@ from reaction.serializers import ReactionSerializer
 
 from main import permissions
 
+
 class CreateReactionView(generics.CreateAPIView):
     queryset = Reaction.objects.all()
     permission_classes = (IsAuthenticated, permissions.CanEditRepository)
     serializer_class = ReactionSerializer
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def get_reactions(request, owner_username, repository_name, comment_id):
+    if not Comment.objects.filter(id=comment_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    reactions = Reaction.objects.filter(comment_id=comment_id)
+    serialized_reactions = serialize_reactions(reactions)
+    return Response(serialized_reactions, status=status.HTTP_200_OK)
+
+
+def serialize_reactions(reactions):
+    result = []
+    for reaction in reactions:
+        result.append(serialize_reaction(reaction))
+    return result
+
+
+def serialize_reaction(reaction):
+    return {
+        'id': reaction.id,
+        'code': reaction.code,
+        'comment_id': reaction.comment.id,
+        'developer_id': reaction.developer.id,
+    }
