@@ -26,6 +26,7 @@ import CommitDisplay from './components/commit/CommitDisplay.vue'
 import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
 import TransferOwnership from './components/repository/settings/TransferOwnership.vue'
 import ForkRepo from './components/repository/ForkRepo.vue'
+import NotificationsList from './components/notifications/NotificationsList.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -203,6 +204,10 @@ const routes = [
         path: "/view/:username/:repoName/labels",
         component: ListLabelsComponent
     },
+    {
+        path: "/notifications",
+        component: NotificationsList
+    }
 ]
 
 const router = createRouter({
