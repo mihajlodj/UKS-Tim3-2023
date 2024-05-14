@@ -10,9 +10,16 @@
             <p class="comment-body">{{ comment.content }}</p>
             <!-- Actions -->
             <div class="comment-actions">
+                <div style="margin-right: auto;">
+                    <EmojiReaction :reactor="this.reactor" :react="(reaction) => this.react(reaction, 'card-' + i)"
+                        :unreact="(reaction) => this.unreact(reaction, 'card-' + i)"
+                        :getReactions="() => this.getReactions('card-' + i)" :dark="true" />
+                </div>
                 <button class="reply-button" @click="this.showReplySection(comment.id)">Reply</button>
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
             </div>
+
+            
 
             <!-- Reply section -->
             <div class="mt-3" v-if="comment.replySectionVisible">
@@ -61,11 +68,23 @@ import { toast } from 'vue3-toastify';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
+import { EmojiReaction } from 'emoji-reaction';
+import { ref } from 'vue';
+import { DeviceUUID } from 'device-uuid';
+import leancloud from 'leancloud-storage';
+
+
+if (!leancloud.applicationId) {
+    leancloud.init({
+        appId: 'ocLQI6JRaaujbK1uOEhqwMMy-MdYXbMMI',
+        appKey: 'U65o7Va32y6dWshUhJHWrtUe',
+    });
+}
 
 export default {
     name: "CommentDisplay",
     components: {
-        
+        EmojiReaction,
     },
 
     mounted() {
@@ -84,6 +103,7 @@ export default {
             newCommentContent: "",
             newSubCommentContent: "",
             comments: [],
+            reactor: ref(new DeviceUUID().get()),
         }
     },
 
@@ -248,6 +268,38 @@ export default {
 
         emptyReplyCommentsForm() {
             this.newSubCommentContent = '';
+        },
+
+        react(reaction, reactTo) {
+            const reactionObj = new leancloud.Object('Reaction');
+            reactionObj.set('reaction', reaction);
+            reactionObj.set('reactor', this.reactor.value);
+            reactionObj.set('reactTo', reactTo);
+            return reactionObj.save();
+        },
+
+        unreact(reaction, reactTo) {
+            const query = new leancloud.Query('Reaction');
+            return query.equalTo('reaction', reaction).equalTo('reactor', this.reactor.value).equalTo('reactTo', reactTo).destroyAll();
+        },
+
+        async getReactions(reactTo) {
+            const query = new leancloud.Query('Reaction');
+            return query.equalTo('reactTo', reactTo).find().then((records) => records.reduce((pre, curr) => {
+                const { reaction, reactor: _reactor } = curr.toJSON();
+                const existedReaction = pre.find((p) => p.reaction === reaction);
+                if (existedReaction) {
+                    if (!existedReaction.reactors.includes(_reactor)) {
+                        existedReaction.reactors.push(_reactor);
+                    }
+                } else {
+                    pre.push({
+                        reaction,
+                        reactors: [_reactor],
+                    });
+                }
+                return pre;
+            }, []));
         },
 
     }
@@ -421,6 +473,7 @@ textarea {
 .comment-actions {
     display: flex;
     justify-content: flex-end;
+    margin-top: 45px
 }
 
 .reply-button,
