@@ -3,7 +3,7 @@
     <div>
       <div id="id-toggle-menu">
         <button class="toggle-menu-button" @click="toggleMenu">
-          <i class="bi bi-list" />
+          <i class="bi bi-list"></i>
         </button>
       </div>
       <div id="id-git-logo">
@@ -39,7 +39,10 @@
           <a href="#"><i class="bi bi-building-add"></i>New organization</a>
         </div>
       </div>
-      <button class="notification_button"><i class="bi bi-inbox"></i></button>
+      <button class="notification_button" @click="displayNotifications" :key="notificationKey">
+        <i class="bi bi-inbox"></i>
+        <font-awesome-icon v-if="hasUnreads" icon="fa-solid fa-circle"></font-awesome-icon>
+      </button>
       <button class="notification_button"><i class="bi bi-bezier2"></i></button>
       <button class="notification_button"><i class="bi bi-record-circle"></i></button>
 
@@ -101,7 +104,9 @@ export default {
       isMenuOpen: false,
       isProfileMenuOpen: false,
       isDropdownOpen: false,
-      connection: null
+      connection: null,
+      hasUnreads: false,
+      notificationKey: 1
     };
   },
   methods: {
@@ -121,23 +126,35 @@ export default {
     toggleDropdown() {
       this.isDropdownOpen = !this.isDropdownOpen;
     },
+
+    displayNotifications() {
+      localStorage.setItem("hasUnreads", "false");
+      this.hasUnreads = false;
+      this.notificationKey++;
+    }
   },
 
-  created: function() {
+  created() {
+    this.hasUnreads = localStorage.getItem("hasUnreads") === "true" ? true : false;
+    this.notificationKey++;
     const connectionStr = `ws://localhost:8000/ws/notify/${localStorage.getItem("username")}/`;
     this.connection = new WebSocket(connectionStr);
 
-    this.connection.onmessage = function(event) {
+    this.connection.onmessage = (event) => {
         const data = JSON.parse(event.data);
         const message = data.message;
         console.log(message);
+        localStorage.setItem("hasUnreads", "true");
+        this.hasUnreads = true;
+        this.notificationKey++;
+        console.log(this.hasUnreads);
     }
 
-    this.connection.onopen = function(event) {
+    this.connection.onopen = (event) => {
         console.log(event);
         console.log("Opened");
     }
-  }
+  },
 };
 </script>
 
@@ -323,5 +340,11 @@ export default {
 
 .dropdown-content a:hover {
   background-color: #2c2c2c;
+}
+
+.fa-circle {
+  height: 8px;
+  color: #f04444;
+  margin-bottom: 10px;
 }
 </style>
