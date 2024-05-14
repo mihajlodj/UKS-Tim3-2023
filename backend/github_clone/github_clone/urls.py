@@ -38,6 +38,7 @@ urlpatterns = [
     path('label/', include('label.urls')),
     path('notifications/', include('websocket.urls')),
     path('comment/', include('comment.urls')),
+    path('reaction/', include('reaction.urls'))
 ]
 
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))
