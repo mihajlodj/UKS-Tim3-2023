@@ -29,6 +29,18 @@ def get_reactions(request, owner_username, repository_name, comment_id):
     return Response(serialized_reactions, status=status.HTTP_200_OK)
 
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+def delete_reaction(request, owner_username, repository_name, reaction_id):
+    if not reaction_id.isdigit():
+        raise Http404()
+    if not Reaction.objects.filter(id=reaction_id).exists():
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    reaction = Reaction.objects.get(id=reaction_id)
+    reaction.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 def serialize_reactions(reactions):
     result = []
     for reaction in reactions:
