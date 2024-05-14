@@ -11,19 +11,19 @@
             <!-- Actions -->
             <div class="comment-actions">
                 <div style="margin-right: auto;">
-                    <EmojiReaction :reactor="this.reactor" :react="(reaction) => this.react(reaction, 'card-' + i)"
-                        :unreact="(reaction) => this.unreact(reaction, 'card-' + i)"
-                        :getReactions="() => this.getReactions('card-' + i)" :dark="true" />
+                    <EmojiReaction :reactor="this.username" :react="(reaction) => this.react(reaction, comment)"
+                        :unreact="(reaction) => this.unreact(reaction, comment.id)"
+                        :getReactions="() => this.getReactions(comment.id)" :dark="true" />
                 </div>
                 <button class="reply-button" @click="this.showReplySection(comment.id)">Reply</button>
                 <button class="delete-button" @click="this.deleteComment(comment.id)">Delete</button>
             </div>
 
-            
+
 
             <!-- Reply section -->
             <div class="mt-3" v-if="comment.replySectionVisible">
-                <hr class="muted"/>
+                <hr class="muted" />
                 <h5 class="bright">Reply</h5>
                 <textarea class="w-100 p-2 bright reply-textarea" v-model="newSubCommentContent"></textarea>
                 <div class="w-100 d-flex justify-content-end mt-2">
@@ -42,7 +42,8 @@
                     <p class="sub-comment-body">{{ subComment.content }}</p>
                     <!-- Sub-Comment Actions -->
                     <div class="sub-comment-actions">
-                        <button class="sub-commentdelete-button" @click="this.deleteComment(subComment.id)">Delete</button>
+                        <button class="sub-commentdelete-button"
+                            @click="this.deleteComment(subComment.id)">Delete</button>
                     </div>
                 </div>
             </div>
@@ -64,22 +65,12 @@
 <script>
 import CommentService from '@/services/CommentService'
 import DeveloperService from '@/services/DeveloperService';
+import ReactionService from '@/services/ReactionService';
 import { toast } from 'vue3-toastify';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 
 import { EmojiReaction } from 'emoji-reaction';
-import { ref } from 'vue';
-import { DeviceUUID } from 'device-uuid';
-import leancloud from 'leancloud-storage';
-
-
-if (!leancloud.applicationId) {
-    leancloud.init({
-        appId: 'ocLQI6JRaaujbK1uOEhqwMMy-MdYXbMMI',
-        appKey: 'U65o7Va32y6dWshUhJHWrtUe',
-    });
-}
 
 export default {
     name: "CommentDisplay",
@@ -103,45 +94,44 @@ export default {
             newCommentContent: "",
             newSubCommentContent: "",
             comments: [],
-            reactor: ref(new DeviceUUID().get()),
         }
     },
 
     methods: {
         loadComments() {
             CommentService?.getAllComments(this.username, this.repoName, this.entityType, this.entityId)
-            .then(res => {
-                console.log(res.data);
-                this.comments = res.data;
-                for (let comment of this.comments) {
-                    // Add aditional info for comment
-                    comment['replySectionVisible'] = false;
+                .then(res => {
+                    console.log(res.data);
+                    this.comments = res.data;
+                    for (let comment of this.comments) {
+                        // Add aditional info for comment
+                        comment['replySectionVisible'] = false;
 
-                    // Add developer for comment
-                    DeveloperService.getDeveloperBasicInfoFromId(comment.developer_id)
-                    .then(res => {
-                        comment['developer'] = res.data;
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
+                        // Add developer for comment
+                        DeveloperService.getDeveloperBasicInfoFromId(comment.developer_id)
+                            .then(res => {
+                                comment['developer'] = res.data;
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            });
 
-                    // Add developer for sub comments
-                    for (let subComment of comment.sub_comments) {
-                        DeveloperService.getDeveloperBasicInfoFromId(subComment.developer_id)
-                        .then(res => {
-                            subComment['developer'] = res.data;
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
+                        // Add developer for sub comments
+                        for (let subComment of comment.sub_comments) {
+                            DeveloperService.getDeveloperBasicInfoFromId(subComment.developer_id)
+                                .then(res => {
+                                    subComment['developer'] = res.data;
+                                })
+                                .catch(err => {
+                                    console.log(err);
+                                });
+                        }
                     }
-                }
-                console.log(this.comments);
-            })
-            .catch(err => {
-                console.log(err);
-            });
+                    console.log(this.comments);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         },
 
         formatNameAndSurname(developer) {
@@ -198,25 +188,25 @@ export default {
 
         deleteComment(commentId) {
             CommentService.deleteComment(this.username, this.repoName, commentId)
-            .then(res => {
-                console.log(res);
-                toast("Comment deleted.", {
-                    autoClose: 500,
-                    type: 'success',
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                    theme: toast.THEME.DARK
+                .then(res => {
+                    console.log(res);
+                    toast("Comment deleted.", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.loadComments();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Error occured while deleting comment!", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
                 });
-                this.loadComments();
-            })
-            .catch(err => {
-                console.log(err);
-                toast("Error occured while deleting comment!", {
-                    autoClose: 1000,
-                    type: 'error',
-                    position: toast.POSITION.BOTTOM_RIGHT,
-                    theme: toast.THEME.DARK
-                });
-            });
         },
 
         showReplySection(commentId) {
@@ -228,7 +218,7 @@ export default {
             else {
                 comment.replySectionVisible = true;
             }
-            
+
         },
 
         sendReplyComment(parentId) {
@@ -271,40 +261,50 @@ export default {
         },
 
         react(reaction, reactTo) {
-            const reactionObj = new leancloud.Object('Reaction');
-            reactionObj.set('reaction', reaction);
-            reactionObj.set('reactor', this.reactor.value);
-            reactionObj.set('reactTo', reactTo);
-            return reactionObj.save();
+            let data = {
+                'code': reaction,
+                'developer_id': reactTo.developer_id,
+                'comment_id': reactTo.id,
+            }
+            return ReactionService.createNewReaction(this.username, this.repoName, data);
         },
 
         unreact(reaction, reactTo) {
-            const query = new leancloud.Query('Reaction');
-            return query.equalTo('reaction', reaction).equalTo('reactor', this.reactor.value).equalTo('reactTo', reactTo).destroyAll();
+            return ReactionService.deleteReaction(this.username, this.repoName, reactTo);
         },
 
         async getReactions(reactTo) {
-            const query = new leancloud.Query('Reaction');
-            return query.equalTo('reactTo', reactTo).find().then((records) => records.reduce((pre, curr) => {
-                const { reaction, reactor: _reactor } = curr.toJSON();
-                const existedReaction = pre.find((p) => p.reaction === reaction);
-                if (existedReaction) {
-                    if (!existedReaction.reactors.includes(_reactor)) {
-                        existedReaction.reactors.push(_reactor);
+            return ReactionService.getReactionsForComment(this.username, this.repoName, reactTo)
+                .then((records) => {
+                    if (!Array.isArray(records.data)) {
+                        return [];
                     }
-                } else {
-                    pre.push({
-                        reaction,
-                        reactors: [_reactor],
-                    });
-                }
-                return pre;
-            }, []));
-        },
+                    else {
+                        return records.data.reduce((acc, curr) => {
+                            const { code, developer_id } = curr;
+                            const existingReaction = acc.find(reaction => reaction.reaction === code);
 
+                            if (existingReaction) {
+                                // If reaction exists, add reactor if not already present
+                                if (!existingReaction.reactors.includes(developer_id)) {
+                                    existingReaction.reactors.push(developer_id);
+                                }
+                            } else {
+                                // If reaction does not exist, create new reaction
+                                acc.push({
+                                    reaction: code,
+                                    reactors: [developer_id]
+                                });
+                            }
+
+                            return acc;
+                        }, []);
+                    }
+                },
+                );
+        },
     }
 }
-    
 </script>
 
 <style scoped>
@@ -337,6 +337,7 @@ input.edit {
     color: #adbbc8;
     border: 1px solid #768491;
 }
+
 .pr-icon {
     height: 17px;
 }
@@ -554,5 +555,4 @@ textarea {
 .reply-textarea {
     background-color: #555;
 }
-
 </style>
