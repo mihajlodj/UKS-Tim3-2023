@@ -131,6 +131,7 @@ export default {
       localStorage.setItem("hasUnreads", "false");
       this.hasUnreads = false;
       this.notificationKey++;
+      this.$router.push("/notifications");
     }
   },
 
@@ -194,7 +195,7 @@ export default {
 .navbar {
   position: relative;
   display: flex;
-  background-color: #24292e;
+  background-color: #1c2127;
   color: #ffffff;
 }
 

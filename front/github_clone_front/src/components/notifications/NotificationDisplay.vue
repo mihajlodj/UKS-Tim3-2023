@@ -1,18 +1,20 @@
 <template>
-    <div class="w-100 contain d-flex justify-content-center">
+    <div class="w-100 contain d-flex justify-content-center my-2">
         <div class="message d-flex justify-content-between" @mouseover="markAsRead">
-            <div>
-                <font-awesome-icon v-if="!isRead" icon="fa-solid fa-circle"></font-awesome-icon>
-                <h4>{{ message }}</h4>
+            <div class="h-100 d-flex align-items-center">
+                <font-awesome-icon v-if="!isReadModifiable" icon="fa-solid fa-circle" class="ms-3"></font-awesome-icon>
+                <div v-else class="fill"></div>
+                <h4 class="bright ms-3">{{ message }}</h4>
             </div>
             
-            <h6>{{ timestamp }}</h6>
+            <h6 class="muted mt-2 me-2">{{ howLongAgo() }}</h6>
         </div>
     </div>
 </template>
 
 <script>
 import NotificationService from "@/services/NotificationService"
+import TimestampService from "@/services/TimestampService";
 
 export default {
     name: "NotificationDisplay",
@@ -30,14 +32,18 @@ export default {
 
     methods: {
         markAsRead() {
-            if (this.isReadModifiable) {
+            if (!this.isReadModifiable) {
                 NotificationService.markAsRead(this.id).then(res => {
                     console.log(res);
-                    this.isReadModifiable = false;
+                    this.isReadModifiable = true;
                 }).catch(err => {
                     console.log(err);
                 });
             }
+        },
+
+        howLongAgo() {
+            return TimestampService.howLongAgo(this.timestamp);
         }
     }
 }
@@ -45,6 +51,26 @@ export default {
 
 <style scoped>
 .message {
-    width: 60%;
+    width: 100%;
+    min-height: 120px;
+    border: 1px solid #8a98a1;
+    border-radius: 10px;
+}
+.bright {
+    color: #c5d1df;
+}
+.muted {
+    color: #8a98a1;
+}
+.fa-circle {
+    height: 15px;
+    color: #488be6;
+}
+.message:hover {
+    border: 2px solid #b5b8bb;
+    transform: scale(1.02);
+}
+.fill {
+    width: 31px;
 }
 </style>
