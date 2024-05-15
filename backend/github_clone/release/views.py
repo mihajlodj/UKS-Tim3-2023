@@ -7,6 +7,7 @@ import rest_framework.status as http_status
 import main
 from main import gitea_service, permissions
 from main.models import Branch, Commit, Release, Tag, Project, WorksOn, Developer
+from websocket import notification_service
 
 
 # Create your views here.
@@ -28,13 +29,18 @@ def create_new_release(request, owner_username, project_name):
     commit = Commit.objects.filter(branch__id=branch.id, branch__project__id=repository.id).order_by('-timestamp')[0]
 
     try:
-        Tag.objects.get(name=tag_name, project__id=repository.id)
-        return JsonResponse({'message': 'Tag with this name already exists in the project'},
+        tag = Tag.objects.get(name=tag_name, project__id=repository.id)
+        Release.objects.get(tag=tag)
+        return JsonResponse({'message': 'Duplicate tag. Create a new one'},
                             safe=False,
                             status=http_status.HTTP_409_CONFLICT)
-    except main.models.Tag.DoesNotExist:
+    except (main.models.Tag.DoesNotExist, main.models.Release.DoesNotExist) as e:
         dev = Developer.objects.get(user__username=request.user)
-        new_tag = Tag.objects.create(name=tag_name, project=repository, caused_by=dev)
+        new_tag = None
+        try:
+            new_tag = Tag.objects.get(name=tag_name, project=repository)
+        except main.models.Tag.DoesNotExist:
+            new_tag = Tag.objects.create(name=tag_name, project=repository, caused_by=dev)
         commit.tags.add(new_tag)
         release = Release.objects.create(
             title=release_title,
@@ -52,7 +58,8 @@ def create_new_release(request, owner_username, project_name):
         release.save()
         # new_tag.save()
         commit.save()
-
+        if release_draft is False:
+            notification_service.send_notification_release_created(release)
         return JsonResponse(serialize_release(release), safe=False, status=http_status.HTTP_201_CREATED)
 
 
@@ -134,6 +141,7 @@ def update_release(request, owner_username, project_name):
 
 def serialize_release(release):
     return {
+        'id': release.id,
         'title': release.title,
         'description': release.description,
         'branch': {
@@ -151,7 +159,8 @@ def serialize_release(release):
 def serialize_tag(tag_obj):
     return {
         'id': tag_obj.id,
-        'name': tag_obj.name
+        'name': tag_obj.name,
+        'caused_by': tag_obj.caused_by.user.username
     }
 
 
