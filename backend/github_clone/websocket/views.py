@@ -8,7 +8,7 @@ from main.models import Notification
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_notifications(request):
-    notifications = Notification.objects.filter(sent_to=request.user.username)
+    notifications = Notification.objects.filter(sent_to=request.user.username).order_by('-timestamp')
     result = [
         {
             'message': notif.message,
