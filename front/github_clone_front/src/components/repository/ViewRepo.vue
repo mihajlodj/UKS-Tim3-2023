@@ -57,6 +57,10 @@
                                 <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }}
                                 {{ branchesText }}
                             </button>
+                            <button type="button" class="btn btn-gray ms-2" @click="viewTags">
+                                <i class="bi bi-tag"></i> {{ this.numTags }}
+                                {{ tagsText }}
+                            </button>
                         </div>
 
                         <div class="d-flex justify-content-end">
@@ -129,6 +133,7 @@ import NotFoundPage from '../util/NotFoundPage.vue';
 import DeveloperService from '@/services/DeveloperService';
 import CommitsOverview from './CommitsOverview.vue';
 import WatchChoice from './WatchChoice.vue';
+import TagService from '@/services/TagService';
 
 export default {
     name: 'ViewRepo',
@@ -198,10 +203,18 @@ export default {
             .catch(err => {
                 console.log(err);
             });
+        
+        TagService.getTags(this.$route.params.username, this.$route.params.repoName).then((res) => {
+            this.numTags = res.data.length
+        })
+        .catch(err => {
+            console.log(err);
+        });
     },
 
     data() {
         return {
+            numTags: 0,
             repo: {
                 name: '',
                 description: '',
@@ -315,6 +328,9 @@ export default {
                     .catch(err => {
                         console.log(err);
                     });
+        },
+        viewTags() {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/tags`)
         }
     },
 
@@ -325,6 +341,10 @@ export default {
 
         branchesText() {
             return this.repo.branches.length > 1 ? "Branches" : "Branch";
+        },
+
+        tagsText() {
+            return this.numTags != 1 ? 'Tags' : 'Tag'
         }
     }
 }

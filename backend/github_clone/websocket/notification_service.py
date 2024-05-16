@@ -121,6 +121,26 @@ def find_receivers_for_default_branch_push(repository, author):
     return receivers
 
 
+def find_receivers_for_release_events(release):
+    receivers = []
+    watches = Watches.objects.filter(project=release.project)
+    for watch in watches:
+        dev_username = watch.developer.user.username
+        if watch.option == WatchOption.ALL or (watch.option == WatchOption.PARTICIPATING and watch.release_events):
+            receivers.append(dev_username)
+    return receivers
+
+
+def send_notification_release_created(release):
+    receivers = find_receivers_for_release_events(release)
+    version = release.title + '.' + release.tag.name
+    project_name = release.project.name
+    release = 'full release' if release.pre_release is False else 'pre-release'
+    notification_msg = f'Project {project_name} has released a new {release} version of the software: {version}'
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
 def send_notification(username, message):
     print(f'Sending notification to {username}')
     Notification.objects.create(sent_to=username, message=message)

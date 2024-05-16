@@ -322,3 +322,49 @@ def fork(owner_username, repository_name, new_owner_username, forked_repository_
     requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json={'name': forked_repository_name})
     add_collaborator(admin_username, forked_repository_name, new_owner_username)
     transfer_ownership(admin_username, forked_repository_name, new_owner_username)
+
+
+def create_tag(owner_username, repository_name, tag, branch_name):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/tags'
+    body = {
+        'tag_name': tag.name,
+        'target': branch_name
+    }
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+
+def delete_tag(owner_username, repository_name, tag_name):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/tags/{tag_name}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+
+def create_new_release(owner_username, repository_name, release):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases'
+    body = {
+        'body': release.description,
+        'name': release.title,
+        'prerelease': release.pre_release,
+        'tag_name': release.tag.name,
+        'draft': release.draft,
+        'commit': release.commit.hash
+    }
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+
+def update_release(owner_username, repository_name, release):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'
+    body = {
+        'body': release.description,
+        'name': release.title,
+        'prerelease': release.pre_release,
+        'tag_name': release.tag.name,
+        'draft': release.draft,
+        'target_commitish': release.commit.hash
+    }
+    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+
+def delete_release(owner_username, repository_name, release):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+

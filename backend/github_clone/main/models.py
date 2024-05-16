@@ -79,8 +79,10 @@ class Project(models.Model):
     default_branch = models.OneToOneField('Branch', related_name='default_branch', on_delete=models.CASCADE, null=True,
                                           blank=True)
 
+
 class Tag(Event):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=30, blank=False, null=False)
+    project = models.ForeignKey(Project, related_name="project_tag", on_delete=models.CASCADE, null=True)
     # event = models.OneToOneField('main.Event', on_delete=models.CASCADE)
 
 
@@ -109,7 +111,6 @@ class Branch(models.Model):
     created_by = models.ForeignKey(Developer, related_name='branches', on_delete=models.CASCADE, null=True, blank=True)
 
 
-
 class Commit(models.Model):
     hash = models.CharField(max_length=255)
     author = models.ForeignKey(Developer, related_name='authored_commits', on_delete=models.CASCADE)
@@ -119,6 +120,17 @@ class Commit(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     message = models.TextField(null=True, blank=True)
     additional_description = models.TextField(null=True, blank=True)
+
+
+class Release(models.Model):
+    title = models.CharField(max_length=50, blank=False, null=False)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    target = models.ForeignKey(Branch, related_name="released_branch", on_delete=models.CASCADE, null=False)
+    pre_release = models.BooleanField(blank=False, null=False, default=False)
+    draft = models.BooleanField(blank=False, null=False, default=False)
+    tag = models.OneToOneField(Tag, on_delete=models.DO_NOTHING, null=False)
+    commit = models.ForeignKey(Commit, related_name="release_commit", on_delete=models.CASCADE, null=False)
+    project = models.ForeignKey(Project, related_name="project_release", on_delete=models.CASCADE, null=False)
 
 
 class Milestone(models.Model):
