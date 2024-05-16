@@ -17,6 +17,7 @@ import FileDisplay from './components/repository/content/FileDisplay.vue';
 import CreateFile from './components/repository/content/CreateFile.vue';
 import UploadFile from './components/repository/content/upload/UploadFile.vue';
 import ListMilestoneComponent from '@/components/milestone/ListMilestoneComponent.vue'
+import ListLabelsComponent from '@/components/label/ListLabelsComponent.vue'
 import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
@@ -201,7 +202,11 @@ const routes = [
     {
         path: "/view/:ownerUsername/:repoName/tags",
         component: TagReleaseComponent
-    }
+    },
+    {
+        path: "/view/:username/:repoName/labels",
+        component: ListLabelsComponent
+    },
 ]
 
 const router = createRouter({

@@ -48,7 +48,7 @@
                 <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
             </button>
             <label v-if="labels.length == 0" class="bright small">None yet</label>
-            <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" @closeModal="toggleModal('labels')" />
+            <LabelsModal v-if="showModal['labels']" :x="modalX" :y="modalY" :w="modalW" :selectedLabelsProp="labels" :entityType="'pull_request'" :entityId="prId" @closeModal="toggleModal('labels')" />
         </div>
         <hr class="muted" />
 
@@ -73,12 +73,13 @@
 <script>
 import ReviewersModal from "@/components/pullRequest/modals/ReviewersModal.vue"
 import AssigneesModal from "@/components/pullRequest/modals/AssigneesModal.vue"
-import LabelsModal from "@/components/pullRequest/modals/LabelsModal.vue"
+import LabelsModal from "@/components/label/LabelsModal.vue"
 import MilestoneModal from "@/components/pullRequest/modals/MilestoneModal.vue"
 
 export default {
     name: "AdditionalPrInfo",
-    props: ["chosenMilestone", "chosenAssignee", "chosenReviewers"],
+    props: ["chosenMilestone", "chosenAssignee", "chosenReviewers", "selectedLabels", "prId"],
+    
     components: {
         ReviewersModal,
         AssigneesModal,
@@ -91,6 +92,7 @@ export default {
         if (this.chosenReviewers !== undefined) {
             this.rev = this.chosenReviewers;
         }
+        this.labels = this.selectedLabels;
     },
     data() {
         return {

@@ -62,28 +62,30 @@
                         Events - labels, milestones, assigning, reviewing, closing, opening
                     </div>
 
-                    <div>Comments</div>
-
                     <hr class="bright" />
 
                     <div v-if="pull.status === 'Open'" class="mt-4 merge">
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
-                    <div class="mt-3">
-                        <h5 class="bright">Add a comment</h5>
-                        <textarea v-model="newComment" class="w-100 p-2 bright"></textarea>
-                        <div class="w-100 d-flex justify-content-end mt-2">
-                            <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="close">
-                                <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
-                                Close pull request
-                            </button>
-                            <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2 me-2" @click="reopen">
-                                Reopen pull request
-                            </button>
-                            <button type="button" class="btn-comment p-2" :disabled="newComment == ''">Comment</button>
-                        </div>
+                    <CommentDisplay 
+                        :username="this.$route.params.username" 
+                        :repoName="this.$route.params.repoName"
+                        :entityType="'pull_request'"
+                        :entityId="this.$route.params.id"
+                        >
+                    </CommentDisplay>
+
+                    <div class="w-100 d-flex justify-content-end mt-2">
+                        <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2" @click="close">
+                            <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
+                            Close pull request
+                        </button>
+                        <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2" @click="reopen">
+                            Reopen pull request
+                        </button>
                     </div>
+
                 </div>
 
                 <div v-if="chosenTab === 'commits'">
@@ -96,7 +98,7 @@
             </div>
 
             <div v-if="chosenTab === 'conversation'" class="w-25">
-                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" 
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" :selectedLabels="pull.labels" :prId="pull.id"
                     @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" @updateReviewers="updateReviewers" />
                 <hr class="bright"/>
                 <div class="w-100 d-flex justify-content-end mt-3">
@@ -116,6 +118,7 @@ import StatusPill from './StatusPill.vue';
 import PullRequestService from '@/services/PullRequestService'
 import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
+import CommentDisplay from '@/components/comment/CommentDisplay.vue'
 
 export default {
     name: "PrDisplay",
@@ -125,7 +128,8 @@ export default {
         MergeInfo,
         CommitsTable,
         StatusPill,
-        ChangedFiles
+        ChangedFiles,
+        CommentDisplay,
     },
 
     mounted() {
@@ -161,10 +165,9 @@ export default {
             },
             mergeDataKey: 1,
             chosenTab: "conversation",
-            newComment: "",
             additionalInfoKey: 1,
             newTitle: "",
-            editingTitle: false
+            editingTitle: false,
         }
     },
 
@@ -264,7 +267,8 @@ export default {
             }).catch(err => {
                 console.log(err);
             });
-        }
+        },
+
     }
 }
 </script>
@@ -386,4 +390,71 @@ textarea {
     border: 1px solid #768491;
     border-radius: 5px;
 }
+
+/* Dark theme styles for comments */
+#comments {
+    background-color: #22272d;
+    margin-top: 20px;
+}
+
+.comment {
+    background-color: #444;
+    border-radius: 5px;
+    border: 2px solid #adbbc8;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.comments {
+    color: #adbbc8;
+    font-weight: bold;
+    margin: 0;
+    font-size: 35px;
+}
+
+.comment-author {
+    color: #adbbc8;
+    font-weight: bold;
+    margin: 0;
+}
+
+.comment-timestamp {
+    color: #aaa;
+    font-size: 0.9em;
+}
+
+.comment-body {
+    color: #adbbc8;
+    margin-bottom: 10px;
+}
+
+.comment-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.reply-button,
+.delete-button {
+    background-color: #333;
+    color: #adbbc8;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.reply-button:hover,
+.delete-button:hover {
+    background-color: #555;
+}
+
+
 </style>../commit/ChangedFiles.vue

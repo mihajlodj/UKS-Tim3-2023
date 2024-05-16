@@ -29,20 +29,21 @@
                 <hr class="bright" />
             </div>
 
-            <!-- TODO: ADD COMMENT SECTION -->
+            <CommentDisplay 
+                :username="this.$route.params.ownerUsername" 
+                :repoName="this.$route.params.repoName"
+                :entityType="'issue'"
+                :entityId="this.$route.params.issue_id"
+                >
+            </CommentDisplay>
 
             <div class="mt-3">
-                <h5 class="bright">Add a comment</h5>
-                <textarea v-model="newComment.content" class="w-100 p-2 bright"></textarea>
                 <div class="w-100 d-flex justify-content-end mt-2">
-                    <button v-if="this.issue.open === true" type="button" class="btn btn-warning bright p-2 me-2" @click="this.close()">
+                    <button v-if="this.issue.open === true" type="button" class="btn btn-warning bright p-2" @click="this.close()">
                         Close issue
                     </button>
-                    <button v-else type="button" class="btn btn-warning bright p-2 me-2" @click="this.reopen()">
+                    <button v-else type="button" class="btn btn-warning bright p-2" @click="this.reopen()">
                         Reopen issue
-                    </button>
-                    <button type="button" class="btn btn-success p-2 me-2" @click="postComment">
-                        Comment
                     </button>
                 </div>
             </div>
@@ -51,7 +52,9 @@
         
         
         <div class="w-25">
-            <AdditionalIssueInfo :key="additionalInfoKey" :chosenMilestone="this.issue.milestone" :chosenAssignee="this.issue.manager" @updateAssignee="updateManagers" @updateMilestone="updateMilestone" />
+            <AdditionalIssueInfo :key="additionalInfoKey" :chosenMilestone="this.issue.milestone" 
+                :chosenAssignee="this.issue.manager" :selectedLabels="issue.labels" :issueId="issue.id"
+                @updateAssignee="updateManagers" @updateMilestone="updateMilestone" />
             <hr class="bright"/>
             <div class="w-100 d-flex justify-content-end mt-3">
                 <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -70,17 +73,21 @@ import IssueService from '@/services/IssueService';
 import AdditionalIssueInfo from './AdditionalIssueInfo.vue';
 // import DeveloperService from '@/services/DeveloperService';
 import { toast } from 'vue3-toastify';
+import CommentDisplay from '@/components/comment/CommentDisplay.vue'
+
 export default {
     name: 'IssueViewComponent',
     components: {
         RepoNavbar,
-        AdditionalIssueInfo
+        AdditionalIssueInfo,
+        CommentDisplay,
     },
     mounted() {
         console.log('Issue id:', this.$route.params.issue_id)
         IssueService.getIssue(this.$route.params.issue_id).then((res) => {
             this.issue = res.data;
             console.log(this.issue);
+            this.additionalInfoKey += 1;
 //             DeveloperService.getUserBasicInfo(this.issue.creator).then((res2) => {
 // /* this might be subject of change. issue.creator might be just username. or whole object.
 //  * if it is object, then this backend call is unecessary 
@@ -102,13 +109,10 @@ export default {
                     username: 'korisnik1',
                     avatar: 'dasfas'
                 },
+                labels: [],
             },
-            comments: [],
+            additionalInfoKey: 1,
             newMilestoneId: null,
-            newComment: {
-                content: '',
-                parent: undefined
-            },
             toastSuccess: {
                 autoClose: 1000,
                 type: 'success',
@@ -172,9 +176,6 @@ export default {
                 console.log(err);
                 toast("Issue reopening failed", this.toastFailed);
             });
-        },
-        postComment() {
-
         },
         updateManagers(data) {
             this.issue.manager = data;
