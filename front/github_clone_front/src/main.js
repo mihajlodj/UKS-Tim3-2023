@@ -26,6 +26,7 @@ import CommitDisplay from './components/commit/CommitDisplay.vue'
 import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
 import TransferOwnership from './components/repository/settings/TransferOwnership.vue'
 import ForkRepo from './components/repository/ForkRepo.vue'
+import NotificationsList from './components/notifications/NotificationsList.vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 import 'vue3-toastify/dist/index.css'
@@ -39,7 +40,7 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons'
 import { faCode } from '@fortawesome/free-solid-svg-icons'
 import { faCodePullRequest, faCodeBranch, faUserLock, faXmark } from '@fortawesome/free-solid-svg-icons'
 import { faCircleDot, faComments } from '@fortawesome/free-regular-svg-icons'
-import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons'
+import { faGear, faCodeFork, faPlus, faUpload, faPen, faArrowRightArrowLeft, faArrowLeftLong, faClockRotateLeft, faCircle } from '@fortawesome/free-solid-svg-icons'
 import { faEye, faStar, faFile, faFolder, faTrashCan, faCircleXmark, faCopy } from '@fortawesome/free-regular-svg-icons'
 import { faFlask, faDownload, faTag, faCheck, faCodeCommit, faAngleDown, faCirclePlus, faCircleMinus, faCircleStop, faUsers } from '@fortawesome/free-solid-svg-icons'
 import 'vue-pdf-embed/dist/style/index.css'
@@ -93,6 +94,7 @@ library.add(faUsers);
 library.add(faUserLock);
 library.add(faXmark);
 library.add(faStar);
+library.add(faCircle);
 
 const routes = [
     {
@@ -207,6 +209,10 @@ const routes = [
         path: "/view/:username/:repoName/labels",
         component: ListLabelsComponent
     },
+    {
+        path: "/notifications",
+        component: NotificationsList
+    }
 ]
 
 const router = createRouter({

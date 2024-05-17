@@ -36,7 +36,8 @@ urlpatterns = [
     path('tag/', include('tag.urls')),
     path('issue/', include('issue.urls')),
     path('label/', include('label.urls')),
-    path('comment/', include('comment.urls'))
+    path('notifications/', include('websocket.urls')),
+    path('comment/', include('comment.urls')),
 ]
 
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))

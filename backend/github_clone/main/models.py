@@ -222,6 +222,7 @@ class Notification(models.Model):
     sent_to = models.CharField(max_length=1000, default='')
     message = models.CharField(max_length=1000)
     is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.message
