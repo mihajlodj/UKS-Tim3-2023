@@ -42,6 +42,11 @@
                     <p class="sub-comment-body">{{ subComment.content }}</p>
                     <!-- Sub-Comment Actions -->
                     <div class="sub-comment-actions">
+                        <div style="margin-right: auto;">
+                            <EmojiReaction :reactor="this.username" :react="(reaction) => this.react(reaction, subComment)"
+                                :unreact="(reaction) => this.unreact(reaction, subComment.id)"
+                                :getReactions="() => this.getReactions(subComment.id)" :dark="true" />
+                        </div>
                         <button class="sub-commentdelete-button"
                             @click="this.deleteComment(subComment.id)">Delete</button>
                     </div>
@@ -266,11 +271,16 @@ export default {
                 'developer_id': reactTo.developer_id,
                 'comment_id': reactTo.id,
             }
-            return ReactionService.createNewReaction(this.username, this.repoName, data);
+            return ReactionService.createNewReaction(this.username, this.repoName, data)
+                .then(res => { console.log(res); })
+                .catch(err => { console.log(err); });
         },
 
         unreact(reaction, reactTo) {
-            return ReactionService.deleteReaction(this.username, this.repoName, reactTo);
+            // console.log("UNREACTTTTTTTT");
+            console.log(reaction);
+            console.log(reactTo);
+            // return ReactionService.deleteReaction(this.username, this.repoName, reactTo);
         },
 
         async getReactions(reactTo) {
@@ -303,6 +313,8 @@ export default {
                 },
                 );
         },
+
+
     }
 }
 </script>
