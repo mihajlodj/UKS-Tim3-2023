@@ -93,7 +93,7 @@ class Label(models.Model):
 
 
 class Issue(models.Model):
-    created = models.DateTimeField(default=timezone.now())
+    created = models.DateTimeField(default=timezone.now)
     title = models.CharField(max_length=255)
     description = models.TextField()
     creator = models.ForeignKey(Developer, related_name='created_issue', on_delete=models.DO_NOTHING, null=True, blank=True)
