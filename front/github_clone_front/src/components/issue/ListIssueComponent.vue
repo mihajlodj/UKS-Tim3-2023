@@ -74,7 +74,7 @@
               <td >{{ item.title }}</td>
               <td >{{ item.description }}</td>
               <td >{{ item.created.slice(0, 10) }}</td>
-              <td >{{ item.manager }}</td>
+              <td >{{ item.manager.length === 0 ? 'None' : item.manager.join(', ') }}</td>
               <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
               <td >
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
@@ -127,7 +127,7 @@
               <td >{{ item.title }}</td>
               <td >{{ item.description }}</td>
               <td >{{ item.created.slice(0, 10) }}</td>
-              <td >{{ item.manager }}</td>
+              <td >{{ item.manager.length === 0 ? 'None' : item.manager.join(', ') }}</td>
               <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
               <td>
                 <button type="button" class="btn btn-success" @click="goToIssueDetails(item)">
@@ -196,13 +196,14 @@ export default {
   },
   methods: {
     doFilter() {
-      if (this.issueFilter == '') {
+      if (this.issueFilter == '' || this.issueFilter == null || this.issueFilter == undefined) {
         this.issues = this.allIssues;
-        return;
+      } else {
+        this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
       }
-      this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
       this.filteredOpenIssues = this.filterOpenIssues();
       this.filteredClosedIssues = this.filterClosedIssues();
+
     },
     edit() {
       let updatedIssue = {
@@ -254,7 +255,6 @@ export default {
       this.propTitle = issuesList[index].title;
       this.propDescription = issuesList[index].description;
       this.propMilestone = issuesList[index].milestone;
-      console.log(this.propMilestone)
     },
     updateMilestone(modifiedValue) {
       this.propMilestone = modifiedValue;
