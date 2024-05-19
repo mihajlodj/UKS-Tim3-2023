@@ -92,7 +92,9 @@ export default {
         if (this.chosenReviewers !== undefined) {
             this.rev = this.chosenReviewers;
         }
-        this.labels = this.selectedLabels;
+        if (this.selectedLabels !== undefined) {
+            this.labels = this.selectedLabels;
+        }
     },
     data() {
         return {
