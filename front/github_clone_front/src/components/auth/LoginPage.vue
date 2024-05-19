@@ -84,6 +84,7 @@ export default {
                     localStorage.setItem("access_token", result.data.access);
                     localStorage.setItem("refresh_token", result.data.refresh);
                     localStorage.setItem("username", this.username);
+                    localStorage.setItem("hasUnreads", false);
                     this.$router.push('/main');
                 }).catch(_err => {
                     toast("Invalid credentials!", {
