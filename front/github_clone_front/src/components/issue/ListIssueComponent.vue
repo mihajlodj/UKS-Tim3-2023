@@ -28,6 +28,7 @@
       </div>
     </div>
   </div>
+  <!-- Modal edit -->
   <div class="modal fade" id="exampleModalUpdate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -51,8 +52,20 @@
       </div>
     </div>
   </div>
-  <div>
-    <table style="margin-left:auto; margin-right:auto; width: 80%;">
+  
+  <div style="margin-left:auto; margin-right:auto; width: 80%;">
+    <div class="btn-group mb-3" style="text-align: left;" role="group" aria-label="Basic radio toggle button group">
+    <input type="radio" @click="this.showAll = false; this.showOpen = true; this.showClosed = false;" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" :checked="this.showOpen">
+    <label class="btn btn-outline-primary" for="btnradio1">Open issues</label>
+
+    <input type="radio" @click="this.showAll = false; this.showOpen = false; this.showClosed = true;" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" :checked="this.showClosed">
+    <label class="btn btn-outline-primary" for="btnradio2">Closed issues</label>
+
+    <input type="radio" @click="this.showAll = true; this.showOpen = false; this.showClosed = false;" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" :checked="this.showAll">
+    <label class="btn btn-outline-primary" for="btnradio3">All issues</label>
+  </div>
+  <div v-if="this.showOpen || this.showAll">
+    <table style="margin-left:auto; margin-right:auto; width: 100%;">
       <tr colspan="8">
         <span font-size="28px" font-weight="bold">Open issues</span>
         <hr>
@@ -104,8 +117,8 @@
     </table>
 
   </div>
-  <div>
-    <table style="margin-left:auto; margin-right:auto; width: 80%;">
+  <div v-if="this.showClosed || this.showAll">
+    <table style="margin-left:auto; margin-right:auto; width: 100%;">
       <tr>
         <span font-size="28px" font-weight="bold">Closed issues</span>
         <hr>
@@ -141,6 +154,8 @@
     </table>
 
   </div>
+  </div>
+  
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
@@ -171,6 +186,10 @@ export default {
   },
   data() {
     return {
+      showOpen: true,
+      showClosed: false,
+      showAll: false,
+
       issueFilter: '',
       propIndex: 0,
       propTitle: '',
