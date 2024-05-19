@@ -32,4 +32,15 @@ const deleteIssue = (repoName, id) => {
     return api.delete("issue/" + repoName + "/" + id + "/");
 }
 
-export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue, getAllQueryIssues, reopenIssue};
+const getPossibleAssignees = (ownerUsername, repoName, id) => {
+    return api.get("issue/" + ownerUsername + '/' + repoName + "/managers/" + id + "/");
+}
+
+const assignManager = (repoName, ownerUsername, data) => {
+    return api.put("issue/" + ownerUsername + '/' + repoName + "/managers/assign/", data);
+}
+
+const unassignManager = (repoName, ownerUsername, data) => {
+    return api.patch("issue/" + ownerUsername + '/' + repoName + "/managers/un_assign/", data);
+}
+export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue, getAllQueryIssues, reopenIssue, unassignManager, assignManager, getPossibleAssignees};
