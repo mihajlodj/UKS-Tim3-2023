@@ -21,7 +21,8 @@ headers = {
 
 def save_user(user_data):
     api_endpoint = '/api/v1/admin/users'
-    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=user_data)
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=user_data)
+    return response
 
 
 def delete_user(username):
@@ -266,6 +267,20 @@ def update_issue(owner, repo, issue, index):
 
     response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
+
+
+def subscribe_user_to_issue(owner, repo, index, user):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}/subscriptions/{user}'
+    response = requests.put(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+    if response.status_code != 200 and response.status_code != 201:
+        raise Exception('Gitea didn\'t do the thing')
+
+
+def unsubscribe_user_to_issue(owner, repo, index, user):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}/subscriptions/{user}'
+    response = requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+    if response.status_code != 200 and response.status_code != 201:
+        raise Exception('Gitea didn\'t do the thing')
 
 
 def delete_issue(owner, repo, index):

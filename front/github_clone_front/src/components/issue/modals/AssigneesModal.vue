@@ -1,32 +1,35 @@
 <template>
     <div class="contain p-2" :style="{ top: y + 'px', left: x + 'px', width: w + 'px' }" @click="preventClose">
-        <h6 class="mt-1 bright small">Assign somebody on this pull request</h6>
+        <h6 class="mt-1 bright small">Assign somebody on this issue</h6>
         <hr class="muted" />
         <input type="text" v-model="search" class="w-100 p-2 muted" placeholder="Type or choose a user" @input="filterUsers"/>
         <hr class="muted" />
         <label v-if="available.length === 0" class="mb-1 muted">Nothing to show</label>
         <div v-else class="hoverable">
-            <button v-for="a in filtered" :key="a.username" class="btn-assignee w-100 d-flex justify-content-start p-2" @click="chooseAssignee(a)">
-                <img class="avatar mt-1 me-1" :src="a.avatar"/>
-                <label class="bright hoverable">{{ a.username }}</label>
+            <button v-for="username in filtered" :key="username" class="btn-assignee w-100 d-flex justify-content-start p-2" @click="addAssignee(username)">
+                <!-- <img class="avatar mt-1 me-1" :src="a.avatar"/> -->
+                <label class="bright hoverable">{{ username }}</label>
             </button>
         </div>
     </div>
 </template>
 
 <script>
-import PullRequestService from "@/services/PullRequestService"
+import IssueService from '@/services/IssueService';
 
 export default {
     name: "AssigneesModal",
-    props: ["x", "y", "w", "assignee"],
+    props: ["x", "y", "w", "assignee", "owner", "repoName"],
 
     mounted() {
         if (this.assignee) {
             this.chosenAssignee = this.assignee;
         }
-        PullRequestService.getPossibleAssignees(this.$route.params.username, this.$route.params.repoName).then(res => {
+        console.log('Assignee modal owner: ',this.owner);
+        console.log('Assignee modal repo: ', this.repoName);
+        IssueService.getPossibleAssignees(this.owner, this.repoName, this.$route.params.issue_id).then(res => {
             this.available = res.data;
+            console.log('Available:', this.available)
             this.filtered = this.available;
         }).catch(err => {
             console.log(err);
@@ -53,13 +56,24 @@ export default {
             }
         },
 
-        chooseAssignee(assignee) {
-            this.$emit('chooseAssignee', assignee);
+        addAssignee(assignee) {
+            let remainingAvailables = [];
+            this.available.forEach((e) => {
+                if (assignee === e) {
+                    console.log('');
+                } else {
+                    remainingAvailables.push(e);
+                }
+            });
+            this.available = remainingAvailables;
+            this.search = '';
+            this.filtered = this.available;
+            this.$emit('addAssignee', assignee);
         },
 
         filterUsers() {
             if (this.search === "") this.filtered = this.available;
-            else this.filtered = this.available.filter(x => x.username.toLowerCase().includes(this.search.toLowerCase()));
+            else this.filtered = this.available.filter(x => x.toLowerCase().includes(this.search.toLowerCase()));
         }
     }
 }
