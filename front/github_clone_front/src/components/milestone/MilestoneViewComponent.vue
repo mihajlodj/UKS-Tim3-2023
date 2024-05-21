@@ -6,7 +6,7 @@
         <!-- Milestone title -->
         <div class="d-flex justify-content-between px-5 pt-4">
             <div class="d-flex justify-content-start">
-                <h2 class="bright me-2">Naziv milestonea</h2>
+                <h2 class="bright me-2">{{ this.milestone.title }}</h2>
             </div>
         </div>
 
@@ -22,9 +22,9 @@
             <div class="d-flex justify-content-start">
                 <!-- Due date display -->
                 <span>
-                    <div class="bright me-2" v-if="true">
+                    <div class="bright me-2" v-if="this.milestone.due_date">
                         <span class="bright me-2">Due date</span>
-                        <span class="bright me-2">28.3.2025.</span>
+                        <span class="bright me-2">{{ this.formatDate(this.milestone.due_date) }}</span>
                     </div>
                     <div class="bright me-2" v-else>No due date</div>
                 </span>
@@ -63,6 +63,10 @@
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
+import MilestoneService from '@/services/MilestoneService';
+
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 export default {
     name: "MilestoneViewComponent",
@@ -71,16 +75,34 @@ export default {
         RepoNavbar,
     },
     mounted() {
-        console.log("Hello from MilestoneViewComponent");
-        console.log(this.milestone_id);
+        this.loadMilestoneData();
     },
     data() {
         return {
+            repoName: this.$route.params.repoName,
+            username: this.$route.params.username,
             milestone_id: this.$route.params.milestone_id,
+            milestone: Object,
         }
     },
 
     methods: {
+        loadMilestoneData() {
+            MilestoneService.getOneMilestone(this.username, this.repoName, this.milestone_id)
+            .then(res => {
+                this.milestone = res.data;
+            })
+            .catch(err => console.log(err));
+        },
+
+        formatDate(date) {
+            dayjs.extend(utc);
+            // Parse the given date string using Day.js, considering it as UTC time
+            const parsedDate = dayjs.utc(date);
+
+            // Format the parsed date into the desired format
+            return parsedDate.format('DD.MM.YYYY.');
+        },
 
     }
 }
