@@ -81,12 +81,9 @@
 
                 <hr class="bright" />
 
-                <div class="description w-100 mt-2">
-                    <label class="bright">Comments component</label>
-                </div>
-                <!-- <CommentDisplay :username="this.$route.params.ownerUsername" :repoName="this.$route.params.repoName"
-                    :entityType="'issue'" :entityId="this.$route.params.issue_id">
-                </CommentDisplay> -->
+                <CommentDisplay :username="this.username" :repoName="this.repoName"
+                    :entityType="'milestone'" :entityId="this.milestone_id">
+                </CommentDisplay>
             </div>
 
             <div class="w-25">
@@ -99,6 +96,8 @@
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
+import CommentDisplay from '@/components/comment/CommentDisplay.vue'
+
 import MilestoneService from '@/services/MilestoneService';
 import IssueService from '@/services/IssueService';
 
@@ -112,6 +111,7 @@ export default {
     components: {
         RepoNavbar,
         ProgressBar,
+        CommentDisplay,
     },
     mounted() {
         this.loadMilestoneData();
