@@ -66,7 +66,7 @@
 
                 <!-- Completion percent -->
                 <span>
-                    <span class="bright bold left-margin">83%</span>
+                    <span class="bright bold left-margin">{{ this.completedPercentage }}%</span>
                     <span class="bright">&nbsp;complete</span>
                 </span>
             </div>
@@ -99,6 +99,7 @@
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
 import MilestoneService from '@/services/MilestoneService';
+import IssueService from '@/services/IssueService';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -111,6 +112,7 @@ export default {
     },
     mounted() {
         this.loadMilestoneData();
+        this.loadIssues();
     },
     data() {
         return {
@@ -118,6 +120,10 @@ export default {
             username: this.$route.params.username,
             milestone_id: this.$route.params.milestone_id,
             milestone: Object,
+            issues: [],
+            numberOfOpenIssues: 0,
+            numberOfClosedIssues: 0,
+            completedPercentage: 0,
         }
     },
 
@@ -128,6 +134,36 @@ export default {
                     this.milestone = res.data;
                 })
                 .catch(err => console.log(err));
+        },
+
+        loadIssues() {
+            IssueService.getIssuesForMilestone(this.username, this.repoName, this.milestone_id)
+                .then(res => {
+                    this.issues = res.data;
+                    this.calculateNumberOfIssues();
+                    this.calculateCompletedPercentage();
+                })
+                .catch(err => console.log(err));
+        },
+
+        calculateNumberOfIssues() {
+            const issueCounts = this.issues.reduce((counts, issue) => {
+                if (issue.open) {
+                    counts.open += 1;
+                } else {
+                    counts.closed += 1;
+                }
+                return counts;
+            }, { open: 0, closed: 0 });
+            this.numberOfOpenIssues = issueCounts.open;
+            this.numberOfClosedIssues = issueCounts.closed;
+        },
+
+        calculateCompletedPercentage() {
+            let totalNumberOfIssues = this.numberOfOpenIssues + this.numberOfClosedIssues;
+            let percentage = (this.numberOfClosedIssues * 100) / totalNumberOfIssues;
+            let wholePercentage = Math.floor(percentage);
+            this.completedPercentage = wholePercentage;
         },
 
         formatDate(date) {
