@@ -6,7 +6,7 @@ from rest_framework.exceptions import ParseError
 
 from main import gitea_service
 from main.gitea_service import create_branch
-from main.models import Project, Branch, Developer, Role, WorksOn
+from main.models import Commit, Branch, Developer, Role, WorksOn
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -30,9 +30,26 @@ class BranchSerializer(serializers.Serializer):
                raise ParseError("duplicate branch name") 
             branch = Branch.objects.create(name=validated_data['name'], project=project, parent=parent, created_by=created_by)
             threading.Thread(target=self.gitea_create_branch, args=([owner, project_name, branch]), kwargs={}).start()
+            self.copy_commits(branch, parent)
             return branch
         except ObjectDoesNotExist:
             raise Http404()
+        
+    def copy_commits(self, new_branch, parent):
+        commits = Commit.objects.filter(branch=parent)
+        for commit in commits:
+            new_commit = Commit.objects.create(
+                hash=commit.hash,
+                author=commit.author,
+                committer=commit.committer,
+                branch=new_branch,
+                timestamp=commit.timestamp,
+                message=commit.message,
+                additional_description=commit.additional_description
+            )
+            if commit.tags:
+                new_commit.tags.set(commit.tags.all())
+            new_commit.save()
 
     def gitea_create_branch(self, owner, repository_name, branch):
         gitea_service.create_branch(owner, repository_name, branch)

@@ -46,7 +46,7 @@ def update_commits_after_merge(pull):
     source_all_commits = Commit.objects.filter(branch=source)
     for commit in source_all_commits:
         if commit.hash not in target_all_commits_hashes:
-            Commit.objects.create(
+            new_commit = Commit.objects.create(
                 hash=commit.hash,
                 author=commit.author,
                 committer=commit.committer,
@@ -55,6 +55,9 @@ def update_commits_after_merge(pull):
                 message=commit.message,
                 additional_description=commit.additional_description
             )
+            if commit.tags:
+                new_commit.tags.set(commit.tags.all())
+            new_commit.save()
 
 
 def update_milestone(json_data, req):
