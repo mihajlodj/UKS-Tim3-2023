@@ -42,7 +42,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div v-if="branchData.length > 0">
+                            <div v-if="eligible.length > 0">
                                 <label class="mt-3 mb-1">Source</label>
                                 <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
                                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -50,20 +50,24 @@
                                     }}
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li v-for="b in branchData" :key="b.name">
+                                    <li v-for="b in eligible" :key="b.name">
                                         <button class="btn dropdown-item" @click="changeChosenSource(b.name)">
                                             {{ b.name }}
                                         </button>
                                     </li>
                                 </ul>
                             </div>
+                            <div v-else>
+                                Cannot create a branch from an empty branch
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-gray" @click="cancelBranchInput"
                             data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-create" @click="createBranch" data-bs-dismiss="modal">Create
-                            new branch</button>
+                        <button type="button" class="btn btn-create" @click="createBranch" data-bs-dismiss="modal" :disabled="eligible.length === 0">
+                            Create new branch
+                        </button>
                     </div>
                 </div>
             </div>
@@ -97,7 +101,10 @@ export default {
                     "createdBy": item.created_by
                 });
             }
-            this.chosenSource = this.branchData[0].name;
+            this.eligible = this.branchData.filter(x => x.updatedUsername !== undefined);
+            if (this.eligible.length > 0) {
+                this.chosenSource = this.eligible[0].name;
+            }
             this.createdByUser = this.branchData.filter(item => item.createdBy === this.$route.params.username);
             this.targetList = this.branchData;
         }).catch(err => {
@@ -114,7 +121,8 @@ export default {
             targetList: [],
             chosenSource: '',
             newBranchName: '',
-            isValidBranchName: true
+            isValidBranchName: true,
+            eligible: []
         }
     },
 
@@ -148,6 +156,7 @@ export default {
             this.targetList = this.targetList.filter(item => item.name !== branchName);
             this.branchData = this.branchData.filter(item => item.name !== branchName);
             this.createdByUser = this.createdByUser.filter(item => item.name !== branchName);
+            this.eligible = this.eligible.filter(item => item.name !== branchName);
         },
 
         /* eslint-disable */
@@ -156,17 +165,21 @@ export default {
                 "name": this.newBranchName,
                 "parent": this.chosenSource
             }).then(_res => {
-                this.branchData.push({
+                let chosenSourceObj = this.eligible.find(x => x.name === this.chosenSource);
+                
+                let newBranch = {
                     "name": this.newBranchName,
-                    "createdBy": this.$route.params.username
-                });
-                this.createdByUser.push({
-                    "name": this.newBranchName,
-                    "createdBy": this.$route.params.username
-                });
+                    "createdBy": this.$route.params.username,
+                    "updatedUsername": chosenSourceObj.updatedUsername,
+                    "updatedAvatar": chosenSourceObj.updatedAvatar,
+                    "updatedTimestamp": chosenSourceObj.updatedTimestamp
+                }
+                this.branchData.push(newBranch);
+                this.createdByUser.push(newBranch);
+                this.eligible.push(newBranch);
                 this.newBranchName = "";
                 this.isValidBranchName = true;
-                this.chosenSource = this.branchData[0].name;
+                this.chosenSource = this.eligible[0].name;
                 
             }).catch(err => {
                 console.log(err);
