@@ -31,7 +31,7 @@
                         </div>
                     </td>
                     <td>
-                        <label class="msg">{{ c.message }}</label>
+                        <label class="msg" v-html="formattedMessage(c.message)"></label>
                     </td>
                     <td class="date">
                         <label>{{ formatDate(c.timestamp) }}</label>
@@ -76,6 +76,15 @@ export default {
 
         displayCommit(sha) {
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/commit/${sha}`);
+        },
+
+        formattedMessage(message) {
+            const username = this.$route.params.username;
+            const repoName = this.$route.params.repoName;
+
+            return message.replace(/#(\d+)/g, (match, issueId) => {
+                return `<a href="/view/${username}/${repoName}/issues/${issueId}">${match}</a>`;
+            });
         }
     }
 }
@@ -158,5 +167,14 @@ td {
 
 .btn-sha label:hover {
     cursor: pointer;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 </style>

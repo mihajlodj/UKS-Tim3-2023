@@ -1,7 +1,7 @@
 <template>
     <div class="mb-3">
         <div class="msg px-3 py-2">
-            <h4 class="msg">{{ commit.message }}</h4>
+            <h4 class="msg" v-html="formattedMessage"></h4>
             <div class="ms-1 pt-2 d-flex justify-content-start">
                 <font-awesome-icon icon="fa-solid fa-code-branch" class="me-1"></font-awesome-icon>
                 <button type="button" class="btn-branch" @click="goToBranch">
@@ -31,6 +31,17 @@ export default {
 
         goToBranch() {
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}?chosen=${this.commit.branch}`);
+        }
+    },
+
+    computed: {
+        formattedMessage() {
+            const username = this.$route.params.username;
+            const repoName = this.$route.params.repoName;
+
+            return this.commit.message.replace(/#(\d+)/g, (match, issueId) => {
+                return `<a href="/view/${username}/${repoName}/issues/${issueId}">${match}</a>`;
+            });
         }
     }
 }
@@ -82,6 +93,15 @@ img {
 }
 
 .btn-branch>h6:hover {
+    text-decoration: underline;
+}
+
+a {
+    color: #0366d6;
+    text-decoration: none;
+}
+
+a:hover {
     text-decoration: underline;
 }
 
