@@ -47,7 +47,7 @@ import { toast } from 'vue3-toastify';
 
 export default {
     name: "CommitsTable",
-    props: ['commits'],
+    props: ['commits', 'branch'],
     data() {
         return {
 
@@ -75,7 +75,7 @@ export default {
         },
 
         displayCommit(sha) {
-            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/commit/${sha}`);
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/${this.branch}/commit/${sha}`);
         },
 
         formattedMessage(message) {

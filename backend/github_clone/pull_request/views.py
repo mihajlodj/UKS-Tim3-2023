@@ -30,6 +30,7 @@ def create(request, owner_username, repository_name):
     response = gitea_service.create_pull_request(owner_username, repository_name,
                                                  {'base': json_data['base'], 'head': json_data['compare'],
                                                   'title': title})
+    print(response.status_code)
     if response.status_code == 201:
         id = service.save_pull_request(owner_username, request.user.username, repository_name, json_data, response)
         pr_info = {
@@ -319,6 +320,7 @@ def merge(request, owner_username, repository_name, pull_id):
     req.save()
     gitea_service.merge_pull_request(owner_username, repository_name, pull_id)
     pr_info = get_pr_info(req, request)
+    service.update_commits_after_merge(req)
     threading.Thread(target=notification_service.send_notification_pull_request_merged, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)
 

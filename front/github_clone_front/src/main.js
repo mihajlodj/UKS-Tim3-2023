@@ -182,7 +182,7 @@ const routes = [
         component: HistoryView
     },
     {
-        path: "/view/:username/:repoName/commit/:sha",
+        path: "/view/:username/:repoName/:branch/commit/:sha",
         component: CommitDisplay
     },
     {

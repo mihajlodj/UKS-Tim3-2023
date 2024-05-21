@@ -22,11 +22,11 @@ def get_diff(request, owner_username, repository_name, sha):
 
 @api_view(['GET'])
 @permission_classes([permissions.CanViewRepository])
-def get(request, owner_username, repository_name, sha):
+def get(request, owner_username, repository_name, branch, sha):
     project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
     if not Commit.objects.filter(branch__project=project, hash=sha).exists():
         return Response(status=status.HTTP_404_NOT_FOUND)
-    commit = Commit.objects.get(branch__project=project, hash=sha)
+    commit = Commit.objects.get(branch__project=project, branch__name=branch, hash=sha)
     result = {
         'sha': sha,
         'message': commit.message,

@@ -89,7 +89,7 @@
                 </div>
 
                 <div v-if="chosenTab === 'commits'">
-                    <CommitsTable :commits="pull.commits" />
+                    <CommitsTable :commits="pull.commits" :branch="pull.compare" />
                 </div>
 
                 <div v-if="chosenTab === 'files'">

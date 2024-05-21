@@ -96,7 +96,7 @@ def get_committers(request, owner_username, repository_name, branch_name):
 
 
 def serialize_commits(commits):
-    return [{
+    serialized = [{
         'hash': commit.hash, 
         'message': commit.message,
         'author': {
@@ -106,4 +106,5 @@ def serialize_commits(commits):
         'timestamp': commit.timestamp
     } for commit in commits]
 
+    return sorted(serialized, key=lambda x: x['timestamp'], reverse=True)
     
