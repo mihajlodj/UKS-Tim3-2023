@@ -215,7 +215,7 @@ const routes = [
         component: NotificationsList
     },
     {
-        path: "/milestonedetails",
+        path: "/view/:username/:repoName/milestones/:milestone_id",
         component: MilestoneViewComponent
     },
 ]

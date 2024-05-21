@@ -71,11 +71,12 @@ export default {
         RepoNavbar,
     },
     mounted() {
-
+        console.log("Hello from MilestoneViewComponent");
+        console.log(this.milestone_id);
     },
     data() {
         return {
-
+            milestone_id: this.$route.params.milestone_id,
         }
     },
 
