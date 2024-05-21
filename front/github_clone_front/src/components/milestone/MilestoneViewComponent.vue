@@ -46,9 +46,9 @@
         </div>
 
         <!-- Progress bar -->
-        <div class="d-flex justify-content-between px-5 pt-1">
-            <div class="d-flex justify-content-start">
-                <div class="bright me-2">Progress bar component</div>
+        <div class="px-5 pb-1 mt-1">
+            <div class="w-75 pe-5">
+                <ProgressBar :value="this.completedPercentage" :showValue="false" style="background-color: white; height: 20px;"></ProgressBar>
             </div>
         </div>
 
@@ -103,12 +103,14 @@ import IssueService from '@/services/IssueService';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import ProgressBar from 'primevue/progressbar';
 
 export default {
     name: "MilestoneViewComponent",
     props: [],
     components: {
         RepoNavbar,
+        ProgressBar,
     },
     mounted() {
         this.loadMilestoneData();
