@@ -157,6 +157,8 @@ export default {
     mounted() {
         DeveloperService.getDevelopers(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.developers = res.data.filter(dev => dev.avatar !== null);
+            console.log(this.developers);
+            console.log('Developers:', res.data);
         }).catch(err => {
             console.log(err);
         });
@@ -165,6 +167,7 @@ export default {
             this.existingCollaborators = res.data;
             this.filteredExistingCollaborators = res.data;
             this.collaboratorsExist = this.existingCollaborators.length > 0;
+            console.log(this.existingCollaborators);
         }).catch(err => {
             console.log(err);
         });

@@ -6,18 +6,21 @@
                 <label class="muted hoverable">Assignee</label>
                 <font-awesome-icon icon="fa-solid fa-gear" class="muted" />
             </button>
-            <label v-if="!assignee" class="bright small">No one</label>
+            <label v-if="this.assignees.length === 0" class="bright small">No one</label>
             <div v-else class="mt-1 d-flex justify-content-between">
-                <button type="button" class="btn-assignee w-100 d-flex justify-content-start">
-                    <img class="avatar mt-1 me-1" :src="assignee.avatar" />
-                    <label class="bright hoverable">{{ assignee.username }}</label>
-                </button>
-                <button type="button" class="btn-remove">
-                    <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeAssignee" />
-                </button>
+                <div v-for="assignee in this.assignees" :key="assignee">
+                    <button type="button" class="btn-assignee w-100 d-flex justify-content-start">
+                        <!-- <img class="avatar mt-1 me-1" :src="assignee.avatar" /> -->
+                        <label class="bright hoverable">{{ assignee }}</label>
+                    </button>
+                    <button type="button" class="btn-remove">
+                        <font-awesome-icon icon="fa-regular fa-circle-xmark" class="muted" @click="removeAssignee(assignee)" />
+                    </button>
+                </div>
             </div>
             <AssigneesModal v-if="showModal['assignees']" :x="modalX" :y="modalY" :w="modalW"
-                @chooseAssignee="chooseAssignee" @closeModal="toggleModal('assignees')" />
+                :owner="this.owner" :repoName="this.repoName"
+                @addAssignee="addAssignee" @closeModal="toggleModal('assignees')" />
         </div>
         <hr class="muted" />
 
@@ -59,7 +62,7 @@ import MilestoneModal from "@/components/issue/modals/MilestoneModal.vue"
 
 export default {
     name: "AdditionalPrInfo",
-    props: ["chosenMilestone", "chosenAssignee", "selectedLabels", "issueId"],
+    props: ["chosenMilestone", "selectedLabels", "chosenAssignees", "issueId", "owner", "repoName"],
     components: {
         AssigneesModal,
         LabelsModal,
@@ -67,7 +70,7 @@ export default {
     },
     mounted() {
         this.milestone = this.chosenMilestone;
-        this.assignee = this.chosenAssignee;
+        this.assignees = this.chosenAssignees;
         this.labels = this.selectedLabels;
     },
     data() {
@@ -117,15 +120,23 @@ export default {
             this.$emit('updateMilestone', this.milestone);
         },
 
-        chooseAssignee(data) {
-            this.assignee = data;
+        addAssignee(username) {
+            this.assignees.push(username);
             this.toggleModal("assignees");
-            this.$emit('updateAssignee', this.assignee);
+            this.$emit('addAssignee', username);
         },
 
-        removeAssignee() {
-            this.assignee = null;
-            this.$emit('updateAssignee', this.assignee);
+        removeAssignee(assignee) {
+            let remainingAssignees = []
+            this.assignees.forEach((e) => {
+                if (assignee === e) {
+                    console.log('');
+                } else {
+                    remainingAssignees.push(e);
+                }
+            });
+            this.assignees = remainingAssignees;
+            this.$emit('removeAssignee', assignee);
         }
     }
 }

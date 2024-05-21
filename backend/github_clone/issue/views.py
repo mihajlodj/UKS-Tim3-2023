@@ -28,6 +28,57 @@ class IssueView(generics.CreateAPIView):
     serializer_class = IssueSerializer
 
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def assign_manager(request, owner_username, repo_name):
+    dev_username = request.data.get('manager')
+    issue_id = int(request.data.get('issue_id'))
+    issue = Issue.objects.get(id=issue_id)
+
+    dev = Developer.objects.get(user__username=dev_username)
+    issue.manager.add(dev)
+    gitea_service.subscribe_user_to_issue(owner_username, repo_name, issue.id, dev_username)
+    issue.save()
+    return Response(status=200)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def unassign_manager(request, owner_username, repo_name):
+    dev_username = request.data.get('manager')
+    issue_id = int(request.data.get('issue_id'))
+    try:
+        issue = Issue.objects.get(id=issue_id)
+        dev = Developer.objects.get(user__username=dev_username)
+        try:
+            issue.manager.remove(dev)
+            gitea_service.unsubscribe_user_to_issue(owner_username, repo_name, issue.id, dev_username)
+            issue.save()
+        except Exception:
+            return JsonResponse({'message': 'Assignee removal failed'}, safe=False, status=405)
+    except Exception:
+        return JsonResponse({'message': 'Developer or issue does not exist'}, safe=False, status=405)
+    return Response(status=200)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_possible_assignees(request, owner_username, repo_name, issue_id):
+    try:
+        issue = Issue.objects.get(id=issue_id)
+        try:
+            managers = [dev.user.username for dev in issue.manager.all()]
+            project = issue.project
+            worksOnList = WorksOn.objects.filter(project=project, role=Role.DEVELOPER)
+            project_devs = [worksOn.developer.user.username for worksOn in worksOnList]
+            possible_assignees = [dev for dev in project_devs if dev not in managers]
+            return JsonResponse(data=possible_assignees, safe=False, status=200)
+        except Exception:
+            return JsonResponse({'message': 'Getting possible assignees failed'}, safe=False, status=405)
+    except Exception:
+        return JsonResponse({'message': 'No issue with this ID'}, safe=False, status=405)
+
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_issue(request):
@@ -123,7 +174,7 @@ def get_all_issues(request, query):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, ])
+@permission_classes([IsAuthenticated])
 def get_issue(request, pk):
     try:
         issue = Issue.objects.get(pk=pk)
@@ -142,7 +193,7 @@ def get_issue(request, pk):
             'project': Project.objects.get(id=issue.project.id).name,
             'milestone': None if issue.milestone is None else serialize_milestone(
                 Milestone.objects.get(id=issue.milestone.id)),
-            'tags': []
+            'manager': [dev.user.username for dev in issue.manager.all()]
         }
 
         from_issue_labels = issue.labels.all()
@@ -154,7 +205,8 @@ def get_issue(request, pk):
             })
 
         return JsonResponse(serialized_issue, safe=False, status=200)
-    except Exception:
+    except Exception as e:
+        print(e)
         return JsonResponse([], safe=False, status=400)
 
 
@@ -200,18 +252,17 @@ def get_issues(request, owner_username, repo_name):
     if not works_on.exists():
         return JsonResponse([], safe=False, status=200)
     data = []
-    for issue in Issue.objects.filter(project=works_on.first().project).values():
+    for issue in Issue.objects.filter(project=works_on.first().project):
         data.append({
-            'id': issue['id'],
-            'title': issue['title'],
-            'description': issue['description'],
-            'open': issue['open'],
-            'created': issue['created'],
-            'creator': Developer.objects.get(id=issue['creator_id']).user.username,
-            'project': Project.objects.get(id=issue['project_id']).name,
-            'milestone': None if issue['milestone_id'] is None else serialize_milestone(
-                Milestone.objects.get(id=issue['milestone_id'])),
-            'tags': []
+            'id': issue.id,
+            'title': issue.title,
+            'description': issue.description,
+            'open': issue.open,
+            'created': issue.created,
+            'creator': issue.creator.user.username,
+            'project': issue.project.name,
+            'milestone': None if issue.milestone is None else serialize_milestone(issue.milestone),
+            'manager': [] if issue.manager is None else [dev.user.username for dev in issue.manager.all()]
         })
     return JsonResponse(data, safe=False, status=200)
 

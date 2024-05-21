@@ -30,7 +30,7 @@
             </div>
 
             <CommentDisplay 
-                :username="this.$route.params.ownerUsername" 
+                :username="this.$route.params.username" 
                 :repoName="this.$route.params.repoName"
                 :entityType="'issue'"
                 :entityId="this.$route.params.issue_id"
@@ -53,8 +53,9 @@
         
         <div class="w-25">
             <AdditionalIssueInfo :key="additionalInfoKey" :chosenMilestone="this.issue.milestone" 
-                :chosenAssignee="this.issue.manager" :selectedLabels="issue.labels" :issueId="issue.id"
-                @updateAssignee="updateManagers" @updateMilestone="updateMilestone" />
+                :chosenAssignees="this.issue.manager" :selectedLabels="issue.labels" :issueId="issue.id"
+                :owner="this.owner" :repoName="this.repoName"
+                @addAssignee="addAssignee" @removeAssignee="removeAssignee" @updateMilestone="updateMilestone" />
             <hr class="bright"/>
             <div class="w-100 d-flex justify-content-end mt-3">
                 <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -83,7 +84,9 @@ export default {
         CommentDisplay,
     },
     mounted() {
-        console.log('Issue id:', this.$route.params.issue_id)
+        console.log('Params: ', this.$route.params)
+        this.owner = this.$route.params.ownerUsername;
+        this.repoName = this.$route.params.repoName;
         IssueService.getIssue(this.$route.params.issue_id).then((res) => {
             this.issue = res.data;
             console.log(this.issue);
@@ -97,12 +100,12 @@ export default {
     },
     data() {
         return {
-            // issue: undefined,
+            owner: '',
+            repoName: '',
             issue: {
                 id: 0,
                 title: 'title',
                 description: 'descriptionnn',
-                tags: ['tag1', 'tag2', 'tag3'],
                 created: 'dd/mm/yyyy',
                 milestone: null,
                 creator: {
@@ -110,6 +113,7 @@ export default {
                     avatar: 'dasfas'
                 },
                 labels: [],
+                manager: []
             },
             additionalInfoKey: 1,
             newMilestoneId: null,
@@ -157,7 +161,7 @@ export default {
             IssueService.closeIssue(this.$route.params.repoName, this.issue.id).then((res) => {
                 console.log(res);
                 toast("Issue closed", this.toastSuccess);
-                let ownerUsername = this.$route.params.ownerUsername;
+                let ownerUsername = this.$route.params.username;
                 let repoName = this.$route.params.repoName;
                 this.$router.push('/view/' + ownerUsername + '/' + repoName + '/issues');
             }).catch((err) => {
@@ -169,7 +173,7 @@ export default {
             IssueService.reopenIssue(this.$route.params.repoName, this.issue.id).then((res) => {
                 console.log(res);
                 toast("Issue reopened", this.toastSuccess);
-                let ownerUsername = this.$route.params.ownerUsername;
+                let ownerUsername = this.$route.params.username;
                 let repoName = this.$route.params.repoName;
                 this.$router.push('/view/' + ownerUsername + '/' + repoName + '/issues');
             }).catch((err) => {
@@ -177,8 +181,41 @@ export default {
                 toast("Issue reopening failed", this.toastFailed);
             });
         },
-        updateManagers(data) {
-            this.issue.manager = data;
+        addAssignee(data) {
+            this.issue.manager.push(data);
+            let body = {
+                'manager': data,
+                'issue_id': this.issue.id
+            }
+            IssueService.assignManager(this.$route.params.repoName, this.$route.params.ownerUsername, body).then((res) => {
+                res.statusText;
+                toast(`${data} assigned to the issue.`, this.toastSuccess);
+            }).catch((err) => {
+                console.log(err);
+                toast('Assigning user failed', this.toastFailed);
+            });
+        },
+        removeAssignee(data) {
+            let remainingManagers = []
+            this.issue.manager.forEach((e) => {
+                if (data === e) {
+                    console.log('');
+                } else {
+                    remainingManagers.push(e);
+                }
+            });
+            this.issue.manager = remainingManagers;
+            let body = {
+                'manager': data,
+                'issue_id': this.issue.id
+            }
+            IssueService.unassignManager(this.$route.params.repoName, this.$route.params.ownerUsername, body).then((res) => {
+                res.statusText;
+                toast(`${data} unassigned from the issue.`, this.toastSuccess);
+            }).catch((err) => {
+                console.log(err);
+                toast('Unassigning user failed', this.toastFailed);
+            });
         },
         updateMilestone(data) {
             this.issue.milestone = data;
@@ -191,7 +228,6 @@ export default {
                 description: this.issue.description,
                 // created: Date.now(), // add date string
                 creator: this.issue.creator,
-                // managers: [], // FIX LATER
                 open: this.issue.open,
                 milestone: this.newMilestoneId,
                 project: this.$route.params.repoName

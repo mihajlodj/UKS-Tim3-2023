@@ -28,6 +28,7 @@
       </div>
     </div>
   </div>
+  <!-- Modal edit -->
   <div class="modal fade" id="exampleModalUpdate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -51,8 +52,20 @@
       </div>
     </div>
   </div>
-  <div>
-    <table style="margin-left:auto; margin-right:auto; width: 80%;">
+  
+  <div style="margin-left:auto; margin-right:auto; width: 80%;">
+    <div class="btn-group mb-3" style="text-align: left;" role="group" aria-label="Basic radio toggle button group">
+    <input type="radio" @click="this.showAll = false; this.showOpen = true; this.showClosed = false;" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" :checked="this.showOpen">
+    <label class="btn btn-outline-primary" for="btnradio1">Open issues</label>
+
+    <input type="radio" @click="this.showAll = false; this.showOpen = false; this.showClosed = true;" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" :checked="this.showClosed">
+    <label class="btn btn-outline-primary" for="btnradio2">Closed issues</label>
+
+    <input type="radio" @click="this.showAll = true; this.showOpen = false; this.showClosed = false;" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" :checked="this.showAll">
+    <label class="btn btn-outline-primary" for="btnradio3">All issues</label>
+  </div>
+  <div v-if="this.showOpen || this.showAll">
+    <table style="margin-left:auto; margin-right:auto; width: 100%;">
       <tr colspan="8">
         <span font-size="28px" font-weight="bold">Open issues {{ this.filteredOpenIssues.length }}</span>
         <hr>
@@ -74,7 +87,7 @@
               <td >{{ item.title }}</td>
               <td >{{ item.description }}</td>
               <td >{{ item.created.slice(0, 10) }}</td>
-              <td >{{ item.manager }}</td>
+              <td >{{ item.manager.length === 0 ? 'None' : item.manager.join(', ') }}</td>
               <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
               <td >
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal"
@@ -104,8 +117,8 @@
     </table>
 
   </div>
-  <div>
-    <table style="margin-left:auto; margin-right:auto; width: 80%;">
+  <div v-if="this.showClosed || this.showAll">
+    <table style="margin-left:auto; margin-right:auto; width: 100%;">
       <tr>
         <span font-size="28px" font-weight="bold">Closed issues {{ this.filteredClosedIssues.length }}</span>
         <hr>
@@ -127,7 +140,7 @@
               <td >{{ item.title }}</td>
               <td >{{ item.description }}</td>
               <td >{{ item.created.slice(0, 10) }}</td>
-              <td >{{ item.manager }}</td>
+              <td >{{ item.manager.length === 0 ? 'None' : item.manager.join(', ') }}</td>
               <td >{{ item.milestone == undefined ? 'None' : item.milestone.title }}</td>
               <td>
                 <button type="button" class="btn btn-success" @click="goToIssueDetails(item)">
@@ -141,6 +154,8 @@
     </table>
 
   </div>
+  </div>
+  
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
@@ -157,20 +172,24 @@ export default {
     RepoNavbar
   },
   mounted() {
-    IssueService.getIssues(this.$route.params.ownerUsername, this.$route.params.repoName).then(res => {
+    IssueService.getIssues(this.$route.params.username, this.$route.params.repoName).then(res => {
       this.issues = res.data;
       this.allIssues = res.data;
       this.filteredOpenIssues = this.filterOpenIssues();
       this.filteredClosedIssues = this.filterClosedIssues();
       console.log(this.issues);
     }).catch(err => { console.log(err); });
-    MilestoneService.getAllMilestones(this.$route.params.ownerUsername, this.$route.params.repoName).then(res => {
+    MilestoneService.getAllMilestones(this.$route.params.username, this.$route.params.repoName).then(res => {
       console.log(res);
       this.milestones = res.data;
     }).catch(err => console.log(err));
   },
   data() {
     return {
+      showOpen: true,
+      showClosed: false,
+      showAll: false,
+
       issueFilter: '',
       propIndex: 0,
       propTitle: '',
@@ -196,13 +215,14 @@ export default {
   },
   methods: {
     doFilter() {
-      if (this.issueFilter == '') {
+      if (this.issueFilter == '' || this.issueFilter == null || this.issueFilter == undefined) {
         this.issues = this.allIssues;
-        return;
+      } else {
+        this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
       }
-      this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
       this.filteredOpenIssues = this.filterOpenIssues();
       this.filteredClosedIssues = this.filterClosedIssues();
+
     },
     edit() {
       let updatedIssue = {
@@ -254,14 +274,13 @@ export default {
       this.propTitle = issuesList[index].title;
       this.propDescription = issuesList[index].description;
       this.propMilestone = issuesList[index].milestone;
-      console.log(this.propMilestone)
     },
     updateMilestone(modifiedValue) {
       this.propMilestone = modifiedValue;
       this.filteredOpenIssues[this.propIndex].milestone = modifiedValue;
     },
     goToIssueDetails(issue) {
-      let username = this.$route.params.ownerUsername;
+      let username = this.$route.params.username;
       let repoName = this.$route.params.repoName;
       let issue_id = issue.id;
       let route = '/view/' + username + '/' + repoName + '/issues/' + issue_id;
