@@ -135,7 +135,7 @@ export default {
     ViewReleasesComponent
   },
   mounted() {
-    this.owner = this.$route.params.ownerUsername;
+    this.owner = this.$route.params.username;
     this.repoName = this.$route.params.repoName;
     ReleaseService.getReleases(this.owner, this.repoName).then((res) => {
       this.releases = res.data;

@@ -174,7 +174,7 @@ const routes = [
         component: PrDisplay
     },
     {
-        path: '/view/:ownerUsername/:repoName/issues',
+        path: '/view/:username/:repoName/issues',
         component: ListIssueComponent
     },
     {
@@ -198,11 +198,11 @@ const routes = [
         component: ForkRepo
     },
     {
-        path: "/view/:ownerUsername/:repoName/issues/:issue_id",
+        path: "/view/:username/:repoName/issues/:issue_id",
         component: IssueViewComponent
     },
     {
-        path: "/view/:ownerUsername/:repoName/tags",
+        path: "/view/:username/:repoName/tags",
         component: TagReleaseComponent
     },
     {

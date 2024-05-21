@@ -68,8 +68,8 @@ export default {
         if (this.$route.params.username !== undefined) {
             this.username = this.$route.params.username;
         }
-        else if (this.$route.params.ownerUsername !== undefined) {
-            this.username = this.$route.params.ownerUsername;
+        else if (this.$route.params.username !== undefined) {
+            this.username = this.$route.params.username;
         }
         this.loadLabels();
     },

@@ -157,14 +157,14 @@ export default {
     RepoNavbar
   },
   mounted() {
-    IssueService.getIssues(this.$route.params.ownerUsername, this.$route.params.repoName).then(res => {
+    IssueService.getIssues(this.$route.params.username, this.$route.params.repoName).then(res => {
       this.issues = res.data;
       this.allIssues = res.data;
       this.filteredOpenIssues = this.filterOpenIssues();
       this.filteredClosedIssues = this.filterClosedIssues();
       console.log(this.issues);
     }).catch(err => { console.log(err); });
-    MilestoneService.getAllMilestones(this.$route.params.ownerUsername, this.$route.params.repoName).then(res => {
+    MilestoneService.getAllMilestones(this.$route.params.username, this.$route.params.repoName).then(res => {
       console.log(res);
       this.milestones = res.data;
     }).catch(err => console.log(err));
@@ -261,7 +261,7 @@ export default {
       this.filteredOpenIssues[this.propIndex].milestone = modifiedValue;
     },
     goToIssueDetails(issue) {
-      let username = this.$route.params.ownerUsername;
+      let username = this.$route.params.username;
       let repoName = this.$route.params.repoName;
       let issue_id = issue.id;
       let route = '/view/' + username + '/' + repoName + '/issues/' + issue_id;
