@@ -55,6 +55,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import ListIssueComponent from './components/issue/ListIssueComponent.vue'
 import IssueViewComponent from './components/issue/IssueViewComponent.vue'
 import TagReleaseComponent from './components/tag-release/TagReleaseComponent.vue'
+import MilestoneViewComponent from './components/milestone/MilestoneViewComponent.vue'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
@@ -212,7 +213,11 @@ const routes = [
     {
         path: "/notifications",
         component: NotificationsList
-    }
+    },
+    {
+        path: "/milestonedetails",
+        component: MilestoneViewComponent
+    },
 ]
 
 const router = createRouter({
