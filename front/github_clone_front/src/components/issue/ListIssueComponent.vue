@@ -54,7 +54,7 @@
   <div>
     <table style="margin-left:auto; margin-right:auto; width: 80%;">
       <tr colspan="8">
-        <span font-size="28px" font-weight="bold">Open issues</span>
+        <span font-size="28px" font-weight="bold">Open issues {{ this.filteredOpenIssues.length }}</span>
         <hr>
       </tr>
       <tr colspan="8">
@@ -93,7 +93,7 @@
               </td>
             </tr>
             <tr>
-              <td colspan="7">
+              <td colspan="9">
                 <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd"
                   class="flex-item btn btn-info text-center">Open new issue</button>
               </td>
@@ -107,7 +107,7 @@
   <div>
     <table style="margin-left:auto; margin-right:auto; width: 80%;">
       <tr>
-        <span font-size="28px" font-weight="bold">Closed issues</span>
+        <span font-size="28px" font-weight="bold">Closed issues {{ this.filteredClosedIssues.length }}</span>
         <hr>
       </tr>
       <tr>
