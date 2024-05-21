@@ -35,7 +35,7 @@ export default {
             console.log(err);
         });
 
-        CommitService.get_info(this.$route.params.username, this.$route.params.repoName, this.$route.params.sha).then(res => {
+        CommitService.get_info(this.$route.params.username, this.$route.params.repoName, this.$route.params.branch, this.$route.params.sha).then(res => {
             this.commit = res.data;
             this.commitLoaded = true;
         }).catch(err => {

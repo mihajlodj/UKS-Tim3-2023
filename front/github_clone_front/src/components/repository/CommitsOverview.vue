@@ -48,7 +48,7 @@ export default {
         viewCommit() {
             const username = this.$route.params.username;
             const repoName = this.$route.params.repoName;
-            this.$router.push(`/view/${username}/${repoName}/commit/${this.latestCommit.sha}`);
+            this.$router.push(`/view/${username}/${repoName}/${this.branchName}/commit/${this.latestCommit.sha}`);
         },
 
         viewAllCommits() {

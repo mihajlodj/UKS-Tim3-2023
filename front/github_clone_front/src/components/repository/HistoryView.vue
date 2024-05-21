@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="d-flex justify-content-center w-100">
-                    <CommitsTable :commits="filteredCommits" class="w-100" :ref="commitsTableRef" />
+                    <CommitsTable :commits="filteredCommits" class="w-100" :branch="$route.params.branchName" :ref="commitsTableRef" />
                 </div>
             </div>
         </div>

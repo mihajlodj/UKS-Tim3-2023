@@ -1,6 +1,6 @@
 import threading
 from django.http import Http404
-from main.models import PullRequest, Branch, PullRequestReviewer, Developer, Milestone, WorksOn, Role
+from main.models import PullRequest, Branch, PullRequestReviewer, Developer, Milestone, WorksOn, Role, Commit
 import re
 from developer import service as developer_service
 from websocket import notification_service
@@ -37,6 +37,28 @@ def save_pull_request(owner_username, author_username, repository_name, json_dat
         print(json_data)
 
     return pull.gitea_id
+
+
+def update_commits_after_merge(pull):
+    source = pull.source
+    target = pull.target
+    target_all_commits_hashes = set([commit.hash for commit in Commit.objects.filter(branch=target)])
+    source_all_commits = Commit.objects.filter(branch=source)
+    for commit in source_all_commits:
+        if commit.hash not in target_all_commits_hashes:
+            new_commit = Commit.objects.create(
+                hash=commit.hash,
+                author=commit.author,
+                committer=commit.committer,
+                branch=target,
+                timestamp=commit.timestamp,
+                message=commit.message,
+                additional_description=commit.additional_description
+            )
+            if commit.tags:
+                new_commit.tags.set(commit.tags.all())
+            new_commit.save()
+
 
 def update_milestone(json_data, req):
     if 'milestone_id' in json_data:
