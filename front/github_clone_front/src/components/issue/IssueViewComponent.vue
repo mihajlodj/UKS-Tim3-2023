@@ -30,7 +30,7 @@
             </div>
 
             <CommentDisplay 
-                :username="this.$route.params.ownerUsername" 
+                :username="this.$route.params.username" 
                 :repoName="this.$route.params.repoName"
                 :entityType="'issue'"
                 :entityId="this.$route.params.issue_id"
@@ -161,7 +161,7 @@ export default {
             IssueService.closeIssue(this.$route.params.repoName, this.issue.id).then((res) => {
                 console.log(res);
                 toast("Issue closed", this.toastSuccess);
-                let ownerUsername = this.$route.params.ownerUsername;
+                let ownerUsername = this.$route.params.username;
                 let repoName = this.$route.params.repoName;
                 this.$router.push('/view/' + ownerUsername + '/' + repoName + '/issues');
             }).catch((err) => {
@@ -173,7 +173,7 @@ export default {
             IssueService.reopenIssue(this.$route.params.repoName, this.issue.id).then((res) => {
                 console.log(res);
                 toast("Issue reopened", this.toastSuccess);
-                let ownerUsername = this.$route.params.ownerUsername;
+                let ownerUsername = this.$route.params.username;
                 let repoName = this.$route.params.repoName;
                 this.$router.push('/view/' + ownerUsername + '/' + repoName + '/issues');
             }).catch((err) => {
