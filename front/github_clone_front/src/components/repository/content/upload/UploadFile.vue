@@ -1,6 +1,9 @@
 <template>
     <div class="background is-fullheight min-vh-100">
         <RepoNavbar />
+
+        <LoadingPage v-if="!loaded" />
+
         <PathDisplay />
 
         <DropZone class="drop-area" @files-dropped="addFiles" #default="{ dropZoneActive }">
@@ -37,7 +40,7 @@
             </div>
         </div>
         <div class="d-flex justify-content-center">
-            <div class="d-flex justify-content-start commit-cancel mb-5">
+            <div class="d-flex justify-content-start commit-cancel mb-5" style="width: 80%; max-width: 1200px;">
                 <button @click="uploadSelectedFiles(files)" class="btn-commit me-2">Commit changes</button>
                 <button type="button" class="btn-cancel" @click="cancel">Cancel</button>
             </div>
@@ -51,6 +54,7 @@ import FilePreview from './FilePreview.vue'
 import useFileList from '@/services/FileList'
 import RepoNavbar from '../../RepoNavbar.vue';
 import PathDisplay from '../PathDisplay.vue';
+import LoadingPage from '@/components/util/LoadingPage.vue';
 
 const { files, addFiles, removeFile } = useFileList()
 
@@ -68,12 +72,14 @@ export default {
     data() {
         return {
             commitMsg: "",
-            additionalText: ""
+            additionalText: "",
+            loaded: true
         }
     },
 
     methods: {
         uploadSelectedFiles(files) {
+            this.loaded = false;
             let data = {
                 "branch": this.$route.params.branchName,
                 "message": this.commitMsg,
@@ -83,13 +89,16 @@ export default {
                 FileUploader.uploadFiles(files, this.$route.params.username, this.$route.params.repoName, data).then(res => {
                     console.log(res);
                     this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
+                    this.loaded = true;
                 }).catch(err => {
                     console.log(err);
+                    this.loaded = true;
                 });
             }
             catch (e) {
                 console.log(e);
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
+                this.loaded = true;
             }
         },
 

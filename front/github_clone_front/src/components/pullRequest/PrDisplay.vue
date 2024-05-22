@@ -1,6 +1,9 @@
 <template>
     <div class="background is-fullheight min-vh-100">
         <RepoNavbar starting="pullRequests" />
+        
+        <LoadingPage v-if="!loaded" :key="loadingKey" />
+
         <div class="d-flex justify-content-between px-5 pt-4">
             <div v-if="!editingTitle" class="d-flex justify-content-start">
                 <h2 class="bright me-2">{{ pull.title }}</h2>
@@ -11,7 +14,8 @@
             </div>
 
             <div class="d-flex justify-content-end">
-                <button v-if="!editingTitle" type="button" class="btn-edit-title bright me-2" @click="() => editingTitle = true">
+                <button v-if="!editingTitle" type="button" class="btn-edit-title bright me-2"
+                    @click="() => editingTitle = true">
                     Edit
                 </button>
                 <button v-else type="button" class="btn-save bright me-2" @click="updateTitle">
@@ -24,25 +28,29 @@
         </div>
 
         <div class="px-5 mt-2 d-flex justify-content-start">
-            <StatusPill :status="pull.status"/>
+            <StatusPill :status="pull.status" />
 
             <div class="d-flex justify-content-start ms-3">
                 <button class="bg-none muted" type="button">
                     {{ pull.author.username }}
                 </button>
                 <label class="muted">{{ getMergeMsg() }} {{ pull.commits.length }} commits into</label>
-                <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.base)">{{ pull.base }}</button> 
+                <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.base)">{{
+                pull.base }}</button>
                 <label class="muted">from</label>
-                <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.compare)">{{ pull.compare }}</button>
+                <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.compare)">{{
+                pull.compare }}</button>
             </div>
         </div>
 
         <div class="d-flex justify-content-start mt-4 px-5 w-100">
-            <button type="button" :class="chosenTab === 'conversation' ? 'tab active' : 'tab'"  @click="setActiveTab('conversation')">
+            <button type="button" :class="chosenTab === 'conversation' ? 'tab active' : 'tab'"
+                @click="setActiveTab('conversation')">
                 <font-awesome-icon icon="fa-regular fa-comments"></font-awesome-icon>
                 Conversation
             </button>
-            <button type="button" :class="chosenTab === 'commits' ? 'tab active' : 'tab'" @click="setActiveTab('commits')">
+            <button type="button" :class="chosenTab === 'commits' ? 'tab active' : 'tab'"
+                @click="setActiveTab('commits')">
                 <font-awesome-icon icon="fa-solid fa-code-commit"></font-awesome-icon>
                 Commits
             </button>
@@ -53,7 +61,7 @@
         </div>
 
         <div class="px-5 pb-5 mt-2 w-100 d-flex justify-content-between">
-            <div :class="chosenTab === 'conversation'? 'w-75 pe-5' : 'w-100 pe-5'">
+            <div :class="chosenTab === 'conversation' ? 'w-75 pe-5' : 'w-100 pe-5'">
                 <div v-if="chosenTab === 'conversation'">
                     <div>
                         <div v-if="pull.description" class="description w-100 mt-2">
@@ -68,20 +76,18 @@
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
-                    <CommentDisplay 
-                        :username="this.$route.params.username" 
-                        :repoName="this.$route.params.repoName"
-                        :entityType="'pull_request'"
-                        :entityId="this.$route.params.id"
-                        >
+                    <CommentDisplay :username="this.$route.params.username" :repoName="this.$route.params.repoName"
+                        :entityType="'pull_request'" :entityId="this.$route.params.id">
                     </CommentDisplay>
 
                     <div class="w-100 d-flex justify-content-end mt-2">
-                        <button v-if="pull.status === 'Open' && canUpdatePull()" type="button" class="btn-close-pr bright p-2" @click="close">
+                        <button v-if="pull.status === 'Open' && canUpdatePull()" type="button"
+                            class="btn-close-pr bright p-2" @click="close">
                             <img class="pr-icon me-1" src="../../assets/closed_pr_red.png" />
                             Close pull request
                         </button>
-                        <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button" class="btn-close-pr bright p-2" @click="reopen">
+                        <button v-if="pull.status === 'Closed' && canUpdatePull()" type="button"
+                            class="btn-close-pr bright p-2" @click="reopen">
                             Reopen pull request
                         </button>
                     </div>
@@ -93,14 +99,17 @@
                 </div>
 
                 <div v-if="chosenTab === 'files'">
-                    <ChangedFiles :diff="pull.diff" :overall_additions="pull.overall_additions" :overall_deletions="pull.overall_deletions" />
-                </div> 
+                    <ChangedFiles :diff="pull.diff" :overall_additions="pull.overall_additions"
+                        :overall_deletions="pull.overall_deletions" />
+                </div>
             </div>
 
             <div v-if="chosenTab === 'conversation'" class="w-25">
-                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone" :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" :selectedLabels="pull.labels" :prId="pull.id"
-                    @updateAssignee="updateAssignee" @updateMilestone="updateMilestone" @updateReviewers="updateReviewers" />
-                <hr class="bright"/>
+                <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone"
+                    :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" :selectedLabels="pull.labels"
+                    :prId="pull.id" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone"
+                    @updateReviewers="updateReviewers" />
+                <hr class="bright" />
                 <div class="w-100 d-flex justify-content-end mt-3">
                     <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
                 </div>
@@ -119,6 +128,7 @@ import PullRequestService from '@/services/PullRequestService'
 import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
 import CommentDisplay from '@/components/comment/CommentDisplay.vue'
+import LoadingPage from '@/components/util/LoadingPage.vue'
 
 export default {
     name: "PrDisplay",
@@ -130,6 +140,7 @@ export default {
         StatusPill,
         ChangedFiles,
         CommentDisplay,
+        LoadingPage
     },
 
     mounted() {
@@ -139,6 +150,7 @@ export default {
             this.mergeDataKey += 1;
             this.additionalInfoKey += 1;
             this.newTitle = this.pull.title;
+            this.loaded = true;
         }).catch(err => {
             console.log(err);
         });
@@ -168,6 +180,8 @@ export default {
             additionalInfoKey: 1,
             newTitle: "",
             editingTitle: false,
+            loadingKey: 1,
+            loaded: false
         }
     },
 
@@ -223,7 +237,7 @@ export default {
         updateTitle() {
             if (this.newTitle.trim() !== "") {
                 this.editingTitle = false;
-                let data = {"title": this.newTitle};
+                let data = { "title": this.newTitle };
                 PullRequestService.updateTitle(this.$route.params.username, this.$route.params.repoName, this.$route.params.id, data).then(res => {
                     this.pull.title = res.data;
                 }).catch(err => {
@@ -235,7 +249,7 @@ export default {
                         theme: toast.THEME.DARK
                     });
                 });
-            }      
+            }
         },
 
         close() {
@@ -255,6 +269,8 @@ export default {
         },
 
         merge() {
+            this.loaded = false;
+            this.loadingKey++;
             PullRequestService.merge(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
                 console.log(res);
                 this.pull.status = "Merged";
@@ -264,8 +280,10 @@ export default {
                     position: toast.POSITION.BOTTOM_RIGHT,
                     theme: toast.THEME.DARK
                 });
+                this.loaded = true;
             }).catch(err => {
                 console.log(err);
+                this.loaded = true;
             });
         },
 
@@ -303,6 +321,7 @@ input.edit {
     color: #adbbc8;
     border: 1px solid #768491;
 }
+
 .pr-icon {
     height: 17px;
 }
@@ -456,5 +475,27 @@ textarea {
     background-color: #555;
 }
 
-
-</style>../commit/ChangedFiles.vue
+.loading-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.spinner {
+    border: 15px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 15px solid #488be6;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
