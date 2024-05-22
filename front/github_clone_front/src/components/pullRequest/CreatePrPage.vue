@@ -1,6 +1,9 @@
 <template>
     <div class="background is-fullheight min-vh-100 pb-5">
         <RepoNavbar />
+
+        <LoadingPage v-if="!loaded" />
+
         <div class="mx-5 mt-4">
             <h3 class="bright">Comparing changes</h3>
             <h6 class="muted">Choose two branches to see what’s changed or to start a new pull request</h6>
@@ -44,6 +47,7 @@ import RepoNavbar from "@/components/repository/RepoNavbar.vue"
 import BranchChoice from "./BranchChoice.vue"
 import PullRequestService from "@/services/PullRequestService"
 import AdditionalPrInfo from "./AdditionalPrInfo.vue"
+import LoadingPage from "../util/LoadingPage.vue"
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -51,7 +55,8 @@ export default {
     components: {
         RepoNavbar,
         BranchChoice,
-        AdditionalPrInfo
+        AdditionalPrInfo,
+        LoadingPage
     },
 
     mounted() {
@@ -66,12 +71,14 @@ export default {
             description: "",
             milestone: null,
             assignee: null,
-            reviewers: []
+            reviewers: [],
+            loaded: true
         }
     },
 
     methods: {
         createPullRequest() {
+            this.loaded = false;
             let data = {
                 "base": this.baseName, "compare": this.compareName, "title": this.title, "description": this.description
             }
@@ -88,6 +95,7 @@ export default {
                         position: toast.POSITION.BOTTOM_RIGHT,
                         theme: toast.THEME.DARK
                     });
+                    this.loaded = true;
                 } else {
                     toast("Unable to create pull request!", {
                         autoClose: 500,
@@ -95,6 +103,7 @@ export default {
                         position: toast.POSITION.BOTTOM_RIGHT,
                         theme: toast.THEME.DARK
                     });
+                    this.loaded = true;
                 }
             });
         },

@@ -1,14 +1,18 @@
 <template>
     <div class="background is-fullheight min-vh-100">
         <RepoNavbar />
+
+        <LoadingPage v-if="!loaded" />
+
         <PathDisplay :creating="true" ref="pathDisplay" />
         <EditingHeader />
         <TextFileEdit />
         <div class="d-flex justify-content-center">
             <div class="d-flex justify-content-end mt-2 commit-cancel">
                 <button type="button" class="btn-cancel" @click="cancel">Cancel changes</button>
-                <button type="button" class="btn-commit" data-bs-toggle="modal" data-bs-target="#commitModal">Commit
-                    changes...</button>
+                <button type="button" class="btn-commit" data-bs-toggle="modal" data-bs-target="#commitModal">
+                    Commit changes...
+                </button>
             </div>
         </div>
 
@@ -32,8 +36,9 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-commit" data-bs-dismiss="modal" @click="commitChanges">Commit
-                            changes</button>
+                        <button type="button" class="btn btn-commit" data-bs-dismiss="modal" @click="commitChanges">
+                            Commit changes
+                        </button>
                     </div>
                 </div>
             </div>
@@ -47,6 +52,7 @@ import PathDisplay from './PathDisplay.vue';
 import EditingHeader from './text/EditingHeader.vue';
 import TextFileEdit from './text/TextFileEdit.vue';
 import RepositoryService from '@/services/RepositoryService';
+import LoadingPage from '@/components/util/LoadingPage.vue';
 
 export default {
     name: 'CreateFile',
@@ -55,14 +61,16 @@ export default {
         RepoNavbar,
         PathDisplay,
         EditingHeader,
-        TextFileEdit
+        TextFileEdit,
+        LoadingPage
     },
 
     data() {
         return {
             content: "",
             commitMsg: "",
-            additionalText: ""
+            additionalText: "",
+            loaded: true
         }
     },
 
@@ -73,6 +81,7 @@ export default {
         },
 
         commitChanges() {
+            this.loaded = false;
             this.content = localStorage.getItem("newContent");
             let data = {
                 "message": this.commitMsg,
@@ -85,8 +94,10 @@ export default {
                 console.log(res);
                 this.reset();
                 this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}`);
+                this.loaded = true;
             }).catch(err => {
                 console.log(err);
+                this.loaded = true;
             });
         },
 
