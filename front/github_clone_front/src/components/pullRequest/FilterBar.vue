@@ -22,7 +22,7 @@
             </li>
         </ul>
 
-        <input type="text" class="filter" />
+        <input type="text" class="filter" v-model="this.filterText" v-on:keyup.enter="this.doFilter()" />
 
         <div class="mx-3 d-flex justify-content-">
             <button type="button" class="btn-lbl px-4">
@@ -44,6 +44,16 @@
 <script>
 export default {
     name: "FilterBar",
+    data() {
+        return {
+            filterText: ''
+        }
+    },
+    methods: {
+        doFilter() {
+            this.$emit('doFilter', this.filterText);
+        }
+    }
 }
 </script>
 
