@@ -4,7 +4,7 @@
         <div class="d-flex justify-content-center px-5">
             <div class="contain">
                 <div class="d-flex justify-content-between mt-5">
-                    <FilterBar />
+                    <FilterBar @doFilter="filterPulls" />
                     <div v-if="canCreatePull()" class="d-flex justify-content-end">
                         <button type="button" class="btn-create py-2 px-3" @click="$router.push('compare')">
                             New pull request
@@ -117,8 +117,11 @@ export default {
     mounted() {
         /* eslint-disable */
         PullRequestService.getAll(this.$route.params.username, this.$route.params.repoName).then(res => {
-            this.openPulls = res.data.filter(x => x.status === "Open");
-            this.closedPulls = res.data.filter(x => x.status !== "Open");
+            this.allOpenPulls = res.data.filter(x => x.status === "Open");
+            this.allClosedPulls = res.data.filter(x => x.status !== "Open");
+            
+            this.closedPulls = this.allClosedPulls;
+            this.openPulls = this.allOpenPulls;
             this.pulls = this.openPulls;
             this.selected = this.pulls.map(x => false);
         }).catch(err => {
@@ -128,6 +131,9 @@ export default {
 
     data() {
         return {
+            allOpenPulls: [],
+            allClosedPulls: [],
+            
             pulls: [],
             openPulls: [],
             closedPulls: [],
@@ -138,6 +144,26 @@ export default {
     },
 
     methods: {
+        filterPulls(filterText) {
+            if (filterText === '') {
+                this.openPulls = this.allOpenPulls;
+                this.closedPulls = this.allClosedPulls;
+                this.updatePullsList();
+                return;
+            }
+
+            this.openPulls = this.allOpenPulls.filter((pull) => pull.title.toLowerCase().includes(filterText.toLowerCase()));
+            this.closedPulls = this.allClosedPulls.filter((pull) => pull.title.toLowerCase().includes(filterText.toLowerCase()));
+            
+            this.updatePullsList();
+        },
+        updatePullsList() {
+            if (this.openPullsChosen === true) { 
+                this.pulls = this.openPulls; 
+            } else {
+                this.pulls = this.closedPulls; 
+            }
+        },
         setOpenPullsChosen() {
             this.pulls = this.openPulls;
             this.openPullsChosen = true;

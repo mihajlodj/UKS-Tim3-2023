@@ -129,7 +129,7 @@ export default {
       if (this.issueFilter == '' || this.issueFilter == null || this.issueFilter == undefined) {
         this.issues = this.allIssues;
       } else {
-        this.issues = this.allIssues.filter((issue) => issue.title.includes(this.issueFilter) || issue.description.includes(this.issueFilter))
+        this.issues = this.allIssues.filter((issue) => issue.title.toLowerCase().includes(this.issueFilter.toLowerCase()) || issue.description.toLowerCase().includes(this.issueFilter.toLowerCase()))
       }
       this.filteredOpenIssues = this.filterOpenIssues();
       this.filteredClosedIssues = this.filterClosedIssues();
