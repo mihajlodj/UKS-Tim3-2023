@@ -243,7 +243,8 @@ def get_all_users_working_on_repos(request, username):
         print("TEMP REPO OWNER",temp_repos_owner.developer.user.username)
 
         result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
-                  'default_branch': repo.default_branch.name, 'repos_owner': temp_repos_owner.developer.user.username}
+                  'default_branch': repo.default_branch.name, 'repos_owner': temp_repos_owner.developer.user.username,
+                  'repos_owner_avatar': developer_service.get_dev_avatar(temp_repos_owner.developer.user.username)}
         repos.append(result)
     cache.set(cache_key, repos, timeout=30)
     return Response(repos, status=status.HTTP_200_OK)
