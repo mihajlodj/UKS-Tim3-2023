@@ -1,6 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 import requests
 from django.conf import settings
 from rest_framework.response import Response
@@ -267,8 +268,44 @@ def get_issues(request, owner_username, repo_name):
     return JsonResponse(data, safe=False, status=200)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_issues_linked_with_milestone(request, owner_username, repo_name, milestone_id):
+    try:
+        works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repo_name)
+        issues = Issue.objects.filter(project=works_on.project, milestone_id=milestone_id)
+        serialized_issues = serialize_issues(issues)
+        return Response(serialized_issues, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+
+def serialize_issues(issues):
+    serialized_issues = []
+    for issue in issues:
+        serialized_issue = serialize_issue(issue)
+        serialized_issues.append(serialized_issue)
+    return serialized_issues
+
+
+def serialize_issue(issue):
+    return {
+        'id': issue.id,
+        'title': issue.title,
+        'description': issue.description,
+        'open': issue.open,
+        'created': issue.created,
+        'creator': Developer.objects.get(id=issue.creator_id).user.username,
+        'project': Project.objects.get(id=issue.project_id).name,
+        'milestone': None if issue.milestone_id is None else serialize_milestone(
+            Milestone.objects.get(id=issue.milestone_id)),
+        'tags': []
+    }
+
+
 def serialize_milestone(milestones):
     return {
+        'id': milestones.id,
         'title': milestones.title,
         'description': milestones.description,
         'state': milestones.state,

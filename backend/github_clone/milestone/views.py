@@ -50,15 +50,43 @@ def get_milestones_for_repo(request, owner_username, repository_name):
     return Response(serialized_milestones, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+def get_milestone(request, owner_username, repository_name, milestone_id):
+    try:
+        works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
+        milestone = Milestone.objects.get(project=works_on.project, id=milestone_id)
+        serialized_milestone = serialize_milestone(milestone)
+        return Response(serialized_milestone, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+
 def serialize_milestones(milestones):
     result = []
     for milestone in milestones:
-        serialized_milestone = {
-            'id': milestone.id,
-            'title': milestone.title,
-            'description': milestone.description,
-            'state': milestone.state,
-            'due_date': milestone.deadline,
-        }
+        serialized_milestone = serialize_milestone(milestone)
         result.append(serialized_milestone)
     return result
+
+
+def serialize_milestone(milestone):
+    serialized_milestone = {
+        'id': milestone.id,
+        'title': milestone.title,
+        'description': milestone.description,
+        'state': milestone.state,
+        'due_date': milestone.deadline,
+        'labels': [],
+    }
+    for label in milestone.labels.all():
+        serialized_milestone['labels'].append(serialize_label(label))
+    return serialized_milestone
+
+
+def serialize_label(label):
+    return {
+        'id': label.id,
+        'name': label.name,
+        'description': label.description
+    }
