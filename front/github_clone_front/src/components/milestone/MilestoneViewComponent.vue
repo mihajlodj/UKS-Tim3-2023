@@ -78,13 +78,26 @@
                 <hr class="bright" />
                 <div class="w-100 mt-2">
                     <IssueTable :issues-for-display="this.issues"></IssueTable>
-                </div>                
+                </div>
 
                 <hr class="bright" />
 
-                <CommentDisplay :username="this.username" :repoName="this.repoName"
-                    :entityType="'milestone'" :entityId="this.milestone_id">
+                <CommentDisplay :username="this.username" :repoName="this.repoName" :entityType="'milestone'"
+                    :entityId="this.milestone_id">
                 </CommentDisplay>
+
+                <div class="mt-3">
+                    <div class="w-100 d-flex justify-content-end mt-2">
+                        <button v-if="this.milestone.state === 'Open'" type="button" class="btn btn-warning bright p-2"
+                            @click="this.close()">
+                            Close milestone
+                        </button>
+                        <button v-else type="button" class="btn btn-warning bright p-2" @click="this.reopen()">
+                            Reopen milestone
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             <div class="w-25">
@@ -104,6 +117,7 @@ import IssueService from '@/services/IssueService';
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { toast } from 'vue3-toastify';
 import ProgressBar from 'primevue/progressbar';
 
 export default {
@@ -170,6 +184,52 @@ export default {
             let percentage = (this.numberOfClosedIssues * 100) / totalNumberOfIssues;
             let wholePercentage = Math.floor(percentage);
             this.completedPercentage = wholePercentage;
+        },
+
+        close() {
+            MilestoneService.closeMilestone(this.username, this.repoName, this.milestone_id)
+                .then(res => {
+                    console.log(res);
+                    toast("Milestone closed!", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.loadMilestoneData();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Milestone closure failed.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+        },
+
+        reopen() {
+            MilestoneService.reOpenMilestone(this.username, this.repoName, this.milestone_id)
+                .then(res => {
+                    console.log(res);
+                    toast("Milestone reopened!", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.loadMilestoneData();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Milestone reopening failed.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
         },
 
         formatDate(date) {

@@ -68,10 +68,14 @@
 								data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
 								@click="setSelectedMilestone(item)">Edit</button>
 						</td>
-						<td>
+						<td class="tg-c7q8">
 							<button type="button" class="btn btn-success" @click="goToMilestoneDetails(item)">
 								Details
 							</button>
+						</td>
+						<td class="tg-c7q8">
+							<button type="button" class="btn btn-warning" @click="this.close(item.id)"
+								:disabled="item.state === 'Closed'">Close</button>
 						</td>
 						<td class="tg-c7q8">
 							<button v-if="canModifyMilestones()" type="button" class="btn btn-danger"
@@ -88,6 +92,8 @@ import RepoNavbar from '@/components/repository/RepoNavbar.vue'
 import AddMilestoneComponent from '@/components/milestone/AddMilestoneComponent.vue';
 import MilestoneService from '@/services/MilestoneService';
 import UpdateMilestoneComponent from '@/components/milestone/UpdateMilestoneComponent.vue';
+
+import { toast } from 'vue3-toastify';
 
 export default {
 	name: 'ListIssueComponent',
@@ -157,6 +163,29 @@ export default {
 
 			this.$router.push(route);
 		},
+
+		close(milestone_id) {
+            MilestoneService.closeMilestone(this.$route.params.username, this.repo, milestone_id)
+                .then(res => {
+                    console.log(res);
+                    toast("Milestone closed!", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.getAllMilestonesForRepo();
+                })
+                .catch(err => {
+                    console.log(err);
+                    toast("Milestone closure failed.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
+        },
 
 	}
 }
