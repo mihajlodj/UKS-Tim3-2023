@@ -12,29 +12,19 @@
     <label id="id-repo-label">Repositories</label>
     <div class="repositories">
       <a v-for="(repo, index) in repos" :key="index" :href="'/view/' + repo.repos_owner + '/' + repo.name">
-        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ repo.repos_owner }}/{{ repo.name }}
+        <img :src="repo.repos_owner_avatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ repo.repos_owner }}/{{ repo.name }}
       </a>
     </div>
   </div>
 </template>
 
 <script>
-import DeveloperService from '@/services/DeveloperService';
 import RepositoryService from '@/services/RepositoryService';
 export default {
   props: {
     isOpen: Boolean,
   },
   mounted() {
-    DeveloperService.getUserAvatar(localStorage.getItem("username"))
-          .then(res => {
-              // console.log(res);
-              this.currentAvatar = res.data
-          })
-          .catch(err => {
-              console.log(err);
-          });
-
     RepositoryService.getAllUserWorkingOnRepos(localStorage.getItem("username"))
           .then(res => {
               // console.log(res);
