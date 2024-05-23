@@ -75,9 +75,10 @@
 
         <div class="px-5 pb-5 mt-2 w-100 d-flex justify-content-between">
             <div class="w-75 pe-5">
-                <div class="description w-100 mt-2">
-                    <label class="bright">Issues component</label>
-                </div>
+                <hr class="bright" />
+                <div class="w-100 mt-2">
+                    <IssueTable :issues-for-display="this.issues"></IssueTable>
+                </div>                
 
                 <hr class="bright" />
 
@@ -96,6 +97,7 @@
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
 import CommentDisplay from '@/components/comment/CommentDisplay.vue';
 import AdditionalMilestoneInfo from '@/components/milestone/AdditionalMilestoneInfo.vue';
+import IssueTable from '@/components/issue/IssueTable.vue';
 
 import MilestoneService from '@/services/MilestoneService';
 import IssueService from '@/services/IssueService';
@@ -112,6 +114,7 @@ export default {
         ProgressBar,
         CommentDisplay,
         AdditionalMilestoneInfo,
+        IssueTable,
     },
     mounted() {
         this.loadMilestoneData();
