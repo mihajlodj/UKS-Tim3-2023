@@ -1,12 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
-from main.models import Project, Milestone, Role, WorksOn
+from main.models import Project, Milestone, Role, WorksOn, MilestoneState
 from milestone.serializers import MilestoneSerializer
 
 from main.gitea_service import delete_milestone_from_gitea
@@ -58,6 +58,36 @@ def get_milestone(request, owner_username, repository_name, milestone_id):
         milestone = Milestone.objects.get(project=works_on.project, id=milestone_id)
         serialized_milestone = serialize_milestone(milestone)
         return Response(serialized_milestone, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+def close_milestone(request, owner_username, repository_name, milestone_id):
+    try:
+        works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
+        milestone = Milestone.objects.get(project=works_on.project, id=milestone_id)
+        if milestone.state != MilestoneState.OPEN:
+            return HttpResponse(status=400)
+        milestone.state = MilestoneState.CLOSED
+        milestone.save()
+        return HttpResponse(status=200)
+    except ObjectDoesNotExist:
+        raise Http404()
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+def reopen_milestone(request, owner_username, repository_name, milestone_id):
+    try:
+        works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
+        milestone = Milestone.objects.get(project=works_on.project, id=milestone_id)
+        if milestone.state != MilestoneState.CLOSED:
+            return HttpResponse(status=400)
+        milestone.state = MilestoneState.OPEN
+        milestone.save()
+        return HttpResponse(status=200)
     except ObjectDoesNotExist:
         raise Http404()
 
