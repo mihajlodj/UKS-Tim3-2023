@@ -7,7 +7,7 @@
         <label id="repositories-id">Top repositories</label>
       </div>
       <div id="btn-new-repo">
-        <button type="button" class="new-repo-btn"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
+        <button type="button" class="new-repo-btn" @click="createNewRepo"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
       </div>
     </div>
     <div id="search-bar-div">
@@ -15,8 +15,8 @@
       </div>
     <ul class="repo-ul">
       <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id" >
-        <img :src="currentAvatar" alt="Current Avatar"  class="profile-picture-main" />
-        <a :href="'/view/' + username +'/' + repo.name" class="links-pretty">{{ username + '/' + repo.name }}</a>
+        <img :src="repo.repos_owner_avatar" alt="Current Avatar"  class="profile-picture-main" />
+        <a :href="'/view/' + repo.repos_owner +'/' + repo.name" class="links-pretty">{{ repo.repos_owner + '/' + repo.name }}</a>
       </li>
     </ul>
   </div>
@@ -28,6 +28,11 @@ import DeveloperService from '@/services/DeveloperService';
 export default {
   props: {
     repositories: Array,
+  },
+  methods: {
+    createNewRepo(){
+      this.$router.push({path: '/new'}) 
+    }
   },
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))

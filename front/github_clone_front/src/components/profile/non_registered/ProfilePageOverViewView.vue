@@ -3,7 +3,7 @@
     <div>
       <label style="color:white; padding:1rem;font-size:0.8rem">Popular repositories</label>
     </div>
-    <repository-container v-for="(repo, index) in popularRepositories" :key="index" :projectName="repo.name" :isPrivate="repo.access_modifier" />
+    <repository-container v-for="(repo, index) in popularRepositories" :key="index" :projectName="repo.name" :username="username" :isPrivate="repo.access_modifier" />
   </div>
 </template>
 
@@ -12,6 +12,9 @@ import RepositoryContainer from '../RepositoryContainer.vue';
 import RepositoryService from '@/services/RepositoryService';
 
 export default {
+  props: {
+    username: String
+  },
   name: 'ProfilePageOverViewView',
   components: {
     RepositoryContainer,

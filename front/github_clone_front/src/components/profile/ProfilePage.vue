@@ -27,7 +27,7 @@
         </div>
       </div>
       <div class="right-side">
-        <profile-page-over-view v-if="activeLinkExtension==='overview'"/>
+        <profile-page-over-view v-if="activeLinkExtension==='overview'" :username ="username" />
         <profile-page-stars v-if="activeLinkExtension==='stars'"/>
       </div>
     </div>

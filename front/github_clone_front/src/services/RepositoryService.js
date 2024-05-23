@@ -23,6 +23,11 @@ const getAllQueryRepos = (query,username) => {
 const getAllUserRepos = (owner_username) => {
     return api.get(`repository/all_repos/${owner_username}`);
 }
+
+const getAllUserWorkingOnRepos = (username) => {
+    return api.get(`repository/all_working_on_repos/${username}`);
+}
+
 const getAllStaredUserRepos = (username) => {
     return api.get(`repository/starred_repos/${username}`);
 }
@@ -106,5 +111,5 @@ const saveWatchPreferences = (ownerUsername, repoName, data) => {
 
 export default { unstarr_it,starr_it,getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
     editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork,
-    saveWatchPreferences
+    saveWatchPreferences,getAllUserWorkingOnRepos
 };

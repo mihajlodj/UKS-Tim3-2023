@@ -1,7 +1,8 @@
 <template>
   <div class="repository-container">
     <div style="display: flex;">
-      <a :href="projectLink" class="project-link">{{ projectName }}</a>
+      <label class="project-link" v-if="returnIsOwner===false && isPrivate" >{{ projectName }}</label>
+      <a :href="'/view/' + username +'/' +projectName" class="project-link" v-if="returnIsOwner===true || !isPrivate">{{ projectName }}</a>
     </div>
     <div id="outer">
       <div id="repo-state">
@@ -14,6 +15,7 @@
 <script>
 export default {
   props: {
+    username: String,
     projectName: {
       type: String,
       required: true,
@@ -24,8 +26,10 @@ export default {
     },
   },
   computed: {
-    projectLink() {
-      return this.isPrivate ? '#' : `#/${this.projectName}`;
+    returnIsOwner(){
+      console.log("Ulogovani je:", localStorage.getItem("username"),"Owner profila je",this.username)
+      console.log(localStorage.getItem("username") === this.username);
+      return localStorage.getItem("username") === this.username
     },
   },
 };
