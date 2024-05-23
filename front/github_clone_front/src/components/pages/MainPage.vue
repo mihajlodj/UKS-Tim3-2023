@@ -25,8 +25,8 @@ export default {
   },
   mounted() {
     console.log(localStorage.getItem('username'));
-    RepositoryService.getAllUserRepos(localStorage.getItem('username')).then((res) => {
-      console.log(res);
+    RepositoryService.getAllUserWorkingOnRepos(localStorage.getItem('username')).then((res) => {
+      console.log(res.data);
       this.repositories = res.data;
     });
 

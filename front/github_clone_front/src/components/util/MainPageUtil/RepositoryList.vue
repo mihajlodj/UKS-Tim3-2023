@@ -16,7 +16,7 @@
     <ul class="repo-ul">
       <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id" >
         <img :src="currentAvatar" alt="Current Avatar"  class="profile-picture-main" />
-        <a :href="'/view/' + username +'/' + repo.name" class="links-pretty">{{ username + '/' + repo.name }}</a>
+        <a :href="'/view/' + repo.repos_owner +'/' + repo.name" class="links-pretty">{{ repo.repos_owner + '/' + repo.name }}</a>
       </li>
     </ul>
   </div>

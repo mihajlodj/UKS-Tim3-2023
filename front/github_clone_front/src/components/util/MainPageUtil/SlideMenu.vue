@@ -35,7 +35,7 @@ export default {
               console.log(err);
           });
 
-    RepositoryService.getAllUserRepos(localStorage.getItem("username"))
+    RepositoryService.getAllUserWorkingOnRepos(localStorage.getItem("username"))
           .then(res => {
               // console.log(res);
               this.repos = res.data

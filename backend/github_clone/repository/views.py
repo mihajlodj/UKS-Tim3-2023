@@ -210,7 +210,7 @@ def get_all_users_repo(request, owner_username):
         return Response(cached_data, status=status.HTTP_200_OK)
 
     repos = []
-    for temp_repo in WorksOn.objects.filter(developer_id=developer.id):
+    for temp_repo in WorksOn.objects.filter(developer_id=developer.id,role=Role.OWNER):
         repo = Project.objects.get(id=temp_repo.project_id)
         is_private = repo.access_modifier == AccessModifiers.PRIVATE
         result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
@@ -218,6 +218,43 @@ def get_all_users_repo(request, owner_username):
         repos.append(result)
     cache.set(cache_key, repos, timeout=30)
     return Response(repos, status=status.HTTP_200_OK)
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_all_users_working_on_repos(request, username):
+    user = User.objects.get(username=username)
+    developer = Developer.objects.get(user_id=user.id)
+
+    cache_key = f"repos:{developer.id}"
+    cached_data = cache.get(cache_key)
+    if cached_data is not None and (len(cached_data) != 0 or str(cached_data) == "None"):
+        return Response(cached_data, status=status.HTTP_200_OK)
+
+    repos = []
+    for temp_repo in WorksOn.objects.filter(developer_id=developer.id):
+        repo = Project.objects.get(id=temp_repo.project_id)
+        is_private = repo.access_modifier == AccessModifiers.PRIVATE
+        temp_repos_owner = WorksOn.objects.get(project=repo,role=Role.OWNER)
+
+        print("TEMP REPO OWNER",temp_repos_owner.developer.user.username)
+
+        result = {'name': repo.name, 'description': repo.description, 'access_modifier': is_private,
+                  'default_branch': repo.default_branch.name, 'repos_owner': temp_repos_owner.developer.user.username}
+        repos.append(result)
+    cache.set(cache_key, repos, timeout=30)
+    return Response(repos, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
 
 
 @api_view(['GET'])
