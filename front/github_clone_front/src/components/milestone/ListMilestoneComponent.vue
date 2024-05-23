@@ -46,44 +46,128 @@
 				</button>
 			</div>
 		</div>
-		<div style="background-color: #24292e;">
-			<table class="tg mt-5"
-				style="margin-left:auto;margin-right:auto; border-radius: 10px; background-color: #24292e;">
-				<thead style="background-color: #24292e;">
-					<tr style="background-color: #24292e;">
-						<th class="tg-lboi" style="background-color: #24292e; color: beige;">Title</th>
-						<th class="tg-lboi" style="background-color: #24292e; color: beige;">Due date</th>
-						<th class="tg-lboi" style="background-color: #24292e; color: beige;">State</th>
-						<th class="tg-lboi" style="background-color: #24292e;"></th>
-						<th class="tg-lboi" style="background-color: #24292e;"></th>
+
+		<div class="container w-75 pt-4" style="margin-left:auto; margin-right:auto; width: 80%;">
+			<div class="btn-group mb-3" style="text-align: left;" role="group"
+				aria-label="Basic radio toggle button group">
+				<input type="radio" @click="this.showOpen = true; this.showClosed = false;" class="btn-check"
+					name="btnradio" id="btnradio1" autocomplete="off" :checked="this.showOpen">
+				<label class="btn btn-outline-primary" for="btnradio1">Open milestones</label>
+
+				<input type="radio" @click="this.showOpen = false; this.showClosed = true;" class="btn-check"
+					name="btnradio" id="btnradio2" autocomplete="off" :checked="this.showClosed">
+				<label class="btn btn-outline-primary" for="btnradio2">Closed milestones</label>
+
+				<input type="radio" @click="this.showOpen = true; this.showClosed = true;" class="btn-check"
+					name="btnradio" id="btnradio3" autocomplete="off" :checked="this.showOpen && this.showClosed">
+				<label class="btn btn-outline-primary" for="btnradio3">All milestones</label>
+			</div>
+			<div v-if="this.showOpen">
+				<table class="mt-3" style="margin-left:auto; margin-right:auto; width: 100%;">
+					<tr colspan="9">
+						<span font-size="28px" font-weight="bold" class="bright">Open milestones: {{
+						this.filteredOpenMilestones?.length }}</span>
+						<hr>
 					</tr>
-				</thead>
-				<tbody style="background-color: #24292e;">
-					<tr v-for="(item, index) in this.milestones" :key="index">
-						<td class="tg-c7q8">{{ item.title }}</td>
-						<td class="tg-c7q8">{{ item.due_date }}</td>
-						<td class="tg-c7q8">{{ item.state }}</td>
-						<td class="tg-c7q8">
-							<button v-if="canModifyMilestones()" type="button" class="btn btn-primary"
-								data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
-								@click="setSelectedMilestone(item)">Edit</button>
-						</td>
-						<td class="tg-c7q8">
-							<button type="button" class="btn btn-success" @click="goToMilestoneDetails(item)">
-								Details
-							</button>
-						</td>
-						<td class="tg-c7q8">
-							<button type="button" class="btn btn-warning" @click="this.close(item.id)"
-								:disabled="item.state === 'Closed'">Close</button>
-						</td>
-						<td class="tg-c7q8">
-							<button v-if="canModifyMilestones()" type="button" class="btn btn-danger"
-								@click="deleteMilestone(item.title)">Delete</button>
-						</td>
+					<tr colspan="9">
+
+						<!-- Table for displaying open milestones -->
+						<table class="table" style="margin-left:auto;margin-right:auto; border-radius: 10px;"
+							v-if="this.filteredOpenMilestones?.length !== 0">
+							<thead class="thead-dark">
+								<tr>
+									<th>Title</th>
+									<th>Description</th>
+									<th>Due date</th>
+									<th>State</th>
+									<th colspan="4"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(item, index) in this.filteredOpenMilestones" :key="index">
+									<td>{{ item.title }}</td>
+									<td>{{ item.description }}</td>
+									<td>{{ this.formatDate(item.due_date) }}</td>
+									<td>{{ item.state }}</td>
+									<td>
+										<button v-if="canModifyMilestones()" type="button" class="btn btn-primary"
+											data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
+											@click="setSelectedMilestone(item)">Edit</button>
+									</td>
+									<td>
+										<button type="button" class="btn btn-success"
+											@click="goToMilestoneDetails(item)">
+											Details
+										</button>
+									</td>
+									<td>
+										<button type="button" class="btn btn-warning" @click="this.close(item.id)"
+											:disabled="item.state === 'Closed'">Close</button>
+									</td>
+									<td>
+										<button v-if="canModifyMilestones()" type="button" class="btn btn-danger"
+											@click="deleteMilestone(item.title)">Delete</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
 					</tr>
-				</tbody>
-			</table>
+				</table>
+
+			</div>
+			<div v-if="this.showClosed">
+
+				<!-- Table for displaying closed milestones -->
+				<table class="mt-3" style="margin-left:auto; margin-right:auto; width: 100%;">
+					<tr>
+						<span font-size="28px" font-weight="bold" class="bright">Closed milestones: {{
+						this.filteredClosedMilestones?.length }}</span>
+						<hr>
+					</tr>
+					<tr>
+						<table class="table" style="margin-left:auto;margin-right:auto; border-radius: 10px;"
+							v-if="this.filteredClosedMilestones?.length !== 0">
+							<thead class="thead-dark">
+								<tr>
+									<th>Title</th>
+									<th>Description</th>
+									<th>Due date</th>
+									<th>State</th>
+									<th colspan="4"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="(item, index) in this.filteredClosedMilestones" :key="index">
+									<td>{{ item.title }}</td>
+									<td>{{ item.description }}</td>
+									<td>{{ this.formatDate(item.due_date) }}</td>
+									<td>{{ item.state }}</td>
+									<td>
+										<button v-if="canModifyMilestones()" type="button" class="btn btn-primary"
+											data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
+											@click="setSelectedMilestone(item)">Edit</button>
+									</td>
+									<td>
+										<button type="button" class="btn btn-success"
+											@click="goToMilestoneDetails(item)">
+											Details
+										</button>
+									</td>
+									<td>
+										<button type="button" class="btn btn-warning" @click="this.close(item.id)"
+											:disabled="item.state === 'Closed'">Close</button>
+									</td>
+									<td>
+										<button v-if="canModifyMilestones()" type="button" class="btn btn-danger"
+											@click="deleteMilestone(item.title)">Delete</button>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</tr>
+				</table>
+
+			</div>
 		</div>
 	</div>
 </template>
@@ -94,6 +178,8 @@ import MilestoneService from '@/services/MilestoneService';
 import UpdateMilestoneComponent from '@/components/milestone/UpdateMilestoneComponent.vue';
 
 import { toast } from 'vue3-toastify';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 export default {
 	name: 'ListIssueComponent',
@@ -107,8 +193,13 @@ export default {
 	},
 	data() {
 		return {
+			showOpen: true,
+			showClosed: false,
+
 			repo: this.$route.params.repoName,
 			milestones: [],
+			filteredOpenMilestones: [],
+			filteredClosedMilestones: [],
 			selectedMilestone: null,
 		}
 	},
@@ -117,6 +208,8 @@ export default {
 			MilestoneService.getAllMilestones(this.$route.params.username, this.repo)
 				.then(res => {
 					this.milestones = res.data;
+					this.filteredOpenMilestones = this.filterOpenMilestones();
+					this.filteredClosedMilestones = this.filterClosedMilestones();
 				}).catch(err => {
 					console.log(err);
 				})
@@ -165,79 +258,99 @@ export default {
 		},
 
 		close(milestone_id) {
-            MilestoneService.closeMilestone(this.$route.params.username, this.repo, milestone_id)
-                .then(res => {
-                    console.log(res);
-                    toast("Milestone closed!", {
-                        autoClose: 500,
-                        type: 'success',
-                        position: toast.POSITION.BOTTOM_RIGHT,
-                        theme: toast.THEME.DARK
-                    });
-                    this.getAllMilestonesForRepo();
-                })
-                .catch(err => {
-                    console.log(err);
-                    toast("Milestone closure failed.", {
-                        autoClose: 1000,
-                        type: 'error',
-                        position: toast.POSITION.BOTTOM_RIGHT,
-                        theme: toast.THEME.DARK
-                    });
-                });
-        },
+			MilestoneService.closeMilestone(this.$route.params.username, this.repo, milestone_id)
+				.then(res => {
+					console.log(res);
+					toast("Milestone closed!", {
+						autoClose: 500,
+						type: 'success',
+						position: toast.POSITION.BOTTOM_RIGHT,
+						theme: toast.THEME.DARK
+					});
+					this.getAllMilestonesForRepo();
+				})
+				.catch(err => {
+					console.log(err);
+					toast("Milestone closure failed.", {
+						autoClose: 1000,
+						type: 'error',
+						position: toast.POSITION.BOTTOM_RIGHT,
+						theme: toast.THEME.DARK
+					});
+				});
+		},
 
+		filterOpenMilestones() {
+			return this.milestones.filter((milestone) => milestone.state === 'Open');
+		},
+		filterClosedMilestones() {
+			return this.milestones.filter((milestone) => milestone.state !== 'Open');
+		},
+
+		formatDate(date) {
+			dayjs.extend(utc);
+			// Parse the given date string using Day.js, considering it as UTC time
+			const parsedDate = dayjs.utc(date);
+
+			// Format the parsed date into the desired format
+			return parsedDate.format('DD.MM.YYYY.');
+		},
 	}
 }
 </script>
 <style scoped>
-.tg {
-	border-collapse: collapse;
-	border-color: #bbb;
-	border-spacing: 0;
-	border-radius: 10px;
+thead th {
+	background-color: #e9ecef;
 }
 
-.tg td {
-	border-color: #bbb;
-	border-style: solid;
-	border-bottom: 0px;
-	color: beige;
-	font-family: Arial, sans-serif;
-	font-size: 14px;
-	overflow: hidden;
-	padding: 10px 5px;
-	word-break: normal;
+button:hover {
+	color: white;
 }
 
-.tg th {
-	border-color: #bbb;
-	border-style: solid;
-	border-bottom: 0px;
-	color: #493F3F;
-	font-family: Arial, sans-serif;
-	font-size: 14px;
-	font-weight: normal;
-	overflow: hidden;
-	padding: 10px 5px;
-	word-break: normal;
+button {
+	color: white;
 }
 
-.tg .tg-cly1 {
-	text-align: center;
-	vertical-align: middle
+.bright {
+	color: #ffffff;
 }
 
-.tg .tg-lboi {
-	/* border-color: inherit; */
-	text-align: center;
-	vertical-align: middle
+button {
+	color: white;
 }
 
-.tg .tg-c7q8 {
-	text-align: center;
-	vertical-align: middle;
-	padding: 3em;
+table thead tr th {
+	background-color: #24292e;
+
+}
+
+table tbody tr td {
+	background-color: #24292e;
+}
+
+.table th,
+.table td {
+	border: none;
+	color: #ffffff;
+}
+
+.table thead {
+	background-color: #24292e;
+}
+
+.table thead th {
+	border: none;
+	color: #ffffff;
+}
+
+.table tbody tr {
+	border: none;
+	color: #ffffff;
+}
+
+.table tbody td {
+	border: none;
+	color: #ffffff;
 }
 
 .btn-create,
@@ -245,9 +358,5 @@ export default {
 	color: white;
 	background-color: #20883d;
 	height: 90%;
-}
-
-.dark-color {
-	background-color: #24292e;
 }
 </style>
