@@ -32,8 +32,7 @@ export default {
     },
     repoLink() {
       if (this.access_modifier === 'Public' || this.isAdmin) {
-        // ToDo dodaj link do repo view-a
-        return '#';
+        return 'view/'+this.username+"/"+this.name;
       } else {
         return null;
       }

@@ -189,7 +189,8 @@ def get_all_repos(request, query, username):
                 starred = False
 
             if not isExcluded:
-                serialized_data.append({'developer': developer, 'project': project, 'starred': starred})
+                serialized_data.append({'developer': developer, 'project': project, 'starred': starred,
+                                        'developer_avatar': developer_service.get_dev_avatar(developer['user']['username'])})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

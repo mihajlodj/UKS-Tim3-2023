@@ -47,7 +47,7 @@
           v-for="(result, index) in repositories"
             :key="index"
             :username="result.developer.user.username"
-            :avatar="result.developer.avatar"
+            :avatar="result.developer_avatar"
             :name="result.project.name"
             :description="result.project.description"
             :access_modifier="result.project.access_modifier"
