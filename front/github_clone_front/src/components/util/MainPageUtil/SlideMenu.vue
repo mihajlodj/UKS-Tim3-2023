@@ -11,8 +11,8 @@
     <a href="#"><i class="bi bi-gift"></i>&nbsp;&nbsp;Marketplace</a>
     <label id="id-repo-label">Repositories</label>
     <div class="repositories">
-      <a v-for="(repo, index) in repos" :key="index" :href="'/view/' + username + '/' + repo.name">
-        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ username }}/{{ repo.name }}
+      <a v-for="(repo, index) in repos" :key="index" :href="'/view/' + repo.repos_owner + '/' + repo.name">
+        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ repo.repos_owner }}/{{ repo.name }}
       </a>
     </div>
   </div>
