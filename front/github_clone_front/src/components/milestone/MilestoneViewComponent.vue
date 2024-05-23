@@ -87,16 +87,15 @@
             </div>
 
             <div class="w-25">
-                <!-- <AdditionalIssueInfo :key="additionalInfoKey" :chosenMilestone="this.issue.milestone"
-                    :chosenAssignee="this.issue.manager" :selectedLabels="issue.labels" :issueId="issue.id"
-                    @updateAssignee="updateManagers" @updateMilestone="updateMilestone" /> -->
+                <AdditionalMilestoneInfo :selectedLabels="this.milestone.labels" :milestoneId="1" />
             </div>
         </div>
     </div>
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue';
-import CommentDisplay from '@/components/comment/CommentDisplay.vue'
+import CommentDisplay from '@/components/comment/CommentDisplay.vue';
+import AdditionalMilestoneInfo from '@/components/milestone/AdditionalMilestoneInfo.vue';
 
 import MilestoneService from '@/services/MilestoneService';
 import IssueService from '@/services/IssueService';
@@ -112,6 +111,7 @@ export default {
         RepoNavbar,
         ProgressBar,
         CommentDisplay,
+        AdditionalMilestoneInfo,
     },
     mounted() {
         this.loadMilestoneData();
