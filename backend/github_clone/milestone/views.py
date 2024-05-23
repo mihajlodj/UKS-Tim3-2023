@@ -77,5 +77,16 @@ def serialize_milestone(milestone):
         'description': milestone.description,
         'state': milestone.state,
         'due_date': milestone.deadline,
+        'labels': [],
     }
+    for label in milestone.labels.all():
+        serialized_milestone['labels'].append(serialize_label(label))
     return serialized_milestone
+
+
+def serialize_label(label):
+    return {
+        'id': label.id,
+        'name': label.name,
+        'description': label.description
+    }
