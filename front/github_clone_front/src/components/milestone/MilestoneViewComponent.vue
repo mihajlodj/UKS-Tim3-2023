@@ -206,7 +206,30 @@ export default {
                         position: toast.POSITION.BOTTOM_RIGHT,
                         theme: toast.THEME.DARK
                     });
+                });
+        },
+
+        reopen() {
+            MilestoneService.reOpenMilestone(this.username, this.repoName, this.milestone_id)
+                .then(res => {
+                    console.log(res);
+                    toast("Milestone reopened!", {
+                        autoClose: 500,
+                        type: 'success',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                    this.loadMilestoneData();
                 })
+                .catch(err => {
+                    console.log(err);
+                    toast("Milestone reopening failed.", {
+                        autoClose: 1000,
+                        type: 'error',
+                        position: toast.POSITION.BOTTOM_RIGHT,
+                        theme: toast.THEME.DARK
+                    });
+                });
         },
 
         formatDate(date) {
