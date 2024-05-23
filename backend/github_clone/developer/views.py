@@ -99,7 +99,7 @@ def get_all_devs(request, query):
                 if allUserRepos < repositories:
                     isExcluded = True
             if not isExcluded:
-                serialized_data.append(developer)
+                serialized_data.append({'developer':developer,'developer_avatar': service.get_dev_avatar(developer['user']['username'])})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

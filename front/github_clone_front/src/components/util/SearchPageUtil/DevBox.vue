@@ -1,9 +1,9 @@
 <template>
   <div class="dev-box">
     <div class="dev-header">
-      <img :src="developer.avatar" alt="User Avatar" class="dev-avatar">
+      <img :src="developer.developer_avatar" alt="User Avatar" class="dev-avatar">
       <div class="dev-info">
-        <a href="#" class="dev-name">{{ developer.user.username }}</a>
+        <a href="#" class="dev-name">{{ developer.developer.user.username }}</a>
         <button v-if="showBanButton" :class="[banButtonClass]" @click="toggleBanUnban" id="btn-confirm">
           {{ banButtonText }}
         </button>
