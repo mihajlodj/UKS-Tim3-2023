@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="right-side">
-        <profile-page-over-view-view v-if="activeLinkExtension==='overview'"/>
+        <profile-page-over-view-view v-if="activeLinkExtension==='overview'" :username ="username"/>
       </div>
     </div>
   </div>

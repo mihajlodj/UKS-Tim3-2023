@@ -1,7 +1,7 @@
 <template>
   <div class="repository-container">
     <div style="display: flex;">
-      <a :href="projectLink" class="project-link">{{ projectName }}</a>
+      <a :href="'/view/' + username +'/' +projectLink" class="project-link">{{ projectName }}</a>
     </div>
     <div id="outer">
       <div id="repo-state">
@@ -14,6 +14,7 @@
 <script>
 export default {
   props: {
+    username: String,
     projectName: {
       type: String,
       required: true,
@@ -25,7 +26,9 @@ export default {
   },
   computed: {
     projectLink() {
-      return this.isPrivate ? '#' : `#/${this.projectName}`;
+      if (localStorage.getItem("username") === this.username)
+        return `${this.projectName}`
+      return this.isPrivate ? '#' : `${this.projectName}`;
     },
   },
 };

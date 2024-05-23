@@ -7,7 +7,7 @@
         <label id="repositories-id">Top repositories</label>
       </div>
       <div id="btn-new-repo">
-        <button type="button" class="new-repo-btn"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
+        <button type="button" class="new-repo-btn" @click="createNewRepo"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
       </div>
     </div>
     <div id="search-bar-div">
@@ -28,6 +28,11 @@ import DeveloperService from '@/services/DeveloperService';
 export default {
   props: {
     repositories: Array,
+  },
+  methods: {
+    createNewRepo(){
+      this.$router.push({path: '/new'}) 
+    }
   },
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
