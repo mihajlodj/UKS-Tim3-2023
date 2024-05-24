@@ -161,6 +161,12 @@ def send_notification_milestone_reopened(owner_username, repository, milestone_i
     send_notification(owner_username, notification_msg)
 
 
+def send_notification_comment_created(owner_username, repository, comment_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{comment_info['creator']} commented on {comment_info['type_for']} #{comment_info['type_id']} you created for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
 def send_notification_release_created(release):
     receivers = find_receivers_for_release_events(release)
     version = release.title + '.' + release.tag.name
