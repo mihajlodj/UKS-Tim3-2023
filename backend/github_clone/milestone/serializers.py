@@ -6,6 +6,8 @@ from django.http import Http404
 from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 
+
+from websocket import notification_service
 from main.models import WorksOn, Milestone, MilestoneState
 
 from main.gitea_service import create_milestone, update_milestone
@@ -42,6 +44,11 @@ class MilestoneSerializer(serializers.Serializer):
             gitea_milestone_id = self.gitea_create_milestone(owner_username, project_name, milestone)
             milestone.id_from_gitea = gitea_milestone_id
             milestone.save()
+            milestone_info = {
+                'creator': owner_username,
+                'title': milestone.title,
+            }
+            threading.Thread(target=notification_service.send_notification_milestone_created, args=([owner.user.username, project, milestone_info]), kwargs={}).start()
             return milestone
         except ObjectDoesNotExist:
             raise Http404()
@@ -72,7 +79,12 @@ class MilestoneSerializer(serializers.Serializer):
                 instance.state = new_state
 
             instance.save()
-
+            milestone_info = {
+                'creator': owner_username,
+                'title': instance.title,
+            }
+            threading.Thread(target=notification_service.send_notification_milestone_edited,
+                             args=([owner.user.username, project, milestone_info]), kwargs={}).start()
             # update gitea
             threading.Thread(target=self.gitea_update_milestone, args=([owner, project_name, instance]),
                              kwargs={}).start()

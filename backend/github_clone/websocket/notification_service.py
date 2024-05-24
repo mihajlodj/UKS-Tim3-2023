@@ -131,6 +131,36 @@ def find_receivers_for_release_events(release):
     return receivers
 
 
+def send_notification_milestone_created(owner_username, repository, milestone_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{milestone_info['creator']} created milestone {milestone_info['title']} for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
+def send_notification_milestone_edited(owner_username, repository, milestone_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{milestone_info['creator']} edited milestone {milestone_info['title']} for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
+def send_notification_milestone_deleted(owner_username, repository, milestone_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{milestone_info['creator']} deleted milestone {milestone_info['title']} for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
+def send_notification_milestone_closed(owner_username, repository, milestone_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{milestone_info['creator']} closed milestone {milestone_info['title']} for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
+def send_notification_milestone_reopened(owner_username, repository, milestone_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{milestone_info['creator']} reopened milestone {milestone_info['title']} for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
 def send_notification_release_created(release):
     receivers = find_receivers_for_release_events(release)
     version = release.title + '.' + release.tag.name
@@ -154,4 +184,5 @@ def send_email(message, recipient):
     plain_message = strip_tags(html_message)
     email_from = settings.EMAIL_HOST_USER
     recipient_list = [recipient,]
+    print(f'SENDING EMAIL: address {recipient}, message {message}...')
     send_mail(subject, plain_message, email_from, recipient_list, html_message=html_message)
