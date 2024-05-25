@@ -17,18 +17,18 @@ from main import permissions, gitea_service
 
 class CreateMilestoneView(generics.CreateAPIView):
     queryset = Milestone.objects.all()
-    permission_classes = (IsAuthenticated,permissions.CanEditRepository,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = MilestoneSerializer
 
 class UpdateMilestoneView(generics.UpdateAPIView):
     queryset = Milestone.objects.all()
-    permission_classes = (IsAuthenticated,permissions.CanUpdateMilestone,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = MilestoneSerializer
     lookup_field = 'title'
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+@permission_classes([IsAuthenticated])
 def delete_milestone(request, owner_username, repository_name, title):
     works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role='Owner')
     repository = works_on.project
@@ -49,7 +49,7 @@ def delete_milestone(request, owner_username, repository_name, title):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated])
 def get_milestones_for_repo(request, owner_username, repository_name):
     works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
     milestones = Milestone.objects.filter(project=works_on.project)
@@ -58,7 +58,7 @@ def get_milestones_for_repo(request, owner_username, repository_name):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated])
 def get_milestone(request, owner_username, repository_name, milestone_id):
     try:
         works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
@@ -70,7 +70,7 @@ def get_milestone(request, owner_username, repository_name, milestone_id):
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated])
 def close_milestone(request, owner_username, repository_name, milestone_id):
     try:
         works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)
@@ -93,7 +93,7 @@ def close_milestone(request, owner_username, repository_name, milestone_id):
 
 
 @api_view(['PATCH'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated])
 def reopen_milestone(request, owner_username, repository_name, milestone_id):
     try:
         works_on = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name)

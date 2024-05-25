@@ -167,6 +167,88 @@ def send_notification_comment_created(owner_username, repository, comment_info):
     send_notification(owner_username, notification_msg)
 
 
+def send_notification_label_created(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} created label {label_info['label_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_updated(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} updated label {label_info['label_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_deleted(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} deleted label {label_info['label_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_added_on_milestone(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} added label {label_info['label_name']} to milestone {label_info['joined_entity_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_removed_from_milestone(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} removed label {label_info['label_name']} from milestone {label_info['joined_entity_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_added_on_issue(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} added label {label_info['label_name']} to issue {label_info['joined_entity_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_removed_from_issue(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} removed label {label_info['label_name']} from issue {label_info['joined_entity_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_added_on_pull_request(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} added label {label_info['label_name']} to pull request {label_info['joined_entity_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_label_removed_from_pull_request(owner_username, repository, label_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{label_info['creator']} removed label {label_info['label_name']} from pull_request {label_info['joined_entity_name']} for repository {repository_name}"
+    receivers = find_receivers_for_label_events(repository, label_info['creator'])
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def find_receivers_for_label_events(repository, author):
+    receivers = []
+    watches = Watches.objects.filter(project=repository)
+    for watch in watches:
+        dev_username = watch.developer.user.username
+        if dev_username != author and watch.option == WatchOption.ALL:
+            receivers.append(dev_username)
+    return receivers
+
+
 def send_notification_release_created(release):
     receivers = find_receivers_for_release_events(release)
     version = release.title + '.' + release.tag.name

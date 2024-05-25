@@ -125,7 +125,7 @@ def check_if_milestone_exists(type_id):
 
 
 def check_if_pull_request_exists(type_id):
-    if PullRequest.objects.filter(id=type_id).exists():
+    if PullRequest.objects.filter(gitea_id=type_id).exists():
         return True
     return False
 
@@ -150,5 +150,5 @@ def find_all_comments_from_milestone(milestone_id):
 
 
 def find_all_comments_from_pull_request(pull_request_id):
-    pull_request = PullRequest.objects.get(id=pull_request_id)
+    pull_request = PullRequest.objects.get(gitea_id=pull_request_id)
     return Comment.objects.filter(pull_request=pull_request)

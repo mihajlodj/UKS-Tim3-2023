@@ -90,7 +90,7 @@ class CommentSerializer(serializers.Serializer):
         return False
 
     def check_if_pull_request_exists(self, type_id):
-        if PullRequest.objects.filter(id=type_id).exists():
+        if PullRequest.objects.filter(gitea_id=type_id).exists():
             return True
         return False
 
@@ -120,6 +120,6 @@ class CommentSerializer(serializers.Serializer):
         return comment
 
     def add_pull_request_on_comment(self, comment, type_id):
-        pull_request = PullRequest.objects.get(id=type_id)
+        pull_request = PullRequest.objects.get(gitea_id=type_id)
         comment.pull_request = pull_request
         return comment
