@@ -16,7 +16,7 @@ from main.gitea_service import create_milestone, update_milestone
 class MilestoneSerializer(serializers.Serializer):
     title = serializers.CharField(required=True, allow_blank=False, max_length=255,
                                  validators=[RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid milestone title", code="invalid_milestone_title")])
-    description = serializers.CharField(required=False, allow_blank=True, max_length=255)
+    description = serializers.CharField(required=True, allow_blank=True, max_length=255)
     deadline = serializers.DateField(format='%Y-%m-%d')
     state = serializers.BooleanField(required=False)  # if true state is OPEN, if false state is CLOSED
     repo_name = serializers.CharField(required=False, allow_blank=False)

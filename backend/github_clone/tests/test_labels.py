@@ -6,6 +6,7 @@ from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
+from websocket import notification_service
 
 client = APIClient()
 fake = Faker()
@@ -45,6 +46,22 @@ def save_repository(create_developer):
     repo.default_branch = branch
     repo.save()
     WorksOn.objects.create(role='Owner', project=repo, developer=create_developer)
+
+
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_label_created', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_updated', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_deleted', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_added_on_milestone', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_removed_from_milestone', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_added_on_issue', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_removed_from_issue', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_added_on_pull_request', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_label_removed_from_pull_request', mock_send_notification)
+    yield
 
 
 # Create
