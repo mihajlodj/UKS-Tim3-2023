@@ -268,7 +268,6 @@ export default {
         react(reaction, reactTo) {
             let data = {
                 'code': reaction,
-                'developer_id': reactTo.developer_id,
                 'comment_id': reactTo.id,
             }
             return ReactionService.createNewReaction(this.username, this.repoName, data)

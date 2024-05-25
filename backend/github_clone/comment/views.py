@@ -14,12 +14,12 @@ from main import permissions
 
 class CreateCommentView(generics.CreateAPIView):
     queryset = Comment.objects.all()
-    permission_classes = (IsAuthenticated,permissions.CanEditRepository,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated,permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated,])
 def get_comments_for_type(request, owner_username, repository_name, type_for, type_id):
     is_valid_type_for = valid_type_for(type_for)
     if not is_valid_type_for:
@@ -35,7 +35,7 @@ def get_comments_for_type(request, owner_username, repository_name, type_for, ty
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated,permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated,])
 def delete_comment(request, owner_username, repository_name, comment_id):
     if not comment_id.isdigit():
         raise Http404()
@@ -125,7 +125,7 @@ def check_if_milestone_exists(type_id):
 
 
 def check_if_pull_request_exists(type_id):
-    if PullRequest.objects.filter(id=type_id).exists():
+    if PullRequest.objects.filter(gitea_id=type_id).exists():
         return True
     return False
 
@@ -150,5 +150,5 @@ def find_all_comments_from_milestone(milestone_id):
 
 
 def find_all_comments_from_pull_request(pull_request_id):
-    pull_request = PullRequest.objects.get(id=pull_request_id)
+    pull_request = PullRequest.objects.get(gitea_id=pull_request_id)
     return Comment.objects.filter(pull_request=pull_request)

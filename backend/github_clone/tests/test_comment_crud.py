@@ -6,6 +6,7 @@ from rest_framework import status
 from faker import Faker
 from datetime import datetime
 from main import gitea_service
+from websocket import notification_service
 
 client = APIClient()
 fake = Faker()
@@ -58,6 +59,15 @@ def save_milestone(create_developer):
                                          project=repo)
     milestone.save()
     WorksOn.objects.create(role='Owner', project=repo, developer=create_developer)
+
+
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_comment_created', mock_send_notification)
+    yield
+
 
 # CREATE
 

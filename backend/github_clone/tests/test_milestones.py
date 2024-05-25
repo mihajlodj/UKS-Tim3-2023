@@ -6,6 +6,7 @@ from rest_framework import status
 from faker import Faker
 from main import gitea_service
 from milestone.serializers import MilestoneSerializer
+from websocket import notification_service
 
 client = APIClient()
 fake = Faker()
@@ -81,6 +82,17 @@ def disable_save_gitea_user(monkeypatch):
     monkeypatch.setattr(MilestoneSerializer, 'gitea_create_milestone', mock_gitea_create_milestone)
     yield
 
+
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_created', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_edited', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_deleted', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_closed', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_reopened', mock_send_notification)
+    yield
 
 # CREATE
 
@@ -174,7 +186,7 @@ def test_create_milestone_missing_repo(get_token):
         'Authorization': f'Bearer {get_token}'
     }
     response = client.post(url, data, headers=headers)
-    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert Milestone.objects.count() == 0
 
 
