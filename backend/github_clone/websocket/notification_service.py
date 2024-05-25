@@ -249,6 +249,12 @@ def find_receivers_for_label_events(repository, author):
     return receivers
 
 
+def send_notification_reaction_added(owner_username, repository, reaction_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"@{reaction_info['creator']} added reaction on your comment ({reaction_info['comment_content']}) you created in repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
 def send_notification_release_created(release):
     receivers = find_receivers_for_release_events(release)
     version = release.title + '.' + release.tag.name

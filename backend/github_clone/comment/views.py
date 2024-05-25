@@ -14,12 +14,12 @@ from main import permissions
 
 class CreateCommentView(generics.CreateAPIView):
     queryset = Comment.objects.all()
-    permission_classes = (IsAuthenticated,permissions.CanEditRepository,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = CommentSerializer
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated,permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated,])
 def get_comments_for_type(request, owner_username, repository_name, type_for, type_id):
     is_valid_type_for = valid_type_for(type_for)
     if not is_valid_type_for:
@@ -35,7 +35,7 @@ def get_comments_for_type(request, owner_username, repository_name, type_for, ty
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated,permissions.CanEditRepository,])
+@permission_classes([IsAuthenticated,])
 def delete_comment(request, owner_username, repository_name, comment_id):
     if not comment_id.isdigit():
         raise Http404()

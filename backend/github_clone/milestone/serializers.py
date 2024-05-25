@@ -16,12 +16,13 @@ from main.gitea_service import create_milestone, update_milestone
 class MilestoneSerializer(serializers.Serializer):
     title = serializers.CharField(required=True, allow_blank=False, max_length=255,
                                  validators=[RegexValidator(regex=r'^[a-zA-Z][\w-]*$', message="Invalid milestone title", code="invalid_milestone_title")])
-    description = serializers.CharField(required=True, allow_blank=True, max_length=255)
+    description = serializers.CharField(required=False, allow_blank=True, max_length=255)
     deadline = serializers.DateField(format='%Y-%m-%d')
     state = serializers.BooleanField(required=False)  # if true state is OPEN, if false state is CLOSED
     repo_name = serializers.CharField(required=False, allow_blank=False)
 
     def create(self, validated_data):
+        created_by_username = self.context['request'].auth.get('username', None)
         project_name = self.context.get('request').parser_context.get('kwargs').get('repository_name', None)
         owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
         if project_name is None or owner_username is None:
@@ -45,7 +46,7 @@ class MilestoneSerializer(serializers.Serializer):
             milestone.id_from_gitea = gitea_milestone_id
             milestone.save()
             milestone_info = {
-                'creator': owner_username,
+                'creator': created_by_username,
                 'title': milestone.title,
             }
             threading.Thread(target=notification_service.send_notification_milestone_created, args=([owner.user.username, project, milestone_info]), kwargs={}).start()
@@ -54,6 +55,7 @@ class MilestoneSerializer(serializers.Serializer):
             raise Http404()
 
     def update(self, instance, validated_data):
+        created_by_username = self.context['request'].auth.get('username', None)
         project_name = validated_data.get('repo_name')
         owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
         print(project_name)
@@ -80,7 +82,7 @@ class MilestoneSerializer(serializers.Serializer):
 
             instance.save()
             milestone_info = {
-                'creator': owner_username,
+                'creator': created_by_username,
                 'title': instance.title,
             }
             threading.Thread(target=notification_service.send_notification_milestone_edited,

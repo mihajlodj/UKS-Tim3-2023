@@ -15,12 +15,12 @@ from main import permissions
 
 class CreateReactionView(generics.CreateAPIView):
     queryset = Reaction.objects.all()
-    permission_classes = (IsAuthenticated, permissions.CanEditRepository)
+    permission_classes = (IsAuthenticated, )
     serializer_class = ReactionSerializer
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+@permission_classes([IsAuthenticated])
 def get_reactions(request, owner_username, repository_name, comment_id):
     if not Comment.objects.filter(id=comment_id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -30,7 +30,7 @@ def get_reactions(request, owner_username, repository_name, comment_id):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated, permissions.CanEditRepository])
+@permission_classes([IsAuthenticated])
 def delete_reaction(request, owner_username, repository_name, reaction_id):
     if not reaction_id.isdigit():
         raise Http404()
