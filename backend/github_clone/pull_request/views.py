@@ -54,7 +54,10 @@ def create(request, owner_username, repository_name):
 @permission_classes([IsAuthenticated])
 def add_review(request, owner_username, repository_name, pull_id):
     try:
-        works_on = WorksOn.objects.filter(developer__user__username=owner_username, project__name=repository_name)
+        created_by_username = request.auth.get('username', None)
+        works_on = WorksOn.objects.filter(role='Owner', project__name=repository_name, developer__user__username=owner_username)
+        project = works_on.first().project
+
         if not works_on.exists():
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -70,6 +73,12 @@ def add_review(request, owner_username, repository_name, pull_id):
         pull_request = PullRequest.objects.get(gitea_id=pull_id)
         reviewer = Developer.objects.get(user__username=reviewer_username)
 
+        # Validate logged in user is reviewer
+        print(created_by_username)
+        print(reviewer.user.username)
+        if created_by_username != reviewer.user.username:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         # Validate that author of PR is not reviewer
         if reviewer.user.username == pull_request.author.user.username:         # if author of pull request is reviewer return 403 Forbiden, cause author of PR can't create review
             return Response(status=status.HTTP_403_FORBIDDEN)
@@ -77,6 +86,15 @@ def add_review(request, owner_username, repository_name, pull_id):
         pull_request_review = PullRequestReview.objects.create(pull_request=pull_request, reviewer=reviewer, comment=review_comment, status=review_status)
         pull_request_review.save()
         serialized_review = serialize_pull_request_review(pull_request_review)
+
+        review_info = {
+            'creator': reviewer.user.username,
+            'pr_title': pull_request.title,
+            'pr_id': pull_request.gitea_id,
+        }
+        threading.Thread(target=notification_service.send_notification_review_for_pr_added,
+                         args=([owner_username, project, review_info]), kwargs={}).start()
+
         return Response(serialized_review, status=status.HTTP_201_CREATED)
     except ObjectDoesNotExist:
         raise Http404()
