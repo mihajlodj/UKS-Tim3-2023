@@ -244,3 +244,4 @@ class PullRequestReview(models.Model):
     reviewer = models.ForeignKey(Developer, null=True, blank=True, related_name='reviewer_for_pr', on_delete=models.CASCADE)
     comment = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=PullRequestReviewStatus.choices, default=PullRequestReviewStatus.GENERAL_COMMENT)
+    timestamp = models.DateTimeField(default=timezone.now)

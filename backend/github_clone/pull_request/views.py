@@ -133,6 +133,7 @@ def serialize_pull_request_review(pull_request_review):
         'pull_request_id': pull_request_review.pull_request.gitea_id,
         'comment': pull_request_review.comment,
         'status': pull_request_review.status,
+        'timestamp': pull_request_review.timestamp,
     }
 
 
