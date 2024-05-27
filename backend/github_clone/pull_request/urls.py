@@ -15,4 +15,5 @@ urlpatterns = [
     path('mark_open/<str:owner_username>/<str:repository_name>/', mark_as_open, name='mark_open'),
     path('merge/<str:owner_username>/<str:repository_name>/<int:pull_id>/', merge, name='merge'),
     path('review/<str:owner_username>/<str:repository_name>/<int:pull_id>/', add_review, name='add_review'),
+    path('reviews/<str:owner_username>/<str:repository_name>/<int:pull_id>/', get_reviews_for_pr, name='get_reviews_for_pr'),
 ]
