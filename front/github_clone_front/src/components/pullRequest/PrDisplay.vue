@@ -81,7 +81,7 @@
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
-                    <ReviewDisplay></ReviewDisplay>
+                    <ReviewDisplay :key="reviewDisplayKey"></ReviewDisplay>
 
                     <CommentDisplay :username="this.$route.params.username" :repoName="this.$route.params.repoName"
                         :entityType="'pull_request'" :entityId="this.$route.params.id">
@@ -198,6 +198,7 @@ export default {
             loaded: false,
             logedInUserUsername: '',
             reviewComponentVisible: false,
+            reviewDisplayKey: 1,
         }
     },
 
@@ -317,7 +318,7 @@ export default {
 
         reviewAddedHandle() {
             this.chosenTab = "conversation";
-            // TODO: reload reviews for this PR
+            this.reviewDisplayKey += 1;
         },
 
     }
