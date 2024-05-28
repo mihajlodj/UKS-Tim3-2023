@@ -167,6 +167,12 @@ def send_notification_comment_created(owner_username, repository, comment_info):
     send_notification(owner_username, notification_msg)
 
 
+def send_notification_review_for_pr_added(owner_username, repository, review_info):
+    repository_name = f'@{owner_username}/{repository.name}'
+    notification_msg = f"{review_info['creator']} added review for PR {review_info['pr_title']} #{review_info['pr_id']} you created for repository {repository_name}"
+    send_notification(owner_username, notification_msg)
+
+
 def send_notification_label_created(owner_username, repository, label_info):
     repository_name = f'@{owner_username}/{repository.name}'
     notification_msg = f"{label_info['creator']} created label {label_info['label_name']} for repository {repository_name}"

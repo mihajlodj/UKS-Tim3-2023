@@ -5,13 +5,15 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from main import gitea_service, permissions
 import json
-from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus
+from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus, PullRequestReviewStatus, PullRequestReview
 from pull_request import diff_parser, service
 from developer import service as developer_service
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from django.core.cache import cache
 from datetime import datetime
 from websocket import notification_service
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 import threading
 
 
@@ -46,6 +48,95 @@ def create(request, owner_username, repository_name):
         return Response({'id': id}, status=status.HTTP_201_CREATED)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_review(request, owner_username, repository_name, pull_id):
+    try:
+        created_by_username = request.auth.get('username', None)
+        works_on = WorksOn.objects.filter(role='Owner', project__name=repository_name, developer__user__username=owner_username)
+        project = works_on.first().project
+
+        if not works_on.exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        json_data = json.loads(request.body.decode('utf-8'))
+        reviewer_username = json_data['reviewer']
+        review_comment = json_data['comment']
+
+        review_status = json_data['status']
+        # Validate the status
+        if review_status not in PullRequestReviewStatus.values:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        pull_request = PullRequest.objects.get(gitea_id=pull_id)
+        reviewer = Developer.objects.get(user__username=reviewer_username)
+
+        # Validate logged in user is reviewer
+        print(created_by_username)
+        print(reviewer.user.username)
+        if created_by_username != reviewer.user.username:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        # Validate that author of PR is not reviewer
+        if reviewer.user.username == pull_request.author.user.username:         # if author of pull request is reviewer return 403 Forbiden, cause author of PR can't create review
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        pull_request_review = PullRequestReview.objects.create(pull_request=pull_request, reviewer=reviewer, comment=review_comment, status=review_status)
+        pull_request_review.save()
+        serialized_review = serialize_pull_request_review(pull_request_review)
+
+        review_info = {
+            'creator': reviewer.user.username,
+            'pr_title': pull_request.title,
+            'pr_id': pull_request.gitea_id,
+        }
+        threading.Thread(target=notification_service.send_notification_review_for_pr_added,
+                         args=([owner_username, project, review_info]), kwargs={}).start()
+
+        return Response(serialized_review, status=status.HTTP_201_CREATED)
+    except ObjectDoesNotExist:
+        raise Http404()
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid JSON'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_reviews_for_pr(request, owner_username, repository_name, pull_id):
+    try:
+        created_by_username = request.auth.get('username', None)
+        works_on = WorksOn.objects.get(role='Owner', project__name=repository_name, developer__user__username=owner_username)
+
+        pull_request = PullRequest.objects.get(gitea_id=pull_id)
+
+        pull_request_reviews = PullRequestReview.objects.filter(pull_request__gitea_id=pull_id)
+        serialized_reviews = serialize_pull_request_reviews(pull_request_reviews)
+        return Response(serialized_reviews, status=status.HTTP_200_OK)
+    except ObjectDoesNotExist:
+        raise Http404()
+    except json.JSONDecodeError:
+        return Response({'error': 'Invalid JSON'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+def serialize_pull_request_reviews(pull_request_reviews):
+    result = []
+    for review in pull_request_reviews:
+        result.append(serialize_pull_request_review(review))
+    return result
+
+
+def serialize_pull_request_review(pull_request_review):
+    return {
+        'id': pull_request_review.id,
+        'pull_request_id': pull_request_review.pull_request.gitea_id,
+        'reviewer_id' : pull_request_review.reviewer.id,
+        'comment': pull_request_review.comment,
+        'status': pull_request_review.status,
+        'timestamp': pull_request_review.timestamp,
+    }
+
 
 
 @api_view(['GET'])

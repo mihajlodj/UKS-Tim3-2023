@@ -25,6 +25,12 @@ class PullRequestStatus(models.TextChoices):
     MERGED = 'Merged', 'Merged'
 
 
+class PullRequestReviewStatus(models.TextChoices):
+    GENERAL_COMMENT = 'General comment', 'General comment'
+    APPROVED = 'Approved', 'Approved'
+    REQUEST_CHANGES = 'Request changes', 'Request changes'
+
+
 class MilestoneState(models.TextChoices):
     OPEN = 'Open', 'Open'
     CLOSED = 'Closed', 'Closed'
@@ -231,3 +237,11 @@ class Notification(models.Model):
 class PullRequestReviewer(models.Model):
     pull_request = models.ForeignKey(PullRequest, null=False, blank=False, related_name='pull_request', on_delete=models.CASCADE)
     reviewer = models.ForeignKey(Developer, null=False, blank=False, related_name='reviewer', on_delete=models.CASCADE)
+
+
+class PullRequestReview(models.Model):
+    pull_request = models.ForeignKey(PullRequest, null=False, blank=False, related_name='pull_request_for_review', on_delete=models.CASCADE)
+    reviewer = models.ForeignKey(Developer, null=True, blank=True, related_name='reviewer_for_pr', on_delete=models.CASCADE)
+    comment = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=PullRequestReviewStatus.choices, default=PullRequestReviewStatus.GENERAL_COMMENT)
+    timestamp = models.DateTimeField(default=timezone.now)

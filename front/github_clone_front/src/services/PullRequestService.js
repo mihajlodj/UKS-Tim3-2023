@@ -48,5 +48,13 @@ const merge = (username, repoName, pullId) => {
     return api.put(`pr/merge/${username}/${repoName}/${pullId}/`);
 }
 
+const addReview = (username, repoName, pullId, data) => {
+    return api.post(`pr/review/${username}/${repoName}/${pullId}/`, data);
+}
+
+const getReviews = (username, repoName, pullId) => {
+    return api.get(`pr/reviews/${username}/${repoName}/${pullId}/`);
+}
+
 export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, 
-    close, reopen, markOpen, markClosed, merge, getAllQueryPrs };
+    close, reopen, markOpen, markClosed, merge, getAllQueryPrs, addReview, getReviews };
