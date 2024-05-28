@@ -131,6 +131,7 @@ def serialize_pull_request_review(pull_request_review):
     return {
         'id': pull_request_review.id,
         'pull_request_id': pull_request_review.pull_request.gitea_id,
+        'reviewer_id' : pull_request_review.reviewer.id,
         'comment': pull_request_review.comment,
         'status': pull_request_review.status,
         'timestamp': pull_request_review.timestamp,
