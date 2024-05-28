@@ -81,6 +81,8 @@
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
+                    <ReviewDisplay></ReviewDisplay>
+
                     <CommentDisplay :username="this.$route.params.username" :repoName="this.$route.params.repoName"
                         :entityType="'pull_request'" :entityId="this.$route.params.id">
                     </CommentDisplay>
@@ -104,7 +106,8 @@
                 </div>
 
                 <div v-if="chosenTab === 'files'">
-                    <ReviewChanges v-if="this.reviewComponentVisible" @reviewAdded="this.reviewAddedHandle"></ReviewChanges>
+                    <ReviewChanges v-if="this.reviewComponentVisible" @reviewAdded="this.reviewAddedHandle">
+                    </ReviewChanges>
                     <ChangedFiles :diff="pull.diff" :overall_additions="pull.overall_additions"
                         :overall_deletions="pull.overall_deletions" />
                 </div>
@@ -136,6 +139,7 @@ import { toast } from 'vue3-toastify';
 import CommentDisplay from '@/components/comment/CommentDisplay.vue'
 import LoadingPage from '@/components/util/LoadingPage.vue'
 import ReviewChanges from '@/components/pullRequest/ReviewChanges.vue'
+import ReviewDisplay from '@/components/pullRequest/ReviewDisplay.vue'
 
 export default {
     name: "PrDisplay",
@@ -148,7 +152,8 @@ export default {
         ChangedFiles,
         CommentDisplay,
         LoadingPage,
-        ReviewChanges
+        ReviewChanges,
+        ReviewDisplay,
     },
 
     mounted() {
