@@ -5,6 +5,9 @@
         <section id="reviews" v-for="(review, index) in reviews" :key="index">
             <div class="review">
                 <div class="review-header">
+                    <div class="profile-image-container" v-if="review.reviewer">
+                        <img :src="review.reviewer.avatar" alt="Current Avatar" class="profile-picture-main" />
+                    </div>
                     <h3 class="review-author">{{ this.formatNameAndSurname(review.reviewer) }}</h3>
                     <span class="review-timestamp">{{ this.formatDate(review.timestamp) }}</span>
                 </div>
@@ -75,11 +78,21 @@ export default {
                 .then(res => {
                     this.reviews = res.data;
                     for (let review of this.reviews) {
-                        
+
                         // Add developer for review
                         DeveloperService.getDeveloperBasicInfoFromId(review.reviewer_id)
                             .then(res => {
                                 review['reviewer'] = res.data;
+
+                                // Getting Developer avatar
+                                DeveloperService.getUserAvatar(review.reviewer.username)
+                                    .then(res => {
+                                        // console.log(res);
+                                        review.reviewer['avatar'] = res.data
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                    });
                             })
                             .catch(err => {
                                 console.log(err);
@@ -143,6 +156,8 @@ export default {
     color: #adbbc8;
     font-weight: bold;
     margin: 0;
+    flex-grow: 1;
+    margin-left: 10px;
 }
 
 .review-timestamp {
@@ -154,6 +169,7 @@ export default {
     color: #adbbc8;
     margin-bottom: 10px;
     margin-top: 15px;
+    margin-left: 33px;
 }
 
 .review-actions {
@@ -177,5 +193,18 @@ export default {
 .reply-button:hover,
 .delete-button:hover {
     background-color: #555;
+}
+
+.profile-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-picture-main {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; /* This makes the image circular */
+  object-fit: cover; /* This ensures the image covers the entire 25x25 area */
 }
 </style>
