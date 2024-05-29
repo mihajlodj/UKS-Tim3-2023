@@ -219,7 +219,11 @@ export default {
         },
         updateMilestone(data) {
             this.issue.milestone = data;
-            this.newMilestoneId = data.id
+            if (data == null) {
+                this.newMilestoneId = null;
+            } else {
+                this.newMilestoneId = data.id;
+            }
         },
         update() {
             let updatedIssue = {

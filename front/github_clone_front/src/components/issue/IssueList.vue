@@ -100,7 +100,7 @@ export default {
         id: this.propId,
         title: this.propTitle,
         description: this.propDescription,
-        milestone: this.propMilestone,
+        milestone: this.propMilestone.id,
         project: this.$route.params.repoName
       }
       IssueService.updateIssue(updatedIssue)
@@ -151,7 +151,7 @@ export default {
     },
     updateMilestone(modifiedValue) {
       this.propMilestone = modifiedValue;
-      this.filteredOpenIssues[this.propIndex].milestone = modifiedValue;
+      // this.issueList[this.propIndex].milestone = modifiedValue;
     },
     formatDate(date) {
       dayjs.extend(utc);
