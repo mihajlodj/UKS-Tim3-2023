@@ -80,6 +80,29 @@ def get_possible_assignees(request, owner_username, repo_name, issue_id):
         return JsonResponse({'message': 'No issue with this ID'}, safe=False, status=405)
 
 
+@api_view(['GET'])
+def get_all_users_issues(request, logged_user):
+    results = Issue.objects.filter(manager__user__username=logged_user)
+    if results.exists():
+        serialized_data = []
+        for result in results:
+            serialized_data.append({
+            'id': result.id,
+            'title': result.title,
+            'description': result.description,
+            'open': result.open,
+            'created': result.created,
+            'creator': result.creator.user.username,
+            'project': result.project.name,
+            'milestone': None if result.milestone is None else serialize_milestone(result.milestone),
+            'manager': [] if result.manager is None else [dev.user.username for dev in result.manager.all()]
+            })
+        return Response(serialized_data, status=status.HTTP_200_OK)
+    else:
+        return Response([], status=status.HTTP_200_OK)
+
+
+
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def update_issue(request):
