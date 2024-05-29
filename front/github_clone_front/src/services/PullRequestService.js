@@ -8,6 +8,10 @@ const getAll = (username, repoName) => {
     return api.get(`pr/get_all/${username}/${repoName}/`);
 }
 
+const getAllUsersPrs = () => {
+    return api.get(`pr/get_all_users_prs/`);
+}
+
 const getAllQueryPrs = (query) => {
     return api.get(`pr/query_pull_reqs/${query}`);
 }
@@ -56,5 +60,5 @@ const getReviews = (username, repoName, pullId) => {
     return api.get(`pr/reviews/${username}/${repoName}/${pullId}/`);
 }
 
-export default { create, getAll, getOne, getPossibleAssignees, update, updateTitle, 
+export default { getAllUsersPrs,create, getAll, getOne, getPossibleAssignees, update, updateTitle, 
     close, reopen, markOpen, markClosed, merge, getAllQueryPrs, addReview, getReviews };

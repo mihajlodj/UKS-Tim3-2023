@@ -23,15 +23,6 @@
                             </button>
                         </li>
                         <li class="nav-item mx-2">
-                            <button :class="(activeLink=='projects') ? 'nav-link active' : 'nav-link'" @click="setActiveLink('projects')">
-                                <div class="d-flex justify-content-start">
-                                    <i class="bi bi-window-sidebar"></i>
-                                    &nbsp;
-                                    Projects
-                                </div>
-                            </button>
-                        </li>
-                        <li class="nav-item mx-2">
                             <button :class="(activeLink=='stars') ? 'nav-link active' : 'nav-link'" @click="setActiveLink('stars')">
                                 <div class="d-flex justify-content-start">
                                     <i class="bi bi-star"></i>

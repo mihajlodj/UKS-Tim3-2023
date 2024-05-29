@@ -8,6 +8,7 @@ import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/settings/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
+import UsersIssuesPage from './components/pages/UsersIssuesPage.vue'
 import SearchPage from './components/pages/SearchPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
 import ProfilePageView from './components/profile/non_registered/ProfilePageView.vue'
@@ -21,6 +22,7 @@ import ListLabelsComponent from '@/components/label/ListLabelsComponent.vue'
 import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
+import PrListUsersPrs from '@/components/pullRequest/PrListUsersPrs.vue'
 import HistoryView from '@/components/repository/HistoryView.vue'
 import CommitDisplay from './components/commit/CommitDisplay.vue'
 import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
@@ -174,6 +176,10 @@ const routes = [
         component: PrList
     },
     {
+        path: "/view/pulls",
+        component: PrListUsersPrs
+    },
+    {
         path: "/view/:username/:repoName/pulls/:id",
         component: PrDisplay
     },
@@ -212,6 +218,10 @@ const routes = [
     {
         path: "/view/:username/:repoName/labels",
         component: ListLabelsComponent
+    },
+    {
+        path: "/view/users_issues",
+        component: UsersIssuesPage
     },
     {
         path: "/notifications",

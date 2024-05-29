@@ -7,6 +7,8 @@ from repository.views import get_all_repos
 from issue.views import get_all_issues
 from pull_request.views import get_all_pull_reqs
 from main.models import Developer, Project, Issue, PullRequest, Commit, WorksOn, Role, Branch
+from unittest.mock import patch, MagicMock
+
 
 
 @pytest.fixture
@@ -61,32 +63,34 @@ def test_get_all_pull_reqs(setup_data):
 
 @pytest.mark.django_db
 def test_get_all_commits(setup_data):
-    factory = APIRequestFactory()
-    request = factory.get('/api/developer/')
-    response = get_all_commits(request, query="com")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data
-    assert len(response.data) == 2
-
+    with patch('developer.service.get_dev_avatar', return_value='http://localhost/avatars/default_avatar.png'):
+        factory = APIRequestFactory()
+        request = factory.get('/api/developer/')
+        response = get_all_commits(request, query="com")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data
+        assert len(response.data) == 2
 
 @pytest.mark.django_db
 def test_get_all_devs(setup_data):
-    factory = APIRequestFactory()
-    request = factory.get('/api/developer/')
-    response = get_all_devs(request, query="j")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data
-    assert len(response.data) == 2
-
+    with patch('developer.service.get_dev_avatar', return_value='http://localhost/avatars/default_avatar.png'):
+        factory = APIRequestFactory()
+        request = factory.get('/api/developer/')
+        response = get_all_devs(request, query="j")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data
+        assert len(response.data) == 2
 
 @pytest.mark.django_db
 def test_get_all_repos(setup_data):
-    factory = APIRequestFactory()
-    request = factory.get('/api/repository/')
-    response = get_all_repos(request, query="pro",username="john_doe")
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data
-    assert len(response.data) == 2
+    with patch('developer.service.get_dev_avatar', return_value='http://localhost/avatars/default_avatar.png'):
+        factory = APIRequestFactory()
+        request = factory.get('/api/repository/')
+        response = get_all_repos(request, query="pro", username="john_doe")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data
+        assert len(response.data) == 2
+
 
 
 @pytest.mark.django_db

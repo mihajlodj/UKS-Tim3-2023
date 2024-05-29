@@ -1,9 +1,9 @@
 <template>
   <div class="dev-box">
     <div class="dev-header">
-      <img :src="developer.avatar" alt="User Avatar" class="dev-avatar">
+      <img :src="developer.developer_avatar" alt="User Avatar" class="dev-avatar">
       <div class="dev-info">
-        <a href="#" class="dev-name">{{ developer.user.username }}</a>
+        <a :href="devLink" class="dev-name">{{ developer.developer.user.username }}</a>
         <button v-if="showBanButton" :class="[banButtonClass]" @click="toggleBanUnban" id="btn-confirm">
           {{ banButtonText }}
         </button>
@@ -26,10 +26,13 @@ export default {
       return localStorage.getItem('username') === 'administrator';
     },
     banButtonClass() {
-      return this.developer.banned ? 'btn btn-warning' : 'btn btn-danger';
+      return this.developer.developer.banned ? 'btn btn-warning' : 'btn btn-danger';
     },
     banButtonText() {
-      return this.developer.banned ? 'Unban' : 'Ban';
+      return this.developer.developer.banned ? 'Unban' : 'Ban';
+    },
+    devLink() {
+        return 'profile/'+this.developer.developer.user.username;
     }
   },
   methods: {
@@ -37,10 +40,10 @@ export default {
       console.log("followed");
     },
     toggleBanUnban() {
-      DeveloperService.update_user_ban_status(this.developer.user.username)
+      DeveloperService.update_user_ban_status(this.developer.developer.user.username)
         .then(res => {
           console.log(res);
-          this.$emit('toggle-ban-status', this.developer.user.username);
+          this.$emit('toggle-ban-status', this.developer.developer.user.username);
         })
         .catch(err => {
           console.log(err);

@@ -1,14 +1,9 @@
 <template>
   <div class="slide-menu" :class="{ 'slide-in': isOpen }">
     <img alt="Logo" src="../../../.. /../assets/logo_dark.png" class="logo-image-main">
-    <a href="#"><i class="bi bi-house-door"></i>&nbsp;&nbsp;Home</a>
-    <a href="#"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
-    <a href="#"><i class="bi bi-bezier2"></i>&nbsp;&nbsp;Pull reques</a>
-    <a href="#"><i class="bi bi-window-sidebar"></i>&nbsp;&nbsp;Projects</a>
-    <a href="#"><i class="bi bi-chat-square"></i>&nbsp;&nbsp;Discussions</a>
-    <a href="#"><i class="bi bi-pc-display-horizontal"></i>&nbsp;&nbsp;Codespaces</a>
-    <a href="#"><i class="bi bi-binoculars"></i>&nbsp;&nbsp;Explore</a>
-    <a href="#"><i class="bi bi-gift"></i>&nbsp;&nbsp;Marketplace</a>
+    <a href="/main"><i class="bi bi-house-door"></i>&nbsp;&nbsp;Home</a>
+    <a href="/view/users_issues"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
+    <a href="/view/pulls"><i class="bi bi-bezier2"></i>&nbsp;&nbsp;Pull reques</a>
     <label id="id-repo-label">Repositories</label>
     <div class="repositories">
       <a v-for="(repo, index) in repos" :key="index" :href="'/view/' + repo.repos_owner + '/' + repo.name">

@@ -47,7 +47,7 @@
           v-for="(result, index) in repositories"
             :key="index"
             :username="result.developer.user.username"
-            :avatar="result.developer.avatar"
+            :avatar="result.developer_avatar"
             :name="result.project.name"
             :description="result.project.description"
             :access_modifier="result.project.access_modifier"
@@ -61,10 +61,13 @@
             :username="result.developer.user.username"
             :created="result.created"
             :name="result.project.name"
+            :repo_owner_name="result.repo_owner_username"
             :title="result.title"
             :description="result.description"
             :open="result.open"
             :milestone_title="result.milestone.title"
+            :milestone_id="result.milestone_id"
+            :issue_id="result.issueid"
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Pull_requests'">
@@ -77,6 +80,7 @@
             :author="result.author.user.username"
             :timestamp="result.timestamp"
             :status="result.Status"
+            :pr_id = "result.pr_id"
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Users'">
@@ -95,6 +99,10 @@
             :author="result.author"
             :committer="result.committer"
             :timestamp="result.timestamp"
+            :sha="result.sha"
+            :project="result.project"
+            :repo_owner="result.repo_owner.user.username"
+            :avatar="result.commiter_avatar"
           />
       </div>
     </div>
