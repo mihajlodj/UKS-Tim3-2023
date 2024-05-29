@@ -88,7 +88,11 @@ def update_issue(request):
     issue = Issue.objects.get(id=pk)
     issue.title = request.data['title']
     try:
-        issue.milestone = Milestone.objects.get(project__name=reponame, id=request.data['milestone'])
+        milestoneId = request.data['milestone']
+        if milestoneId is None:
+            issue.milestone = None
+        else:
+            issue.milestone = Milestone.objects.get(project__name=reponame, id=milestoneId)
     except main.models.Milestone.DoesNotExist:
         pass
     except TypeError:
