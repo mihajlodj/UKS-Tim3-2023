@@ -16,6 +16,10 @@ const getIssues = (username, repoName) => {
     return api.get(`issue/issues/${username}/${repoName}/`);
 }
 
+const getIssuesForMilestone = (username, repoName, milestone_id) => {
+    return api.get(`issue/issuesformilestone/${username}/${repoName}/${milestone_id}/`);
+}
+
 const updateIssue = (issueData) => {
     return api.patch("issue/update/", issueData);
 }
@@ -43,4 +47,4 @@ const assignManager = (repoName, ownerUsername, data) => {
 const unassignManager = (repoName, ownerUsername, data) => {
     return api.patch("issue/" + ownerUsername + '/' + repoName + "/managers/un_assign/", data);
 }
-export default { createIssue, getIssue, getIssues, updateIssue, deleteIssue, closeIssue, getAllQueryIssues, reopenIssue, unassignManager, assignManager, getPossibleAssignees};
+export default { createIssue, getIssue, getIssues, getIssuesForMilestone, updateIssue, deleteIssue, closeIssue, getAllQueryIssues, reopenIssue, unassignManager, assignManager, getPossibleAssignees };

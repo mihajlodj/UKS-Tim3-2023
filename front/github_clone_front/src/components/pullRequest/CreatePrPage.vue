@@ -1,6 +1,6 @@
 <template>
     <div class="background is-fullheight min-vh-100 pb-5">
-        <RepoNavbar />
+        <RepoNavbar starting="pullRequests" />
 
         <LoadingPage v-if="!loaded" />
 

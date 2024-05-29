@@ -1,7 +1,7 @@
 <template>
     <div class="background is-fullheight min-vh-100">
         <RepoNavbar starting="pullRequests" />
-        
+
         <LoadingPage v-if="!loaded" :key="loadingKey" />
 
         <div class="d-flex justify-content-between px-5 pt-4">
@@ -21,8 +21,13 @@
                 <button v-else type="button" class="btn-save bright me-2" @click="updateTitle">
                     Save changes
                 </button>
-                <button type="button" class="btn-review bright">
-                    Review
+                <button type="button" class="btn-review bright"
+                    v-if="reviewButtonVisible() && this.chosenTab !== 'files'" @click="addYourReview()">
+                    Add your review
+                </button>
+                <button type="button" class="btn-review bright"
+                    v-if="reviewButtonVisible() && this.chosenTab === 'files'" @click="reviewChanges()">
+                    Review changes
                 </button>
             </div>
         </div>
@@ -36,10 +41,10 @@
                 </button>
                 <label class="muted">{{ getMergeMsg() }} {{ pull.commits.length }} commits into</label>
                 <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.base)">{{
-                pull.base }}</button>
+            pull.base }}</button>
                 <label class="muted">from</label>
                 <button type="button" class="btn-branch d-flex align-items-center" @click="viewBranch(pull.compare)">{{
-                pull.compare }}</button>
+            pull.compare }}</button>
             </div>
         </div>
 
@@ -76,6 +81,8 @@
                         <MergeInfo :key="mergeDataKey" :pull="pull" @merge="merge" />
                     </div>
 
+                    <ReviewDisplay :key="reviewDisplayKey"></ReviewDisplay>
+
                     <CommentDisplay :username="this.$route.params.username" :repoName="this.$route.params.repoName"
                         :entityType="'pull_request'" :entityId="this.$route.params.id">
                     </CommentDisplay>
@@ -99,6 +106,8 @@
                 </div>
 
                 <div v-if="chosenTab === 'files'">
+                    <ReviewChanges v-if="this.reviewComponentVisible" @reviewAdded="this.reviewAddedHandle">
+                    </ReviewChanges>
                     <ChangedFiles :diff="pull.diff" :overall_additions="pull.overall_additions"
                         :overall_deletions="pull.overall_deletions" />
                 </div>
@@ -107,8 +116,8 @@
             <div v-if="chosenTab === 'conversation'" class="w-25">
                 <AdditionalPrInfo :key="additionalInfoKey" :chosenMilestone="pull.milestone"
                     :chosenAssignee="pull.assignee" :chosenReviewers="pull.reviewers" :selectedLabels="pull.labels"
-                    :prId="pull.id" @updateAssignee="updateAssignee" @updateMilestone="updateMilestone"
-                    @updateReviewers="updateReviewers" />
+                    :prId="pull.id" :prAuthorUsername="pull.author.username" @updateAssignee="updateAssignee"
+                    @updateMilestone="updateMilestone" @updateReviewers="updateReviewers" />
                 <hr class="bright" />
                 <div class="w-100 d-flex justify-content-end mt-3">
                     <button type="button" class="btn-save p-2 bright" @click="update">Save changes</button>
@@ -129,6 +138,8 @@ import ChangedFiles from "../commit/ChangedFiles.vue"
 import { toast } from 'vue3-toastify';
 import CommentDisplay from '@/components/comment/CommentDisplay.vue'
 import LoadingPage from '@/components/util/LoadingPage.vue'
+import ReviewChanges from '@/components/pullRequest/ReviewChanges.vue'
+import ReviewDisplay from '@/components/pullRequest/ReviewDisplay.vue'
 
 export default {
     name: "PrDisplay",
@@ -140,10 +151,13 @@ export default {
         StatusPill,
         ChangedFiles,
         CommentDisplay,
-        LoadingPage
+        LoadingPage,
+        ReviewChanges,
+        ReviewDisplay,
     },
 
     mounted() {
+        this.logedInUserUsername = localStorage.getItem('username');
         PullRequestService.getOne(this.$route.params.username, this.$route.params.repoName, this.$route.params.id).then(res => {
             console.log(res.data);
             this.pull = res.data;
@@ -181,7 +195,10 @@ export default {
             newTitle: "",
             editingTitle: false,
             loadingKey: 1,
-            loaded: false
+            loaded: false,
+            logedInUserUsername: '',
+            reviewComponentVisible: false,
+            reviewDisplayKey: 1,
         }
     },
 
@@ -287,6 +304,23 @@ export default {
             });
         },
 
+        reviewButtonVisible() {
+            return this.pull.reviewers.some(r => r.username === this.logedInUserUsername);
+        },
+
+        addYourReview() {
+            this.chosenTab = "files";
+        },
+
+        reviewChanges() {
+            this.reviewComponentVisible = !this.reviewComponentVisible;
+        },
+
+        reviewAddedHandle() {
+            this.chosenTab = "conversation";
+            this.reviewDisplayKey += 1;
+        },
+
     }
 }
 </script>
@@ -326,10 +360,17 @@ input.edit {
     height: 17px;
 }
 
-.btn-edit-title,
-.btn-review {
+.btn-edit-title {
     height: 40px;
     width: 70px;
+    background-color: #373e48;
+    border: 1px solid #768491;
+    border-radius: 5px;
+}
+
+.btn-review {
+    height: 40px;
+    width: 130px;
     background-color: #373e48;
     border: 1px solid #768491;
     border-radius: 5px;
@@ -486,6 +527,7 @@ textarea {
     justify-content: center;
     align-items: center;
 }
+
 .spinner {
     border: 15px solid #f3f3f3;
     border-radius: 50%;
@@ -494,8 +536,14 @@ textarea {
     height: 120px;
     animation: spin 2s linear infinite;
 }
+
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 </style>

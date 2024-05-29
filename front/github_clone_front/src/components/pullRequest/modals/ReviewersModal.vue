@@ -19,7 +19,7 @@ import PullRequestService from "@/services/PullRequestService"
 
 export default {
     name: "ReviewersModal",
-    props: ["x", "y", "w", "reviewers"],
+    props: ["x", "y", "w", "reviewers", "prAuthorUsername"],
 
     mounted() {
         if (this.reviewers) {
@@ -32,6 +32,7 @@ export default {
                 existingUsernames = this.reviewers.map(x => x.username);
             }
             this.available = res.data.filter(x => !existingUsernames.includes(x.username));
+            this.available = this.available.filter(a => a.username !== this.prAuthorUsername);       // remove author of PR
             this.filtered = this.available;
         }).catch(err => {
             console.log(err);
@@ -43,7 +44,7 @@ export default {
             search: '',
             chosenReviewers: [],
             available: [],
-            filtered: []
+            filtered: [],
         }
     },
 

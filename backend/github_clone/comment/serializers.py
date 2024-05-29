@@ -7,8 +7,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from datetime import datetime
 
-from main.models import Comment, Issue, Milestone, PullRequest, Developer
-
+from main.models import Comment, Issue, Milestone, PullRequest, Developer, WorksOn
+from websocket import notification_service
 # from main.gitea_service import function
 
 
@@ -20,6 +20,8 @@ class CommentSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         created_by_username = self.context['request'].auth.get('username', None)
+        project_name = self.context.get('request').parser_context.get('kwargs').get('repository_name', None)
+        owner_username = self.context.get('request').parser_context.get('kwargs').get('owner_username', None)
         if created_by_username is None:
             raise Http404()
         type_for = validated_data['type_for']
@@ -27,6 +29,10 @@ class CommentSerializer(serializers.Serializer):
         if not is_type_for_valid:
             raise Http404()
         try:
+            works_on = WorksOn.objects.get(role='Owner', project__name=project_name,
+                                           developer__user__username=owner_username)
+            project = works_on.project
+            owner = works_on.developer
             # check if type_id object exists based on id
             type_id = validated_data['type_id']
             type_id_object_exists = self.check_if_type_id_object_exists(type_id, type_for)
@@ -44,6 +50,14 @@ class CommentSerializer(serializers.Serializer):
                                              caused_by=developer)
             # add issue, milestone or pull_request and save it
             comment = self.add_attached_type(comment, type_id, type_for)
+
+            comment_info = {
+                'creator': created_by_username,
+                'type_for': type_for,
+                'type_id': type_id,
+            }
+            threading.Thread(target=notification_service.send_notification_comment_created,
+                             args=([owner.user.username, project, comment_info]), kwargs={}).start()
             comment.save()
             return comment
         except ObjectDoesNotExist:
@@ -76,7 +90,7 @@ class CommentSerializer(serializers.Serializer):
         return False
 
     def check_if_pull_request_exists(self, type_id):
-        if PullRequest.objects.filter(id=type_id).exists():
+        if PullRequest.objects.filter(gitea_id=type_id).exists():
             return True
         return False
 
@@ -106,6 +120,6 @@ class CommentSerializer(serializers.Serializer):
         return comment
 
     def add_pull_request_on_comment(self, comment, type_id):
-        pull_request = PullRequest.objects.get(id=type_id)
+        pull_request = PullRequest.objects.get(gitea_id=type_id)
         comment.pull_request = pull_request
         return comment

@@ -50,11 +50,15 @@ import 'vue-pdf-embed/dist/style/textLayer.css'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
+import PrimeVue from 'primevue/config';
+import 'primevue/resources/themes/aura-dark-green/theme.css'
+
 // test
 // import IssueComponent from './components/issue/IssueComponent'
 import ListIssueComponent from './components/issue/ListIssueComponent.vue'
 import IssueViewComponent from './components/issue/IssueViewComponent.vue'
 import TagReleaseComponent from './components/tag-release/TagReleaseComponent.vue'
+import MilestoneViewComponent from './components/milestone/MilestoneViewComponent.vue'
 
 library.add(faAngleRight);
 library.add(faCircleInfo);
@@ -212,7 +216,11 @@ const routes = [
     {
         path: "/notifications",
         component: NotificationsList
-    }
+    },
+    {
+        path: "/view/:username/:repoName/milestones/:milestone_id",
+        component: MilestoneViewComponent
+    },
 ]
 
 const router = createRouter({
@@ -222,4 +230,5 @@ const router = createRouter({
 
 const app = createApp(App).use(router).component('font-awesome-icon', FontAwesomeIcon);
 app.component('VueDatePicker', VueDatePicker);
+app.use(PrimeVue);
 app.mount("#app");

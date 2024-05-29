@@ -18,7 +18,7 @@
                     </button>
                 </div>
             </div>
-            <ReviewersModal v-if="showModal['reviewers']" :reviewers="rev" :x="modalX" :y="modalY" :w="modalW" @addReviewer="addReviewer" @closeModal="toggleModal('reviewers')" />
+            <ReviewersModal v-if="showModal['reviewers']" :reviewers="rev" :x="modalX" :y="modalY" :w="modalW" :prAuthorUsername="this.prAuthorUsername" @addReviewer="addReviewer" @closeModal="toggleModal('reviewers')" />
         </div>
         <hr class="muted" />
 
@@ -78,7 +78,7 @@ import MilestoneModal from "@/components/pullRequest/modals/MilestoneModal.vue"
 
 export default {
     name: "AdditionalPrInfo",
-    props: ["chosenMilestone", "chosenAssignee", "chosenReviewers", "selectedLabels", "prId"],
+    props: ["chosenMilestone", "chosenAssignee", "chosenReviewers", "selectedLabels", "prId", "prAuthorUsername"],
     
     components: {
         ReviewersModal,

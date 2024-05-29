@@ -4,6 +4,9 @@
         <!-- Individual comment -->
         <div class="comment">
             <div class="comment-header">
+                <div class="profile-image-container" v-if="comment.developer">
+                    <img :src="comment.developer.avatar" alt="Current Avatar" class="profile-picture-main" />
+                </div>
                 <h3 class="comment-author">{{ this.formatNameAndSurname(comment.developer) }}</h3>
                 <span class="comment-timestamp">{{ this.formatDate(comment.time) }}</span>
             </div>
@@ -36,6 +39,9 @@
                 <hr class="muted">
                 <div class="sub-comment" v-for="(subComment, index) in comment.sub_comments" :key="index">
                     <div class="sub-comment-header">
+                        <div class="profile-image-container" v-if="subComment.developer">
+                            <img :src="subComment.developer.avatar" alt="Current Avatar" class="profile-picture-main" />
+                        </div>
                         <h3 class="sub-comment-author">{{ this.formatNameAndSurname(subComment.developer) }}</h3>
                         <span class="sub-comment-timestamp">{{ this.formatDate(subComment.time) }}</span>
                     </div>
@@ -43,7 +49,8 @@
                     <!-- Sub-Comment Actions -->
                     <div class="sub-comment-actions">
                         <div style="margin-right: auto;">
-                            <EmojiReaction :reactor="this.username" :react="(reaction) => this.react(reaction, subComment)"
+                            <EmojiReaction :reactor="this.username"
+                                :react="(reaction) => this.react(reaction, subComment)"
                                 :unreact="(reaction) => this.unreact(reaction, subComment.id)"
                                 :getReactions="() => this.getReactions(subComment.id)" :dark="true" />
                         </div>
@@ -116,6 +123,15 @@ export default {
                         DeveloperService.getDeveloperBasicInfoFromId(comment.developer_id)
                             .then(res => {
                                 comment['developer'] = res.data;
+
+                                // Getting Developer avatar
+                                DeveloperService.getUserAvatar(comment.developer.username)
+                                    .then(res => {
+                                        comment.developer['avatar'] = res.data;
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                    });
                             })
                             .catch(err => {
                                 console.log(err);
@@ -126,6 +142,15 @@ export default {
                             DeveloperService.getDeveloperBasicInfoFromId(subComment.developer_id)
                                 .then(res => {
                                     subComment['developer'] = res.data;
+
+                                    // Getting Developer avatar
+                                    DeveloperService.getUserAvatar(subComment.developer.username)
+                                        .then(res => {
+                                            subComment.developer['avatar'] = res.data;
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        });
                                 })
                                 .catch(err => {
                                     console.log(err);
@@ -268,7 +293,6 @@ export default {
         react(reaction, reactTo) {
             let data = {
                 'code': reaction,
-                'developer_id': reactTo.developer_id,
                 'comment_id': reactTo.id,
             }
             return ReactionService.createNewReaction(this.username, this.repoName, data)
@@ -470,6 +494,8 @@ textarea {
     color: #adbbc8;
     font-weight: bold;
     margin: 0;
+    flex-grow: 1;
+    margin-left: 10px;
 }
 
 .comment-timestamp {
@@ -481,6 +507,7 @@ textarea {
     color: #adbbc8;
     margin-bottom: 10px;
     margin-top: 15px;
+    margin-left: 33px;
 }
 
 .comment-actions {
@@ -532,6 +559,8 @@ textarea {
     color: #adbbc8;
     /* font-weight: bold; */
     margin: 0;
+    flex-grow: 1;
+    margin-left: 10px;
 }
 
 .sub-comment-timestamp {
@@ -543,6 +572,7 @@ textarea {
     color: #adbbc8;
     margin-bottom: 10px;
     margin-top: 10px;
+    margin-left: 33px;
 }
 
 .sub-comment-actions {
@@ -566,5 +596,20 @@ textarea {
 
 .reply-textarea {
     background-color: #555;
+}
+
+.profile-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-picture-main {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    /* This makes the image circular */
+    object-fit: cover;
+    /* This ensures the image covers the entire 25x25 area */
 }
 </style>

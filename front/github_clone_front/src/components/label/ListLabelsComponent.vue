@@ -42,7 +42,7 @@
         <div class="container w-75 pt-4" style="background-color: #24292e;">
             <div class="d-flex justify-content-between">
                 <h3 style="color: beige;">Labels</h3>
-                <button v-if="canModifyLabels()" type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd"
+                <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd"
                     class="btn btn-create">
                     Create new label
                 </button>
@@ -64,13 +64,13 @@
                         <td class="tg-c7q8">{{ item.name }}</td>
                         <td class="tg-c7q8">{{ item.description }}</td>
                         <td class="tg-c7q8">
-                            <button v-if="canModifyLabels()" type="button" class="btn btn-primary"
+                            <button type="button" class="btn btn-primary"
                                 data-bs-toggle="modal" data-bs-target="#exampleModalUpdate"
                                 @click="setSelectedLabel(item)">Edit
                             </button>
                         </td>
                         <td class="tg-c7q8">
-                            <button v-if="canModifyLabels()" type="button" class="btn btn-danger"
+                            <button type="button" class="btn btn-danger"
                                 @click="deleteLabel(item.id)">Delete
                             </button>
                         </td>
@@ -171,10 +171,7 @@ export default {
             document.getElementById('editModalCloseId').click();
         },
 
-        canModifyLabels() {
-            const role = localStorage.getItem(this.$route.params.repoName);
-            return role === "Owner" || role === "Developer" || role === "Maintainer";
-        },
+        
 
     }
 }

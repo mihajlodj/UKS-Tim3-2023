@@ -7,6 +7,7 @@ from rest_framework import status
 from faker import Faker
 from datetime import datetime
 from main import gitea_service
+from websocket import notification_service
 
 client = APIClient()
 fake = Faker()
@@ -69,6 +70,14 @@ def save_milestone(create_developer):
     comment.save()
 
 
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_reaction_added', mock_send_notification)
+    yield
+
+
 # Create
 
 
@@ -79,12 +88,10 @@ def test_create_reaction_success(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": comment_id
     }
     headers = {
@@ -93,7 +100,6 @@ def test_create_reaction_success(get_token):
     response = client.post(url, data, headers=headers)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data['code'] == code
-    assert response.data['developer_id'] == developer_id
     assert response.data['comment_id'] == comment_id
     assert Reaction.objects.count() == 1
 
@@ -105,33 +111,9 @@ def test_create_reaction_missing_code(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
-        "developer_id": developer_id,
-        "comment_id": comment_id
-    }
-    headers = {
-        'Authorization': f'Bearer {get_token}'
-    }
-    response = client.post(url, data, headers=headers)
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert Reaction.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_create_reaction_missing_developer_id(get_token):
-    url = f'/reaction/create/{username}/{repo_name}/'
-    developer = Developer.objects.get()
-    comment = Comment.objects.get()
-
-    code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
-    comment_id = f"{comment.id}"
-
-    data = {
-        "code": code,
         "comment_id": comment_id
     }
     headers = {
@@ -149,12 +131,10 @@ def test_create_reaction_missing_comment_id(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
     }
     headers = {
         'Authorization': f'Bearer {get_token}'
@@ -171,35 +151,10 @@ def test_create_reaction_code_blank(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": '',
-        "developer_id": developer_id,
-        "comment_id": comment_id
-    }
-    headers = {
-        'Authorization': f'Bearer {get_token}'
-    }
-    response = client.post(url, data, headers=headers)
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert Reaction.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_create_reaction_developer_id_blank(get_token):
-    url = f'/reaction/create/{username}/{repo_name}/'
-    developer = Developer.objects.get()
-    comment = Comment.objects.get()
-
-    code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
-    comment_id = f"{comment.id}"
-
-    data = {
-        "code": code,
-        "developer_id": '',
         "comment_id": comment_id
     }
     headers = {
@@ -217,12 +172,10 @@ def test_create_reaction_comment_id_blank(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": ''
     }
     headers = {
@@ -234,41 +187,16 @@ def test_create_reaction_comment_id_blank(get_token):
 
 
 @pytest.mark.django_db
-def test_create_reaction_developer_doesnt_exist(get_token):
-    url = f'/reaction/create/{username}/{repo_name}/'
-    developer = Developer.objects.get()
-    comment = Comment.objects.get()
-
-    code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = "10"
-    comment_id = f"{comment.id}"
-
-    data = {
-        "code": code,
-        "developer_id": developer_id,
-        "comment_id": comment_id
-    }
-    headers = {
-        'Authorization': f'Bearer {get_token}'
-    }
-    response = client.post(url, data, headers=headers)
-    assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert Reaction.objects.count() == 0
-
-
-@pytest.mark.django_db
 def test_create_reaction_comment_doesnt_exist(get_token):
     url = f'/reaction/create/{username}/{repo_name}/'
     developer = Developer.objects.get()
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = "10"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": comment_id
     }
     headers = {
@@ -286,12 +214,10 @@ def test_create_reaction_duplicate_reaction(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": comment_id
     }
     headers = {
@@ -300,7 +226,6 @@ def test_create_reaction_duplicate_reaction(get_token):
     response = client.post(url, data, headers=headers)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data['code'] == code
-    assert response.data['developer_id'] == developer_id
     assert response.data['comment_id'] == comment_id
     assert Reaction.objects.count() == 1
 
@@ -319,12 +244,10 @@ def test_delete_reaction_success(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": comment_id
     }
     headers = {
@@ -333,7 +256,6 @@ def test_delete_reaction_success(get_token):
     response1 = client.post(url1, data, headers=headers)
     assert response1.status_code == status.HTTP_201_CREATED
     assert response1.data['code'] == code
-    assert response1.data['developer_id'] == developer_id
     assert response1.data['comment_id'] == comment_id
     assert Reaction.objects.count() == 1
 
@@ -354,12 +276,10 @@ def test_delete_reaction_reaction_id_is_not_digit(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": comment_id
     }
     headers = {
@@ -368,7 +288,6 @@ def test_delete_reaction_reaction_id_is_not_digit(get_token):
     response1 = client.post(url1, data, headers=headers)
     assert response1.status_code == status.HTTP_201_CREATED
     assert response1.data['code'] == code
-    assert response1.data['developer_id'] == developer_id
     assert response1.data['comment_id'] == comment_id
     assert Reaction.objects.count() == 1
 
@@ -389,12 +308,10 @@ def test_delete_reaction_reaction_doesnt_exist(get_token):
     comment = Comment.objects.get()
 
     code = r"\uD83C\uDF89"   # \uD83C\uDF89
-    developer_id = f"{developer.id}"
     comment_id = f"{comment.id}"
 
     data = {
         "code": code,
-        "developer_id": developer_id,
         "comment_id": comment_id
     }
     headers = {
@@ -403,7 +320,6 @@ def test_delete_reaction_reaction_doesnt_exist(get_token):
     response1 = client.post(url1, data, headers=headers)
     assert response1.status_code == status.HTTP_201_CREATED
     assert response1.data['code'] == code
-    assert response1.data['developer_id'] == developer_id
     assert response1.data['comment_id'] == comment_id
     assert Reaction.objects.count() == 1
 
