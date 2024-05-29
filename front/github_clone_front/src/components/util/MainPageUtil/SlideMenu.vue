@@ -2,7 +2,7 @@
   <div class="slide-menu" :class="{ 'slide-in': isOpen }">
     <img alt="Logo" src="../../../.. /../assets/logo_dark.png" class="logo-image-main">
     <a href="/main"><i class="bi bi-house-door"></i>&nbsp;&nbsp;Home</a>
-    <a href="#"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
+    <a href="/view/users_issues"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
     <a href="#"><i class="bi bi-bezier2"></i>&nbsp;&nbsp;Pull reques</a>
     <label id="id-repo-label">Repositories</label>
     <div class="repositories">

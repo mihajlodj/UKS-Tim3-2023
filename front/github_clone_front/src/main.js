@@ -8,6 +8,7 @@ import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/settings/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
+import UsersIssuesPage from './components/pages/UsersIssuesPage.vue'
 import SearchPage from './components/pages/SearchPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
 import ProfilePageView from './components/profile/non_registered/ProfilePageView.vue'
@@ -212,6 +213,10 @@ const routes = [
     {
         path: "/view/:username/:repoName/labels",
         component: ListLabelsComponent
+    },
+    {
+        path: "/view/users_issues",
+        component: UsersIssuesPage
     },
     {
         path: "/notifications",
