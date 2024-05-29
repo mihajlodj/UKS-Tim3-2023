@@ -101,7 +101,8 @@
             :timestamp="result.timestamp"
             :sha="result.sha"
             :project="result.project"
-            :repo_owner="result.repo_owner"
+            :repo_owner="result.repo_owner.user.username"
+            :avatar="result.commiter_avatar"
           />
       </div>
     </div>
