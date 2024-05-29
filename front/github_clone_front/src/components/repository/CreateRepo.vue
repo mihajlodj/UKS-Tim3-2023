@@ -1,14 +1,15 @@
 <template>
-    <div>
+    <div class="bg min-vh-100 is-fullheight">
+        <nav-bar />
         <div class="container w-50 py-5">
-            <h3 class="mb-3">Create a new repository</h3>
+            <h3 class="mb-3 bright">Create a new repository</h3>
             <h6 class="sub">A repository contains all project files, including the revision history</h6>
             <hr>
-            <h6><i>Required fields are marked with an asterisk (*)</i></h6>
+            <h6 class="bright"><i>Required fields are marked with an asterisk (*)</i></h6>
             <hr>
 
             <div class="d-flex flex-column mb-3">
-                <label class="bold mb-2">Repository name *</label>
+                <label class="bold mb-2 bright">Repository name *</label>
                 <input type="text" class="repo-name" v-model="name" @input="validate" />
                 <div class="d-flex justify-content-start">
                     <font-awesome-icon v-if="!isValidName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
@@ -18,7 +19,7 @@
             </div>
 
             <div class="d-flex flex-column">
-                <label class="bold mb-2">Dafault branch name <span class="sub smaller">(optional)</span></label>
+                <label class="bold mb-2 bright">Dafault branch name <span class="sub smaller">(optional)</span></label>
                 <input type="text" class="w-50 mb-3" v-model="defaultBranchName" @input="validateBranchName" />
                 <div class="d-flex justify-content-start">
                     <font-awesome-icon v-if="!isValidBranchName" icon="fa-solid fa-triangle-exclamation" class="me-2 mt-1" />
@@ -28,7 +29,7 @@
             </div>
 
             <div class="d-flex flex-column">
-                <label class="bold mb-2">Description <span class="sub smaller">(optional)</span></label>
+                <label class="bold mb-2 bright">Description <span class="sub smaller">(optional)</span></label>
                 <input type="text" class="w-100" v-model="description" />
             </div>
 
@@ -38,7 +39,7 @@
                     @input="publicChecked" checked>
                 <font-awesome-icon icon="fa-solid fa-book-bookmark" class="ms-4 me-3 mt-2" />
                 <div class="d-flex flex-column">
-                    <span class="bold">Public</span>
+                    <span class="bold bright">Public</span>
                     <span class="smaller">Anyone on the internet can see this repository. You choose who can commit.</span>
                 </div>
             </div>
@@ -47,7 +48,7 @@
                     @input="privateChecked">
                 <font-awesome-icon icon="fa-solid fa-lock" class="ms-4 me-3 mt-2" />
                 <div class="d-flex flex-column">
-                    <span class="bold">Private</span>
+                    <span class="bold bright">Private</span>
                     <span class="smaller">You choose who can see and commit to this repository.</span>
                 </div>
             </div>
@@ -69,9 +70,13 @@
 <script>
 import RepositoryService from '@/services/RepositoryService';
 import { toast } from 'vue3-toastify';
+import NavBar from '@/components/util/MainPageUtil/Nav-bar.vue'
 
 export default {
     name: 'CreateRepo',
+    components: {
+        NavBar
+    },
 
     data() {
         return {
@@ -158,6 +163,10 @@ export default {
 </script>
 
 <style scoped>
+.bg {
+    background-color: #22272d;
+}
+
 button {
     background-color: #20883d;
     color: white;
@@ -200,6 +209,7 @@ h3 {
 .fa-book-bookmark,
 .fa-lock {
     height: 25px;
+    color: #bfc6d1;
 }
 
 .warn {
@@ -212,5 +222,16 @@ h3 {
 .fa-triangle-exclamation {
     color: #d32d36;
     height: 15px;
+}
+
+.bright {
+    color: #bfc6d1;
+}
+
+input[type="text"] {
+    background-color: #22272d;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #656e77;
 }
 </style>
