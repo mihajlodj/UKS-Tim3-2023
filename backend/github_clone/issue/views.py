@@ -175,6 +175,8 @@ def get_all_issues(request, query):
             project_serializer = RepositorySerializer(result.project)
             project = project_serializer.data
 
+            works_on = WorksOn.objects.get(project=result.project,role=Role.OWNER)
+
             developer_serializer = DeveloperSerializer(result.creator)
             developer = developer_serializer.data
 
@@ -189,7 +191,7 @@ def get_all_issues(request, query):
             serialized_data.append(
                 {'created': result.created, 'developer': developer, 'project': project, 'title': result.title,
                  'description': result.description, 'milestone': milestone, 'open': result.open, 'managers':managers_data,
-                 'issueid': result.id})
+                 'issueid': result.id, 'repo_owner_username': works_on.developer.user.username})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

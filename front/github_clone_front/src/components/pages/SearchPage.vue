@@ -61,6 +61,7 @@
             :username="result.developer.user.username"
             :created="result.created"
             :name="result.project.name"
+            :repo_owner_name="result.repo_owner_username"
             :title="result.title"
             :description="result.description"
             :open="result.open"
