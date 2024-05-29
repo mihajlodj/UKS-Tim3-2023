@@ -4,7 +4,7 @@
       <div class="issue-info">
         <a :href="'/view/'+ username +'/' +name +'/issues/' + issue_id" class="issue-name">{{ title }}</a>
         <p class="issue-description">{{ description }}</p>
-        <a href="#" class="issue-milestone">{{ milestone_title }}</a>
+        <a :href="'/view/' + repo_owner_name +'/' +name+ '/milestones/'+ milestone_id" class="issue-milestone">{{ milestone_title }}</a>
         <a :href="'/view/' + repo_owner_name +'/' +name" class="project-link">{{repo_owner_name}}/{{ name }}</a>
         <p class="issue-access">{{ formattedDate  }}</p>
         <p class="issue-access">{{ openStatus }}</p>
@@ -16,7 +16,7 @@
 <script>
 export default {
   name: 'IssueBox',
-  props: ['username', 'created', 'name', 'title', 'milestone_title','description','open','issue_id','repo_owner_name'],
+  props: ['username', 'created', 'name', 'title', 'milestone_title','description','open','issue_id','repo_owner_name','milestone_id'],
   computed: {
     formattedDate() {
       const date = new Date(this.created);

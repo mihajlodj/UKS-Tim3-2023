@@ -66,6 +66,7 @@
             :description="result.description"
             :open="result.open"
             :milestone_title="result.milestone.title"
+            :milestone_id="result.milestone_id"
             :issue_id="result.issueid"
           />
       </div>
