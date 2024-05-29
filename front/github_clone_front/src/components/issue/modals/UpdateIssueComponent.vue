@@ -42,7 +42,7 @@ export default {
             this.$emit('updateIssue');
         },
         modifyMilestone(item) {
-            this.receivedMilestone = item.id;
+            this.receivedMilestone = item;
             this.$emit('propModified', this.receivedMilestone);
         },
         typeTitle(obj) {
@@ -50,9 +50,6 @@ export default {
         },
         typeDescription(obj) {
             this.$emit('updateDescription', obj.val)
-        },
-        setMilestone(item) {
-            this.milestoneId = item.id;
         }
     }
 }
