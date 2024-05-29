@@ -25,3 +25,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+input {
+    background-color: #e2e7ec;
+}
+</style>
