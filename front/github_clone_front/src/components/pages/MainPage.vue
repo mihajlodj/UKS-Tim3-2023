@@ -7,6 +7,7 @@
       </div>
       <div class="middle-section">
         <router-view name="middle_section"></router-view>
+        <img alt="Logo" src="../../assets/github_lie.png" id="logo-img" class="mt-2 ms-2">
       </div>
     </div>
   </div>
@@ -81,7 +82,7 @@ export default {
 .middle-section {
   flex: 4;
   border-top: 1px solid #929191;
-  background-color: #24292e;
+  background-color: #010409;
   padding: 20px;
 }
 </style>
