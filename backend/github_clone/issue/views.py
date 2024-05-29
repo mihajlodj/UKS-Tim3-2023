@@ -165,7 +165,8 @@ def get_all_issues(request, query):
 
             serialized_data.append(
                 {'created': result.created, 'developer': developer, 'project': project, 'title': result.title,
-                 'description': result.description, 'milestone': milestone, 'open': result.open, 'managers':managers_data})
+                 'description': result.description, 'milestone': milestone, 'open': result.open, 'managers':managers_data,
+                 'issueid': result.id})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

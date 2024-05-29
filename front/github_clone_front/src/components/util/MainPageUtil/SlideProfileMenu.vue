@@ -5,23 +5,9 @@
       &nbsp;
       <label>{{this.username}}</label>
     </div>
-    <a href="#"><i class="bi bi-emoji-smile"></i>&nbsp;&nbsp;Set status</a>
     <a href="/profile"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
     <a href="#"><i class="bi bi-person-plus"></i>&nbsp;&nbsp;Add account</a>
-    <a href="#"><i class="bi bi-journal-bookmark"></i>&nbsp;&nbsp;Your repositories</a>
-    <a href="#"><i class="bi bi-file-bar-graph"></i>&nbsp;&nbsp;Your projects</a>
-    <a href="#"><i class="bi bi-buildings"></i>&nbsp;&nbsp;Your organizations</a>
-    <a href="#"><i class="bi bi-globe"></i>&nbsp;&nbsp;Your enterprises</a>
-    <a href="#"><i class="bi bi-star"></i>&nbsp;&nbsp;Your stars</a>
-    <a href="#"><i class="bi bi-heart"></i>&nbsp;&nbsp;Your sponsors</a>
-    <a href="#"><i class="bi bi-file-code"></i>&nbsp;&nbsp;Your gits</a>
-    <a href="#"><i class="bi bi-upload"></i>&nbsp;&nbsp;Upgrade</a>
-    <a href="#"><i class="bi bi-globe2"></i>&nbsp;&nbsp;Try Enterprise</a>
-    <a href="#"><i class="bi bi-robot"></i>&nbsp;&nbsp;Copilot</a>
-    <a href="#"><font-awesome-icon icon="fa-solid fa-flask"/>&nbsp;&nbsp;Feature preview</a>
-    <a href="#"><i class="bi bi-gear"></i>&nbsp;&nbsp;Settings</a>
-    <a href="#"><i class="bi bi-book"></i>&nbsp;&nbsp;GitHub Docs</a>
-    <a href="#"><i class="bi bi-people"></i>&nbsp;&nbsp;GitHub Support</a>
+    <a href="/profile/settings"><i class="bi bi-gear"></i>&nbsp;&nbsp;Settings</a>
     <a href="#" @click="this.logout()">Sign out</a>
   </div>
 </template>

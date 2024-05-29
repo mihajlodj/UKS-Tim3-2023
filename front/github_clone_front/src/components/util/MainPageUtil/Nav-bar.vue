@@ -12,7 +12,7 @@
         </a>
       </div>
       <div id="id-dashboard">
-        <button class="dashboard-menu-button">
+        <button class="dashboard-menu-button" @click="$router.push(`/main`)">
           Dashboard
         </button>
       </div>

@@ -65,6 +65,7 @@
             :description="result.description"
             :open="result.open"
             :milestone_title="result.milestone.title"
+            :issue_id="result.issueid"
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Pull_requests'">
