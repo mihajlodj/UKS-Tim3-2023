@@ -155,9 +155,12 @@ def get_all_commits(request, query):
             branch_serializer = BranchSerializer(result.branch)
             branch = branch_serializer.data
 
+            worksOn = WorksOn.objects.get(project=result.branch.project,role=Role.OWNER)
+
             serialized_data.append(
                 {'message': result.message, 'branch': branch, 'author': author,
-                 'committer': committer, 'timestamp': result.timestamp})
+                 'committer': committer, 'timestamp': result.timestamp,'sha':result.hash,'project':result.branch.project.name,
+                 'repo_owner':worksOn.developer.user.username})
 
         cache.set(cache_key, serialized_data, timeout=30)
 

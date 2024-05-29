@@ -99,6 +99,9 @@
             :author="result.author"
             :committer="result.committer"
             :timestamp="result.timestamp"
+            :sha="result.sha"
+            :project="result.project"
+            :repo_owner="result.repo_owner"
           />
       </div>
     </div>

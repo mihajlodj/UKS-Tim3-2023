@@ -4,7 +4,7 @@
       <img :src="committer.avatar" alt="User Avatar" class="commit-avatar">
       <div class="commit-info">
         <p class="commit-name">{{ committer.user.username}}</p>
-        <a href="#" class="commit-name">{{message}}</a>
+        <a :href="'/view/' + repo_owner +'/' +project +'/'+branch.name+'/commit/'+sha" class="commit-name">{{message}}</a>
         <p class="commit-name">{{ branch.name }} </p>
         <p class="commit-status">{{ formattedDate }}</p>
       </div>
@@ -15,7 +15,7 @@
 <script>
 export default {
   name: 'CommitBox',
-  props: ['message','branch','author','committer','timestamp'],
+  props: ['message','branch','author','committer','timestamp','repo_owner','project','sha'],
   computed: {
     formattedDate() {
       const date = new Date(this.timestamp);

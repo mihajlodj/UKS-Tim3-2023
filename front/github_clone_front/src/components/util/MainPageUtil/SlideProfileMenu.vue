@@ -6,7 +6,6 @@
       <label>{{this.username}}</label>
     </div>
     <a href="/profile"><i class="bi bi-person"></i>&nbsp;&nbsp;Your profile</a>
-    <a href="#"><i class="bi bi-person-plus"></i>&nbsp;&nbsp;Add account</a>
     <a href="/profile/settings"><i class="bi bi-gear"></i>&nbsp;&nbsp;Settings</a>
     <a href="#" @click="this.logout()">Sign out</a>
   </div>
