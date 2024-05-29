@@ -1,11 +1,12 @@
 <template>
+  <div class="bg min-vh-100 is-fullheight">
   <div>
     <RepoNavbar starting="issues" />
   </div>
   <div class="input-group mb-3" width="200px">
     <span class="input-group-text" id="basic-addon1">Search:</span>
     <input v-on:keyup.enter="this.doFilter()" v-model="this.issueFilter" type="text" class="form-control" placeholder="Issue name"
-      aria-label="Issue name" aria-describedby="basic-addon1">
+      aria-label="Issue name" aria-describedby="basic-addon1" style="background-color: #22272d; color: white;">
   </div>
   <!-- Modal add -->
   <div class="modal fade" id="exampleModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -44,7 +45,7 @@
   <div v-if="this.showOpen">
     <table class="mt-3" style="margin-left:auto; margin-right:auto; width: 100%;">
       <tr colspan="9">
-        <span font-size="28px" font-weight="bold">Open issues {{ this.filteredOpenIssues.length }}</span>
+        <span font-size="28px" font-weight="bold" style="color: #ffffff">Open issues {{ this.filteredOpenIssues.length }}</span>
         <hr>
       </tr>
       <tr colspan="9">
@@ -72,7 +73,7 @@
 
   </div>
   </div>
-  
+  </div>
 </template>
 <script>
 import RepoNavbar from '@/components/repository/RepoNavbar.vue'
@@ -153,5 +154,8 @@ button:hover {
 }
 button {
   color: white;
+}
+.bg {
+  background-color: #2c333b;
 }
 </style>
