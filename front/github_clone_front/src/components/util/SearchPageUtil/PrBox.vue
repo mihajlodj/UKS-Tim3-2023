@@ -2,8 +2,8 @@
   <div class="pr-box">
     <div class="pr-header">
       <div class="pr-info">
-        <a href="#" class="pr-name">{{title}}</a>
-        <a href="#" class="pr-name">{{developer}}/{{ project }}</a>
+        <a :href="'/view/' + developer +'/' +project+'/pulls/'+pr_id" class="pr-name">{{title}}</a>
+        <a :href="'/view/' + developer +'/' +project" class="pr-name">{{developer}}/{{ project }}</a>
         <p class="pr-author">{{ author }}</p>
         <p class="pr-status">{{ formattedDate }}</p>
         <p class="pr-status">{{ status }}</p>
@@ -15,7 +15,7 @@
 <script>
 export default {
   name: 'PrBox',
-  props: ['developer', 'project', 'title', 'author', 'timestamp', 'status'],
+  props: ['developer', 'project', 'title', 'author', 'timestamp', 'status','pr_id'],
   computed: {
     formattedDate() {
       const date = new Date(this.timestamp);

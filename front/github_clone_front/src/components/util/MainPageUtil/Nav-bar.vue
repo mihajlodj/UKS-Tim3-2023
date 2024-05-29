@@ -32,7 +32,7 @@
         <i class="bi bi-inbox"></i>
         <font-awesome-icon v-if="hasUnreads" icon="fa-solid fa-circle"></font-awesome-icon>
       </button>
-      <button class="notification_button"><i class="bi bi-bezier2"></i></button>
+      <button class="notification_button" @click="this.$router.push('/view/pulls')"><i class="bi bi-bezier2"></i></button>
       <button class="notification_button" @click="this.$router.push('/view/users_issues')"><i class="bi bi-record-circle"></i></button>
 
       <button class="profile_button" @click="toggleProfileMenu">

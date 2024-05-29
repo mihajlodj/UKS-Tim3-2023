@@ -197,7 +197,7 @@ def get_all_pull_reqs(request, query):
 
             serialized_data.append(
                 {'title': result.title, 'timestamp': result.timestamp, 'project': project, 'author': author,
-                 'Status': result.status, 'developer': worksOn.developer.user.username})
+                 'Status': result.status, 'developer': worksOn.developer.user.username, 'pr_id':result.gitea_id})
 
         cache.set(cache_key, serialized_data, timeout=30)
 
@@ -224,6 +224,29 @@ def get_all(request, owner_username, repository_name):
             obj['assignee'] = { 'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username) }
         result.append(obj)
     return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_users_prs(request):
+
+    requests = PullRequest.objects.filter(author__user__username=request.user.username)
+    result = []
+    for req in requests:
+        project = req.project
+        owner = WorksOn.objects.get(project=project,role=Role.OWNER).developer
+        obj = {
+            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username,
+            'id': req.gitea_id,
+            'labels': [], 'reviews': [], 'repo_name' :project.name, 'owner_username':owner.user.username
+        }
+        if req.milestone is not None:
+            obj['milestone'] = req.milestone.title
+        if req.assignee is not None:
+            obj['assignee'] = { 'username': req.assignee.user.username, 'avatar': developer_service.get_dev_avatar(req.assignee.user.username) }
+        result.append(obj)
+    return Response(result, status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])

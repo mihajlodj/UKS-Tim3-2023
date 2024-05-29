@@ -22,6 +22,7 @@ import ListLabelsComponent from '@/components/label/ListLabelsComponent.vue'
 import CreatePrPage from '@/components/pullRequest/CreatePrPage.vue'
 import PrDisplay from '@/components/pullRequest/PrDisplay.vue'
 import PrList from '@/components/pullRequest/PrList.vue'
+import PrListUsersPrs from '@/components/pullRequest/PrListUsersPrs.vue'
 import HistoryView from '@/components/repository/HistoryView.vue'
 import CommitDisplay from './components/commit/CommitDisplay.vue'
 import CollaborationInvitation from './components/repository/CollaborationInvitation.vue'
@@ -173,6 +174,10 @@ const routes = [
     {
         path: "/view/:username/:repoName/pulls",
         component: PrList
+    },
+    {
+        path: "/view/pulls",
+        component: PrListUsersPrs
     },
     {
         path: "/view/:username/:repoName/pulls/:id",

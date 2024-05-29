@@ -80,6 +80,7 @@
             :author="result.author.user.username"
             :timestamp="result.timestamp"
             :status="result.Status"
+            :pr_id = "result.pr_id"
           />
       </div>
       <div class="middle-section" v-if="this.preselected_field=='Users'">
