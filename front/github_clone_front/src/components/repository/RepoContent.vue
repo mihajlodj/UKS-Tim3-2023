@@ -3,10 +3,10 @@
         <table class="table">
             <tbody>
                 <tr v-if="displayRoot == 'false' && content.length > 0">
-                    <td>
+                    <td style="background: none;">
                         <button type="button" class="btn" @click="returnToParent">
                             <div class="d-flex justify-content-start">
-                                <font-awesome-icon icon="fa-regular fa-folder" class="me-2 mt-1" />
+                                <font-awesome-icon icon="fa-regular fa-folder" class="me-2 mt-1" style="color: #c5d1df;" />
                                 <span class="dots">.</span>
                                 <span class="dots">.</span>
                             </div>
@@ -15,27 +15,27 @@
                     </td>
                 </tr>
                 <tr v-for="file in content" :key="file.name">
-                    <td class="w-50">
-                        <button v-if="file.type == 'file'" type="button" class="btn" @click="fileClicked(file.name)">
-                            <font-awesome-icon icon="fa-regular fa-file" class="me-2 mt-1" />
+                    <td class="w-50" style="background: none;">
+                        <button v-if="file.type == 'file'" type="button" class="btn" style="color: #c5d1df;" @click="fileClicked(file.name)">
+                            <font-awesome-icon icon="fa-regular fa-file" class="me-2 mt-1" style="color: #c5d1df;" />
                             {{ file.name }}
                         </button>
 
-                        <button v-else type="button" class="btn" @click="folderClicked(file.name)">
-                            <font-awesome-icon icon="fa-regular fa-folder" class="me-2 mt-1" />
+                        <button v-else type="button" class="btn" style="color: #c5d1df;" @click="folderClicked(file.name)">
+                            <font-awesome-icon icon="fa-regular fa-folder" class="me-2 mt-1" style="color: #c5d1df;" />
                             {{ file.name }}
                         </button>
                     </td>
 
-                    <td>
+                    <td style="background: none;">
                         <button type="button" class="btn-last-commit-msg" @click="displayLastCommit(file.lastCommitSHA)">
                             {{ file.lastCommitMessage }}
                         </button>
                     </td>
 
-                    <td class="d-flex justify-content-end border-0">
+                    <td class="d-flex justify-content-end border-0" style="background: none;">
                         <span v-if="file.lastCommitTimestamp !== null && file.lastCommitTimestamp !== '' && file.lastCommitTimestamp !== undefined"
-                            class="timestamp">
+                            class="timestamp" style="color: #c5d1df;">
                             {{ howLongAgo(file.lastCommitTimestamp) }}
                         </span>
                     </td>
@@ -65,6 +65,7 @@ export default {
                         "htmlURL": obj.html_url, "lastCommitSHA": obj.last_commit_sha, "lastCommitMessage": obj.last_commit_message, "lastCommitTimestamp": obj.last_commit_timestamp
                     });
                 }
+                this.sortContent();
             }).catch(err => {
                 console.log(err);
             });
@@ -77,6 +78,7 @@ export default {
                         "htmlURL": obj.html_url, "lastCommitSHA": obj.last_commit_sha, "lastCommitMessage": obj.last_commit_message, "lastCommitTimestamp": obj.last_commit_timestamp
                     });
                 }
+                this.sortContent();
             }).catch(err => {
                 console.log(err);
             });
@@ -93,6 +95,16 @@ export default {
         folderClicked(name) {
             this.$emit('folderClicked', {
                 'name': name
+            });
+        },
+
+        sortContent() {
+            this.content.sort((a, b) => {
+                if (a.type < b.type) return -1;
+                if (a.type > b.type) return 1;
+                if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                return 0;
             });
         },
 
@@ -121,7 +133,8 @@ export default {
 
 <style scoped>
 .table tr {
-    border: 1px solid #d6d9dd;
+    border: 1px solid #4b5055;
+    background: none;
 }
 
 td button {
@@ -129,15 +142,21 @@ td button {
     font-size: 14px;
 }
 
+td, tr, th {
+    background-color: red;
+}
+
 .dots {
     font-weight: 700;
     margin-right: 1px;
     margin-top: -1px;
+    color: #c5d1df;
 }
 
 .btn-last-commit-msg {
     border: none;
     background: none;
+    color: #c5d1df;
 }
 
 .btn-last-commit-msg:hover {

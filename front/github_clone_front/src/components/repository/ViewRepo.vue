@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="bg min-vh-100 is-fullheight">
         <div v-if="allowed == true">
             <RepoNavbar starting="code" />
 
@@ -8,19 +8,19 @@
                     <button type="button" class="btn">
                         <img class="avatar" :src="owner.avatar" alt="User avatar" />
                     </button>
-                    <span class="me-3 repo-name">{{ repo.name }}</span>
+                    <span class="me-3 repo-name bright">{{ repo.name }}</span>
                     <span class="badge rounded-pill h-50 pb-3">{{ repo.accessModifier }}</span>
                 </div>
 
                 <div class="d-flex justify-content-end me-4">
                     <WatchChoice :key="watchKey" :watchInfo="repo.watch" />
-                    <button v-if="!isUsersRepo()" type="button" class="btn btn-right me-2" @click="fork">
+                    <button v-if="!isUsersRepo()" type="button" class="btn-right me-2" @click="fork" style="background: #373e48; color: #a7b5c2; border-radius: 5px;">
                         <font-awesome-icon icon="fa-solid fa-code-fork" class="me-1" />
                         Fork
                     </button>
-                    <button @click="toggleStar" type="button" class="btn btn-right" style="background:gray;color:white">
+                    <button @click="toggleStar" type="button" class="btn-right" style="background: #373e48; color: #a7b5c2; border-radius: 5px;">
                         <font-awesome-icon v-if="!isStarred" icon="fa-regular fa-star" style="color: #b1aaaa;" />
-                        <i v-if="isStarred" class="bi bi-star-fill" style="color:yellow" />
+                        <i v-if="isStarred" class="bi bi-star-fill" style="color: yellow; margin-right: 3px;"></i>
                         Star
                     </button>
                 </div>
@@ -33,31 +33,30 @@
                 </button>
             </div>
 
-            <hr class="mx-4">
+            <hr class="mx-4" style="color: #c5d1df;">
 
             <div class="d-flex justify-content-start mx-4">
                 <div class="w-75">
                     <div class="d-flex justify-content-between">
                         <div class="d-flex justify-content-start">
-                            <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
-                                role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ repo.chosenBranch }}
+                            <button class="branch nav-link dropdown-toggle btn-gray" type="button" role="button" data-bs-toggle="dropdown">
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-1 mt-1" /> {{ repo.chosenBranch }}
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <ul class="dropdown-menu" style="background-color: #2c333b;">
                                 <li class="mx-2">
-                                    <input type="text" placeholder="Search branches" class="px-1" />
+                                    <input type="text" placeholder="Search branches" class="px-1" v-model="branchesSearchTerm" @input="filterBranches" />
                                 </li>
-                                <li v-for="b in repo.branches" :key="b.name">
-                                    <button class="btn dropdown-item" @click="selectedBranchChanged(b.name)">
+                                <li v-for="b in filteredBranches" :key="b.name">
+                                    <button class="curr-branch-btn dropdown-item" @click="selectedBranchChanged(b.name)" style="color: #c5d1df;">
                                         {{ b.name }}
                                     </button>
                                 </li>
                             </ul>
-                            <button type="button" class="btn btn-gray ms-2" @click="viewBranches">
-                                <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ numBranches }}
+                            <button type="button" class="btn-gray ms-2" @click="viewBranches">
+                                <font-awesome-icon icon="fa-solid fa-code-branch" class="mt-1" /> {{ numBranches }}
                                 {{ branchesText }}
                             </button>
-                            <button type="button" class="btn btn-gray ms-2" @click="viewTags">
+                            <button type="button" class="btn-gray ms-2" @click="viewTags">
                                 <i class="bi bi-tag"></i> {{ this.numTags }}
                                 {{ tagsText }}
                             </button>
@@ -66,11 +65,10 @@
                         <div class="d-flex justify-content-end">
 
                             <div v-if="canAddFiles()">
-                                <button class="btn nav-link dropdown-toggle btn-gray me-2" type="button" role="button"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="add-file nav-link dropdown-toggle btn-gray me-2" type="button" role="button" data-bs-toggle="dropdown">
                                     Add file
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu">
                                     <li>
                                         <button class="btn dropdown-item" @click="createNewFile">
                                             <font-awesome-icon icon="fa-solid fa-plus" class="me-2 mt-1" /> Create new
@@ -87,9 +85,11 @@
                             </div>
 
 
-                            <button type="button" :class="(httpChosen) ? 'btn btn-chosen' : 'btn'"
+                            <button type="button"
+                                :class="(httpChosen) ? 'btn-http-ssh btn-chosen bright' : 'btn-http-ssh'"
                                 @click="setHttpChosen">HTTP</button>
-                            <button type="button" :class="(!httpChosen) ? 'btn btn-chosen me-2' : 'btn me-2'"
+                            <button type="button"
+                                :class="(!httpChosen) ? 'btn-http-ssh btn-chosen me-2 bright' : 'btn-http-ssh me-2'"
                                 @click="setSshChosen">SSH</button>
                             <input v-if="httpChosen" type="text" readonly v-model="repo.http" />
                             <input v-else type="text" readonly v-model="repo.ssh" />
@@ -110,9 +110,9 @@
 
                 <div class="w-25 ms-4">
                     <div class="d-flex flex-column">
-                        <span class="bolder mt-1">About</span>
-                        <span v-if="repo.description" class="mt-3">{{ repo.description }}</span>
-                        <span v-else class="mt-3"><i>No description provided</i></span>
+                        <span class="bolder mt-1 bright">About</span>
+                        <span v-if="repo.description" class="mt-3 muted">{{ repo.description }}</span>
+                        <span v-else class="mt-3 muted"><i>No description provided</i></span>
                     </div>
                 </div>
             </div>
@@ -181,6 +181,7 @@ export default {
                 this.repo.branches.push({ 'name': b });
             }
             this.allowed = true
+            this.filteredBranches = this.repo.branches;
             this.forceRerender();
         }).catch(err => {
             console.log(err);
@@ -203,13 +204,13 @@ export default {
             .catch(err => {
                 console.log(err);
             });
-        
+
         TagService.getTags(this.$route.params.username, this.$route.params.repoName).then((res) => {
             this.numTags = res.data.length
         })
-        .catch(err => {
-            console.log(err);
-        });
+            .catch(err => {
+                console.log(err);
+            });
     },
 
     data() {
@@ -240,7 +241,10 @@ export default {
             contentKey: 1,
             allowed: 'not_set',
             isStarred: false,
-            watchKey: 1
+            watchKey: 1,
+
+            branchesSearchTerm: "",
+            filteredBranches: []
         }
     },
 
@@ -256,6 +260,10 @@ export default {
         forceRerender() {
             this.contentKey += 1;
             this.watchKey += 1;
+        },
+
+        filterBranches() {
+            this.filteredBranches = this.repo.branches.filter(x => x.name.toLowerCase().includes(this.branchesSearchTerm.toLocaleLowerCase()));
         },
 
         isUsersRepo() {
@@ -352,16 +360,35 @@ export default {
 </script>
 
 <style scoped>
+.bg {
+    background-color: #22272d;
+}
+
+.btn-http-ssh {
+    background: none;
+    border: none;
+    width: 50px;
+    color: #c5d1df;
+}
+
 .avatar {
     height: 27px;
     border-radius: 50%;
 }
 
 .badge {
-    margin-top: 13px;
-    border: 2px solid #dce1e6;
-    color: #9ea2a7;
-    background-color: white;
+    margin-top: 14px;
+    border: 2px solid #aeb6c0;
+    color: #aeb6c0;
+    background-color: #22272d;
+}
+
+.bright {
+    color: #c5d1df;
+}
+
+.muted {
+    color: #768491;
 }
 
 .repo-name {
@@ -372,8 +399,6 @@ export default {
 
 .btn-right {
     border: 1px solid #d6d9dd;
-    background-color: #f7f8fa;
-    color: #4d5256;
     height: 32px;
     width: 100px;
     margin-top: 25px;
@@ -384,10 +409,12 @@ input {
     min-width: 320px;
     height: 30px;
     margin-top: 10px;
-    background-color: #f7f8fa;
-    border: 1px solid #adafb1;
+    background-color: #22272d;
+    border: 1px solid #7f8286;
     border-radius: 5px;
     font-size: small;
+    padding-left: 5px;
+    color: #c5d1df;
 }
 
 .bolder {
@@ -397,21 +424,22 @@ input {
 .btn-chosen {
     border-bottom: 2px solid #fe8c72;
     border-radius: 0%;
+    color: #c5d1df;
 }
 
 .btn-chosen:hover {
     border-bottom: 2px solid #fe8c72;
 }
 
-.btn-gray,
-.btn-gray:hover {
-    border: 1px solid #d6d9dd;
-    background-color: #f7f8fa;
-    color: #353636;
+.btn-gray {
+    border-radius: 5px;
+    border: none;
+    background-color: #373e48;
+    color: #c5d1df;
     height: 37px;
-    min-width: 120px;
-    max-width: 200px;
+    min-width: 110px;
     margin-top: 10px;
+    border-radius: 7px;
 }
 
 .search {
@@ -423,5 +451,22 @@ input {
     border: none;
     color: #488ae7;
     text-decoration: underline;
+}
+
+.branch:hover, .add-file:hover, .btn-gray:hover {
+    color: #c5d1df;
+    background-color: #454e5a;
+}
+
+.branch {
+    width: 145px;
+}
+
+.curr-branch-btn {
+    margin-top: 3px;
+}
+
+.curr-branch-btn:hover {
+    background-color: #434a54 !important;
 }
 </style>

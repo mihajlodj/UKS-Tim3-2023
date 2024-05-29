@@ -3,10 +3,9 @@
         <div class="contain">
             <div class="d-flex justify-content-between">
                 <div class="d-flex justify-content-start">
-                    <button type="button" :class="activeTab === 'edit' ? 'header-btn active mx-2' : 'header-btn mx-2'"
-                        @click="setActiveTab('edit')">Edit</button>
-                    <button type="button" :class="activeTab === 'preview' ? 'header-btn active' : 'header-btn'"
-                        @click="setActiveTab('preview')">Preview</button>
+                    <button type="button" :class="activeTab === 'edit' ? 'header-btn active mx-2' : 'header-btn mx-2'" @click="setActiveTab('edit')">
+                        Edit
+                    </button>
                 </div>
             </div>
         </div>
