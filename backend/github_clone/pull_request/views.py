@@ -70,7 +70,7 @@ def add_review(request, owner_username, repository_name, pull_id):
         if review_status not in PullRequestReviewStatus.values:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        pull_request = PullRequest.objects.get(gitea_id=pull_id)
+        pull_request = PullRequest.objects.get(project=project, gitea_id=pull_id)
         reviewer = Developer.objects.get(user__username=reviewer_username)
 
         # Validate logged in user is reviewer
@@ -109,9 +109,9 @@ def get_reviews_for_pr(request, owner_username, repository_name, pull_id):
         created_by_username = request.auth.get('username', None)
         works_on = WorksOn.objects.get(role='Owner', project__name=repository_name, developer__user__username=owner_username)
 
-        pull_request = PullRequest.objects.get(gitea_id=pull_id)
+        pull_request = PullRequest.objects.get(project=works_on.project, gitea_id=pull_id)
 
-        pull_request_reviews = PullRequestReview.objects.filter(pull_request__gitea_id=pull_id)
+        pull_request_reviews = PullRequestReview.objects.filter(pull_request=pull_request)
         serialized_reviews = serialize_pull_request_reviews(pull_request_reviews)
         return Response(serialized_reviews, status=status.HTTP_200_OK)
     except ObjectDoesNotExist:

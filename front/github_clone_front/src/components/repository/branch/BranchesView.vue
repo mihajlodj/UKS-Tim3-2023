@@ -1,21 +1,21 @@
 <template>
-    <div>
+    <div class="bg min-vh-100 is-fullheight">
         <RepoNavbar />
 
         <div class="container w-75 mt-4">
             <div class="d-flex justify-content-between">
-                <h3>Branches</h3>
+                <h3 class="bright">Branches</h3>
                 <button type="button" class="btn btn-create" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     New branch
                 </button>
             </div>
 
-            <ul class="nav nav-tabs mt-3">
-                <li class="nav-item">
-                    <button :class="activeAll ? 'nav-link active' : 'nav-link'" @click="setActiveAll">All</button>
+            <ul class="nav-tabs2 mt-3">
+                <li class="nav-item2">
+                    <button :class="activeAll ? 'nav-link2 active-link' : 'nav-link2'" id="tab-all" @click="setActiveAll">All</button>
                 </li>
-                <li class="nav-item">
-                    <button :class="!activeAll ? 'nav-link active' : 'nav-link'" @click="setActiveYours">Yours</button>
+                <li class="nav-item2">
+                    <button :class="!activeAll ? 'nav-link2 active-link' : 'nav-link2'" id="tab-yours" @click="setActiveYours">Yours</button>
                 </li>
             </ul>
 
@@ -24,16 +24,16 @@
 
         <div class="modal" id="exampleModal" tabindex="-1">
             <div class="modal-dialog">
-                <div class="modal-content">
+                <div class="modal-content" style="background-color: #2c333b;">
                     <div class="modal-header">
-                        <h5 class="modal-title">Create a branch</h5>
+                        <h5 class="modal-title bright">Create a branch</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="container">
                             <div class="d-flex flex-column">
-                                <label class="mb-1">New branch name</label>
-                                <input type="text" v-model="newBranchName" @input="validateBranchName" />
+                                <label class="mb-1 bright">New branch name</label>
+                                <input type="text" v-model="newBranchName" @input="validateBranchName" style="background-color: #1c2127; height: 35px; border-radius: 5px; padding-left: 7px;" />
                                 <div class="d-flex justify-content-start">
                                     <font-awesome-icon v-if="!isValidBranchName" icon="fa-solid fa-triangle-exclamation"
                                         class="me-2 mt-1" />
@@ -43,15 +43,15 @@
                                 </div>
                             </div>
                             <div v-if="eligible.length > 0">
-                                <label class="mt-3 mb-1">Source</label>
+                                <label class="mt-3 mb-1 bright">Source</label>
                                 <button class="btn nav-link dropdown-toggle btn-gray" type="button" id="navbarDropdown"
-                                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    role="button" data-bs-toggle="dropdown" aria-expanded="false"  style="background-color: #c5d1df;">
                                     <font-awesome-icon icon="fa-solid fa-code-branch" class="me-2 mt-1" /> {{ chosenSource
                                     }}
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown" style="background-color: #c5d1df;">
                                     <li v-for="b in eligible" :key="b.name">
-                                        <button class="btn dropdown-item" @click="changeChosenSource(b.name)">
+                                        <button class="btn dropdown-item" @click="changeChosenSource(b.name)" style="background-color: #c5d1df;">
                                             {{ b.name }}
                                         </button>
                                     </li>
@@ -64,7 +64,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-gray" @click="cancelBranchInput"
-                            data-bs-dismiss="modal">Cancel</button>
+                            data-bs-dismiss="modal"  style="background-color: #c5d1df;">Cancel</button>
                         <button type="button" class="btn btn-create" @click="createBranch" data-bs-dismiss="modal" :disabled="eligible.length === 0">
                             Create new branch
                         </button>
@@ -205,6 +205,10 @@ export default {
 </script>
 
 <style scoped>
+.bg {
+    background-color: #22272d;
+}
+
 .btn-create,
 .btn-create:hover {
     color: white;
@@ -212,9 +216,10 @@ export default {
     height: 90%;
 }
 
-.nav-link,
-.nav-link:hover {
-    color: black;
+.active-link {
+    border-top: 1px solid #82878d !important;
+    border-left: 1px solid #82878d !important;
+    border-right: 1px solid #82878d !important;
 }
 
 .btn-gray,
@@ -238,4 +243,29 @@ export default {
     color: #d32d36;
     height: 15px;
 }
+
+.bright {
+    color: #c5d1df;
+}
+
+.nav-tabs2 {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  border-bottom: 1px solid #82878d;
+  margin-top: 1rem;
+}
+
+.nav-link2 {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  text-decoration: none;
+  color: #c5d1df;
+  border: 1px solid transparent;
+  border-radius: 0.25rem 0.25rem 0 0;
+}
+
 </style>
