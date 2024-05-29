@@ -214,7 +214,7 @@ def get_all(request, owner_username, repository_name):
     result = []
     for req in requests:
         obj = {
-            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': req.author.user.username,
+            'title': req.title, 'status': req.status, 'timestamp': req.timestamp, 'author': {'username': req.author.user.username, 'avatar': developer_service.get_dev_avatar(req.author.user.username)},
             'id': req.gitea_id,
             'labels': [], 'reviews': []
         }

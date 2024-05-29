@@ -36,7 +36,7 @@
             </div>
 
             <div class="w-25 me-5 mt-4">
-                <AdditionalPrInfo @updateMilestone="updateMilestone" @updateAssignee="updateAssignee" @updateReviewers="updateReviewers" />
+                <AdditionalPrInfo @updateMilestone="updateMilestone" @updateAssignee="updateAssignee" @updateReviewers="updateReviewers" :prAuthorUsername="user" />
             </div>
         </div>
     </div>
@@ -72,7 +72,8 @@ export default {
             milestone: null,
             assignee: null,
             reviewers: [],
-            loaded: true
+            loaded: true,
+            user: localStorage.getItem("username")
         }
     },
 

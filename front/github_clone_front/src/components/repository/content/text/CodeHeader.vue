@@ -14,7 +14,6 @@
                 </div>
 
                 <div class="d-flex justify-content-end">
-                    <a class="header-btn me-1" :href="downloadUrl">Raw</a>
                     <button type="button" class="header-btn me-1 px-3" @click="downloadFile">
                         <font-awesome-icon icon="fa-solid fa-download" />
                     </button>
