@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework import serializers
 
 from main.models import Issue, Developer, Project, WorksOn, Milestone
@@ -26,6 +27,8 @@ class IssueSerializer(serializers.Serializer):
             title=validated_data['title'],
             description=validated_data['description'],
             project=project,
+            open=True,
+            created=timezone.now(),
             creator=Developer.objects.get(user__username=validated_data['creator']),
             # manager=set()
         )
@@ -41,7 +44,8 @@ class IssueSerializer(serializers.Serializer):
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         self.create_issue_in_gitea(owner, issue)
         issue.save()
-        return serialize_issue(issue)
+        serialized_issue = serialize_issue(issue)
+        return serialized_issue
         # return issue
 
     def create_issue_in_gitea(self, owner, issue):
@@ -61,7 +65,7 @@ def serialize_issue(issue):
 
 def serialize_managers(issue):
     if issue.manager:
-        return [{'username': dev.username} for dev in issue.manager.all()]
+        return [dev.user.username for dev in issue.manager.all()]
     else:
         return []
 

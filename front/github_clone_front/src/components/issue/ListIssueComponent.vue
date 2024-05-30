@@ -4,7 +4,7 @@
     <RepoNavbar starting="issues" />
   </div>
   <div class="input-group mb-3" width="200px">
-    <span class="input-group-text" id="basic-addon1">Search:</span>
+    <span class="input-group-text" id="basic-addon1" style="background-color: #373e48;color:#adbbc8;border-color:#adbbc8;">Search:</span>
     <input v-on:keyup.enter="this.doFilter()" v-model="this.issueFilter" type="text" class="form-control" placeholder="Issue name"
       aria-label="Issue name" aria-describedby="basic-addon1" style="background-color: #22272d; color: white;">
   </div>
@@ -49,7 +49,7 @@
         <hr>
       </tr>
       <tr colspan="9">
-        <IssueList :issueList="this.filteredOpenIssues" :isOpen="true" :milestones="this.milestones" />
+        <IssueList :issueList="this.filteredOpenIssues" :isOpen="true" :milestones="this.milestones" @closeIssueInList="closeIssueInList" @deleteIssueFromList="deleteIssueFromList" />
       </tr>
       <tr>
         <td colspan="9">
@@ -63,11 +63,11 @@
   <div v-if="this.showClosed">
     <table class="mt-3" style="margin-left:auto; margin-right:auto; width: 100%;">
       <tr>
-        <span font-size="28px" font-weight="bold">Closed issues {{ this.filteredClosedIssues.length }}</span>
+        <span font-size="28px" font-weight="bold" style="color:white;">Closed issues {{ this.filteredClosedIssues.length }}</span>
         <hr>
       </tr>
       <tr>
-        <IssueList :issueList="this.filteredClosedIssues" :isOpen="false" :milestones="this.milestones" />
+        <IssueList :issueList="this.filteredClosedIssues" :isOpen="false" :milestones="this.milestones" @closeIssueInList="closeIssueInList" @deleteIssueFromList="deleteIssueFromList" />
       </tr>
     </table>
 
@@ -142,6 +142,18 @@ export default {
     filterClosedIssues() {
       return this.issues.filter((issue) => !issue.open)
     },
+    closeIssueInList(id) {
+      this.allIssues.forEach((el) => {
+        if (el.id === id) {
+          el.open = false;
+        }
+      });
+      this.doFilter();
+    },  
+    deleteIssueFromList(id) {
+      this.allIssues = this.allIssues.filter((el) => el.id != id);
+      this.doFilter();
+    }
   }
 }
 </script>

@@ -106,8 +106,8 @@ export default {
       IssueService.updateIssue(updatedIssue)
         .then((res) => {
           console.log(res);
-          toast("Issue updated", this.toastSuccess);
           location.reload();
+          toast("Issue updated", this.toastSuccess);
         }).catch((err) => {
           console.log(err);
           toast("Issue update failed", this.toastFailed);
@@ -132,8 +132,8 @@ export default {
     close(id) {
       IssueService.closeIssue(this.$route.params.repoName, id).then((res) => {
         console.log(res);
+        this.$emit("closeIssueInList", id);
         toast("Issue updated", this.toastSuccess);
-        location.reload()
       }).catch((err) => {
         console.log(err);
         toast("Issue closure failed", this.toastFailed);
@@ -142,8 +142,8 @@ export default {
     delete(id) {
       IssueService.deleteIssue(this.$route.params.repoName, id).then((res) => {
         console.log(res);
+        this.$emit("deleteIssueFromList", id);
         toast("Issue deleted", this.toastSuccess);
-        location.reload()
       }).catch((err) => {
         console.log(err);
         toast("Issue deletion failed", this.toastFailed);
