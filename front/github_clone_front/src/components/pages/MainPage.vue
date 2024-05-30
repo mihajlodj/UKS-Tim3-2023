@@ -5,9 +5,9 @@
       <div class="left-section">
         <repository-list :repositories="repositories" />
       </div>
-      <div class="middle-section">
+      <div class="middle-section fill">
         <router-view name="middle_section"></router-view>
-        <img alt="Logo" src="../../assets/github_lie.png" id="logo-img" class="mt-2 ms-2">
+        <img alt="Logo" src="../../assets/github_lie_2.png" style="width: 800px;" class="mt-2 ms-2">
       </div>
     </div>
   </div>
@@ -79,10 +79,22 @@ export default {
   flex: 1;
 }
 
+.fill {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.fill img {
+  flex-shrink: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 .middle-section {
   flex: 4;
   border-top: 1px solid #929191;
-  background-color: #010409;
+  background-color: #1c2127;
   padding: 20px;
 }
 </style>

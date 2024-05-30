@@ -1,7 +1,7 @@
 <template>
     <div class="d-flex justify-content-between contain">
         <div class="d-flex justify-content-start align-items-center">
-            <button type="button" class="btn-author d-flex align-items-center">
+            <button type="button" class="btn-author d-flex align-items-center" @click="$router.push(`/profile/${latestCommit.author.username}`)">
                 <img :src="latestCommit.author.avatar" />
                 <span class="author-username">{{ latestCommit.author.username }}</span>
             </button>

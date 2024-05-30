@@ -221,7 +221,7 @@ def link_label_to_pull_request(request, owner_username, repository_name, label_i
 
     works_on = WorksOn.objects.get(role='Owner', project__name=project_name, developer__user__username=owner_username)
     owner = works_on.developer
-    project = Project.objects.get(name=project_name)
+    project = works_on.project
 
     if not label_id.isdigit():
         raise Http404()
@@ -229,10 +229,10 @@ def link_label_to_pull_request(request, owner_username, repository_name, label_i
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if not pull_request_id.isdigit():
         raise Http404()
-    if not PullRequest.objects.filter(gitea_id=pull_request_id).exists():
+    if not PullRequest.objects.filter(project=project, gitea_id=pull_request_id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     label = Label.objects.get(id=label_id)
-    pull_request = PullRequest.objects.get(gitea_id=pull_request_id)
+    pull_request = PullRequest.objects.get(project=project, gitea_id=pull_request_id)
     if label.project != pull_request.project:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     pull_request.labels.add(label)
@@ -257,7 +257,7 @@ def unlink_label_to_pull_request(request, owner_username, repository_name, label
 
     works_on = WorksOn.objects.get(role='Owner', project__name=project_name, developer__user__username=owner_username)
     owner = works_on.developer
-    project = Project.objects.get(name=project_name)
+    project = works_on.project
 
     if not label_id.isdigit():
         raise Http404()
@@ -265,10 +265,10 @@ def unlink_label_to_pull_request(request, owner_username, repository_name, label
         return Response(status=status.HTTP_400_BAD_REQUEST)
     if not pull_request_id.isdigit():
         raise Http404()
-    if not PullRequest.objects.filter(gitea_id=pull_request_id).exists():
+    if not PullRequest.objects.filter(project=project, gitea_id=pull_request_id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     label = Label.objects.get(id=label_id)
-    pull_request = PullRequest.objects.get(gitea_id=pull_request_id)
+    pull_request = PullRequest.objects.get(project.project, gitea_id=pull_request_id)
     if label.project != pull_request.project:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     pull_request.labels.remove(label)

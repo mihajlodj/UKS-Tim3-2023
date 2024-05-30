@@ -45,7 +45,7 @@ def get_all_branches(request, owner_username, repository_name):
             print("No commits found for the specified branch.")
         try:
             latest_pr = PullRequest.objects.filter(source=branch).latest('timestamp')
-            obj['pr_id'] = latest_pr.id
+            obj['pr_id'] = latest_pr.gitea_id
             obj['pr_status'] = latest_pr.status 
         except ObjectDoesNotExist:
             print("No PRs found for the specified branch.")

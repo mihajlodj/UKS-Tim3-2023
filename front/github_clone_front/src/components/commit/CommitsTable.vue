@@ -15,7 +15,7 @@
             <tbody>
                 <tr v-for="c in commits" :key="c.hash">
                     <td>
-                        <div class="d-flex justify-content-start">
+                        <div class="d-flex justify-content-start" style="cursor: pointer;" @click="$router.push(`/profile/${c.author.username}`)">
                             <img class="avatar me-1" :src="c.author.avatar" />
                             <label class="bright">{{ c.author.username }}</label>
                         </div>
@@ -70,7 +70,10 @@ export default {
         },
 
         formatDate(dateStr) {
-            let arr = dateStr.split("T");
+            const date = new Date(dateStr);
+            date.setHours(date.getHours() + 2);
+            const newTimestamp = date.toISOString();
+            let arr = newTimestamp.split("T");
             return `${arr[0]} ${arr[1].slice(0, 5)}`
         },
 

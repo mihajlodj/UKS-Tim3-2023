@@ -139,7 +139,7 @@ export default {
     this.repoName = this.$route.params.repoName;
     ReleaseService.getReleases(this.owner, this.repoName).then((res) => {
       this.releases = res.data;
-      if (res.data != []) {
+      if (res.data.length > 0) {
         this.thereArentAnyTags = false;
       }
     }).catch((err) => {

@@ -5,8 +5,6 @@
                 <div class="d-flex justify-content-start">
                     <button type="button" :class="activeTab === 'code' ? 'header-btn active mx-2' : 'header-btn mx-2'"
                         @click="setActiveTab('code')">Code</button>
-                    <button type="button" :class="activeTab === 'blame' ? 'header-btn active' : 'header-btn'"
-                        @click="setActiveTab('blame')">Blame</button>
                     <div v-if="numLines" class="d-flex align-items-center ms-5">
                         <span class="text sm">{{ numLines }} lines</span>
                     </div>
@@ -16,7 +14,6 @@
                 </div>
 
                 <div class="d-flex justify-content-end">
-                    <a class="header-btn me-1" :href="downloadUrl">Raw</a>
                     <button type="button" class="header-btn me-1 px-3" @click="downloadFile">
                         <font-awesome-icon icon="fa-solid fa-download" />
                     </button>

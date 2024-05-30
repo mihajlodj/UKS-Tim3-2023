@@ -80,6 +80,8 @@ def send_notification_default_branch_push(owner_username, repository, commit_inf
 
 
 def send_notification_repository_starred(owner_username, repository, starred_by):
+    if (starred_by == owner_username):
+        return
     if Watches.objects.filter(developer__user__username=owner_username, project=repository).exists() and \
         Watches.objects.get(developer__user__username=owner_username, project=repository).option == WatchOption.IGNORE:
         return

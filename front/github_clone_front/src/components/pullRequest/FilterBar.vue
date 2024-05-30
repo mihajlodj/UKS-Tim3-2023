@@ -25,7 +25,7 @@
         <input type="text" class="filter" v-model="this.filterText" v-on:keyup.enter="this.doFilter()" />
 
         <div class="mx-3 d-flex justify-content-">
-            <button type="button" class="btn-lbl px-4">
+            <button type="button" class="btn-lbl px-4" @click="$router.push(`labels`)">
                 <font-awesome-icon icon="fa-solid fa-tag" class="me-1" />
                 Labels
             </button>

@@ -6,8 +6,8 @@
       <div id="top-repo">
         <label id="repositories-id">Top repositories</label>
       </div>
-      <div id="btn-new-repo">
-        <button type="button" class="new-repo-btn" @click="createNewRepo"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
+      <div id="btn-new-repo" class="d-flex align-items-center justify-content-end w-100">
+        <button type="button" class="new-repo-btn" style="min-width: 60px; min-height: 25px; margin-bottom: 5px;" @click="createNewRepo"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
       </div>
     </div>
     <div id="search-bar-div">
@@ -76,19 +76,19 @@ export default {
 
 #top-repo{
   float: left;
-}
-#new-repo-btn{
-  float: left;
+  min-width: 120px;
 }
 
 .search-bar {
   margin-bottom: 0.5rem;
-  padding: 0.1rem;
-  font-size: 9px;
-  background: black;
+  padding: 0.2rem;
+  font-size: 12px;
+  background: #1c2127;
   border:none;
   color: white;
   width: 100%;
+  border-radius: 3px;
+  border: 1px solid #53575a;
 }
 
 .new-repo-btn{

@@ -15,14 +15,16 @@
                 <div class="container mt-3" id="pulls-table">
                     <div class="row my-2">
                         <div class="col-1 check ms-2">
-                            <input type="checkbox" v-model="allSelected" @input="setAllChecked"/>
+                            <input type="checkbox" v-model="allSelected" @input="setAllChecked" />
                         </div>
-                        <div class="col-5 d-flex justify-content-start">
+                        <div class="col-7 d-flex justify-content-start">
                             <button type="button" class="btn-num-req me-2" @click="setOpenPullsChosen">
-                                <label :class="openPullsChosen ? 'num-req-active' : 'num-req'">{{ openPulls.length }} Open</label>
+                                <label :class="openPullsChosen ? 'num-req-active' : 'num-req'">{{ openPulls.length }}
+                                    Open</label>
                             </button>
                             <button type="button" class="btn-num-req" @click="setClosedPullsChosen">
-                                <label :class="!openPullsChosen ? 'num-req-active' : 'num-req'">{{ closedPulls.length }} Closed</label>
+                                <label :class="!openPullsChosen ? 'num-req-active' : 'num-req'">{{ closedPulls.length }}
+                                    Closed</label>
                             </button>
                         </div>
 
@@ -45,19 +47,10 @@
                             Author
                         </div>
                         <div class="col criterium d-flex justify-content-center">
-                            Label
-                        </div>
-                        <div class="col criterium d-flex justify-content-center">
-                            Milestones
-                        </div>
-                        <div class="col criterium d-flex justify-content-center">
-                            Reviews
+                            Milestone
                         </div>
                         <div class="col criterium d-flex justify-content-center">
                             Assignee
-                        </div>
-                        <div class="col criterium d-flex justify-content-center">
-                            Sort
                         </div>
                     </div>
 
@@ -67,34 +60,42 @@
                             <input type="checkbox" v-model="selected[i]" @input="setChecked(i)" />
                         </div>
 
-                        <div class="col-5">
+                        <div class="col-7">
                             <div class="d-flex justify-content-start">
-                                <img v-if="pull.status === 'Open'" alt="pr" src="../../assets/open_pr_green.png" class="img-pr mt-1 me-2" />
-                                <img v-if="pull.status === 'Merged'" alt="pr" src="../../assets/merged_pr_purple.png" class="img-pr mt-1 me-2" />
-                                <img v-if="pull.status === 'Closed'" alt="pr" src="../../assets/closed_pr_red.png" class="img-pr mt-1 me-2" />
+                                <img v-if="pull.status === 'Open'" alt="pr" src="../../assets/open_pr_green.png"
+                                    class="img-pr mt-1 me-2" />
+                                <img v-if="pull.status === 'Merged'" alt="pr" src="../../assets/merged_pr_purple.png"
+                                    class="img-pr mt-1 me-2" />
+                                <img v-if="pull.status === 'Closed'" alt="pr" src="../../assets/closed_pr_red.png"
+                                    class="img-pr mt-1 me-2" />
                                 <button type="button" class="btn-link" @click="$router.push(`pulls/${pull.id}`)">
                                     <h5 class="me-2">{{ pull.title }}</h5>
                                 </button>
-                                <button v-for="lbl in pull.labels" :key="lbl" class="btn-label mx-1" type="button">{{ lbl }}</button>
+                                <button v-for="lbl in pull.labels" :key="lbl" class="btn-label mx-1" type="button">{{
+                        lbl }}</button>
                             </div>
                             <div class="d-flex justify-content-start mt-1">
                                 <label class="pull-desc">
-                                    #{{ pull.id }} {{ getStatusText(pull.status) }} on {{ pull.timestamp.slice(0, 10) }} by
-                                    <button type="button" class="btn-link">{{ pull.author }}</button>
+                                    #{{ pull.id }} {{ getStatusText(pull.status) }} on {{ pull.timestamp.slice(0, 10) }}
+                                    by
+                                    <button type="button" class="btn-link">{{ pull.author.username }}</button>
                                 </label>
                             </div>
                         </div>
 
-                        <div class="col"></div>
-                        <div class="col"></div>
-                        <div class="col"></div>
-                        <div class="col"></div>
+                        <div class="col d-flex justify-content-center">
+                            <button class="btn-img" type="button"
+                                @click="$router.push(`/profile/${pull.author.username}`)">
+                                <img v-if="pull.author" :src="pull.author.avatar" class="user-icon" />
+                            </button>
+                        </div>
+                        <div class="col d-flex justify-content-center bright">{{ pull.milestone }}</div>
                         <div class="col criterium d-flex justify-content-center align-items-top">
-                            <button class="btn-img" type="button">
+                            <button class="btn-img" type="button"
+                                @click="$router.push(`/profile/${pull.assignee.username}`)">
                                 <img v-if="pull.assignee" :src="pull.assignee.avatar" class="user-icon" />
                             </button>
                         </div>
-                        <div class="col"></div>
                     </div>
                 </div>
             </div>
@@ -119,7 +120,7 @@ export default {
         PullRequestService.getAll(this.$route.params.username, this.$route.params.repoName).then(res => {
             this.allOpenPulls = res.data.filter(x => x.status === "Open");
             this.allClosedPulls = res.data.filter(x => x.status !== "Open");
-            
+
             this.closedPulls = this.allClosedPulls;
             this.openPulls = this.allOpenPulls;
             this.pulls = this.openPulls;
@@ -133,7 +134,7 @@ export default {
         return {
             allOpenPulls: [],
             allClosedPulls: [],
-            
+
             pulls: [],
             openPulls: [],
             closedPulls: [],
@@ -154,14 +155,14 @@ export default {
 
             this.openPulls = this.allOpenPulls.filter((pull) => pull.title.toLowerCase().includes(filterText.toLowerCase()));
             this.closedPulls = this.allClosedPulls.filter((pull) => pull.title.toLowerCase().includes(filterText.toLowerCase()));
-            
+
             this.updatePullsList();
         },
         updatePullsList() {
-            if (this.openPullsChosen === true) { 
-                this.pulls = this.openPulls; 
+            if (this.openPullsChosen === true) {
+                this.pulls = this.openPulls;
             } else {
-                this.pulls = this.closedPulls; 
+                this.pulls = this.closedPulls;
             }
         },
         setOpenPullsChosen() {
@@ -205,7 +206,7 @@ export default {
                 this.selected.forEach((value, index) => {
                     if (value) ids.push(this.pulls[index].id);
                 });
-                PullRequestService.markClosed(this.$route.params.username, this.$route.params.repoName, {ids}).then(res => {
+                PullRequestService.markClosed(this.$route.params.username, this.$route.params.repoName, { ids }).then(res => {
                     console.log(res);
                     let remainingObjects = this.openPulls.filter(obj => {
                         if (ids.includes(obj.id)) {
@@ -231,7 +232,7 @@ export default {
                 this.selected.forEach((value, index) => {
                     if (value) ids.push(this.pulls[index].id);
                 });
-                PullRequestService.markOpen(this.$route.params.username, this.$route.params.repoName, {ids}).then(res => {
+                PullRequestService.markOpen(this.$route.params.username, this.$route.params.repoName, { ids }).then(res => {
                     console.log(res);
                     let remainingObjects = this.closedPulls.filter(obj => {
                         if (ids.includes(obj.id)) {
