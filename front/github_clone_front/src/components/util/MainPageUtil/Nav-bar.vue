@@ -2,7 +2,7 @@
   <div class="navbar">
     <div>
       <div id="id-toggle-menu">
-        <button class="toggle-menu-button" @click="toggleMenu">
+        <button class="toggle-menu-button" @click="toggleMenu" v-if="!loggedInUserPresent">
           <i class="bi bi-list"></i>
         </button>
       </div>
@@ -12,7 +12,7 @@
         </a>
       </div>
       <div id="id-dashboard">
-        <button class="dashboard-menu-button" @click="$router.push(`/main`)">
+        <button class="dashboard-menu-button" @click="$router.push(`/main`)" v-if="!loggedInUserPresent">
           Dashboard
         </button>
       </div>
@@ -27,21 +27,24 @@
     </div>
 
     <div class="right-btns-navbar">
-        <button class="notification_button" @click="this.$router.push('/new');"><i class="bi bi-journal-plus"></i></button>
-      <button class="notification_button" @click="displayNotifications" :key="notificationKey">
+        <button class="notification_button" @click="this.$router.push('/new');" v-if="!loggedInUserPresent"><i class="bi bi-journal-plus"></i></button>
+      <button class="notification_button" @click="displayNotifications" :key="notificationKey" v-if="!loggedInUserPresent">
         <i class="bi bi-inbox"></i>
         <font-awesome-icon v-if="hasUnreads" icon="fa-solid fa-circle"></font-awesome-icon>
       </button>
-      <button class="notification_button" @click="this.$router.push('/view/pulls')"><i class="bi bi-bezier2"></i></button>
-      <button class="notification_button" @click="this.$router.push('/view/users_issues')"><i class="bi bi-record-circle"></i></button>
+      <button class="notification_button" @click="this.$router.push('/view/pulls')" v-if="!loggedInUserPresent"><i class="bi bi-bezier2"></i></button>
+      <button class="notification_button" @click="this.$router.push('/view/users_issues')" v-if="!loggedInUserPresent"><i class="bi bi-record-circle"></i></button>
 
-      <button class="profile_button" @click="toggleProfileMenu">
+      <button class="profile_button" @click="toggleProfileMenu" v-if="!loggedInUserPresent">
         <div style="">
           <div class="profile-image-container">
             <div style="margin-top:13px"> </div>
             <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
           </div>
         </div>
+      </button>
+      <button class="profile_button" @click="this.$router.push('/register')" v-if="loggedInUserPresent">
+        Sign up
       </button>
     </div>
 
@@ -51,8 +54,8 @@
     <transition name="fadelight">
       <div v-if="isDropdownOpen" class="backdropLight" @click="closeMenu"></div>
     </transition>
-    <slide-menu :is-open="isMenuOpen" @close="closeMenu" />
-    <slide-profile-menu :is-profile-open="isProfileMenuOpen" @close="closeMenu" />
+    <slide-menu :is-open="isMenuOpen" @close="closeMenu" v-if="!loggedInUserPresent" />
+    <slide-profile-menu :is-profile-open="isProfileMenuOpen" @close="closeMenu"  v-if="!loggedInUserPresent"/>
   </div>
 </template>
 
@@ -75,9 +78,13 @@ export default {
   computed:{
     isSearchPage() {
       return this.$route.path === '/search';
+    },
+    loggedInUserPresent(){
+      return localStorage.getItem("username") === null
     }
   },
   mounted() {
+    if(!this.loggedInUserPresent){
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
               // console.log(res);
@@ -86,6 +93,7 @@ export default {
           .catch(err => {
               console.log(err);
           });
+    }
   },
   data() {
     return {
