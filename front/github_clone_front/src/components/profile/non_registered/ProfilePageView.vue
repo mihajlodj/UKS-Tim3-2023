@@ -13,6 +13,8 @@
       </div>
       <div class="right-side">
         <profile-page-over-view-view v-if="activeLinkExtension==='overview'" :username ="username"/>
+        <profile-page-repositories-view v-if="activeLinkExtension==='repositories'" :username ="username"/>
+        <profile-page-stars-view v-if="activeLinkExtension==='stars'" :username ="username"/>
       </div>
     </div>
   </div>
@@ -22,13 +24,17 @@
 import NavBar from '../../util/MainPageUtil/Nav-bar.vue';
 import ProfileNavBarExtension from '../ProfileNavBarExtension.vue';
 import ProfilePageOverViewView from './ProfilePageOverViewView.vue';
+import ProfilePageRepositoriesView from './ProfilePageRepositoriesView.vue';
+import ProfilePageStarsView from './ProfilePageStarsView.vue';
 import DeveloperService from '@/services/DeveloperService';
 
 export default {
   components: {
     NavBar,
     ProfileNavBarExtension,
-    ProfilePageOverViewView
+    ProfilePageOverViewView,
+    ProfilePageStarsView,
+    ProfilePageRepositoriesView
   },
   mounted() {
     DeveloperService.getUserAvatar(this.$route.params.username)
@@ -117,3 +123,4 @@ export default {
   min-height: 92.5vh;
 }
 </style>
+
