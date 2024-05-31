@@ -62,6 +62,7 @@ export default {
   methods: {
     handleActiveLinkExtension(name) {
       this.activeLinkExtension = name;
+      console.log(localStorage.getItem("username"));
     },
   },
 };
