@@ -77,7 +77,7 @@
             <div class="w-75 pe-5">
                 <hr class="bright" />
                 <div class="w-100 mt-2">
-                    <IssueTable :issues-for-display="this.issues"></IssueTable>
+                    <IssueTable :issues-for-display="this.issues" @closeIssueInList="closeIssueInList" @deleteIssueFromList="deleteIssueFromList"></IssueTable>
                 </div>
 
                 <hr class="bright" />
@@ -240,6 +240,17 @@ export default {
             // Format the parsed date into the desired format
             return parsedDate.format('DD.MM.YYYY.');
         },
+
+        closeIssueInList(id) {
+            this.issues.forEach((el) => {
+                if (el.id === id) {
+                    el.open = false;
+                }
+            });
+        },
+        deleteIssueFromList(id) {
+            this.issues = this.issues.filter((el) => el.id != id);
+        }
 
     }
 }

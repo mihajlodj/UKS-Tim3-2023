@@ -126,7 +126,17 @@ def update_issue(request):
     # update in gitea
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
-    return Response(serialize_issue(issue), status=status.HTTP_200_OK)
+    return JsonResponse({
+            'id': issue.id,
+            'title': issue.title,
+            'description': issue.description,
+            'open': issue.open,
+            'created': issue.created,
+            'creator': issue.creator.user.username,
+            'project': issue.project.name,
+            'milestone': None if issue.milestone is None else serialize_milestone(issue.milestone),
+            'manager': [] if issue.manager is None else [dev.user.username for dev in issue.manager.all()]
+        }, safe=False, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

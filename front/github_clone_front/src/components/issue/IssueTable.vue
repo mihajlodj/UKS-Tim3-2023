@@ -20,7 +20,7 @@
                     <hr>
                 </tr>
                 <tr colspan="9">
-                    <IssueList :issueList="this.filteredOpenIssues" :isOpen="true" :milestones="this.milestones" :key="componentKey" />
+                    <IssueList :issueList="this.filteredOpenIssues" :isOpen="true" :milestones="this.milestones" :key="componentKey" @closeIssueInList="closeIssueInList" @deleteIssueFromList="deleteIssueFromList" />
                 </tr>
                 <tr>
                     <td colspan="9">
@@ -38,7 +38,7 @@
                     <hr>
                 </tr>
                 <tr>
-                    <IssueList :issueList="this.filteredClosedIssues" :isOpen="false" :milestones="this.milestones" :key="componentKey" />
+                    <IssueList :issueList="this.filteredClosedIssues" :isOpen="false" :milestones="this.milestones" :key="componentKey" @closeIssueInList="closeIssueInList" @deleteIssueFromList="deleteIssueFromList" @editIssueInList="editIssueInList" />
                 </tr>
             </table>
 
@@ -93,6 +93,12 @@ export default {
         },
         forceRerender() {
             this.componentKey += 1;
+        },
+        closeIssueInList(id) {
+            this.$emit("closeIssueInList", id);
+        },
+        deleteIssueFromList(id) {
+            this.$emit("deleteIssueFromList", id);
         }
     },
 }
