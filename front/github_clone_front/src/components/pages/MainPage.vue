@@ -2,7 +2,7 @@
   <div class="entire-page">
     <nav-bar :user="user" />
     <div class="main-content">
-      <div class="left-section" v-if="loggedInUserPresent">
+      <div class="left-section" v-if="!loggedInUserPresent">
         <repository-list :repositories="repositories" v-if="!loggedInUserPresent"/>
       </div>
       <div class="middle-section fill">
