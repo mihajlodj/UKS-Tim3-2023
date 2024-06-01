@@ -4,6 +4,7 @@ from rest_framework import serializers
 from main.models import Issue, Developer, Project, WorksOn, Milestone
 from main.gitea_service import create_issue, get_issues, update_issue, delete_issue
 from milestone.serializers import MilestoneSerializer
+from websocket import notification_service
 
 
 class IssueSerializer(serializers.Serializer):
@@ -41,7 +42,9 @@ class IssueSerializer(serializers.Serializer):
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         self.create_issue_in_gitea(owner, issue)
         issue.save()
-        return serialize_issue(issue)
+        serialized_issue = serialize_issue(issue)
+        notification_service.send_notification_issue_created(issue)
+        return serialized_issue
         # return issue
 
     def create_issue_in_gitea(self, owner, issue):

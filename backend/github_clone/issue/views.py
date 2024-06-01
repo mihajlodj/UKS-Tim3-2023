@@ -19,6 +19,8 @@ from main import permissions
 from main.models import Developer, Issue, Project, Milestone, Role, WorksOn
 from django.core.cache import cache
 
+from websocket import notification_service
+
 gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
 
@@ -126,7 +128,18 @@ def update_issue(request):
     # update in gitea
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
-    return Response(serialize_issue(issue), status=status.HTTP_200_OK)
+    notification_service.send_notification_issue_updated(issue)
+    return JsonResponse({
+            'id': issue.id,
+            'title': issue.title,
+            'description': issue.description,
+            'open': issue.open,
+            'created': issue.created,
+            'creator': issue.creator.user.username,
+            'project': issue.project.name,
+            'milestone': None if issue.milestone is None else serialize_milestone(issue.milestone),
+            'manager': [] if issue.manager is None else [dev.user.username for dev in issue.manager.all()]
+        }, safe=False, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
@@ -263,6 +276,7 @@ def close_issue(request, repo_name, pk):
     issue.save()
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.close_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
+    notification_service.send_notification_issue(issue, 'closed')
     return HttpResponse(status=200)
 
 @api_view(['PATCH'])
@@ -273,6 +287,7 @@ def reopen_issue(request, repo_name, pk):
     issue.save()
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.reopen_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
+    notification_service.send_notification_issue(issue, 'reopened')
     return HttpResponse(status=200)
 
 

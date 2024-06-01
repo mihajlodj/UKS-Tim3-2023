@@ -132,6 +132,15 @@ def find_receivers_for_release_events(release):
             receivers.append(dev_username)
     return receivers
 
+def find_receivers_for_issue_events(issue):
+    receivers = []
+    watches = Watches.objects.filter(project=issue.project)
+    for watch in watches:
+        dev_username = watch.developer.user.username
+        if watch.option == WatchOption.ALL or (watch.option == WatchOption.PARTICIPATING and watch.release_events):
+            receivers.append(dev_username)
+    return receivers
+
 
 def send_notification_milestone_created(owner_username, repository, milestone_info):
     repository_name = f'@{owner_username}/{repository.name}'
@@ -269,6 +278,37 @@ def send_notification_release_created(release):
     project_name = release.project.name
     release = 'full release' if release.pre_release is False else 'pre-release'
     notification_msg = f'Project {project_name} has released a new {release} version of the software: {version}'
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_issue_created(issue):
+    receivers = find_receivers_for_issue_events(issue)
+    title = issue.title
+    project_name = issue.project.name
+    description = issue.description
+    creator = issue.creator.user.username
+    notification_msg = f'New issue created, by {creator}, for project {project_name}\n{title}\n{description}'
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_issue_updated(issue):
+    receivers = find_receivers_for_issue_events(issue)
+    title = issue.title
+    project_name = issue.project.name
+    description = issue.description
+    notification_msg = f'Issue {title} was updated, for project {project_name}\n{title}\n{description}'
+    for receiver in receivers:
+        send_notification(receiver, notification_msg)
+
+
+def send_notification_issue(issue, status):
+    receivers = find_receivers_for_issue_events(issue)
+    title = issue.title
+    project_name = issue.project.name
+    creator = issue.creator.user.username
+    notification_msg = f'Issue {title}, by {creator}, for project {project_name} was {status}'
     for receiver in receivers:
         send_notification(receiver, notification_msg)
 
