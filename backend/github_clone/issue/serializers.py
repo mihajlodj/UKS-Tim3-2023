@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework import serializers
 
 from main.models import Issue, Developer, Project, WorksOn, Milestone
@@ -27,6 +28,8 @@ class IssueSerializer(serializers.Serializer):
             title=validated_data['title'],
             description=validated_data['description'],
             project=project,
+            open=True,
+            created=timezone.now(),
             creator=Developer.objects.get(user__username=validated_data['creator']),
             # manager=set()
         )
@@ -64,7 +67,7 @@ def serialize_issue(issue):
 
 def serialize_managers(issue):
     if issue.manager:
-        return [{'username': dev.username} for dev in issue.manager.all()]
+        return [dev.user.username for dev in issue.manager.all()]
     else:
         return []
 

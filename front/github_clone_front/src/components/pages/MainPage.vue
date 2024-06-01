@@ -2,8 +2,8 @@
   <div class="entire-page">
     <nav-bar :user="user" />
     <div class="main-content">
-      <div class="left-section">
-        <repository-list :repositories="repositories" />
+      <div class="left-section" v-if="!loggedInUserPresent">
+        <repository-list :repositories="repositories" v-if="!loggedInUserPresent"/>
       </div>
       <div class="middle-section fill">
         <router-view name="middle_section"></router-view>
@@ -24,7 +24,13 @@ export default {
     NavBar,
     RepositoryList
   },
+   computed:{
+    loggedInUserPresent(){
+      return localStorage.getItem("username") === null
+    }
+  },
   mounted() {
+    if(!this.loggedInUserPresent){
     console.log(localStorage.getItem('username'));
     RepositoryService.getAllUserWorkingOnRepos(localStorage.getItem('username')).then((res) => {
       console.log(res.data);
@@ -41,6 +47,7 @@ export default {
     }).catch(err => {
       console.log(err);
     });
+    }
   },
   data() {
     return {

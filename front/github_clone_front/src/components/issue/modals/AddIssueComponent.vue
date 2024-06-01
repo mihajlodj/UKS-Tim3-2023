@@ -64,6 +64,7 @@ export default {
             console.log(newIssue)
             IssueService.createIssue(newIssue).then((res) => {
                 console.log(res);
+                location.reload();
                 toast("Issue created", {
                     autoClose: 1000,
                     type: 'success',
