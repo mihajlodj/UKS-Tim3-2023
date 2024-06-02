@@ -89,6 +89,7 @@ def update_assignee(json_data, req, owner_username, repository_name):
 
 def update_reviewers(json_data, pull_request, owner_username, repository_name, request):
     if 'reviewers' not in json_data:
+        PullRequestReviewer.objects.filter(pull_request=pull_request).delete()
         return
     existing_reviewers = PullRequestReviewer.objects.filter(pull_request=pull_request)
     existing_reviewers_usernames = []
@@ -96,6 +97,7 @@ def update_reviewers(json_data, pull_request, owner_username, repository_name, r
         existing_reviewers_usernames.append(existing_reviewer.reviewer.user.username)
         existing_reviewer.delete()
     project = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+    PullRequestReviewer.objects.filter(pull_request=pull_request).delete()
     for reviewer in json_data['reviewers']:
         if not WorksOn.objects.filter(project=project, developer__user__username=reviewer['username']).exists():
             raise Http404()
@@ -106,7 +108,7 @@ def update_reviewers(json_data, pull_request, owner_username, repository_name, r
         PullRequestReviewer.objects.create(pull_request=pull_request, reviewer=developer)
         if reviewer['username'] not in existing_reviewers_usernames:
             pr_info = {'id': pull_request.gitea_id, 'title': pull_request.title, 'src': pull_request.source.name, \
-                       'dest': pull_request.target.name, 'initiated_by': request.user.username}
+                       'dest': pull_request.target.name, 'initiated_by': request.user.username, 'author': pull_request.author.user.username}
             threading.Thread(target=notification_service.send_notification_pull_request_reviewer_added, args=([owner_username, project, pr_info, reviewer['username']]), kwargs={}).start()
 
 def get_reviwers(pull_request):

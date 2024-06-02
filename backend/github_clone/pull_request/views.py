@@ -42,7 +42,8 @@ def create(request, owner_username, repository_name):
             'assignee': '',
             'reviewers': [],
             'id': id,
-            'title': title
+            'title': title,
+            'author': request.user.username
         }
         threading.Thread(target=notification_service.send_notification_pull_request_created, args=([owner_username, project, pr_info]), kwargs={}).start()
         return Response({'id': id}, status=status.HTTP_201_CREATED)
@@ -87,10 +88,16 @@ def add_review(request, owner_username, repository_name, pull_id):
         pull_request_review.save()
         serialized_review = serialize_pull_request_review(pull_request_review)
 
+        assignee = ''
+        if pull_request.assignee is not None:
+            assignee = pull_request.assignee.user.username
         review_info = {
             'creator': reviewer.user.username,
             'pr_title': pull_request.title,
             'pr_id': pull_request.gitea_id,
+            'pr_author': pull_request.author.user.username,
+            'pr_assignee': assignee,
+            'pr_reviewers': [obj['username'] for obj in service.get_reviwers(pull_request)]
         }
         threading.Thread(target=notification_service.send_notification_review_for_pr_added,
                          args=([owner_username, project, review_info]), kwargs={}).start()
@@ -448,7 +455,8 @@ def get_pr_info(pull, request):
         'src': pull.source.name,
         'dest': pull.target.name,
         'assignee': assignee,
-        'reviewers': [obj['username'] for obj in service.get_reviwers(pull)],  # TODO
+        'reviewers': [obj['username'] for obj in service.get_reviwers(pull)],
         'id': pull.gitea_id,
-        'title': pull.title
+        'title': pull.title,
+        'author': pull.author.user.username
     }

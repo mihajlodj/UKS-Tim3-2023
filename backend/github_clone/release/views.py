@@ -59,7 +59,7 @@ def create_new_release(request, owner_username, project_name):
         # new_tag.save()
         commit.save()
         if release_draft is False:
-            notification_service.send_notification_release_created(release)
+            notification_service.send_notification_release_created(release, request.user.username)
         return JsonResponse(serialize_release(release), safe=False, status=http_status.HTTP_201_CREATED)
 
 

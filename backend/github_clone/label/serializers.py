@@ -37,8 +37,6 @@ class LabelSerializer(serializers.Serializer):
                 'creator': label_creator,
                 'label_name': label.name,
             }
-            threading.Thread(target=notification_service.send_notification_label_created,
-                             args=([owner.user.username, project, label_info]), kwargs={}).start()
             return label
         except ObjectDoesNotExist:
             raise Http404()
@@ -64,13 +62,6 @@ class LabelSerializer(serializers.Serializer):
             instance.description = new_description
 
             instance.save()
-
-            label_info = {
-                'creator': label_creator,
-                'label_name': instance.name,
-            }
-            threading.Thread(target=notification_service.send_notification_label_updated,
-                             args=([owner.user.username, project, label_info]), kwargs={}).start()
             return instance
         except ObjectDoesNotExist:
             raise Http404()

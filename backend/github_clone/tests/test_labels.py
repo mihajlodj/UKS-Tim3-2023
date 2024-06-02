@@ -52,11 +52,6 @@ def save_repository(create_developer):
 def disable_send_notification(monkeypatch):
     def mock_send_notification(*args, **kwargs):
         return
-    monkeypatch.setattr(notification_service, 'send_notification_label_created', mock_send_notification)
-    monkeypatch.setattr(notification_service, 'send_notification_label_updated', mock_send_notification)
-    monkeypatch.setattr(notification_service, 'send_notification_label_deleted', mock_send_notification)
-    monkeypatch.setattr(notification_service, 'send_notification_label_added_on_milestone', mock_send_notification)
-    monkeypatch.setattr(notification_service, 'send_notification_label_removed_from_milestone', mock_send_notification)
     monkeypatch.setattr(notification_service, 'send_notification_label_added_on_issue', mock_send_notification)
     monkeypatch.setattr(notification_service, 'send_notification_label_removed_from_issue', mock_send_notification)
     monkeypatch.setattr(notification_service, 'send_notification_label_added_on_pull_request', mock_send_notification)

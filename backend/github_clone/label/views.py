@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied
 import threading
 from websocket import notification_service
 
-from main.models import Label, Project, Milestone, Issue, PullRequest, WorksOn
+from main.models import Label, Project, Milestone, Issue, PullRequest, PullRequestReviewer, WorksOn
 
 from label.serializers import LabelSerializer
 
@@ -55,15 +55,7 @@ def delete_label(request, owner_username, repository_name, label_id):
     if not Label.objects.filter(id=label_id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     label = Label.objects.get(id=label_id)
-    label_name = label.name
     label.delete()
-
-    label_info = {
-        'creator': label_creator,
-        'label_name': label_name,
-    }
-    threading.Thread(target=notification_service.send_notification_label_deleted,
-                     args=([owner.user.username, project, label_info]), kwargs={}).start()
 
     return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -93,14 +85,6 @@ def link_label_to_milestone(request, owner_username, repository_name, label_id, 
         return Response(status=status.HTTP_400_BAD_REQUEST)
     milestone.labels.add(label)
     milestone.save()
-
-    label_info = {
-        'creator': label_creator,
-        'label_name': label.name,
-        'joined_entity_name': milestone.title,
-    }
-    threading.Thread(target=notification_service.send_notification_label_added_on_milestone,
-                     args=([owner.user.username, project, label_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)
 
 
@@ -129,14 +113,6 @@ def unlink_label_to_milestone(request, owner_username, repository_name, label_id
         return Response(status=status.HTTP_400_BAD_REQUEST)
     milestone.labels.remove(label)
     milestone.save()
-
-    label_info = {
-        'creator': label_creator,
-        'label_name': label.name,
-        'joined_entity_name': milestone.title,
-    }
-    threading.Thread(target=notification_service.send_notification_label_removed_from_milestone,
-                     args=([owner.user.username, project, label_info]), kwargs={}).start()
     return Response(status=status.HTTP_200_OK)
 
 
@@ -170,6 +146,7 @@ def link_label_to_issue(request, owner_username, repository_name, label_id, issu
         'creator': label_creator,
         'label_name': label.name,
         'joined_entity_name': issue.title,
+        'issue_creator': issue.creator.user.username
     }
     threading.Thread(target=notification_service.send_notification_label_added_on_issue,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
@@ -206,6 +183,7 @@ def unlink_label_to_issue(request, owner_username, repository_name, label_id, is
         'creator': label_creator,
         'label_name': label.name,
         'joined_entity_name': issue.title,
+        'issue_creator': issue.creator.user.username
     }
     threading.Thread(target=notification_service.send_notification_label_removed_from_issue,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
@@ -238,10 +216,20 @@ def link_label_to_pull_request(request, owner_username, repository_name, label_i
     pull_request.labels.add(label)
     pull_request.save()
 
+    pull_request_reviewers = []
+    for object in PullRequestReviewer.objects.filter(pull_request=pull_request):
+        pull_request_reviewers.append(object.reviewer.user.username)
+    pull_request_assignee = ''
+    if pull_request.assignee is not None:
+        pull_request_assignee = pull_request.assignee.user.username
+
     label_info = {
         'creator': label_creator,
         'label_name': label.name,
         'joined_entity_name': pull_request.title,
+        'pr_assignee': pull_request_assignee,
+        'pr_reviewers': pull_request_reviewers,
+        'pr_author': pull_request.author.user.username
     }
     threading.Thread(target=notification_service.send_notification_label_added_on_pull_request,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
@@ -268,16 +256,26 @@ def unlink_label_to_pull_request(request, owner_username, repository_name, label
     if not PullRequest.objects.filter(project=project, gitea_id=pull_request_id).exists():
         return Response(status=status.HTTP_400_BAD_REQUEST)
     label = Label.objects.get(id=label_id)
-    pull_request = PullRequest.objects.get(project.project, gitea_id=pull_request_id)
+    pull_request = PullRequest.objects.get(project=project, gitea_id=pull_request_id)
     if label.project != pull_request.project:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     pull_request.labels.remove(label)
     pull_request.save()
 
+    pull_request_reviewers = []
+    for object in PullRequestReviewer.objects.filter(pull_request=pull_request):
+        pull_request_reviewers.append(object.reviewer.user.username)
+    pull_request_assignee = ''
+    if pull_request.assignee is not None:
+        pull_request_assignee = pull_request.assignee.user.username
+
     label_info = {
         'creator': label_creator,
         'label_name': label.name,
         'joined_entity_name': pull_request.title,
+        'pr_assignee': pull_request_assignee,
+        'pr_reviewers': pull_request_reviewers,
+        'pr_author': pull_request.author.user.username 
     }
     threading.Thread(target=notification_service.send_notification_label_removed_from_pull_request,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
