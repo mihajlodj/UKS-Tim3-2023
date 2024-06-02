@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from main import gitea_service, permissions
 import json
-from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus, PullRequestReviewStatus, PullRequestReview
+from main.models import PullRequest, Branch, Developer, WorksOn, Role, PullRequestStatus, PullRequestReviewStatus, \
+    PullRequestReview, EventHistory
 from pull_request import diff_parser, service
 from developer import service as developer_service
 from repository.serializers import RepositorySerializer, DeveloperSerializer
@@ -102,6 +103,7 @@ def add_review(request, owner_username, repository_name, pull_id):
         threading.Thread(target=notification_service.send_notification_review_for_pr_added,
                          args=([owner_username, project, review_info]), kwargs={}).start()
 
+        EventHistory.objects.create(project=project,related_id=pull_request.gitea_id,text=f"Review {reviewer.user.username} added a review {review_status}")
         return Response(serialized_review, status=status.HTTP_201_CREATED)
     except ObjectDoesNotExist:
         raise Http404()
@@ -339,6 +341,8 @@ def update(request, owner_username, repository_name, pull_id):
         threading.Thread(target=notification_service.send_notification_pull_request_changed_assignee, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
         
     service.update_reviewers(json_data, req, owner_username, repository_name, request)
+    EventHistory.objects.create(project=works_on.project, related_id=req.gitea_id,
+                                text=f"User {request.user.username} updated pull request")
     return Response(status=status.HTTP_200_OK)
 
 
@@ -353,6 +357,8 @@ def update_title(request, owner_username, repository_name, pull_id):
     if title.strip() != '':
         req.title = title
         req.save()
+        EventHistory.objects.create(project=works_on.project, related_id=req.gitea_id,
+                                    text=f"User {request.user.username} updated pull request title")
         return Response(title, status=status.HTTP_200_OK)
     return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -371,6 +377,8 @@ def close(request, owner_username, repository_name, pull_id):
     req.save()
     pr_info = get_pr_info(req, request)
     threading.Thread(target=notification_service.send_notification_pull_request_closed, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
+    EventHistory.objects.create(project=works_on.project, related_id=req.gitea_id,
+                                text=f"User {request.user.username} closed pull request")
     return Response(req.status, status=status.HTTP_200_OK)
 
 
@@ -388,6 +396,8 @@ def reopen(request, owner_username, repository_name, pull_id):
     req.save()
     pr_info = get_pr_info(req, request)
     threading.Thread(target=notification_service.send_notification_pull_request_reopened, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
+    EventHistory.objects.create(project=works_on.project, related_id=req.gitea_id,
+                                text=f"User {request.user.username} reopened pull request")
     return Response(req.status, status=status.HTTP_200_OK)
 
 
@@ -405,6 +415,8 @@ def mark_as_open(request, owner_username, repository_name):
                 pull.save()
                 pr_info = get_pr_info(pull, request)
                 threading.Thread(target=notification_service.send_notification_pull_request_reopened, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
+                EventHistory.objects.create(project=works_on.project, related_id=pull.gitea_id,
+                                            text=f"User {request.user.username} reopened pull request")
     return Response(status=status.HTTP_200_OK)
 
 
@@ -422,6 +434,8 @@ def mark_as_closed(request, owner_username, repository_name):
                 pr_info = get_pr_info(pull, request)
                 threading.Thread(target=notification_service.send_notification_pull_request_closed, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
                 pull.save()
+                EventHistory.objects.create(project=works_on.project, related_id=pull.gitea_id,
+                                            text=f"User {request.user.username} closed pull request")
     return Response(status=status.HTTP_200_OK)
 
 
@@ -443,6 +457,8 @@ def merge(request, owner_username, repository_name, pull_id):
     pr_info = get_pr_info(req, request)
     service.update_commits_after_merge(req)
     threading.Thread(target=notification_service.send_notification_pull_request_merged, args=([owner_username, works_on.project, pr_info]), kwargs={}).start()
+    EventHistory.objects.create(project=works_on.project, related_id=req.gitea_id,
+                                text=f"User {request.user.username} merged pull request")
     return Response(status=status.HTTP_200_OK)
 
 
