@@ -12,7 +12,8 @@ from rest_framework.response import Response
 
 from main import gitea_service
 from main import permissions
-from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars, WatchOption, EventHistory
+from main.models import Developer, Branch, Fork, Invitation, Commit, Watches, Stars, WatchOption, EventHistory, \
+    EventTypes
 from main.models import Project, WorksOn, Developer, Branch, AccessModifiers, Role
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from developer import service as developer_service
@@ -832,9 +833,18 @@ def save_commit(request, owner_username, repository_name, json_data, timestamp, 
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def get_event_history(request, owner_username,repository_name,related_id):
+def get_event_history(request, owner_username,repository_name,related_id,event_type):
     worksOn = WorksOn.objects.get(project__name=repository_name,role=Role.OWNER,developer__user__username=owner_username)
-    events = EventHistory.objects.filter(project=worksOn.project,related_id=related_id)
+    type = ""
+    if event_type =="issue":
+        type = EventTypes.ISSUE
+    elif event_type == "pr":
+        type = EventTypes.PULL_REQUEST
+    elif event_type == "milestone":
+        type = EventTypes.MILESTONE
+    else:
+        type = EventTypes.COMMENT
+    events = EventHistory.objects.filter(project=worksOn.project,related_id=related_id,type=type)
     ret_val = []
     for temp_event in events:
         event ={'time':temp_event.time,

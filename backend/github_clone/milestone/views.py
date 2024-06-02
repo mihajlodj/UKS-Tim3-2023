@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
-from main.models import Project, Milestone, Role, WorksOn, MilestoneState, EventHistory
+from main.models import Project, Milestone, Role, WorksOn, MilestoneState, EventHistory, EventTypes
 from milestone.serializers import MilestoneSerializer
 import threading
 from websocket import notification_service
@@ -88,7 +88,7 @@ def close_milestone(request, owner_username, repository_name, milestone_id):
         threading.Thread(target=notification_service.send_notification_milestone_closed,
                          args=([owner.user.username, project, milestone_info]), kwargs={}).start()
         EventHistory.objects.create(project=milestone.project, related_id=milestone.id,
-                                    text=f"{request.user.username} closed milestone")
+                                    text=f"{request.user.username} closed milestone",type=EventTypes.MILESTONE)
         return HttpResponse(status=200)
     except ObjectDoesNotExist:
         raise Http404()
@@ -113,7 +113,7 @@ def reopen_milestone(request, owner_username, repository_name, milestone_id):
         threading.Thread(target=notification_service.send_notification_milestone_reopened,
                          args=([owner.user.username, project, milestone_info]), kwargs={}).start()
         EventHistory.objects.create(project=milestone.project, related_id=milestone.id,
-                                    text=f"{request.user.username} reopened milestone")
+                                    text=f"{request.user.username} reopened milestone",type=EventTypes.MILESTONE)
         return HttpResponse(status=200)
     except ObjectDoesNotExist:
         raise Http404()

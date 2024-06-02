@@ -16,7 +16,7 @@ from issue.serializers import IssueSerializer, serialize_issue
 from repository.serializers import RepositorySerializer, DeveloperSerializer
 from milestone.serializers import MilestoneSerializer
 from main import permissions
-from main.models import Developer, Issue, Project, Milestone, Role, WorksOn, EventHistory
+from main.models import Developer, Issue, Project, Milestone, Role, WorksOn, EventHistory, EventTypes
 from django.core.cache import cache
 
 from websocket import notification_service
@@ -43,7 +43,7 @@ def assign_manager(request, owner_username, repo_name):
     gitea_service.subscribe_user_to_issue(owner_username, repo_name, issue.id, dev_username)
     issue.save()
     EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                text=f"{dev_username} assigned to issue")
+                                text=f"{dev_username} assigned to issue",type=EventTypes.ISSUE)
     return Response(status=200)
 
 
@@ -60,7 +60,7 @@ def unassign_manager(request, owner_username, repo_name):
             gitea_service.unsubscribe_user_to_issue(owner_username, repo_name, issue.id, dev_username)
             issue.save()
             EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                        text=f"{dev_username} unassigned from issue")
+                                        text=f"{dev_username} unassigned from issue",type=EventTypes.ISSUE)
         except Exception:
             return JsonResponse({'message': 'Assignee removal failed'}, safe=False, status=405)
     except Exception:
@@ -134,7 +134,7 @@ def update_issue(request):
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
     notification_service.send_notification_issue_updated(issue, request.user.username)
     EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                text=f"{request.user.username} updated issue")
+                                text=f"{request.user.username} updated issue",type=EventTypes.ISSUE)
     return JsonResponse({
             'id': issue.id,
             'title': issue.title,
@@ -284,7 +284,7 @@ def close_issue(request, repo_name, pk):
     gitea_service.close_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
     notification_service.send_notification_issue(issue, 'closed', request.user.username)
     EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                text=f"{request.user.username} closed issue")
+                                text=f"{request.user.username} closed issue",type=EventTypes.ISSUE)
     return HttpResponse(status=200)
 
 @api_view(['PATCH'])
@@ -297,7 +297,7 @@ def reopen_issue(request, repo_name, pk):
     gitea_service.reopen_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
     notification_service.send_notification_issue(issue, 'reopened', request.user.username)
     EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                text=f"{request.user.username} reopened issue")
+                                text=f"{request.user.username} reopened issue",type=EventTypes.ISSUE)
     return HttpResponse(status=200)
 
 

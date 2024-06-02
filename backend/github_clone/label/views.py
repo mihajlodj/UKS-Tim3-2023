@@ -8,7 +8,8 @@ from rest_framework.exceptions import PermissionDenied
 import threading
 from websocket import notification_service
 
-from main.models import Label, Project, Milestone, Issue, PullRequest, PullRequestReviewer, WorksOn, EventHistory
+from main.models import Label, Project, Milestone, Issue, PullRequest, PullRequestReviewer, WorksOn, EventHistory, \
+    EventTypes
 
 from label.serializers import LabelSerializer
 
@@ -86,7 +87,7 @@ def link_label_to_milestone(request, owner_username, repository_name, label_id, 
     milestone.labels.add(label)
     milestone.save()
     EventHistory.objects.create(project=milestone.project, related_id=milestone.id,
-                                text=f"{request.user.username} added label {label.name} to milestone")
+                                text=f"{request.user.username} added label {label.name} to milestone",type=EventTypes.MILESTONE)
     return Response(status=status.HTTP_200_OK)
 
 
@@ -116,7 +117,7 @@ def unlink_label_to_milestone(request, owner_username, repository_name, label_id
     milestone.labels.remove(label)
     milestone.save()
     EventHistory.objects.create(project=milestone.project, related_id=milestone.id,
-                                text=f"{request.user.username} removed label {label.name} from milestone")
+                                text=f"{request.user.username} removed label {label.name} from milestone",type=EventTypes.MILESTONE)
     return Response(status=status.HTTP_200_OK)
 
 
@@ -146,7 +147,7 @@ def link_label_to_issue(request, owner_username, repository_name, label_id, issu
     issue.labels.add(label)
     issue.save()
     EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                text=f"{request.user.username} added label {label.name} to issue")
+                                text=f"{request.user.username} added label {label.name} to issue",type=EventTypes.ISSUE)
     label_info = {
         'creator': label_creator,
         'label_name': label.name,
@@ -193,7 +194,7 @@ def unlink_label_to_issue(request, owner_username, repository_name, label_id, is
     threading.Thread(target=notification_service.send_notification_label_removed_from_issue,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
     EventHistory.objects.create(project=issue.project, related_id=issue.id,
-                                text=f"{request.user.username} removed label {label.name} from issue")
+                                text=f"{request.user.username} removed label {label.name} from issue",type=EventTypes.ISSUE)
     return Response(status=status.HTTP_200_OK)
 
 
@@ -241,7 +242,7 @@ def link_label_to_pull_request(request, owner_username, repository_name, label_i
     threading.Thread(target=notification_service.send_notification_label_added_on_pull_request,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
     EventHistory.objects.create(project=pull_request.project, related_id=pull_request.gitea_id,
-                                text=f"{request.user.username} added label {label.name} to pull request")
+                                text=f"{request.user.username} added label {label.name} to pull request",type=EventTypes.PULL_REQUEST)
     return Response(status=status.HTTP_200_OK)
 
 
@@ -289,7 +290,7 @@ def unlink_label_to_pull_request(request, owner_username, repository_name, label
     threading.Thread(target=notification_service.send_notification_label_removed_from_pull_request,
                      args=([owner.user.username, project, label_info]), kwargs={}).start()
     EventHistory.objects.create(project=pull_request.project, related_id=pull_request.gitea_id,
-                                text=f"{request.user.username} removed label {label.name} from pull request")
+                                text=f"{request.user.username} removed label {label.name} from pull request",type=EventTypes.PULL_REQUEST)
     return Response(status=status.HTTP_200_OK)
 
 

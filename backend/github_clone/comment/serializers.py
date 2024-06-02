@@ -7,7 +7,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ParseError
 from datetime import datetime
 
-from main.models import Comment, Issue, Milestone, PullRequest, Developer, PullRequestReviewer, WorksOn, EventHistory
+from main.models import Comment, Issue, Milestone, PullRequest, Developer, PullRequestReviewer, WorksOn, EventHistory, \
+    EventTypes
 from websocket import notification_service
 # from main.gitea_service import function
 
@@ -73,7 +74,7 @@ class CommentSerializer(serializers.Serializer):
                              args=([owner.user.username, project, comment_info]), kwargs={}).start()
             comment.save()
             EventHistory.objects.create(project=project, related_id=type_id,
-                                        text=f"{created_by_username} added comment to {type_for.replace('_',' ')}")
+                                        text=f"{created_by_username} added comment to {type_for.replace('_',' ')}",type=EventTypes.COMMENT)
             return comment
         except ObjectDoesNotExist:
             raise Http404()

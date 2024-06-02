@@ -30,5 +30,5 @@ urlpatterns = [
     path('transfer/<str:owner_username>/<str:repository_name>/', transfer_ownership, name='transfer_ownership'),
     path('fork/<str:owner_username>/<str:repository_name>/', fork, name='fork'),
     path('watch/<str:owner_username>/<str:repository_name>/', save_watch_preferences, name='save_watch_preferences'),
-    path('events/<str:owner_username>/<str:repository_name>/<int:related_id>', get_event_history, name='get_event_history'),
+    path('events/<str:owner_username>/<str:repository_name>/<int:related_id>/<str:event_type>', get_event_history, name='get_event_history'),
 ]

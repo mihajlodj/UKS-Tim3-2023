@@ -109,7 +109,11 @@ const saveWatchPreferences = (ownerUsername, repoName, data) => {
     return api.post(`repository/watch/${ownerUsername}/${repoName}/`, data);
 }
 
-export default { unstarr_it,starr_it,getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
+const getEventHistory = (ownerUsername, repoName, related_id, type) => {
+    return api.get(`repository/events/${ownerUsername}/${repoName}/${related_id}/${type}`);
+}
+
+export default { getEventHistory,unstarr_it,starr_it,getAllStaredUserRepos,getIsUsersRepo,getAllQueryRepos,create, get, getOwner, getRootContent, getFolderContent, update, deleteReposiory, getAllUserRepos, getFile,
     editFile, deleteFile, createFile, inviteCollaborator, respondToInvitation, getInvitation, getCollaborators, removeCollaborator, changeRole, transfer, fork,
     saveWatchPreferences,getAllUserWorkingOnRepos
 };

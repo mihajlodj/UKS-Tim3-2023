@@ -8,6 +8,7 @@ import CreateRepo from './components/repository/CreateRepo.vue'
 import ViewRepo from './components/repository/ViewRepo.vue'
 import RepoSettings from './components/repository/settings/RepoSettings.vue';
 import MainPage from './components/pages/MainPage.vue'
+import EventHistoryPage from './components/pages/EventHistoryPage.vue'
 import UsersIssuesPage from './components/pages/UsersIssuesPage.vue'
 import SearchPage from './components/pages/SearchPage.vue'
 import ProfilePage from './components/profile/ProfilePage.vue'
@@ -231,6 +232,10 @@ const routes = [
         path: "/view/:username/:repoName/milestones/:milestone_id",
         component: MilestoneViewComponent
     },
+    {
+        path: "/view/history/:username/:repoName/:id/:type",
+        component: EventHistoryPage
+    }
 ]
 
 const router = createRouter({

@@ -6,10 +6,12 @@
             <h2 class="bright me-2">{{ this.issue.title }}</h2>
             <h2 class="muted">#{{ this.issue.id }}</h2>
         </div>
+        <button type="button" class="btn-history bright" @click="issueEventHistory()">
+            Event history
+        </button>
     </div>
 
     <div class="px-5 mt-2 d-flex justify-content-start">
-
         <div class="d-flex justify-content-start ms-3">
             <button class="bg-none muted" type="button">
                 {{ this.issue.creator.username}}
@@ -130,6 +132,9 @@ export default {
         }
     },
     methods: {
+        issueEventHistory(){
+            this.$router.push(`/view/history/${this.$route.params.username}/${this.$route.params.repoName}/${this.issue.id}/issue`);
+        },
         howLongAgo(timestamp) {
             const currentDate = new Date();
             const previousDate = new Date(timestamp);
@@ -252,6 +257,15 @@ export default {
 </script>
 
 <style scoped>
+.btn-history {
+    height: 40px;
+    width: 130px;
+    background-color: #373e48;
+    border: 1px solid #768491;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+}
+
 .btn-save {
     width: 120px;
     background-color: #373e48;

@@ -29,6 +29,9 @@
                     v-if="reviewButtonVisible() && this.chosenTab === 'files'" @click="reviewChanges()">
                     Review changes
                 </button>
+                <button type="button" class="btn-history bright" @click="prEventHistory()">
+                    Event history
+                </button>
             </div>
         </div>
 
@@ -203,6 +206,10 @@ export default {
     },
 
     methods: {
+        prEventHistory(){
+            this.$router.push(`/view/history/${this.$route.params.username}/${this.$route.params.repoName}/${this.pull.id}/pr`);
+        },
+
         viewBranch(name) {
             this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}?chosen=${name}`);
         },
@@ -374,6 +381,14 @@ input.edit {
     background-color: #373e48;
     border: 1px solid #768491;
     border-radius: 5px;
+}
+.btn-history {
+    height: 40px;
+    width: 130px;
+    background-color: #373e48;
+    border: 1px solid #768491;
+    border-radius: 5px;
+    margin-left: 0.5rem;
 }
 
 .btn-close-pr {

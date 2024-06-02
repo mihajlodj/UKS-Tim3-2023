@@ -1,7 +1,7 @@
 import threading
 from django.http import Http404
 from main.models import PullRequest, Branch, PullRequestReviewer, Developer, Milestone, WorksOn, Role, Commit, \
-    EventHistory
+    EventHistory, EventTypes
 import re
 from developer import service as developer_service
 from websocket import notification_service
@@ -69,11 +69,11 @@ def update_milestone(json_data, req):
         milestone = Milestone.objects.get(id=milestone_id)
         req.milestone = milestone
         EventHistory.objects.create(project=req.project, related_id=req.gitea_id,
-                                    text=f"Pull request assigned to milestone: {milestone.title}")
+                                    text=f"Pull request assigned to milestone: {milestone.title}",type=EventTypes.PULL_REQUEST)
     else:
         req.milestone = None
         EventHistory.objects.create(project=req.project, related_id=req.gitea_id,
-                                    text=f"Milestone removed from pull request")
+                                    text=f"Milestone removed from pull request",type=EventTypes.PULL_REQUEST)
     req.save()
 
 def update_assignee(json_data, req, owner_username, repository_name):
@@ -88,11 +88,11 @@ def update_assignee(json_data, req, owner_username, repository_name):
         developer = Developer.objects.get(user__username=assignee_username)
         req.assignee = developer
         EventHistory.objects.create(project=req.project, related_id=req.gitea_id,
-                                    text=f"{developer.user.username} assigned to pull request")
+                                    text=f"{developer.user.username} assigned to pull request",type=EventTypes.PULL_REQUEST)
     else:
         req.assignee = None
         EventHistory.objects.create(project=req.project, related_id=req.gitea_id,
-                                    text=f"Assignee removed from pull request")
+                                    text=f"Assignee removed from pull request",type=EventTypes.PULL_REQUEST)
     req.save()
     return req
 
@@ -100,7 +100,7 @@ def update_reviewers(json_data, pull_request, owner_username, repository_name, r
     if 'reviewers' not in json_data:
         PullRequestReviewer.objects.filter(pull_request=pull_request).delete()
         EventHistory.objects.create(project=pull_request.project, related_id=pull_request.gitea_id,
-                                    text=f"Reviewers removed from pull request")
+                                    text=f"Reviewers removed from pull request",type=EventTypes.PULL_REQUEST)
         return
     existing_reviewers = PullRequestReviewer.objects.filter(pull_request=pull_request)
     existing_reviewers_usernames = []
@@ -122,7 +122,7 @@ def update_reviewers(json_data, pull_request, owner_username, repository_name, r
                        'dest': pull_request.target.name, 'initiated_by': request.user.username, 'author': pull_request.author.user.username}
             threading.Thread(target=notification_service.send_notification_pull_request_reviewer_added, args=([owner_username, project, pr_info, reviewer['username']]), kwargs={}).start()
             EventHistory.objects.create(project=pull_request.project, related_id=pull_request.gitea_id,
-                                        text=f"Reviewer {reviewer['username']} added to pull request")
+                                        text=f"Reviewer {reviewer['username']} added to pull request",type=EventTypes.PULL_REQUEST)
 
 def get_reviwers(pull_request):
     result = []
