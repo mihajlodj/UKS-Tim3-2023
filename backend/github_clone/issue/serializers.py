@@ -45,8 +45,9 @@ class IssueSerializer(serializers.Serializer):
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
         self.create_issue_in_gitea(owner, issue)
         issue.save()
+        initiatiated_by = self.context['request'].auth.get('username', None)
         serialized_issue = serialize_issue(issue)
-        notification_service.send_notification_issue_created(issue)
+        notification_service.send_notification_issue_created(issue, initiatiated_by)
         return serialized_issue
         # return issue
 

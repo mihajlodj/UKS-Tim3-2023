@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
-from main.models import Comment, Issue, Milestone, PullRequest
+from main.models import Comment, Issue, Milestone, PullRequest, WorksOn, Role
 
 from comment.serializers import CommentSerializer
 
@@ -29,7 +29,8 @@ def get_comments_for_type(request, owner_username, repository_name, type_for, ty
     object_exists = check_if_type_id_object_exists(type_id, type_for)
     if not object_exists:
         raise Http404()
-    comments = find_all_comments(type_for, type_id)
+    repository = WorksOn.objects.get(developer__user__username=owner_username, project__name=repository_name, role=Role.OWNER).project
+    comments = find_all_comments(repository, type_for, type_id)
     serialized_comments = serialize_comments(comments)
     return Response(serialized_comments, status=status.HTTP_200_OK)
 
@@ -130,13 +131,13 @@ def check_if_pull_request_exists(type_id):
     return False
 
 
-def find_all_comments(type_for, type_id):
+def find_all_comments(repository, type_for, type_id):
     if type_for == "issue":
         return find_all_comments_from_issue(type_id)
     elif type_for == "milestone":
         return find_all_comments_from_milestone(type_id)
     elif type_for == "pull_request":
-        return find_all_comments_from_pull_request(type_id)
+        return find_all_comments_from_pull_request(repository, type_id)
 
 
 def find_all_comments_from_issue(issue_id):
@@ -149,6 +150,6 @@ def find_all_comments_from_milestone(milestone_id):
     return Comment.objects.filter(milestone=milestone)
 
 
-def find_all_comments_from_pull_request(pull_request_id):
-    pull_request = PullRequest.objects.get(gitea_id=pull_request_id)
+def find_all_comments_from_pull_request(repository, pull_request_id):
+    pull_request = PullRequest.objects.get(project=repository, gitea_id=pull_request_id)
     return Comment.objects.filter(pull_request=pull_request)

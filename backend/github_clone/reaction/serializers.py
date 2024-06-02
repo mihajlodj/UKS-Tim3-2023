@@ -45,6 +45,7 @@ class ReactionSerializer(serializers.Serializer):
             reaction_info = {
                 'creator': created_by_username,
                 'comment_content': comment.content,
+                'comment_creator': comment.caused_by.user.username
             }
             threading.Thread(target=notification_service.send_notification_reaction_added,
                              args=([owner.user.username, project, reaction_info]), kwargs={}).start()

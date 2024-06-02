@@ -128,7 +128,7 @@ def update_issue(request):
     # update in gitea
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.update_issue(owner=owner, repo=reponame, issue=issue, index=issue.id)
-    notification_service.send_notification_issue_updated(issue)
+    notification_service.send_notification_issue_updated(issue, request.user.username)
     return JsonResponse({
             'id': issue.id,
             'title': issue.title,
@@ -276,7 +276,7 @@ def close_issue(request, repo_name, pk):
     issue.save()
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.close_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
-    notification_service.send_notification_issue(issue, 'closed')
+    notification_service.send_notification_issue(issue, 'closed', request.user.username)
     return HttpResponse(status=200)
 
 @api_view(['PATCH'])
@@ -287,7 +287,7 @@ def reopen_issue(request, repo_name, pk):
     issue.save()
     owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
     gitea_service.reopen_issue(owner=owner, repo=repo_name, issue=issue, index=pk)
-    notification_service.send_notification_issue(issue, 'reopened')
+    notification_service.send_notification_issue(issue, 'reopened', request.user.username)
     return HttpResponse(status=200)
 
 
