@@ -842,8 +842,6 @@ def get_event_history(request, owner_username,repository_name,related_id,event_t
         type = EventTypes.PULL_REQUEST
     elif event_type == "milestone":
         type = EventTypes.MILESTONE
-    else:
-        type = EventTypes.COMMENT
     events = EventHistory.objects.filter(project=worksOn.project,related_id=related_id,type=type)
     ret_val = []
     for temp_event in events:

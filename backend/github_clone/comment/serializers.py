@@ -55,9 +55,15 @@ class CommentSerializer(serializers.Serializer):
             participants = []
             if type_for == 'issue' and Issue.objects.filter(project=project, id=type_id).exists():
                 participants.append(Issue.objects.get(project=project, id=type_id).creator.user.username)
+                EventHistory.objects.create(project=project, related_id=type_id,
+                                            text=f"{created_by_username} added comment to {type_for.replace('_', ' ')}",
+                                            type=EventTypes.ISSUE)
             elif type_for == 'pull_request' and PullRequest.objects.filter(project=project, gitea_id=type_id).exists():
                 pull_request = PullRequest.objects.get(project=project, gitea_id=type_id)
                 participants.append(pull_request.author.user.username)
+                EventHistory.objects.create(project=project, related_id=type_id,
+                                            text=f"{created_by_username} added comment to {type_for.replace('_', ' ')}",
+                                            type=EventTypes.PULL_REQUEST)
                 if pull_request.assignee != None:
                     participants.append(pull_request.assignee.user.username)
                 for object in PullRequestReviewer.objects.filter(pull_request=pull_request):
@@ -73,8 +79,6 @@ class CommentSerializer(serializers.Serializer):
             threading.Thread(target=notification_service.send_notification_comment_created,
                              args=([owner.user.username, project, comment_info]), kwargs={}).start()
             comment.save()
-            EventHistory.objects.create(project=project, related_id=type_id,
-                                        text=f"{created_by_username} added comment to {type_for.replace('_',' ')}",type=EventTypes.COMMENT)
             return comment
         except ObjectDoesNotExist:
             raise Http404()
