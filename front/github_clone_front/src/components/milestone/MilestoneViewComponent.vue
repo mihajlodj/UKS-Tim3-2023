@@ -52,7 +52,6 @@
                     style="background-color: white; height: 20px;"></ProgressBar>
             </div>
         </div>
-
         <!-- Due date and completion percent -->
         <div class="d-flex justify-content-between px-5 pt-1">
             <div class="d-flex justify-content-start">
@@ -71,6 +70,9 @@
                     <span class="bright">&nbsp;complete</span>
                 </span>
             </div>
+            <button type="button" class="btn-history bright" @click="milestoneEventHistory()">
+                Event history
+            </button>
         </div>
 
         <div class="px-5 pb-5 mt-2 w-100 d-flex justify-content-between">
@@ -148,6 +150,9 @@ export default {
     },
 
     methods: {
+        milestoneEventHistory(){
+            this.$router.push(`/view/history/${this.$route.params.username}/${this.$route.params.repoName}/${this.milestone_id}/milestone`);
+        },
         loadMilestoneData() {
             MilestoneService.getOneMilestone(this.username, this.repoName, this.milestone_id)
                 .then(res => {
@@ -256,6 +261,15 @@ export default {
 }
 </script>
 <style scoped>
+.btn-history {
+    height: 40px;
+    width: 130px;
+    background-color: #373e48;
+    border: 1px solid #768491;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+}
+
 .btn-save {
     width: 120px;
     background-color: #373e48;

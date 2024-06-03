@@ -42,6 +42,22 @@ class WatchOption(models.TextChoices):
     IGNORE = 'Ignore', 'Ignore'
 
 
+class EventTypes(models.TextChoices):
+    ISSUE = 'issue','issue'
+    PULL_REQUEST = 'pull_request','pull_request'
+    MILESTONE = 'milestone','milestone'
+    COMMENT = 'comment','comment'
+
+
+class EventHistory(models.Model):
+    time = models.DateTimeField(default=timezone.now)
+    text = models.TextField(null=True, blank=True)
+    related_id = models.IntegerField(blank=True, null=True)
+    type = models.CharField(max_length=20, choices=EventTypes.choices, default=EventTypes.PULL_REQUEST)
+    project = models.ForeignKey('main.Project', related_name='project_events_history', on_delete=models.CASCADE)
+
+
+
 class Event(models.Model):
     time = models.DateTimeField(default=timezone.now)
     caused_by = models.ForeignKey('main.Developer', related_name='caused_events', on_delete=models.CASCADE)
