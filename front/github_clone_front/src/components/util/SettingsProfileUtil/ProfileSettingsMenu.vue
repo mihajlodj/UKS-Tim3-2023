@@ -4,7 +4,7 @@
     <button @click="selectItem('account')"><i class="bi bi-gear"></i>&nbsp;&nbsp;Account</button>
     <!-- <a href="#"><i class="bi bi-envelope"></i>&nbsp;&nbsp;Email</a> -->
     <!-- <a href="#"><i class="bi bi-shield-lock"></i>&nbsp;&nbsp;Password and authentication</a> -->
-    <a href="#"><i class="bi bi-bell"></i>&nbsp;&nbsp;Notifications</a>
+    <a href="/notifications"><i class="bi bi-bell"></i>&nbsp;&nbsp;Notifications</a>
   </div>
 </template>
 

@@ -10,7 +10,8 @@ def get_dev_avatar(username):
             return gitea_user_info['avatar_url']
         return None
     avatar_filename = developer.avatar
-    avatar_filename = avatar_filename.split('\\')[1]
+    print("AAAAAAAAAAAAAAAAAAAAvatar", avatar_filename)
+    avatar_filename = avatar_filename.split('/')[1]
     avatar_url = 'http://localhost:8000/avatars/git_profile_picture.png'
     if avatar_filename != '':
         avatar_url = f"http://localhost:8000/avatars/{avatar_filename}"
