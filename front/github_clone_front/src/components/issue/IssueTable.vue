@@ -22,12 +22,6 @@
                 <tr colspan="9">
                     <IssueList :issueList="this.filteredOpenIssues" :isOpen="true" :milestones="this.milestones" :key="componentKey" @closeIssueInList="closeIssueInList" @deleteIssueFromList="deleteIssueFromList" />
                 </tr>
-                <tr>
-                    <td colspan="9">
-                        <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModalAdd"
-                            class="flex-item btn btn-info text-center">Open new issue</button>
-                    </td>
-                </tr>
             </table>
 
         </div>

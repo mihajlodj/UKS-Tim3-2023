@@ -4,20 +4,7 @@
     <button @click="selectItem('account')"><i class="bi bi-gear"></i>&nbsp;&nbsp;Account</button>
     <!-- <a href="#"><i class="bi bi-envelope"></i>&nbsp;&nbsp;Email</a> -->
     <!-- <a href="#"><i class="bi bi-shield-lock"></i>&nbsp;&nbsp;Password and authentication</a> -->
-    <a href="#"><i class="bi bi-bell"></i>&nbsp;&nbsp;Notifications</a>
-    <a href="#"><i class="bi bi-key"></i>&nbsp;&nbsp;SSH and GPG keys</a>
-    <a href="#"><i class="bi bi-buildings"></i>&nbsp;&nbsp;Organizations</a>
-    <a href="#"><i class="bi bi-globe"></i>&nbsp;&nbsp;Enterprises</a>
-    <a href="#"><i class="bi bi-chat-left-dots"></i>&nbsp;&nbsp;Moderation</a>
-    <a href="#"><i class="bi bi-journal-bookmark"></i>&nbsp;&nbsp;Repositories</a>
-    <a href="#"><i class="bi bi-pc-display-horizontal"></i>&nbsp;&nbsp;Codespaces</a>
-    <a href="#"><i class="bi bi-box"></i>&nbsp;&nbsp;Packages</a>
-    <a href="#"><i class="bi bi-robot"></i>&nbsp;&nbsp;Copilot</a>
-    <a href="#"><i class="bi bi-window-stack"></i>&nbsp;&nbsp;Pages</a>
-    <a href="#"><i class="bi bi-arrow-return-left"></i>&nbsp;&nbsp;Saved replies</a>
-    <a href="#"><i class="bi bi-shield-lock"></i>&nbsp;&nbsp;Code security and analysis</a>
-    <a href="#"><i class="bi bi-file-earmark-code"></i>&nbsp;&nbsp;Security log</a>
-    <a href="#"><i class="bi bi-code"></i>&nbsp;&nbsp;Developer settings</a>
+    <a href="/notifications"><i class="bi bi-bell"></i>&nbsp;&nbsp;Notifications</a>
   </div>
 </template>
 
