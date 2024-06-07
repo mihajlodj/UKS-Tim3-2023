@@ -110,6 +110,7 @@ CHANNEL_LAYERS = {
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#for doceker use
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -181,6 +182,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=720),
 }
 
+# hmm mozda je i ovo za dokertizovano koriscenje
 CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
