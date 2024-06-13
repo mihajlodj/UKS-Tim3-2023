@@ -10,8 +10,8 @@ gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
-# gitea_host = 'gitea'
-gitea_host = 'localhost' #for non-docker running
+gitea_host = 'gitea'
+# gitea_host = 'localhost' #for non-docker running
 
 headers = {
     'Accept': 'application/json',
