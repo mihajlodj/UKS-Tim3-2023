@@ -27,7 +27,9 @@
         </div>
       </div>
       <div class="right-side">
-        <profile-page-over-view v-if="activeLinkExtension==='overview'"/>
+        <profile-page-over-view v-if="activeLinkExtension==='overview'" :username ="username" />
+        <profile-page-repositories v-if="activeLinkExtension==='repositories'" :username ="username" />
+        <profile-page-stars v-if="activeLinkExtension==='stars'"/>
       </div>
     </div>
   </div>
@@ -37,6 +39,8 @@
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import ProfileNavBarExtension from '../profile/ProfileNavBarExtension.vue';
 import ProfilePageOverView from '../profile/ProfilePageOverView.vue';
+import ProfilePageStars from '../profile/ProfilePageStars.vue';
+import ProfilePageRepositories from '../profile/ProfilePageRepositories.vue';
 import DeveloperService from '@/services/DeveloperService';
 import { toast } from 'vue3-toastify';
 
@@ -44,7 +48,9 @@ export default {
   components: {
     NavBar,
     ProfileNavBarExtension,
-    ProfilePageOverView
+    ProfilePageOverView,
+    ProfilePageStars,
+    ProfilePageRepositories
   },
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))

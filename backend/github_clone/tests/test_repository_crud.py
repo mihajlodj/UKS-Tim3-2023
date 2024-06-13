@@ -1,9 +1,14 @@
+import json
 import pytest
 from django.contrib.auth.models import User
+
+from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
+
+from repository.serializers import RepositorySerializer
 
 client = APIClient()
 fake = Faker()
@@ -60,6 +65,15 @@ def test_create_public_repo_success(get_token):
     works_on = WorksOn.objects.get(project__name=repo_name2)
     assert works_on.developer.user.username == username
     assert works_on.role == 'Owner'
+
+@pytest.fixture(autouse=True)
+def disable_gitea_create_repository(monkeypatch):
+    def mock_gitea_create_repository(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'create_repository', mock_gitea_create_repository)
+    yield
+
 
 @pytest.mark.django_db
 def test_create_private_repo_success(get_token):
@@ -138,11 +152,19 @@ def test_create_repo_duplicate_name(get_token):
     }
     response = client.post(url, repo_data, headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.data['name'][0] == 'This field must be unique.'
+    assert response.data['name'][0] == 'Repository with this name already exists for this owner.'
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
     assert Branch.objects.count() == 2
 
+
+@pytest.fixture(autouse=True)
+def disable_gitea_delete_repository(monkeypatch):
+    def mock_gitea_delete_repository(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'delete_repository', mock_gitea_delete_repository)
+    yield
 
 @pytest.mark.django_db
 def test_delete_repo_success(get_token):
@@ -170,19 +192,26 @@ def test_delete_repo_does_not_exist(get_token):
     assert Branch.objects.count() == 2
 
 
+@pytest.fixture(autouse=True)
+def disable_gitea_update(monkeypatch):
+    def mock_gitea_update(*args, **kwargs):
+        return
+    monkeypatch.setattr(gitea_service, 'update_repository', mock_gitea_update)
+    yield
+
 @pytest.mark.django_db
 def test_update_repo_success(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name',
-        'description': fake.text,
+        'description': "Fake text",
         'access_modifier': 'Public',
         'default_branch_name': 'develop',
     }
-    response = client.patch(url, repo_data, headers=headers)
+    response = client.patch(url, content_type='application/json', data=json.dumps(repo_data), headers=headers)
     assert response.status_code == status.HTTP_200_OK
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
@@ -197,14 +226,14 @@ def test_update_repo_invalid_name(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name bad',
-        'description': fake.text,
+        'description': "Fake text",
         'access_modifier': 'Public',
         'default_branch_name': 'develop',
     }
-    response = client.patch(url, repo_data, headers=headers)
+    response = client.patch(url, content_type='application/json', data=json.dumps(repo_data), headers=headers)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1
@@ -220,14 +249,14 @@ def test_update_repo_branch_does_not_exist(get_token):
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
-    url = f'/repository/update/{repo_name}/'
+    url = f'/repository/update/{username}/{repo_name}/'
     repo_data = {
         'name': 'updated-name',
-        'description': fake.text,
+        'description': "Fake text",
         'access_modifier': 'Public',
         'default_branch_name': 'master',
     }
-    response = client.patch(url, repo_data, headers=headers)
+    response = client.patch(url, content_type='application/json', data=json.dumps(repo_data), headers=headers)
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert Project.objects.count() == 1
     assert WorksOn.objects.count() == 1

@@ -1,6 +1,7 @@
 <template>
     <div v-if="allowed" class="background is-fullheight min-vh-100">
         <RepoNavbar />
+        <LoadingPage v-if="!loaded" />
         <div class="editor">
             <PathDisplay :editing="editing" :key="pathKey" ref="pathDisplay" @updateFileName="updateFileName" />
         </div>
@@ -65,6 +66,7 @@ import RepoNavbar from '../../RepoNavbar.vue'
 import NotFoundPage from '@/components/util/NotFoundPage.vue';
 import TextFileEdit from './TextFileEdit.vue';
 import EditingHeader from './EditingHeader.vue';
+import LoadingPage from '@/components/util/LoadingPage.vue';
 
 export default {
     name: 'TextFile',
@@ -75,7 +77,8 @@ export default {
         RepoNavbar,
         NotFoundPage,
         TextFileEdit,
-        EditingHeader
+        EditingHeader,
+        LoadingPage
     },
 
     mounted() {
@@ -106,7 +109,8 @@ export default {
             codeDisplayKey: 1,
             newFileName: '',
             commitMsg: '',
-            additionalText: ''
+            additionalText: '',
+            loaded: true
         }
     },
 
@@ -130,6 +134,7 @@ export default {
         },
 
         commitChanges() {
+            this.loaded = false;
             let commitData = {
                 'branch': this.$route.params.branchName,
                 'content': localStorage.getItem('newContent') ? localStorage.getItem('newContent') : this.file.content,
@@ -147,8 +152,10 @@ export default {
                 // this.pathKey += 1;
                 console.log(this.newFileName);
                 this.$refs.pathDisplay.updatePath(this.newFileName);
+                this.loaded = true;
             }).catch(err => {
                 console.log(err);
+                this.loaded = true;
             });
             this.cancelEdit();
             this.commitMsg = "";

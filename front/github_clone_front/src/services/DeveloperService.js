@@ -5,6 +5,14 @@ const update = (developerData, username) => {
     return api.patch(`developer/update/${username}/`, developerData);
 }
 
+const getAllQueryDevelopers = (query) => {
+    return api.get(`developer/query_devs/${query}`);
+}
+
+const getAllQueryCommitts = (query) => {
+    return api.get(`developer/query_commits/${query}`);
+}
+
 const deleteUser = (usersPassword, username) => {
     return api.delete(`developer/delete/self/${username}/${usersPassword}`);
 }
@@ -33,11 +41,20 @@ const getUserBasicInfo = (username) => {
     return api.get(`developer/${username}`);
 }
 
+const getUserBasicInfoFromId = (id) => {
+    return api.get(`developer/info/${id}`);
+}
+
+const getDeveloperBasicInfoFromId = (id) => {
+    return api.get(`developer/info/developer/${id}`);
+}
+
 const getUserGiteaBasicInfo = (username) => {
     return api.get(`developer/gitea/${username}`);
 }
 
 const getUserAvatar = (username) => {
+    console.log(username)
     return api.get(`developer/avatar/${username}`);
 }
 
@@ -45,6 +62,18 @@ const getUsersEmails = (username) => {
     return api.get(`developer/emails/${username}`);
 }
 
-export default { update, getUserBasicInfo,getUserGiteaBasicInfo,getUserAvatar,
-     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress,
-     deleteEmailAddress, deleteUsersAvatar};
+const getDevelopers = (username, repoName) => {
+    return api.get(`developer/all/${username}/${repoName}`);
+}
+
+const getRoles = (username) => {
+    return api.get(`developer/roles/${username}`);
+}
+
+const update_user_ban_status = (username) => {
+    return api.patch(`developer/update_user_ban_status/${username}`);
+}
+
+export default { update, getUserBasicInfo, getUserBasicInfoFromId, getDeveloperBasicInfoFromId, getUserGiteaBasicInfo, getUserAvatar,
+     getUsersEmails, updateDeveloperAvatar, updateUsersPassword, deleteUser, addEmailAddress
+    , getAllQueryDevelopers, getAllQueryCommitts,deleteEmailAddress, deleteUsersAvatar, getDevelopers, getRoles,update_user_ban_status};

@@ -1,6 +1,9 @@
 import pytest
 from django.contrib.auth.models import User
 from django.utils import timezone
+
+from issue.serializers import IssueSerializer
+from main import gitea_service
 from main.models import Developer, Project, WorksOn, Branch, Issue
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -47,19 +50,53 @@ def save_issue(create_dev_and_repo):
         open=True,
         milestone=None,
         project=repo,
-        manager=dev1,
+        creator=dev1,
         created=timezone.now()
     )
     issue.save()
 
+@pytest.fixture(autouse=True)
+def disable_gitea_create_issue(monkeypatch):
+    def mock_gitea_create_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(IssueSerializer, 'create_issue_in_gitea', mock_gitea_create_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_close_issue(monkeypatch):
+    def mock_gitea_close_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'close_issue', mock_gitea_close_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_delete_issue(monkeypatch):
+    def mock_gitea_delete_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'delete_issue', mock_gitea_delete_issue)
+    yield
+
+@pytest.fixture(autouse=True)
+def disable_gitea_update_issue(monkeypatch):
+    def mock_gitea_update_issue(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'update_issue', mock_gitea_update_issue)
+    yield
+
 @pytest.mark.django_db
 def test_create_issue(get_token):
+
     url = '/issue/create/'
     issue_data = {
         'created': timezone.now(),
         'title': 'issue2',
         'description': 'description2',
-        'manager': username1,
+        'creator': username1,
+        # 'manager': None,
         'project': repo_name,
         'milestone': '',
     }
@@ -70,37 +107,20 @@ def test_create_issue(get_token):
     response = client.post(url, issue_data, headers=headers)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.data['project'] == repo_name
-    assert response.data['manager'] == username1
+    assert response.data['creator'] == username1
 
 
 @pytest.mark.django_db
 def test_get_issues(get_token):
-    url = '/issue/issues/MyNewTestRepo/'
+    url = f'/issue/issues/{username1}/MyNewTestRepo/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }
     response = client.get(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.content) == 186
     assert len(response.json()) == 1
     assert response.json()[0]['project'] == repo_name
-    assert response.json()[0]['manager'] == username1
-    assert response.json()[0]['title'] == 'issue1'
-    assert response.json()[0]['description'] == 'description1'
-    assert response.json()[0]['id'] == 1
-
-@pytest.mark.django_db
-def test_get_issues(get_token):
-    url = '/issue/issues/MyNewTestRepo/'
-    headers = {
-        'Authorization': f'Bearer {get_token}'
-    }
-    response = client.get(url, headers=headers)
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.content) == 186
-    assert len(response.json()) == 1
-    assert response.json()[0]['project'] == repo_name
-    assert response.json()[0]['manager'] == username1
+    assert response.json()[0]['creator'] == username1
     assert response.json()[0]['title'] == 'issue1'
     assert response.json()[0]['description'] == 'description1'
     assert response.json()[0]['id'] == 1
@@ -113,7 +133,7 @@ def test_close_issue(get_token):
     }
     response = client.patch(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    response = client.get('/issue/issues/MyNewTestRepo', headers=headers)
+    response = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response.json()[0]['open'] is False
 
 @pytest.mark.django_db
@@ -125,7 +145,7 @@ def test_delete_issues(get_token):
     }
     response = client.delete(url, headers=headers)
     assert response.status_code == status.HTTP_200_OK
-    response = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert len(response.json()) == 0
 
 @pytest.mark.django_db
@@ -139,17 +159,17 @@ def test_update_issue(get_token):
         'id': 1,
         'title': 'new_issue_title',
         'description': 'new_description',
-        'milestone': '',
-        'repoName': repo_name
+        'milestone': None,
+        'project': repo_name
     }
-    response_get_old = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response_get_old = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response_get_old.status_code == status.HTTP_200_OK
     assert response_get_old.json()[0]['title'] == 'issue1'
     assert response_get_old.json()[0]['description'] == 'description1'
     response_post = client.patch(url, content_type='application/json', data=json.dumps(body), headers=headers)
     assert response_post.status_code == status.HTTP_200_OK
 
-    response_get_new = client.get('/issue/issues/MyNewTestRepo/', headers=headers)
+    response_get_new = client.get(f'/issue/issues/{username1}/MyNewTestRepo/', headers=headers)
     assert response_get_new.status_code == status.HTTP_200_OK
     assert response_get_new.json()[0]['title'] == 'new_issue_title'
     assert response_get_new.json()[0]['description'] == 'new_description'
@@ -166,7 +186,7 @@ def test_delete_issues_2(get_token):
 
 @pytest.mark.django_db
 def test_get_issues_2(get_token):
-    url = '/issue/issues/MyNewTestRepo2/'
+    url = f'/issue/issues/{username1}/MyNewTestRepo2/'
     headers = {
         'Authorization': f'Bearer {get_token}'
     }

@@ -1,7 +1,9 @@
-# pytest --ds=github_clone.settings
+# pytest --ds=github_clone.test_settings
 
 import pytest
 from django.contrib.auth.models import User
+
+from main import gitea_service
 from main.models import RegistrationCandidate
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -209,6 +211,13 @@ def test_register_candidate_weak_password2():
     assert User.objects.count() == 0
     assert RegistrationCandidate.objects.count() == 0
 
+@pytest.fixture(autouse=True)
+def disable_gitea_get_user_token(monkeypatch):
+    def mock_gitea_get_user_token(*args, **kwargs):
+        return
+
+    monkeypatch.setattr(gitea_service, 'get_user_token', mock_gitea_get_user_token)
+    yield
 
 @pytest.mark.django_db
 def test_confirm_registration_success():

@@ -1,8 +1,11 @@
 from django.http import JsonResponse
+from django.utils import timezone
 from rest_framework import serializers
 
-from main.models import Issue, Developer, Project, WorksOn
+from main.models import Issue, Developer, Project, WorksOn, Milestone
 from main.gitea_service import create_issue, get_issues, update_issue, delete_issue
+from milestone.serializers import MilestoneSerializer
+from websocket import notification_service
 
 
 class IssueSerializer(serializers.Serializer):
@@ -12,18 +15,23 @@ class IssueSerializer(serializers.Serializer):
     )
     description = serializers.CharField(
         max_length=255,
+        allow_blank=True,
     )
     # created = serializers.DateTimeField()
     # manager = DeveloperSerializer()
-    manager = serializers.CharField(allow_blank=False)
+    creator = serializers.CharField(allow_blank=False)
     project = serializers.CharField(allow_blank=False)
-    milestone = serializers.CharField(allow_blank=True)
+    milestone = serializers.IntegerField(allow_null=True)
     def create(self, validated_data):
+        project = Project.objects.get(name=validated_data['project'])
         issue = Issue.objects.create(
             title=validated_data['title'],
             description=validated_data['description'],
-            project=Project.objects.get(name=validated_data['project']),
-            manager=Developer.objects.get(user__username=validated_data['manager'])
+            project=project,
+            open=True,
+            created=timezone.now(),
+            creator=Developer.objects.get(user__username=validated_data['creator']),
+            # manager=set()
         )
         # issue = Issue()
         # issue.title = validated_data['title']
@@ -31,11 +39,20 @@ class IssueSerializer(serializers.Serializer):
         # issue.project = Project.objects.get(name=validated_data['project'])
         # issue.manager = Developer.objects.get(user__username=validated_data['manager'])
 
-        # issue.save()  # nisam siguran dal treba ovo
+        if validated_data['milestone'] is not None:
+            milestone = Milestone.objects.get(id=validated_data['milestone'], project=project)
+            issue.milestone = milestone
         owner = WorksOn.objects.get(role='Owner', project=issue.project).developer.user.username
-        create_issue(owner=owner, repo=issue.project.name, issue=issue)
-        return serialize_issue(issue)
+        self.create_issue_in_gitea(owner, issue)
+        issue.save()
+        initiatiated_by = self.context['request'].auth.get('username', None)
+        serialized_issue = serialize_issue(issue)
+        notification_service.send_notification_issue_created(issue, initiatiated_by)
+        return serialized_issue
         # return issue
+
+    def create_issue_in_gitea(self, owner, issue):
+        create_issue(owner=owner, repo=issue.project.name, issue=issue)
 
 def serialize_issue(issue):
     return {
@@ -43,12 +60,19 @@ def serialize_issue(issue):
         'description': issue.description,
         'open': issue.open,
         'created': str(issue.created),
-        'manager': issue.manager.user.username,
+        'creator': issue.creator.user.username,
+        'managers': serialize_managers(issue),
         'project': issue.project.name,
         'milestone': serialize_milestone(issue)
     }
 
+def serialize_managers(issue):
+    if issue.manager:
+        return [dev.user.username for dev in issue.manager.all()]
+    else:
+        return []
+
 def serialize_milestone(issue):
     if issue.milestone is None:
-        return ''
-    return issue.milestone.title
+        return -1
+    return issue.milestone.id

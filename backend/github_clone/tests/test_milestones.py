@@ -1,12 +1,12 @@
 import pytest
-from unittest.mock import patch
 from django.contrib.auth.models import User
 from main.models import Developer, Project, WorksOn, Branch, Milestone
 from rest_framework.test import APIClient
 from rest_framework import status
 from faker import Faker
 from main import gitea_service
-
+from milestone.serializers import MilestoneSerializer
+from websocket import notification_service
 
 client = APIClient()
 fake = Faker()
@@ -52,12 +52,19 @@ def disable_gitea_create_milestone(monkeypatch):
     monkeypatch.setattr(gitea_service, 'create_milestone', mock_create_milestone)
     yield
 
+@pytest.fixture(autouse=True)
+def disable_save_gitea_user(monkeypatch):
+    def mock_gitea_create_milestone(*args, **kwargs):
+        return 2
+    monkeypatch.setattr(MilestoneSerializer, 'gitea_create_milestone', mock_gitea_create_milestone)
+    yield
+
 
 @pytest.fixture(autouse=True)
 def disable_gitea_update_milestone(monkeypatch):
     def mock_update_milestone(*args, **kwargs):
         return
-    monkeypatch.setattr(gitea_service, 'update_milestone', mock_update_milestone)
+    monkeypatch.setattr(MilestoneSerializer, 'gitea_update_milestone', mock_update_milestone)
     yield
 
 
@@ -68,12 +75,30 @@ def disable_gitea_delete_milestone_from_gitea(monkeypatch):
     monkeypatch.setattr(gitea_service, 'delete_milestone_from_gitea', mock_delete_milestone_from_gitea)
     yield
 
+@pytest.fixture(autouse=True)
+def disable_save_gitea_user(monkeypatch):
+    def mock_gitea_create_milestone(*args, **kwargs):
+        return 2
+    monkeypatch.setattr(MilestoneSerializer, 'gitea_create_milestone', mock_gitea_create_milestone)
+    yield
+
+
+@pytest.fixture(autouse=True)
+def disable_send_notification(monkeypatch):
+    def mock_send_notification(*args, **kwargs):
+        return
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_created', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_edited', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_deleted', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_closed', mock_send_notification)
+    monkeypatch.setattr(notification_service, 'send_notification_milestone_reopened', mock_send_notification)
+    yield
 
 # CREATE
 
 @pytest.mark.django_db
 def test_create_milestone_success(get_token):
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': 'Milestone40',
         'description': 'Opis',
@@ -90,7 +115,7 @@ def test_create_milestone_success(get_token):
 
 @pytest.mark.django_db
 def test_create_milestone_missing_title(get_token):
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'description': 'Opis',
         'deadline': '2024-02-10',
@@ -105,7 +130,7 @@ def test_create_milestone_missing_title(get_token):
 
 @pytest.mark.django_db
 def test_create_milestone_blank_title(get_token):
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': '',
         'description': 'Opis',
@@ -121,7 +146,7 @@ def test_create_milestone_blank_title(get_token):
 
 @pytest.mark.django_db
 def test_create_milestone_invalid_title(get_token):
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': 'Neki title',
         'description': 'Opis',
@@ -137,7 +162,7 @@ def test_create_milestone_invalid_title(get_token):
 
 @pytest.mark.django_db
 def test_create_milestone_missing_description(get_token):
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': 'Milestone40',
         'deadline': '2024-02-10',
@@ -152,7 +177,7 @@ def test_create_milestone_missing_description(get_token):
 
 @pytest.mark.django_db
 def test_create_milestone_missing_repo(get_token):
-    url = '/milestone/create/' + 'nepostojeci_repo' + '/'
+    url = f'/milestone/create/{username}/nepostojeci_repo/'
     data = {
         'title': 'Milestone40',
         'deadline': '2024-02-10',
@@ -167,7 +192,7 @@ def test_create_milestone_missing_repo(get_token):
 
 @pytest.mark.django_db
 def test_create_milestone_(get_token):
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': 'Milestone40',
         'description': 'Opis',
@@ -190,7 +215,7 @@ def test_create_milestone_(get_token):
 @pytest.mark.django_db
 def test_update_milestone_success(get_token):
     title = 'Milestone40'
-    url_update = '/milestone/update/' + title + '/'
+    url_update = f'/milestone/update/{username}/{title}/'
     data_update = {
         'title': 'Milestone50',
         'description': 'Opis',
@@ -202,7 +227,7 @@ def test_update_milestone_success(get_token):
     }
 
     # Create milestone
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': title,
         'description': 'Opis',
@@ -222,7 +247,7 @@ def test_update_milestone_success(get_token):
 @pytest.mark.django_db
 def test_update_milestone_missing_repo(get_token):
     title = 'Milestone40'
-    url_update = '/milestone/update/' + title + '/'
+    url_update = f'/milestone/update/{username}/{title}/'
     data_update = {
         'title': 'Milestone50',
         'description': 'Opis',
@@ -234,7 +259,7 @@ def test_update_milestone_missing_repo(get_token):
     }
 
     # Create milestone
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': title,
         'description': 'Opis',
@@ -253,7 +278,7 @@ def test_update_milestone_missing_repo(get_token):
 @pytest.mark.django_db
 def test_update_milestone_missing_milestone(get_token):
     title = 'Milestone40'
-    url_update = '/milestone/update/' + title + '/'
+    url_update = f'/milestone/update/{username}/{title}/'
     data_update = {
         'title': 'Milestone50',
         'description': 'Opis',
@@ -272,12 +297,11 @@ def test_update_milestone_missing_milestone(get_token):
 
 # DELETE
 
-
 @pytest.mark.django_db
 def test_delete_milestone_success(get_token):
     # CREATE MILESTONE
     title = 'Milestone40'
-    url = '/milestone/create/' + repo_name + '/'
+    url = f'/milestone/create/{username}/{repo_name}/'
     data = {
         'title': title,
         'description': 'Opis',

@@ -2,8 +2,8 @@
   <div class="navbar">
     <div>
       <div id="id-toggle-menu">
-        <button class="toggle-menu-button" @click="toggleMenu">
-          <i class="bi bi-list" />
+        <button class="toggle-menu-button" @click="toggleMenu" v-if="!loggedInUserPresent">
+          <i class="bi bi-list"></i>
         </button>
       </div>
       <div id="id-git-logo">
@@ -12,40 +12,39 @@
         </a>
       </div>
       <div id="id-dashboard">
-        <button class="dashboard-menu-button">
+        <button class="dashboard-menu-button" @click="$router.push(`/main`)" v-if="!loggedInUserPresent">
           Dashboard
         </button>
       </div>
     </div>
 
-    <div id="id-search-bar">
+    <div id="id-search-bar" v-if="!isSearchPage">
+      <search-bar></search-bar>
+    </div>
+
+    <div id="id-search-bar-2" v-if="isSearchPage">
       <search-bar></search-bar>
     </div>
 
     <div class="right-btns-navbar">
-      <div class="dropdown" :class="{ 'isDropdownOpen': isDropdownOpen }">
-        <button class="notification_button" @click="toggleDropdown">
-          <i class="bi bi-plus"></i>&nbsp;<i class="bi bi-arrow-down-short"></i>
-        </button>
-        <div class="dropdown-content" v-show="isDropdownOpen" @click.stop>
-          <a href="#"><i class="bi bi-journal-plus"></i> New repository</a>
-          <a href="#"><i class="bi bi-journal-arrow-up"></i> Import repository</a>
-          <a href="#"><i class="bi bi-pc-display-horizontal"></i> New codespace</a>
-          <a href="#"><i class="bi bi-code"></i>New gits</a>
-          <a href="#"><i class="bi bi-building-add"></i>New organization</a>
-        </div>
-      </div>
-      <button class="notification_button"><i class="bi bi-inbox"></i></button>
-      <button class="notification_button"><i class="bi bi-bezier2"></i></button>
-      <button class="notification_button"><i class="bi bi-record-circle"></i></button>
+        <button class="notification_button" @click="this.$router.push('/new');" v-if="!loggedInUserPresent"><i class="bi bi-journal-plus"></i></button>
+      <button class="notification_button" @click="displayNotifications" :key="notificationKey" v-if="!loggedInUserPresent">
+        <i class="bi bi-inbox"></i>
+        <font-awesome-icon v-if="hasUnreads" icon="fa-solid fa-circle"></font-awesome-icon>
+      </button>
+      <button class="notification_button" @click="this.$router.push('/view/pulls')" v-if="!loggedInUserPresent"><i class="bi bi-bezier2"></i></button>
+      <button class="notification_button" @click="this.$router.push('/view/users_issues')" v-if="!loggedInUserPresent"><i class="bi bi-record-circle"></i></button>
 
-      <button class="profile_button" @click="toggleProfileMenu">
+      <button class="profile_button" @click="toggleProfileMenu" v-if="!loggedInUserPresent">
         <div style="">
           <div class="profile-image-container">
             <div style="margin-top:13px"> </div>
             <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />
           </div>
         </div>
+      </button>
+      <button class="profile_button" @click="this.$router.push('/register')" v-if="loggedInUserPresent">
+        Sign up
       </button>
     </div>
 
@@ -55,8 +54,8 @@
     <transition name="fadelight">
       <div v-if="isDropdownOpen" class="backdropLight" @click="closeMenu"></div>
     </transition>
-    <slide-menu :is-open="isMenuOpen" @close="closeMenu" />
-    <slide-profile-menu :is-profile-open="isProfileMenuOpen" @close="closeMenu" />
+    <slide-menu :is-open="isMenuOpen" @close="closeMenu" v-if="!loggedInUserPresent" />
+    <slide-profile-menu :is-profile-open="isProfileMenuOpen" @close="closeMenu"  v-if="!loggedInUserPresent"/>
   </div>
 </template>
 
@@ -72,18 +71,29 @@ export default {
     SearchBar,
     SlideProfileMenu
   },
-  props: {
-    user: Object,
+  // Nisam siguran da li ce trebati
+  // props: {
+  //   user: Object,
+  // },
+  computed:{
+    isSearchPage() {
+      return this.$route.path === '/search';
+    },
+    loggedInUserPresent(){
+      return localStorage.getItem("username") === null
+    }
   },
   mounted() {
+    if(!this.loggedInUserPresent){
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
+              // console.log(res);
               this.currentAvatar = res.data
           })
           .catch(err => {
               console.log(err);
           });
+    }
   },
   data() {
     return {
@@ -91,6 +101,9 @@ export default {
       isMenuOpen: false,
       isProfileMenuOpen: false,
       isDropdownOpen: false,
+      connection: null,
+      hasUnreads: false,
+      notificationKey: 1
     };
   },
   methods: {
@@ -110,6 +123,35 @@ export default {
     toggleDropdown() {
       this.isDropdownOpen = !this.isDropdownOpen;
     },
+
+    displayNotifications() {
+      localStorage.setItem("hasUnreads", "false");
+      this.hasUnreads = false;
+      this.notificationKey++;
+      this.$router.push("/notifications");
+    }
+  },
+
+  created() {
+    this.hasUnreads = localStorage.getItem("hasUnreads") === "true" ? true : false;
+    this.notificationKey++;
+    const connectionStr = `ws://localhost:8000/ws/notify/${localStorage.getItem("username")}/`;
+    this.connection = new WebSocket(connectionStr);
+
+    this.connection.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        const message = data.message;
+        console.log(message);
+        localStorage.setItem("hasUnreads", "true");
+        this.hasUnreads = true;
+        this.notificationKey++;
+        console.log(this.hasUnreads);
+    }
+
+    this.connection.onopen = (event) => {
+        console.log(event);
+        console.log("Opened");
+    }
   },
 };
 </script>
@@ -129,7 +171,14 @@ export default {
   float:left;
 }
 #id-search-bar{
-  float: left;
+  width: 15rem;
+  float: right;
+  z-index: 99;
+}
+
+#id-search-bar-2{
+  width: 60%;
+  float: right;
   z-index: 99;
 }
 #id-user-profile{
@@ -143,7 +192,7 @@ export default {
 .navbar {
   position: relative;
   display: flex;
-  background-color: #24292e;
+  background-color: #1c2127;
   color: #ffffff;
 }
 
@@ -289,5 +338,11 @@ export default {
 
 .dropdown-content a:hover {
   background-color: #2c2c2c;
+}
+
+.fa-circle {
+  height: 8px;
+  color: #f04444;
+  margin-bottom: 10px;
 }
 </style>

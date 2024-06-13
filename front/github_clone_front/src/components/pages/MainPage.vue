@@ -2,11 +2,12 @@
   <div class="entire-page">
     <nav-bar :user="user" />
     <div class="main-content">
-      <div class="left-section">
-        <repository-list :repositories="repositories" />
+      <div class="left-section" v-if="!loggedInUserPresent">
+        <repository-list :repositories="repositories" v-if="!loggedInUserPresent"/>
       </div>
-      <div class="middle-section">
+      <div class="middle-section fill">
         <router-view name="middle_section"></router-view>
+        <img alt="Logo" src="../../assets/github_lie_2.png" style="width: 800px;" class="mt-2 ms-2">
       </div>
     </div>
   </div>
@@ -16,18 +17,37 @@
 import NavBar from '../util/MainPageUtil/Nav-bar.vue';
 import RepositoryList from '../util/MainPageUtil/RepositoryList.vue';
 import RepositoryService from '@/services/RepositoryService';
+import DeveloperService from '@/services/DeveloperService';
 
 export default {
   components: {
     NavBar,
     RepositoryList
   },
+   computed:{
+    loggedInUserPresent(){
+      return localStorage.getItem("username") === null
+    }
+  },
   mounted() {
+    if(!this.loggedInUserPresent){
     console.log(localStorage.getItem('username'));
-    RepositoryService.getAllUserRepos(localStorage.getItem('username')).then((res) => {
-      console.log(res);
+    RepositoryService.getAllUserWorkingOnRepos(localStorage.getItem('username')).then((res) => {
+      console.log(res.data);
       this.repositories = res.data;
-    })
+    });
+
+    DeveloperService.getRoles(localStorage.getItem('username')).then(res => {
+      const roles = res.data;
+      for (const roleObj of roles) {
+        const repoName = roleObj['repository'];
+        const roleName = roleObj['role']
+        localStorage.setItem(repoName, roleName);
+      }
+    }).catch(err => {
+      console.log(err);
+    });
+    }
   },
   data() {
     return {
@@ -39,14 +59,14 @@ export default {
       repositories: [
         { id: 1, name: "SimicAleksa/NvtKts" },
         { id: 2, name: "SimicAleksa/pythonProject" },
-      ],
+      ]
     };
   },
 };
 </script>
 
 <style scoped>
-.entire-page{
+.entire-page {
   min-height: 100vh;
   margin: 0px;
   padding: 0;
@@ -54,7 +74,7 @@ export default {
 }
 
 .main-content {
-  display: flex; 
+  display: flex;
   overflow: auto;
   padding: 0;
   margin: 0;
@@ -66,10 +86,22 @@ export default {
   flex: 1;
 }
 
+.fill {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.fill img {
+  flex-shrink: 0;
+  min-width: 100%;
+  min-height: 100%;
+}
+
 .middle-section {
   flex: 4;
   border-top: 1px solid #929191;
-  background-color:  #24292e;
+  background-color: #1c2127;
   padding: 20px;
 }
 </style>

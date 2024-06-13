@@ -1,43 +1,28 @@
 <template>
   <div class="slide-menu" :class="{ 'slide-in': isOpen }">
     <img alt="Logo" src="../../../.. /../assets/logo_dark.png" class="logo-image-main">
-    <a href="#"><i class="bi bi-house-door"></i>&nbsp;&nbsp;Home</a>
-    <a href="#"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
-    <a href="#"><i class="bi bi-bezier2"></i>&nbsp;&nbsp;Pull reques</a>
-    <a href="#"><i class="bi bi-window-sidebar"></i>&nbsp;&nbsp;Projects</a>
-    <a href="#"><i class="bi bi-chat-square"></i>&nbsp;&nbsp;Discussions</a>
-    <a href="#"><i class="bi bi-pc-display-horizontal"></i>&nbsp;&nbsp;Codespaces</a>
-    <a href="#"><i class="bi bi-binoculars"></i>&nbsp;&nbsp;Explore</a>
-    <a href="#"><i class="bi bi-gift"></i>&nbsp;&nbsp;Marketplace</a>
+    <a href="/main"><i class="bi bi-house-door"></i>&nbsp;&nbsp;Home</a>
+    <a href="/view/users_issues"><i class="bi bi-record-circle"></i>&nbsp;&nbsp;Issues</a>
+    <a href="/view/pulls"><i class="bi bi-bezier2"></i>&nbsp;&nbsp;Pull reques</a>
     <label id="id-repo-label">Repositories</label>
     <div class="repositories">
-      <a v-for="(repo, index) in repos" :key="index" :href="'/view/' + username + '/' + repo.name">
-        <img :src="currentAvatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ username }}/{{ repo.name }}
+      <a v-for="(repo, index) in repos" :key="index" :href="'/view/' + repo.repos_owner + '/' + repo.name">
+        <img :src="repo.repos_owner_avatar" alt="Current Avatar" class="profile-picture-main" />&nbsp;&nbsp;{{ repo.repos_owner }}/{{ repo.name }}
       </a>
     </div>
   </div>
 </template>
 
 <script>
-import DeveloperService from '@/services/DeveloperService';
 import RepositoryService from '@/services/RepositoryService';
 export default {
   props: {
     isOpen: Boolean,
   },
   mounted() {
-    DeveloperService.getUserAvatar(localStorage.getItem("username"))
+    RepositoryService.getAllUserWorkingOnRepos(localStorage.getItem("username"))
           .then(res => {
-              console.log(res);
-              this.currentAvatar = res.data
-          })
-          .catch(err => {
-              console.log(err);
-          });
-
-    RepositoryService.getAllUserRepos(localStorage.getItem("username"))
-          .then(res => {
-              console.log(res);
+              // console.log(res);
               this.repos = res.data
           })
           .catch(err => {

@@ -3,20 +3,20 @@
         <table class="table mt-2">
             <thead>
                 <tr>
-                    <th scope="col" class="th-branch">Branch</th>
-                    <th scope="col" class="th-updated">Updated</th>
-                    <th scope="col" class="th-pull">Pull request</th>
-                    <th scope="col" class="th-trash"></th>
+                    <th scope="col" class="th-branch" style="background-color: #2c333b;">Branch</th>
+                    <th scope="col" class="th-updated" style="background-color: #2c333b !important;">Updated</th>
+                    <th scope="col" class="th-pull" style="background-color: #2c333b !important;">Pull request</th>
+                    <th scope="col" class="th-trash" style="background-color: #2c333b !important;"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="b in targetList" :key="b.name">
-                    <td>
+                    <td style="background-color: #22272d;">
                         <button type="button" class="btn-name px-2" @click="viewBranch(b.name)">
                             {{ b.name }}
                         </button>
                     </td>
-                    <td>
+                    <td style="background-color: #22272d;">
                         <div v-if="b.updatedAvatar !== undefined">
                             <button type="button" class="btn-avatar me-2">
                                 <img :src="b.updatedAvatar" alt="avatar" class="updated-avatar" />
@@ -24,8 +24,8 @@
                             <span class="how-long">{{ howLongAgo(b.updatedTimestamp) }}</span>
                         </div>
                     </td>
-                    <td>
-                        <button v-if="b.prStatus !== undefined" type="button" class="btn-pr">
+                    <td style="background-color: #22272d;">
+                        <button v-if="b.prStatus !== undefined" type="button" class="btn-pr" @click="goToPullRequest(b.prId)">
                             <img v-if="b.prStatus == 'Closed'" alt="pr" src="../../../assets/closed_pr_red.png"
                                 class="img-pr mb-1" />
                             <img v-if="b.prStatus == 'Open'" alt="pr" src="../../../assets/open_pr_green.png"
@@ -35,7 +35,7 @@
                             <span>#{{ b.prId }}</span>
                         </button>
                     </td>
-                    <td>
+                    <td style="background-color: #22272d;">
                         <button type="button" class="btn-trash" @click="deleteBranch(b.name)">
                             <font-awesome-icon icon="fa-regular fa-trash-can" />
                         </button>
@@ -48,6 +48,7 @@
 
 <script>
 import BranchService from '@/services/BranchService';
+import TimestampService from '@/services/TimestampService';
 import { toast } from 'vue3-toastify';
 
 export default {
@@ -61,7 +62,7 @@ export default {
         },
 
         deleteBranch(name) {
-            BranchService.deleteBranch(this.$route.params.repoName, name).then(res => {
+            BranchService.deleteBranch(this.$route.params.username, this.$route.params.repoName, name).then(res => {
                 console.log(res)
                 this.update(name);
                 toast(`Branch ${name} has been deleted`, {
@@ -81,31 +82,11 @@ export default {
         },
 
         howLongAgo(timestamp) {
-            const currentDate = new Date();
-            const previousDate = new Date(timestamp);
-            const seconds = Math.floor((currentDate - previousDate) / 1000);
-            let interval = Math.floor(seconds / 31536000);
+            return TimestampService.howLongAgo(timestamp);
+        },
 
-            if (interval >= 1) {
-                return interval + " year" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 2592000);
-            if (interval >= 1) {
-                return interval + " month" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 86400);
-            if (interval >= 1) {
-                return interval + " day" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 3600);
-            if (interval >= 1) {
-                return interval + " hour" + (interval === 1 ? "" : "s") + " ago";
-            }
-            interval = Math.floor(seconds / 60);
-            if (interval >= 1) {
-                return interval + " minute" + (interval === 1 ? "" : "s") + " ago";
-            }
-            return Math.floor(seconds) + " second" + (Math.floor(seconds) === 1 ? "" : "s") + " ago";
+        goToPullRequest(id) {
+            this.$router.push(`/view/${this.$route.params.username}/${this.$route.params.repoName}/pulls/${id}`);
         }
     }
 }
@@ -117,7 +98,7 @@ export default {
 .th-pull,
 .th-trash {
     background-color: #f7f8fa;
-    color: #656e77;
+    color: #939ea8;
     font-weight: 600;
 }
 
@@ -156,6 +137,7 @@ export default {
 
 .how-long {
     font-size: small;
+    color: #c5d1df;
 }
 
 .img-pr {

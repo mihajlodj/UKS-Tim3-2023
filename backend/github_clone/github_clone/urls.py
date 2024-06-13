@@ -30,7 +30,15 @@ urlpatterns = [
     path('developer/', include('developer.urls')),
     path('branch/', include('branch.urls')),
     path('milestone/', include('milestone.urls')),
-    path('issue/', include('issue.urls'))
+    path('pr/', include('pull_request.urls')),
+    path('commit/', include('commit.urls')),
+    path('release/', include('release.urls')),
+    path('tag/', include('tag.urls')),
+    path('issue/', include('issue.urls')),
+    path('label/', include('label.urls')),
+    path('notifications/', include('websocket.urls')),
+    path('comment/', include('comment.urls')),
+    path('reaction/', include('reaction.urls'))
 ]
 
 urlpatterns += static("/avatars/", document_root=os.path.join(BASE_DIR, 'avatars'))

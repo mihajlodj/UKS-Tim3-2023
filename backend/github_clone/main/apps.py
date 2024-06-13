@@ -6,4 +6,6 @@ class MainConfig(AppConfig):
     name = 'main'
     def ready(self):
         from scheduler import scheduler
+        print('READY')
+        import websocket.signals
         # scheduler.start()

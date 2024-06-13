@@ -10,8 +10,8 @@ gitea_base_url = settings.GITEA_BASE_URL
 access_token = settings.GITEA_ACCESS_TOKEN
 admin_username = settings.GITEA_ADMIN_USERNAME
 admin_pass = settings.GITEA_ADMIN_PASS
-# gitea_host = 'gitea'
-gitea_host = 'localhost' #for non-docker running
+gitea_host = 'gitea'
+# gitea_host = 'localhost' #for non-docker running
 
 headers = {
     'Accept': 'application/json',
@@ -21,7 +21,8 @@ headers = {
 
 def save_user(user_data):
     api_endpoint = '/api/v1/admin/users'
-    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=user_data)
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=user_data)
+    return response
 
 
 def delete_user(username):
@@ -58,6 +59,11 @@ def create_repository(repo_data, username):
 
 def get_root_content(username, repository, ref):
     api_endpoint = f'/api/v1/repos/{username}/{repository}/contents?ref={ref}'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
+
+
+def get_repo_language(username,repo):
+    api_endpoint = f'/api/v1/repos/search?q={username}/{repo}'
     return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers).json()
 
 
@@ -182,6 +188,8 @@ def create_milestone(owner, repository_name, milestone):
         'due_on': formated_due_on,
         'state': 'open' if milestone.state == MilestoneState.OPEN else 'closed',
     }
+    print(data)
+    print(api_endpoint)
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
     print(response.json())
     milestone_id = response.json()['id']
@@ -205,16 +213,43 @@ def delete_milestone_from_gitea(owner, repository_name, milestone_id):
     api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/milestones/{milestone_id}'
     requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
 
+def create_pull_request(owner, repository_name, body):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls'
+    return requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+def get_pull_request_commits(owner, repository_name, pull_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/commits?verification=false'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def get_pull_request_changed_files(owner, repository_name, pull_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/files'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def get_pull_request_diff(owner, repository_name, pull_id):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}.diff'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def get_commit_diff(owner, repository_name, sha):
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/git/commits/{sha}.diff'
+    return requests.get(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def merge_pull_request(owner, repository_name, pull_id):
+    data = { 'Do': 'merge', 'MergeCommitID': 'f55da258a202abdb26eb4be298997956b776819d', 'delete_branch_after_merge': False }
+    api_endpoint = f'/api/v1/repos/{owner}/{repository_name}/pulls/{pull_id}/merge'
+    response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=data)
+    print(response.status_code)
+
 def create_issue(owner, repo, issue):
     body = {
         'id': issue.id,
         'title': issue.title,
-        'description': issue.description,
-        'milestone': issue.milestone,
+        'body': issue.description,
         'closed': False,
         'created_at': issue.created.strftime('%Y-%m-%d') + 'T00:01:00Z',
         # 'state': 'open'
     }
+    if issue.milestone is not None:
+        body['milestone'] = issue.milestone.id
     api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues'
     response = requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
@@ -226,10 +261,26 @@ def update_issue(owner, repo, issue, index):
         'id': issue.id,
         'title': issue.title,
         'body': issue.description,
-        'milestone': issue.milestone
     }
+    if issue.milestone is not None:
+        body['milestone'] = issue.milestone.id
+
     response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
+
+
+def subscribe_user_to_issue(owner, repo, index, user):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}/subscriptions/{user}'
+    response = requests.put(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+    if response.status_code != 200 and response.status_code != 201:
+        raise Exception('Gitea didn\'t do the thing')
+
+
+def unsubscribe_user_to_issue(owner, repo, index, user):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}/subscriptions/{user}'
+    response = requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+    if response.status_code != 200 and response.status_code != 201:
+        raise Exception('Gitea didn\'t do the thing')
 
 
 def delete_issue(owner, repo, index):
@@ -253,3 +304,82 @@ def close_issue(owner, repo, issue, index):
     }
     response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
     return response.json()
+
+def reopen_issue(owner, repo, issue, index):
+    api_endpoint = f'/api/v1/repos/{owner}/{repo}/issues/{index}'
+    body = {
+        'id': issue.id,
+        'closed': False,
+        'state': 'open'
+    }
+    response = requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+    return response.json()
+
+def add_collaborator(owner_username, repository_name, collaborator_username, permission='write'):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/collaborators/{collaborator_username}'
+    body = {'permission': permission}
+    requests.put(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+def delete_collaborator(owner_username, repository_name, collaborator_username):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/collaborators/{collaborator_username}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+def change_collaborator_role(owner_username, repository_name, collaborator_username, permission='write'):
+    delete_collaborator(owner_username, repository_name, collaborator_username)
+    add_collaborator(owner_username, repository_name, collaborator_username, permission)
+
+def transfer_ownership(owner_username, repository_name, new_owner_username):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/transfer'
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json={'new_owner': new_owner_username})
+
+def fork(owner_username, repository_name, new_owner_username, forked_repository_name):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/forks'
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json={'name': forked_repository_name})
+    add_collaborator(admin_username, forked_repository_name, new_owner_username)
+    transfer_ownership(admin_username, forked_repository_name, new_owner_username)
+
+
+def create_tag(owner_username, repository_name, tag, branch_name):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/tags'
+    body = {
+        'tag_name': tag.name,
+        'target': branch_name
+    }
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+
+def delete_tag(owner_username, repository_name, tag_name):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/tags/{tag_name}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+
+
+def create_new_release(owner_username, repository_name, release):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases'
+    body = {
+        'body': release.description,
+        'name': release.title,
+        'prerelease': release.pre_release,
+        'tag_name': release.tag.name,
+        'draft': release.draft,
+        'commit': release.commit.hash
+    }
+    requests.post(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+
+def update_release(owner_username, repository_name, release):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'
+    body = {
+        'body': release.description,
+        'name': release.title,
+        'prerelease': release.pre_release,
+        'tag_name': release.tag.name,
+        'draft': release.draft,
+        'target_commitish': release.commit.hash
+    }
+    requests.patch(f'http://{gitea_host}:3000{api_endpoint}', headers=headers, json=body)
+
+
+def delete_release(owner_username, repository_name, release):
+    api_endpoint = f'/api/v1/repos/{owner_username}/{repository_name}/releases/{release.id}'
+    requests.delete(f'http://{gitea_host}:3000{api_endpoint}', headers=headers)
+

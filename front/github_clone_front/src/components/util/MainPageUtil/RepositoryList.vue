@@ -6,8 +6,8 @@
       <div id="top-repo">
         <label id="repositories-id">Top repositories</label>
       </div>
-      <div id="btn-new-repo">
-        <button type="button" class="new-repo-btn"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
+      <div id="btn-new-repo" class="d-flex align-items-center justify-content-end w-100">
+        <button type="button" class="new-repo-btn" style="min-width: 60px; min-height: 25px; margin-bottom: 5px;" @click="createNewRepo"><i class="bi bi-journal-plus"></i> &nbsp;New</button>
       </div>
     </div>
     <div id="search-bar-div">
@@ -15,8 +15,8 @@
       </div>
     <ul class="repo-ul">
       <li class="repo-li" v-for="repo in filteredRepositories" :key="repo.id" >
-        <img :src="currentAvatar" alt="Current Avatar"  class="profile-picture-main" />
-        <a :href="'/view/' + username +'/' + repo.name">{{ username + '/' + repo.name }}</a>
+        <img :src="repo.repos_owner_avatar" alt="Current Avatar"  class="profile-picture-main" />
+        <a :href="'/view/' + repo.repos_owner +'/' + repo.name" class="links-pretty">{{ repo.repos_owner + '/' + repo.name }}</a>
       </li>
     </ul>
   </div>
@@ -28,6 +28,11 @@ import DeveloperService from '@/services/DeveloperService';
 export default {
   props: {
     repositories: Array,
+  },
+  methods: {
+    createNewRepo(){
+      this.$router.push({path: '/new'}) 
+    }
   },
   mounted() {
     DeveloperService.getUserAvatar(localStorage.getItem("username"))
@@ -71,19 +76,19 @@ export default {
 
 #top-repo{
   float: left;
-}
-#new-repo-btn{
-  float: left;
+  min-width: 120px;
 }
 
 .search-bar {
   margin-bottom: 0.5rem;
-  padding: 0.1rem;
-  font-size: 9px;
-  background: black;
+  padding: 0.2rem;
+  font-size: 12px;
+  background: #1c2127;
   border:none;
   color: white;
   width: 100%;
+  border-radius: 3px;
+  border: 1px solid #53575a;
 }
 
 .new-repo-btn{
@@ -124,6 +129,14 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+.links-pretty{
+  background: none;
+  color: white;
+  width: 90%;
+  padding: 5px;
+  text-decoration: none;
 }
 
 #profile-name {

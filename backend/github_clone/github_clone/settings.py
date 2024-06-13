@@ -42,6 +42,8 @@ GITEA_ADMIN_PASS = os.environ.get("GITEA_ADMIN_PASS")
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'main.apps.MainConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -94,12 +96,21 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'github_clone.wsgi.application'
+# WSGI_APPLICATION = 'github_clone.wsgi.application'
+
+ASGI_APPLICATION = 'github_clone.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#for doceker use
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -146,6 +157,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
+ACTIVE_ORIGIN = "http://localhost"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
@@ -167,9 +179,10 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=720),
 }
 
+# hmm mozda je i ovo za dokertizovano koriscenje
 CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -187,7 +200,7 @@ CACHES = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Belgrade'
 
 USE_I18N = True
 
