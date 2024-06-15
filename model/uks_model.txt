@@ -1,126 +1,455 @@
-@startuml
-class Project {
-name: String
-access_modifier: AccessModifiers 
+@startuml 
+class EventHistory{
+    event history
+    --
+    + id (BigAutoField)
+    + time (DateTimeField)
+    + text (TextField)
+    + related_id (IntegerField)
+    + type (CharField)
+    ~ project (ForeignKey)
+    --
+}
+EventHistory -- Project
+
+class User{
+    user
+    --
+    + id (BigAutoField)
+    + username (CharField)
+    + password (CharField)
+    + first_name (CharField)
+    + last_name (CharField)
+    + email (CharField)
+    --
 }
 
-enum AccessModifiers {
-Private
-Public
+
+class Event{
+    event
+    --
+    + id (BigAutoField)
+    + time (DateTimeField)
+    ~ caused_by (ForeignKey)
+    ~ issue (ForeignKey)
+    ~ milestone (ForeignKey)
+    ~ pull_request (ForeignKey)
+    --
 }
+Event -- Developer
+Event -- Issue
+Event -- Milestone
+Event -- PullRequest
 
-class Branch {
-name: String
+
+class SecondaryEmail{
+    secondary email
+    --
+    + id (BigAutoField)
+    ~ developer (ForeignKey)
+    + email (EmailField)
+    + primary (BooleanField)
+    + verified (BooleanField)
+    --
 }
+SecondaryEmail -- Developer
 
-class Commit {
-hash: String
+
+class Developer{
+    developer
+    --
+    + id (BigAutoField)
+    ~ user (OneToOneField)
+    + gitea_token (CharField)
+    + avatar (CharField)
+    + banned (BooleanField)
+    --
 }
+Developer -- User
 
-class Developer {
-name: String
-email: EMail
-id: Integer
+
+class Assignment{
+    assignment
+    --
+    + id (BigAutoField)
+    + time (DateTimeField)
+    ~ caused_by (ForeignKey)
+    ~ issue (ForeignKey)
+    ~ milestone (ForeignKey)
+    ~ pull_request (ForeignKey)
+    ~ event_ptr (OneToOneField)
+    ~ developer (ForeignKey)
+    --
 }
+Assignment -- Developer
+Assignment -- Issue
+Assignment -- Milestone
+Assignment -- PullRequest
+Assignment -- Event
+Assignment -- Developer
 
-Project "*" -- "*" Developer : watches
-Project "*" -- "*" Developer : stars
-Project "*" -- "*" Developer : fork
-Project "1" -- "1" Branch : default_branch
-Project "1" -- "*" Branch : branches
 
-class Issue {
-id: Integer
-title: String
-description: String
+class Task{
+    task
+    --
+    + id (BigAutoField)
+    + title (CharField)
+    ~ developer (ForeignKey)
+    ~ issue (ForeignKey)
+    --
 }
+Task -- Developer
+Task -- Issue
 
-Issue "*" -- "1" Developer : manager
 
-class Task {
-id: Integer
-title: String
+class Project{
+    project
+    --
+    + id (BigAutoField)
+    + name (CharField)
+    + description (TextField)
+    + access_modifier (CharField)
+    + timestamp (DateTimeField)
+    ~ default_branch (OneToOneField)
+    --
 }
-
-Issue *-- "*" Task: contains
-Task "*" -- "1" Developer : solves
-
-class Milestone {
-deadline: Date
-}
-
-Project *-- "*" Milestone
-Milestone *-- "*" Issue
-
-class Comment {
-content: String
-}
-Comment "0..1" *-- "*" Comment : parent
+Project -- Branch
 
 
 class Tag {
-name: String
+    tag
+    --
+    + id (BigAutoField)
+    + time (DateTimeField)
+    ~ caused_by (ForeignKey)
+    ~ issue (ForeignKey)
+    ~ milestone (ForeignKey)
+    ~ pull_request (ForeignKey)
+    ~ event_ptr (OneToOneField)
+    + name (CharField)
+    ~ project (ForeignKey)
+    --
 }
+Tag -- Developer
+Tag -- Issue
+Tag -- Milestone
+Tag -- PullRequest
+Tag -- Event
+Tag -- Project
 
-class Reaction {
-code: String
+
+class Label{
+    label
+    --
+    + id (BigAutoField)
+    + name (CharField)
+    + description (CharField)
+    ~ project (ForeignKey)
+    --
 }
+Label -- Project
 
-Developer "1" *-- "*" Reaction
-Comment "1" *-- "*" Reaction
 
-Tag "*" -- "*" Commit
-Developer -- Commit : author
-Developer -- Commit : Commiter
-Commit "1..*" -- "1..*" Branch : belongs_to
-
-class Event {
-time: DateTime
+class Issue{
+    issue
+    --
+    + id (BigAutoField)
+    + created (DateTimeField)
+    + title (CharField)
+    + description (TextField)
+    ~ creator (ForeignKey)
+    ~ milestone (ForeignKey)
+    ~ project (ForeignKey)
+    + open (BooleanField)
+    # manager (ManyToManyField)
+    # labels (ManyToManyField)
+    --
 }
+Issue -- Developer
+Issue -- Milestone
+Issue -- Project
+Issue *--* Developer
+Issue *--* Label
 
-class Assignment {
 
+class Branch{
+    branch
+    --
+    + id (BigAutoField)
+    + name (CharField)
+    ~ project (ForeignKey)
+    ~ parent (ForeignKey)
+    ~ created_by (ForeignKey)
+    --
 }
-Assignment --|> Event
-Assignment "*" -- "1"  Developer: developer
+Branch -- Project
+Branch -- Branch
+Branch -- Developer
 
-class ContentChanged {
-new_content: String
+
+class Commit{
+    commit
+    --
+    + id (BigAutoField)
+    + hash (CharField)
+    ~ author (ForeignKey)
+    ~ committer (ForeignKey)
+    ~ branch (ForeignKey)
+    + timestamp (DateTimeField)
+    + message (TextField)
+    + additional_description (TextField)
+    # tags (ManyToManyField)
+    --
 }
+Commit -- Developer
+Commit -- Developer
+Commit -- Branch
+Commit *--* Tag
 
-ContentChanged --|> Event
-ContentChanged "*"-- "1" Developer : changer
 
-Developer *-- "*" Event : caused
-Comment --|> Event
-Tag --|> Event
-Event "*" --* Issue
-Milestone *-- "*" Event
-PullRequest *-- "*" Event
+class Release{
+    release
+    --
+    + id (BigAutoField)
+    + title (CharField)
+    + description (CharField)
+    ~ target (ForeignKey)
+    + pre_release (BooleanField)
+    + draft (BooleanField)
+    ~ tag (OneToOneField)
+    ~ commit (ForeignKey)
+    ~ project (ForeignKey)
+    --
+}
+Release -- Branch
+Release -- Tag
+Release -- Commit
+Release -- Project
+
+
+class Milestone{
+    milestone
+    --
+    + id (BigAutoField)
+    + deadline (DateField)
+    ~ project (ForeignKey)
+    + title (CharField)
+    + description (TextField)
+    + state (CharField)
+    + id_from_gitea (IntegerField)
+    # labels (ManyToManyField)
+    --
+}
+Milestone -- Project
+Milestone *--* Label
+
+
+class Comment{
+    comment
+    --
+    + id (BigAutoField)
+    + time (DateTimeField)
+    ~ caused_by (ForeignKey)
+    ~ issue (ForeignKey)
+    ~ milestone (ForeignKey)
+    ~ pull_request (ForeignKey)
+    ~ event_ptr (OneToOneField)
+    + content (TextField)
+    ~ parent (ForeignKey)
+    --
+}
+Comment -- Developer
+Comment -- Issue
+Comment -- Milestone
+Comment -- PullRequest
+Comment -- Event
+Comment -- Comment
+
+
+class Reaction{
+    reaction
+    --
+    + id (BigAutoField)
+    + code (CharField)
+    ~ developer (ForeignKey)
+    ~ comment (ForeignKey)
+    --
+}
+Reaction -- Developer
+Reaction -- Comment
+
+
+class ContentChanged{
+    content changed
+    --
+    + id (BigAutoField)
+    + time (DateTimeField)
+    ~ caused_by (ForeignKey)
+    ~ issue (ForeignKey)
+    ~ milestone (ForeignKey)
+    ~ pull_request (ForeignKey)
+    ~ event_ptr (OneToOneField)
+    + new_content (TextField)
+    ~ changer (ForeignKey)
+    --
+}
+ContentChanged -- Developer
+ContentChanged -- Issue
+ContentChanged -- Milestone
+ContentChanged -- PullRequest
+ContentChanged -- Event
+ContentChanged -- Developer
+
 
 class WorksOn {
-role: Role
+    works on
+    --
+    + id (BigAutoField)
+    + role (CharField)
+    ~ developer (ForeignKey)
+    ~ project (ForeignKey)
+    --
 }
-
-enum Role {
-Admin
-Unregistered
-Reporter
-Developer
-Maintainer
-Owner
-IsBanned
-}
-
 WorksOn -- Developer
 WorksOn -- Project
+
+
+class Watches{
+    watches
+    --
+    + id (BigAutoField)
+    ~ developer (ForeignKey)
+    ~ project (ForeignKey)
+    + option (CharField)
+    + issue_events (BooleanField)
+    + pull_events (BooleanField)
+    + release_events (BooleanField)
+    --
+}
+Watches -- Developer
+Watches -- Project
+
+
+class Fork{
+    fork
+    --
+    + id (BigAutoField)
+    ~ developer (ForeignKey)
+    ~ source (ForeignKey)
+    ~ destination (ForeignKey)
+    --
+}
+Fork -- Developer
+Fork -- Project
+Fork -- Project
+
+
+class Stars{
+    stars
+    --
+    + id (BigAutoField)
+    ~ developer (ForeignKey)
+    ~ project (ForeignKey)
+    --
+}
+Stars -- Developer
+Stars -- Project
+
+
 class PullRequest {
+    pull request
+    --
+    + id (BigAutoField)
+    ~ source (ForeignKey)
+    ~ target (ForeignKey)
+    ~ project (ForeignKey)
+    ~ author (ForeignKey)
+    ~ assignee (ForeignKey)
+    ~ milestone (ForeignKey)
+    + status (CharField)
+    + timestamp (DateTimeField)
+    + title (CharField)
+    + description (TextField)
+    + gitea_id (IntegerField)
+    + mergeable (BooleanField)
+    ~ merged_by (ForeignKey)
+    # reviewers (ManyToManyField)
+    # labels (ManyToManyField)
+    --
+}
+PullRequest -- Branch
+PullRequest -- Branch
+PullRequest -- Project
+PullRequest -- Developer
+PullRequest -- Developer
+PullRequest -- Milestone
+PullRequest -- Developer
+PullRequest *--* Developer
+PullRequest *--* Label
+
+
+class RegistrationCandidate{
+    registration candidate
+    --
+    + id (BigAutoField)
+    ~ user (OneToOneField)
+    + code (CharField)
+    + created_at (DateTimeField)
+    --
+}
+RegistrationCandidate -- User
+
+
+class Invitation{
+    invitation
+    --
+    + id (BigAutoField)
+    ~ developer (ForeignKey)
+    ~ project (ForeignKey)
+    + role (CharField)
+    + timestamp (DateTimeField)
+    --
+}
+Invitation -- Developer
+Invitation -- Project
+
+
+class Notification {
+    notification
+    --
+    + id (BigAutoField)
+    + sent_to (CharField)
+    + message (CharField)
+    + is_read (BooleanField)
+    + timestamp (DateTimeField)
+    --
 }
 
-PullRequest --> Branch : source
-PullRequest --> Branch : target
-Project *-- "*" PullRequest
-PullRequest "*" -- "1" Developer : author
-PullRequest "*" -- "1..*" Developer : reviewer
-Branch "*" --> "1" Branch : parent
+
+class PullRequestReviewer{
+    pull request reviewer
+    --
+    + id (BigAutoField)
+    ~ pull_request (ForeignKey)
+    ~ reviewer (ForeignKey)
+    --
+}
+PullRequestReviewer -- PullRequest
+PullRequestReviewer -- Developer
+
+
+class PullRequestReview{
+    pull request review
+    --
+    + id (BigAutoField)
+    ~ pull_request (ForeignKey)
+    ~ reviewer (ForeignKey)
+    + comment (TextField)
+    + status (CharField)
+    + timestamp (DateTimeField)
+    --
+}
+PullRequestReview -- PullRequest
+PullRequestReview -- Developer
+
 @enduml
